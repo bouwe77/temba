@@ -1,7 +1,7 @@
 const resources = ["songs"];
 
 function validateResource(req, _, next) {
-  const { resource } = req.maklik;
+  const { resource } = req.requestInfo;
 
   if (!resource) return next();
 

@@ -3,9 +3,9 @@ const { parseUrl } = require("../urlParser");
 function getResourceAndId(req, res, next) {
   let urlInfo = parseUrl(req.url);
 
-  req.maklik = { ...req.maklik, ...urlInfo };
+  req.requestInfo = { ...req.requestInfo, ...urlInfo };
 
-  console.log(req.maklik);
+  console.log(req.requestInfo);
 
   return next();
 }

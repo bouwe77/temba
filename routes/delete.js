@@ -1,7 +1,7 @@
 const query = require("../data/queries");
 
 async function handleDelete(req, res) {
-  const { resource, id } = req.maklik;
+  const { resource, id } = req.requestInfo;
 
   if (id) {
     const item = await query.getById(resource, id);

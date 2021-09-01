@@ -1,5 +1,5 @@
 function validateId(req, res, next) {
-  const { id } = req.maklik;
+  const { id } = req.requestInfo;
 
   if (id && id.length !== 36) {
     const error = new Error(`ID '${id}' not found`);

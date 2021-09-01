@@ -1,5 +1,5 @@
 {
-  "name": "maklik",
+  "name": "soksawat",
   "version": "0.1.0",
   "description": "",
   "main": "server.js",
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "maklik"
+    "url": "soksawat"
   },
   "author": "Bouwe",
   "license": "ISC",

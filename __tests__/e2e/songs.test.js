@@ -2,6 +2,11 @@ const fetch = require("node-fetch");
 
 const { hostname } = require("./_config");
 
+//TODO PUT 404
+//TODO DELETE 404
+//TODO POST id meegeven in body mag, maar wordt genegeerd
+//TODO PUT id meegeven in body mag, maar wordt genegeerd
+
 test("Create, update and delete a song", async () => {
   // Delete all songs.
   const deleteAllResponse = await fetch(hostname + "/songs", {

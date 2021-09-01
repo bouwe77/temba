@@ -1,7 +1,7 @@
 const query = require("../data/queries");
 
 async function handlePost(req, res) {
-  const { resource, id } = req.maklik;
+  const { resource, id } = req.requestInfo;
 
   const newItem = await query.create(resource, req.body);
 
