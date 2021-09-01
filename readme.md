@@ -2,22 +2,32 @@
 
 ## Introduction
 
-Get a full REST API with zero coding in less than 30 seconds (seriously). For developers who need a quick back-end for their hobby projects.
+Get a full REST API with zero coding in less than 30 seconds (seriously). For developers who need a quick back-end for their small and/or hobby projects.
 
 Powered by NodeJS, Express and MongoDB.
 
-Inspired by json-server although instead of a JSON file, Soksawat is backed by a database. However, it is pretty similar. The goal is to get you started very fast and the database is used as a simple key value store of JSON documents.
+This project is inspired by json-server, but instead of a JSON file it uses a real database. The goal, however, is the same: Get you started with a REST API very fast.
+
+The database is used as a key-value store, so every resource is a JSON document, which is read and updated in its entirety.
 
 ## Which problem does it solve?
 
-The problem Soksawat solves compared to a JSON file solution is that you are less dependent on the hosting solution you choose for your app. For example, hosting json-server on GitHub Pages means your API is readonly, mutations aren't persisted. Hosting json-server on Heroku does give you persistence, but is not reliable because of the [temporary lifetime](https://devcenter.heroku.com/articles/dynos#ephemeral-filesystem) of your app (and therefore JSON data) on their filesystem.
+The problem with JSON file solutions is the limitations you have when hosting your app.
+
+For example, hosting json-server on GitHub Pages means your API is essentially readonly, because although mutations are supported, your data is not really persisted.
+
+And hosting json-server on Heroku does give you persistence, but is not reliable because of its [ephemeral filesystem](https://devcenter.heroku.com/articles/dynos#ephemeral-filesystem).
+
+If this is a problem for you, and you don't mind having a database, you might want to try Soksawat.
 
 # Getting Started
 
 Prerequisites you need to have:
 
 - Node, NPM
-- A MongoDB database, either locally or in the cloud
+- Optional: A MongoDB database, either locally or in the cloud
+
+If you don't have a MongoDB (yet) Soksawat works with an in memory data which is flushed everytime the server is restarted.
 
 Now follow these steps to get soksawat up and running:
 
@@ -25,7 +35,7 @@ Now follow these steps to get soksawat up and running:
 
 2. `npm i ci`
 
-3. Rename the `.env.example` to `.env` and add your MongoDB connection settings
+3. Optional: Rename the `.env.example` to `.env` and add your MongoDB connection settings
 
 4. Edit `config.js` to enter the resource names you want to support
 
@@ -33,26 +43,20 @@ Now follow these steps to get soksawat up and running:
 
 6. Open your favorite HTTP client and start requesting data!
 
-## When to use
+## Documentation
 
-...
+Once you have the app up and running you can do CRUD requests to the resources you have configured in `config.js`.
 
-The following requests are supported:
+So let's say one of the resources you have configured is called `articles`. Then the following requests are supported:
 
-- GET /resource
-- GET /resource/:id
-- POST /resource
-- PUT /resource/:id
-- DELETE /resource
-- DELETE /resource/:id
+- `GET /articles` - Get all articles
+- `GET /articles/:id` - Get an article by its ID
+- `POST /articles` - Create a new article
+- `PUT /articles/:id` - Update (fully replace) an article by its ID
+- `DELETE /articles` - Delete all articles
+- `DELETE /articles/:id` - Delete an article by its ID
 
 Partial updates using PATCH, or other HTTP methods are not (yet?) supported.
-
-## When NOT to use
-
-Soksawat is very limited in its functionality and this is mostly deliberate to keep it simple. It should not be used as an enterprise solution.
-
-### No model validation (yet)
 
 At the moment Soksawat does not have any model validation, so you can store your resources in any format you like.
 
@@ -72,25 +76,24 @@ POST /articles
 }
 ```
 
-### No auth (yet)
+If you request a resource (URI) that does not exist, a `404 Not Found` response is returned.
 
-Soksawat offers no ways for authentication or authorization, so if someone knows how to reach the API, they can read and mutate all your data.
+Soksawat only supports JSON. If you send a request with invalid formatted JSON, a `400 Bad Request` response is returned.
 
-# Features
+If you use an HTTP method that is not supported (everything but GET, POST, PUT and DELETE), a `405 Method Not Allowed` response is returned.
 
-Current:
-...
+On the root URI (e.g. http://localhost:8080/) only a GET request is supported, which shows you a message the API is working. All other HTTP methods on the root URI return a `405 Method Not Allowed` response.
 
-Upcoming:
-...
+Soksawat offers no ways for authentication or authorization (yet?), so if someone knows how to reach the API, they can read and mutate all your data, unless you restrict this in another way.
 
-Not (and never will be) supported:
-...
+Also nested routes are not supported (yet?), so every URI has the /:resource/:id structure and there is no way to indicate any relation, apart from within the JSON itself perhaps.
+
+## When NOT to use
+
+As you've read, Soksawat is very limited in its functionality and this is mostly deliberate to keep it simple. It is not meant as an enterprise solution.
+
+However, because it uses a database instead of JSON file, it may be a quite robust solution for your use case.
 
 # Under the hood
 
-...
-
-# Roadmap
-
-...
+Soksawat is built with JavaScript, Node and Express.
