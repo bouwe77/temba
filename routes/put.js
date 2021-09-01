@@ -1,20 +1,13 @@
 const query = require("../data/queries");
+const { get404NotFoundError } = require("./../errors");
 
 async function handlePut(req, res) {
   const { resource, id } = req.maklik;
 
-  if (!id) {
-    const error = new Error("bla bla");
-    error.status = 404;
-    next(error);
-  }
+  let item = null;
+  if (id) item = await query.getById(resource, id);
 
-  let item = await query.getById(resource, id);
-  if (!item) {
-    const error = new Error("bla bla");
-    error.status = 404;
-    next(error);
-  }
+  if (!item) next(get404NotFoundError(`ID '${id}' not found`));
 
   item = req.body;
 

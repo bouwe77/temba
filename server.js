@@ -1,7 +1,7 @@
-const { getResourceAndId } = require("./middleware/getResourceAndId");
-const { errorHandler } = require("./middleware/errorHandler");
-const { validateResource } = require("./middleware/validateResource");
-const { validateId } = require("./middleware/validateId");
+const { getResourceAndId } = require("./urls/middleware/getResourceAndId");
+const { errorHandler } = require("./errors/middleware/errorHandler");
+const { validateResource } = require("./urls/middleware/validateResource");
+const { validateId } = require("./urls/middleware/validateId");
 
 const { handleGet, handlePost, handlePut, handleDelete } = require("./routes");
 
