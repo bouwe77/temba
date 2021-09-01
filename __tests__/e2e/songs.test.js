@@ -1,9 +1,10 @@
 const fetch = require("node-fetch");
 
-const { hostname } = require("./_config");
+const { hostname } = require("../_config");
 
-//TODO PUT 404
-//TODO DELETE 404
+//TODO GET/:id 404
+//TODO PUT/:id 404
+//TODO DELETE/:id 404
 //TODO POST id meegeven in body mag, maar wordt genegeerd
 //TODO PUT id meegeven in body mag, maar wordt genegeerd
 

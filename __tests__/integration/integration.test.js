@@ -1,6 +1,8 @@
+// These tests check the routers and middleware and do not reach the database.
+
 const fetch = require("node-fetch");
 
-const { hostname } = require("./_config");
+const { hostname } = require("../_config");
 
 test("GET on root URL returns welcome text", async () => {
   const response = await fetch(hostname);
