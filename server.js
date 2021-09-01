@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const { getResourceAndId } = require("./urls/middleware/getResourceAndId");
 const { errorHandler } = require("./errors/middleware/errorHandler");
 const { validateResource } = require("./urls/middleware/validateResource");
@@ -42,7 +44,7 @@ app.all("*", handleMethodNotAllowed);
 app.use(errorHandler);
 
 // Start the HTTP server.
-const port = 4467;
+const port = process.env.PORT || 8080;
 app.listen(port, () => {
   console.log(`🚀 http://localhost:${port}`);
 });
