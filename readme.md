@@ -88,11 +88,11 @@ Soksawat only supports JSON. If you send a request with invalid formatted JSON, 
 
 If you use an HTTP method that is not supported (everything but `GET`, `POST`, `PUT` and `DELETE`), a `405 Method Not Allowed` response is returned.
 
-On the root URI (e.g. http://localhost:8080/) only a `GET` request is supported, which shows you a message the API is working. All other HTTP methods on the root URI return a `405 Method Not Allowed` response.
+On the root URI (e.g. http://localhost:8080/) only a `GET` request is supported, which shows you a message indicating the API is working. All other HTTP methods on the root URI return a `405 Method Not Allowed` response.
 
 Soksawat offers no ways for authentication or authorization (yet?), so if someone knows how to reach the API, they can read and mutate all your data, unless you restrict this in another way.
 
-Also nested nested (parent-child) are not supported (yet?), so every URI has the /:resource/:id structure and there is no way to indicate any relation, apart from within the JSON itself perhaps.
+Also nested (parent-child) are not supported (yet?), so every URI has the /:resource/:id structure and there is no way to indicate any relation, apart from within the JSON itself perhaps.
 
 Also there is no filtering, sorting, searching, custom routes, etc. (yet?).
 
