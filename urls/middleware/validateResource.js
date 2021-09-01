@@ -1,4 +1,4 @@
-const resources = ["songs"];
+const { resources } = require("../../config");
 
 function validateResource(req, _, next) {
   const { resource } = req.requestInfo;
