@@ -6,19 +6,19 @@ Get a full REST API with zero coding in less than 30 seconds (seriously). For de
 
 Powered by NodeJS, Express and MongoDB.
 
-This project is inspired by json-server, but instead of a JSON file it uses a real database. The goal, however, is the same: Get you started with a REST API very fast.
+This project is inspired by [json-server](https://github.com/typicode/json-server), but instead of a JSON file it uses a real database. The goal, however, is the same: Get you started with a REST API very fast.
 
 The database is used as a key-value store, so every resource is a JSON document, which is read and updated in its entirety.
 
 ## Which problem does it solve?
 
-The problem with JSON file solutions is the limitations you have when hosting your app.
+The problem with JSON file solutions like json-server is the limitations you have when hosting your app.
 
 For example, hosting json-server on GitHub Pages means your API is essentially readonly, because although mutations are supported, your data is not really persisted.
 
 And hosting json-server on Heroku does give you persistence, but is not reliable because of its [ephemeral filesystem](https://devcenter.heroku.com/articles/dynos#ephemeral-filesystem).
 
-If this is a problem for you, and you don't mind having a database, you might want to try Soksawat.
+These limitations are the whole idea behind json-server, but if you want more and don't mind having a database, you might want to try Soksawat.
 
 # Getting Started
 
@@ -27,7 +27,7 @@ Prerequisites you need to have:
 - Node, NPM
 - Optional: A MongoDB database, either locally or in the cloud
 
-If you don't have a MongoDB (yet) Soksawat works with an in memory data which is flushed everytime the server is restarted.
+If you don't have a MongoDB (yet) Soksawat works with in memory data which is flushed everytime the server is restarted. This is good enough to give Soksawat a quick try.
 
 Now follow these steps to get soksawat up and running:
 
@@ -86,13 +86,15 @@ On the root URI (e.g. http://localhost:8080/) only a GET request is supported, w
 
 Soksawat offers no ways for authentication or authorization (yet?), so if someone knows how to reach the API, they can read and mutate all your data, unless you restrict this in another way.
 
-Also nested routes are not supported (yet?), so every URI has the /:resource/:id structure and there is no way to indicate any relation, apart from within the JSON itself perhaps.
+Also nested nested (parent-child) are not supported (yet?), so every URI has the /:resource/:id structure and there is no way to indicate any relation, apart from within the JSON itself perhaps.
+
+There is no filtering, sorting, searching, custom routes, etc.
 
 ## When NOT to use
 
-As you've read, Soksawat is very limited in its functionality and this is mostly deliberate to keep it simple. It is not meant as an enterprise solution.
+As you've read, Soksawat is very, very, limited in its functionality and this is mostly deliberate to keep it simple. It is not meant as an enterprise solution.
 
-However, because it uses a database instead of JSON file, it may be a quite robust solution for your use case.
+However, because it uses a database instead of a JSON file, it may be a quite robust solution for your use case.
 
 # Under the hood
 
