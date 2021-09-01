@@ -18,7 +18,7 @@ For example, hosting json-server on GitHub Pages means your API is essentially r
 
 And hosting json-server on Heroku does give you persistence, but is not reliable because of its [ephemeral filesystem](https://devcenter.heroku.com/articles/dynos#ephemeral-filesystem).
 
-These limitations are the whole idea behind json-server, but if you want more and don't mind having a database, you might want to try Soksawat.
+These limitations are the whole idea behind json-server, but if you don't like the persistence limitation and don't mind having a database, you might want to try Soksawat.
 
 # Getting Started
 
@@ -45,9 +45,13 @@ Now follow these steps to get soksawat up and running:
 
 ## Documentation
 
-Once you have the app up and running you can do CRUD requests to the resources you have configured in `config.js`.
+Once you have the app up and running you can do CRUD requests to the resources you have configured in `config.js`:
 
-So let's say one of the resources you have configured is called `articles`. Then the following requests are supported:
+```js
+const resourceNames = ["articles", "authors"];
+```
+
+So let's say we want to use the `articles` resource, then the following requests are supported:
 
 - `GET /articles` - Get all articles
 - `GET /articles/:id` - Get an article by its ID
@@ -56,11 +60,11 @@ So let's say one of the resources you have configured is called `articles`. Then
 - `DELETE /articles` - Delete all articles
 - `DELETE /articles/:id` - Delete an article by its ID
 
-Partial updates using PATCH, or other HTTP methods are not (yet?) supported.
+Partial updates using `PATCH`, or other HTTP methods are not (yet?) supported.
 
-At the moment Soksawat does not have any model validation, so you can store your resources in any format you like.
+When sending JSON data (`POST` and `PUT` requests), adding a `Content-Type: application/json` header is required.
 
-For example, creating the following two (very different) articles just works:
+At the moment Soksawat does not have any model validation, so you can store your resources in any format you like. So for example, creating the following two (very different) articles just works:
 
 ```
 POST /articles
@@ -80,9 +84,9 @@ If you request a resource (URI) that does not exist, a `404 Not Found` response 
 
 Soksawat only supports JSON. If you send a request with invalid formatted JSON, a `400 Bad Request` response is returned.
 
-If you use an HTTP method that is not supported (everything but GET, POST, PUT and DELETE), a `405 Method Not Allowed` response is returned.
+If you use an HTTP method that is not supported (everything but `GET`, `POST`, `PUT` and `DELETE`), a `405 Method Not Allowed` response is returned.
 
-On the root URI (e.g. http://localhost:8080/) only a GET request is supported, which shows you a message the API is working. All other HTTP methods on the root URI return a `405 Method Not Allowed` response.
+On the root URI (e.g. http://localhost:8080/) only a `GET` request is supported, which shows you a message the API is working. All other HTTP methods on the root URI return a `405 Method Not Allowed` response.
 
 Soksawat offers no ways for authentication or authorization (yet?), so if someone knows how to reach the API, they can read and mutate all your data, unless you restrict this in another way.
 
