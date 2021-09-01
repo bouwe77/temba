@@ -7,7 +7,7 @@ async function handlePut(req, res) {
   let item = null;
   if (id) item = await query.getById(resource, id);
 
-  if (!item) next(get404NotFoundError(`ID '${id}' not found`));
+  if (!item) return next(get404NotFoundError(`ID '${id}' not found`));
 
   item = req.body;
 

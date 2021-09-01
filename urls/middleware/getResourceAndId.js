@@ -1,18 +1,13 @@
 const { parseUrl } = require("../urlParser");
 
 function getResourceAndId(req, res, next) {
-  let urlInfo;
-  try {
-    urlInfo = parseUrl(req.url);
-  } catch (error) {
-    next(error);
-  }
+  let urlInfo = parseUrl(req.url);
 
   req.maklik = { ...req.maklik, ...urlInfo };
 
   console.log(req.maklik);
 
-  next();
+  return next();
 }
 
 module.exports = { getResourceAndId };

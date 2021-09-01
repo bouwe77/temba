@@ -5,10 +5,10 @@ function validateId(req, res, next) {
     const error = new Error(`ID '${id}' not found`);
     error.status = 404;
     console.log(error.message);
-    next(error);
+    return next(error);
   }
 
-  next();
+  return next();
 }
 
 module.exports = { validateId };

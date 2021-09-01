@@ -1,5 +1,3 @@
-const { new404NotFoundError } = require("../errors");
-
 function parseUrl(url) {
   if (!url || (url && !url.trim())) return { resource: null, id: null };
 

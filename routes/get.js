@@ -1,6 +1,6 @@
 const query = require("../data/queries");
 
-async function handleGet(req, res) {
+async function handleGetResource(req, res) {
   const { resource, id } = req.maklik;
 
   if (id) {
@@ -16,4 +16,8 @@ async function handleGet(req, res) {
   res.send();
 }
 
-module.exports = handleGet;
+function handleGetDefaultPage(_, res) {
+  res.send("It works! (ツ)");
+}
+
+module.exports = { handleGetResource, handleGetDefaultPage };
