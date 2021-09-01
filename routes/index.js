@@ -4,7 +4,7 @@ const handlePut = require("./put");
 const handleDelete = require("./delete");
 
 function handleMethodNotAllowed(req, res) {
-  res.status(405).send("Method Not Allowed");
+  res.status(405).json({ message: "Method Not Allowed" });
 }
 
 module.exports = {

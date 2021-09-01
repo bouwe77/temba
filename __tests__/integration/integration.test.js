@@ -20,8 +20,8 @@ test("POST on root URL returns Method Not Allowed error", async () => {
 
   expect(response.status).toBe(405);
 
-  const text = await response.text();
-  expect(text).toBe("Method Not Allowed");
+  const json = await response.json();
+  expect(json.message).toBe("Method Not Allowed");
 });
 
 test("PUT on root URL returns Method Not Allowed error", async () => {
@@ -31,8 +31,8 @@ test("PUT on root URL returns Method Not Allowed error", async () => {
 
   expect(response.status).toBe(405);
 
-  const text = await response.text();
-  expect(text).toBe("Method Not Allowed");
+  const json = await response.json();
+  expect(json.message).toBe("Method Not Allowed");
 });
 
 test("DELETE on root URL returns Method Not Allowed error", async () => {
@@ -42,8 +42,8 @@ test("DELETE on root URL returns Method Not Allowed error", async () => {
 
   expect(response.status).toBe(405);
 
-  const text = await response.text();
-  expect(text).toBe("Method Not Allowed");
+  const json = await response.json();
+  expect(json.message).toBe("Method Not Allowed");
 });
 
 // There are so many HTTP methods, but just check PATCH here only.
@@ -54,8 +54,8 @@ test("PATCH on root URL returns Method Not Allowed error", async () => {
 
   expect(response.status).toBe(405);
 
-  const text = await response.text();
-  expect(text).toBe("Method Not Allowed");
+  const json = await response.json();
+  expect(json.message).toBe("Method Not Allowed");
 });
 
 // There are so many HTTP methods, but just check PATCH here only.
@@ -66,8 +66,8 @@ test("PATCH on resource URL returns Method Not Allowed error", async () => {
 
   expect(response.status).toBe(405);
 
-  const text = await response.text();
-  expect(text).toBe("Method Not Allowed");
+  const json = await response.json();
+  expect(json.message).toBe("Method Not Allowed");
 });
 
 test("An unknown resource returns 404", async () => {
