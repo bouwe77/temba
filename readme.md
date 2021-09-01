@@ -80,6 +80,8 @@ POST /articles
 }
 ```
 
+Resource identifiers are auto generated when creating resources and you have no influence on that. When you send the ID in a JSON request body it is ignored. IDs can only be sent via the URI.
+
 If you request a resource (URI) that does not exist, a `404 Not Found` response is returned.
 
 Soksawat only supports JSON. If you send a request with invalid formatted JSON, a `400 Bad Request` response is returned.
@@ -92,7 +94,7 @@ Soksawat offers no ways for authentication or authorization (yet?), so if someon
 
 Also nested nested (parent-child) are not supported (yet?), so every URI has the /:resource/:id structure and there is no way to indicate any relation, apart from within the JSON itself perhaps.
 
-There is no filtering, sorting, searching, custom routes, etc.
+Also there is no filtering, sorting, searching, custom routes, etc. (yet?).
 
 ## When NOT to use
 
