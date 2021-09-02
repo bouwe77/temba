@@ -1,5 +1,7 @@
 # REST I Want
 
+If REST is what you want...
+
 ## Introduction
 
 Get a full REST API with zero coding in less than 30 seconds (seriously). For developers who need a quick back-end for their small and/or hobby projects.
