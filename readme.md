@@ -20,7 +20,7 @@ For example, hosting json-server on GitHub Pages means your API is essentially r
 
 And hosting json-server on Heroku does give you persistence, but is not reliable because of its [ephemeral filesystem](https://devcenter.heroku.com/articles/dynos#ephemeral-filesystem).
 
-These limitations are the whole idea behind json-server, but if you don't like the persistence limitation and don't mind having a database, you might want to try REST I Want.
+These limitations are the whole idea behind json-server, but if you don't like the persistence limitation and don't mind having a database, you might want to try «REST I Want».
 
 # Getting Started
 
@@ -29,9 +29,9 @@ Prerequisites you need to have:
 - Node, NPM
 - Optional: A MongoDB database, either locally or in the cloud
 
-If you don't have a MongoDB (yet) REST I Want works with in memory data which is flushed everytime the server is restarted. This is good enough to give REST I Want a quick try.
+If you don't have a MongoDB (yet) «REST I Want» works with in memory data which is flushed everytime the server is restarted. This is good enough to give «REST I Want» a quick try.
 
-Now follow these steps to get REST I Want up and running:
+Now follow these steps to get «REST I Want» up and running:
 
 1. Clone the repo
 
@@ -41,7 +41,7 @@ Now follow these steps to get REST I Want up and running:
 
 4. Edit `config.js` to enter the resource names you want to support
 
-5. Start REST I Want: `npm start`
+5. Start «REST I Want»: `npm start`
 
 6. Open your favorite HTTP client and start requesting data!
 
@@ -66,7 +66,7 @@ Partial updates using `PATCH`, or other HTTP methods are not (yet?) supported.
 
 When sending JSON data (`POST` and `PUT` requests), adding a `Content-Type: application/json` header is required.
 
-At the moment REST I Want does not have any model validation, so you can store your resources in any format you like. So for example, creating the following two (very different) articles just works:
+At the moment «REST I Want» does not have any model validation, so you can store your resources in any format you like. So for example, creating the following two (very different) articles just works:
 
 ```
 POST /articles
@@ -86,13 +86,13 @@ Resource identifiers are auto generated when creating resources and you have no 
 
 If you request a resource (URI) that does not exist, a `404 Not Found` response is returned.
 
-REST I Want only supports JSON. If you send a request with invalid formatted JSON, a `400 Bad Request` response is returned.
+«REST I Want» only supports JSON. If you send a request with invalid formatted JSON, a `400 Bad Request` response is returned.
 
 If you use an HTTP method that is not supported (everything but `GET`, `POST`, `PUT` and `DELETE`), a `405 Method Not Allowed` response is returned.
 
 On the root URI (e.g. http://localhost:8080/) only a `GET` request is supported, which shows you a message indicating the API is working. All other HTTP methods on the root URI return a `405 Method Not Allowed` response.
 
-REST I Want offers no ways for authentication or authorization (yet?), so if someone knows how to reach the API, they can read and mutate all your data, unless you restrict this in another way.
+«REST I Want» offers no ways for authentication or authorization (yet?), so if someone knows how to reach the API, they can read and mutate all your data, unless you restrict this in another way.
 
 Also nested (parent-child) are not supported (yet?), so every URI has the /:resource/:id structure and there is no way to indicate any relation, apart from within the JSON itself perhaps.
 
@@ -100,10 +100,10 @@ Also there is no filtering, sorting, searching, custom routes, etc. (yet?).
 
 ## When NOT to use
 
-As you've read, REST I Want is very, very, limited in its functionality and this is mostly deliberate to keep it simple. It is not meant as an enterprise solution.
+As you've read, «REST I Want» is very, very, limited in its functionality and this is mostly deliberate to keep it simple. It is not meant as an enterprise solution.
 
 However, because it uses a database instead of a JSON file, it may be a quite robust solution for your use case.
 
 # Under the hood
 
-REST I Want is built with JavaScript, Node and Express.
+«REST I Want» is built with JavaScript, Node and Express.
