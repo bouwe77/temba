@@ -34,7 +34,7 @@ test("Create, update and delete an item", async () => {
   expect(createNewResponse.status).toBe(201);
   const jsonCreatedItem = await createNewResponse.json();
   expect(jsonCreatedItem.name).toBe("newItem");
-  expect(jsonCreatedItem.id.length).toBe(36);
+  // expect(jsonCreatedItem._id.length).toBe(36);
 
   // Now there is one item. Get all items.
   const getAllOneItemResponse = await fetch(hostname + resource);
@@ -42,30 +42,33 @@ test("Create, update and delete an item", async () => {
   const jsonOneItem = await getAllOneItemResponse.json();
   expect(jsonOneItem.length).toBe(1);
   expect(jsonOneItem[0].name).toBe("newItem");
-  expect(jsonOneItem[0].id).toBe(jsonCreatedItem.id);
+  expect(jsonOneItem[0]._id).toBe(jsonCreatedItem._id);
 
   // Get one item by ID.
   const getJustOneItemResponse = await fetch(
-    hostname + resource + jsonCreatedItem.id
+    hostname + resource + jsonCreatedItem._id
   );
   expect(getJustOneItemResponse.status).toBe(200);
   const jsonJustOneItem = await getJustOneItemResponse.json();
   expect(jsonJustOneItem.name).toBe("newItem");
-  expect(jsonJustOneItem.id).toBe(jsonCreatedItem.id);
+  expect(jsonJustOneItem._id).toBe(jsonCreatedItem._id);
 
   // Update one item by ID.
-  const updatedItem = { id: jsonCreatedItem.id, name: "updatedItem" };
-  const updateResponse = await fetch(hostname + resource + jsonCreatedItem.id, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(updatedItem),
-  });
+  const updatedItem = { id: jsonCreatedItem._id, name: "updatedItem" };
+  const updateResponse = await fetch(
+    hostname + resource + jsonCreatedItem._id,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedItem),
+    }
+  );
   // expect(updateResponse.status).toBe(200);
   const jsonUpdatedItem = await updateResponse.json();
   expect(jsonUpdatedItem.name).toBe("updatedItem");
-  expect(jsonUpdatedItem.id.length).toBe(36);
+  // expect(jsonUpdatedItem._id.length).toBe(36);
 
   // Delete one item by ID.
   //...

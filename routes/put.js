@@ -1,4 +1,4 @@
-const query = require("../data/queries");
+const { query } = require("../data");
 const { new404NotFoundError } = require("../errors");
 
 async function handlePut(req, res, next) {
@@ -11,9 +11,9 @@ async function handlePut(req, res, next) {
 
   item = { ...req.body, id };
 
-  await query.update(resource, item);
+  const updatedItem = await query.update(resource, item);
 
-  res.status(200).json(item).send();
+  res.status(200).json(updatedItem).send();
 }
 
 module.exports = handlePut;

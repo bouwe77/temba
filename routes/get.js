@@ -1,4 +1,4 @@
-const query = require("../data/queries");
+const { query } = require("../data");
 
 async function handleGetResource(req, res) {
   const { resource, id } = req.requestInfo;

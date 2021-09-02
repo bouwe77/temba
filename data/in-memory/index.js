@@ -1,6 +1,10 @@
 const { data } = require("./dummy-data");
 const { v4: uuidv4 } = require("uuid");
 
+function connectToDb() {
+  // Nothing to connect to
+}
+
 function getAll(resourceName) {
   return new Promise((resolve) => {
     resolve(data[resourceName]);
@@ -48,4 +52,12 @@ function deleteAll(resourceName) {
   });
 }
 
-module.exports = { getAll, getById, create, update, deleteById, deleteAll };
+module.exports = {
+  connectToDb,
+  getAll,
+  getById,
+  create,
+  update,
+  deleteById,
+  deleteAll,
+};
