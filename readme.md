@@ -1,14 +1,10 @@
 # REST I Want
 
-If REST is what you want...
-
-## Introduction
-
-Get a full REST API with zero coding in less than 30 seconds (seriously). For developers who need a quick back-end for their small and/or hobby projects.
+> Get a REST API backed by MongoDB with zero coding in less than 30 seconds (seriously). For developers who need a quick backend for their small and/or hobby projects.
 
 Powered by NodeJS, Express and MongoDB.
 
-This project is inspired by [json-server](https://github.com/typicode/json-server), but instead of a JSON file it uses a real database. The goal, however, is the same: Get you started with a REST API very fast.
+This project is inspired by [json-server](https://github.com/typicode/json-server), but instead of a JSON file it uses a real database. The goal, however, is the same: Get you started with a REST API very quickly.
 
 The database is used as a key-value store, so every resource is a JSON document, which is read and updated in its entirety.
 
@@ -47,7 +43,7 @@ Now follow these steps to get «REST I Want» up and running:
 
 ## Documentation
 
-Once you have the app up and running you can do CRUD requests to the resources you have configured in `config.js`:
+Once you have the app up and running you can do CRUD requests to the resources you have configured in `restiwant-config.js`:
 
 ```js
 const resourceNames = ["articles", "authors"];
