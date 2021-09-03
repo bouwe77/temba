@@ -39,7 +39,7 @@ Now follow these steps to get «REST I Want» up and running:
 
 3. Optional: Rename the `.env.example` to `.env` and add your MongoDB connection settings
 
-4. Edit `config.js` to enter the resource names you want to support
+4. Edit `restiwant-config.js` to enter the resource names you want to support
 
 5. Start «REST I Want»: `npm start`
 
