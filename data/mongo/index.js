@@ -1,6 +1,6 @@
 const { getConnection } = require("./mongo-client");
 
-//TODO use this
+//TODO refactor this function
 function removeUnderscoreFromId(item) {
   const updatedItem = { ...item, id: item._id };
   delete updatedItem._id;
@@ -27,7 +27,6 @@ async function create(resourceName, item) {
 
   const createdItem = await db[resourceName].insertOne(item);
 
-  //TODO InsertOne should return inserted document
   return removeUnderscoreFromId(createdItem.ops[0]);
 }
 

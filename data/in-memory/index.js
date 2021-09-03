@@ -1,6 +1,6 @@
 const data = {};
 
-//TODO Refactor hasOwnProperty check
+//TODO Refactor hasOwnProperty check so it's only called once
 
 function getAll(resourceName) {
   if (!data.hasOwnProperty(resourceName)) data[resourceName] = [];

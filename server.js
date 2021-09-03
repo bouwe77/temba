@@ -17,12 +17,6 @@ const express = require("express");
 const app = express();
 app.use(express.json());
 
-//TODO Dit kan weg toch, want anders werken alle routes niet goed samen?
-// Middleware
-// app.use(getResourceAndId);
-// app.use(validateResource);
-// app.use(validateId);
-
 // Routes
 
 // A GET to the root URL shows a default message.
