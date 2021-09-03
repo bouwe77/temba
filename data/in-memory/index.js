@@ -1,9 +1,6 @@
-const { data } = require("./dummy-data");
 const { v4: uuidv4 } = require("uuid");
 
-function connectToDb() {
-  // Nothing to connect to
-}
+const data = {};
 
 function getAll(resourceName) {
   return new Promise((resolve) => {

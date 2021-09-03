@@ -1,4 +1,4 @@
-const { resourceNames } = require("../../config");
+const { resourceNames } = require("../../restiwant-config");
 
 function validateResource(req, _, next) {
   const { resource } = req.requestInfo;
