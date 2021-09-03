@@ -3,7 +3,6 @@ require("dotenv").config();
 const { getResourceAndId } = require("./urls/middleware/getResourceAndId");
 const { errorHandler } = require("./errors/middleware/errorHandler");
 const { validateResource } = require("./urls/middleware/validateResource");
-const { validateId } = require("./urls/middleware/validateId");
 
 const {
   handleGetResource,
@@ -33,10 +32,10 @@ app.get("/", handleGetDefaultPage);
 app.all("/", handleMethodNotAllowed);
 
 // GET, POST, PUT and DELETE to a specific URL are handled.
-app.get("*", getResourceAndId, validateResource, validateId, handleGetResource);
-app.post("*", getResourceAndId, validateResource, validateId, handlePost);
-app.put("*", getResourceAndId, validateResource, validateId, handlePut);
-app.delete("*", getResourceAndId, validateResource, validateId, handleDelete);
+app.get("*", getResourceAndId, validateResource, handleGetResource);
+app.post("*", getResourceAndId, validateResource, handlePost);
+app.put("*", getResourceAndId, validateResource, handlePut);
+app.delete("*", getResourceAndId, validateResource, handleDelete);
 
 // All other methods to a specific URL are not allowed.
 app.all("*", handleMethodNotAllowed);

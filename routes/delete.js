@@ -1,15 +1,15 @@
 const { query } = require("../data");
 
 async function handleDelete(req, res) {
-  const { resource, id } = req.requestInfo;
+  const { resourceName, id } = req.requestInfo;
 
   if (id) {
-    const item = await query.getById(resource, id);
+    const item = await query.getById(resourceName, id);
     if (item) {
-      await query.deleteById(resource, id);
+      await query.deleteById(resourceName, id);
     }
   } else {
-    await query.deleteAll(resource);
+    await query.deleteAll(resourceName);
   }
 
   res.status(204).send();

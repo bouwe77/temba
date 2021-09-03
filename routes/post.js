@@ -1,9 +1,11 @@
 const { query } = require("../data");
 
-async function handlePost(req, res) {
-  const { resource, id } = req.requestInfo;
+//TODO Add Location header
 
-  const newItem = await query.create(resource, req.body);
+async function handlePost(req, res) {
+  const { resourceName } = req.requestInfo;
+
+  const newItem = await query.create(resourceName, req.body);
 
   res.status(201).json(newItem).send();
 }

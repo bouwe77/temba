@@ -1,12 +1,12 @@
 const { resourceNames } = require("../../restiwant-config");
 
 function validateResource(req, _, next) {
-  const { resource } = req.requestInfo;
+  const { resourceName } = req.requestInfo;
 
-  if (!resource) return next();
+  if (!resourceName) return next();
 
-  if (!resourceNames.includes(resource.toLowerCase())) {
-    const error = new Error(`'${resource}' is an unknown resource`);
+  if (!resourceNames.includes(resourceName.toLowerCase())) {
+    const error = new Error(`'${resourceName}' is an unknown resource`);
     error.status = 404;
     console.log(error.message);
     return next(error);

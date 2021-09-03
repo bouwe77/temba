@@ -2,16 +2,16 @@ const { query } = require("../data");
 const { new404NotFoundError } = require("../errors");
 
 async function handlePut(req, res, next) {
-  const { resource, id } = req.requestInfo;
+  const { resourceName, id } = req.requestInfo;
 
   let item = null;
-  if (id) item = await query.getById(resource, id);
+  if (id) item = await query.getById(resourceName, id);
 
   if (!item) return next(new404NotFoundError(`ID '${id}' not found`));
 
   item = { ...req.body, id };
 
-  const updatedItem = await query.update(resource, item);
+  const updatedItem = await query.update(resourceName, item);
 
   res.status(200).json(updatedItem).send();
 }

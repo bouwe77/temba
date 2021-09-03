@@ -1,15 +1,17 @@
 const { query } = require("../data");
 
 async function handleGetResource(req, res) {
-  const { resource, id } = req.requestInfo;
+  const { resourceName, id } = req.requestInfo;
 
   if (id) {
-    const item = await query.getById(resource, id);
+    const item = await query.getById(resourceName, id);
 
     if (!item) res.status(404);
-    else res.status(200).json(item);
+    else {
+      res.status(200).json(item);
+    }
   } else {
-    const items = await query.getAll(resource);
+    const items = await query.getAll(resourceName);
     res.status(200).json(items);
   }
 
