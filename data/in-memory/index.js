@@ -1,5 +1,3 @@
-const { v4: uuidv4 } = require("uuid");
-
 const data = {};
 
 //TODO Refactor hasOwnProperty check
@@ -23,7 +21,7 @@ function getById(resourceName, id) {
 function create(resourceName, item) {
   if (!data.hasOwnProperty(resourceName)) data[resourceName] = [];
 
-  const newItem = { ...item, id: uuidv4() };
+  const newItem = { ...item, id: String(new Date().getTime()) };
 
   data[resourceName] = [...data[resourceName], newItem];
 
