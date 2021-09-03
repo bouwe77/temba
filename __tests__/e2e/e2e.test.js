@@ -3,12 +3,6 @@ const fetch = require("node-fetch");
 const { hostname } = require("../_config");
 const resource = "/songs/";
 
-//TODO GET/:id 404
-//TODO PUT/:id 404
-//TODO DELETE/:id 404
-//TODO POST id meegeven in body mag, maar wordt genegeerd
-//TODO PUT id meegeven in body mag, maar wordt genegeerd
-
 test("Create, update and delete an item", async () => {
   // Delete all items.
   const deleteAllResponse = await fetch(hostname + resource, {
@@ -16,11 +10,46 @@ test("Create, update and delete an item", async () => {
   });
   expect(deleteAllResponse.status).toBe(204);
 
-  // Initially, there are no items.
+  // Initially, there are no items so a get all returns an empty array.
   const getAllResponse = await fetch(hostname + resource);
   expect(getAllResponse.status).toBe(200);
   const jsonNoItems = await getAllResponse.json();
   expect(jsonNoItems.length).toBe(0);
+
+  // Initially, there are no items so a getting an id returns a 404.
+  const getOneResponse = await fetch(
+    hostname + resource + "/id_does_not_exist"
+  );
+  expect(getOneResponse.status).toBe(404);
+
+  // Initially, there are no items so a updating an id returns a 404.
+  const nonExistingItem = { id: "id_does_not_exist", name: "this should fail" };
+  const updateNonExistingResponse = await fetch(
+    hostname + resource + "/id_does_not_exist",
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(nonExistingItem),
+    }
+  );
+  expect(updateNonExistingResponse.status).toBe(404);
+
+  // Initially, there are no items, but deleting an id always returns a 204 anyway.
+  const deleteNonExistingResponse = await fetch(
+    hostname + resource + "/id_does_not_exist",
+    {
+      method: "DELETE",
+    }
+  );
+  expect(deleteNonExistingResponse.status).toBe(204);
+
+  // Check again there are still no items.
+  const getAllResponse2 = await fetch(hostname + resource);
+  expect(getAllResponse2.status).toBe(200);
+  const jsonNoItems2 = await getAllResponse2.json();
+  expect(jsonNoItems2.length).toBe(0);
 
   // Create a new item.
   const newItem = { name: "newItem" };
@@ -34,7 +63,6 @@ test("Create, update and delete an item", async () => {
   expect(createNewResponse.status).toBe(201);
   const jsonCreatedItem = await createNewResponse.json();
   expect(jsonCreatedItem.name).toBe("newItem");
-  // expect(jsonCreatedItem.id.length).toBe(36);
 
   // Now there is one item. Get all items.
   const getAllOneItemResponse = await fetch(hostname + resource);
@@ -52,7 +80,6 @@ test("Create, update and delete an item", async () => {
   const jsonJustOneItem = await getJustOneItemResponse.json();
   expect(jsonJustOneItem.name).toBe("newItem");
   expect(jsonJustOneItem.id).toBe(jsonCreatedItem.id);
-  return;
 
   // Update one item by ID.
   const updatedItem = { id: jsonCreatedItem.id, name: "updatedItem" };
@@ -63,11 +90,47 @@ test("Create, update and delete an item", async () => {
     },
     body: JSON.stringify(updatedItem),
   });
-  // expect(updateResponse.status).toBe(200);
+  expect(updateResponse.status).toBe(200);
   const jsonUpdatedItem = await updateResponse.json();
   expect(jsonUpdatedItem.name).toBe("updatedItem");
-  // expect(jsonUpdatedItem.id.length).toBe(36);
+  expect(jsonUpdatedItem.id).toEqual(jsonCreatedItem.id);
 
   // Delete one item by ID.
-  //...
+  const deleteResponse = await fetch(hostname + resource + jsonCreatedItem.id, {
+    method: "DELETE",
+  });
+  expect(deleteResponse.status).toBe(204);
+});
+
+test("When POSTing and PUTting with ID in request body, ignore ID in body", async () => {
+  const hardCodedIdToIgnore = "myID";
+
+  // Create a new item, but ignore the ID in the request body.
+  const newItem = { id: hardCodedIdToIgnore, name: "newItem" };
+  const createNewResponse = await fetch(hostname + resource, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(newItem),
+  });
+  expect(createNewResponse.status).toBe(201);
+  const jsonCreatedItem = await createNewResponse.json();
+  expect(jsonCreatedItem.name).toBe("newItem");
+  expect(jsonCreatedItem.id.length).toBeGreaterThan(0);
+  expect(jsonCreatedItem.id).not.toEqual(hardCodedIdToIgnore);
+
+  // Update one item by ID in the URI and ignore the ID in the request body.
+  const updatedItem = { id: hardCodedIdToIgnore, name: "updatedItem" };
+  const updateResponse = await fetch(hostname + resource + jsonCreatedItem.id, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(updatedItem),
+  });
+  expect(updateResponse.status).toBe(200);
+  const jsonUpdatedItem = await updateResponse.json();
+  expect(jsonUpdatedItem.name).toBe("updatedItem");
+  expect(jsonUpdatedItem.id).toEqual(jsonCreatedItem.id);
 });
