@@ -3,13 +3,15 @@ const fetch = require("node-fetch");
 const { hostname } = require("../_config");
 const resource = "/songs/";
 
-test("Create, update and delete an item", async () => {
+beforeEach(async () => {
   // Delete all items.
   const deleteAllResponse = await fetch(hostname + resource, {
     method: "DELETE",
   });
   expect(deleteAllResponse.status).toBe(204);
+});
 
+test("Create, update and delete an item", async () => {
   // Initially, there are no items so a get all returns an empty array.
   const getAllResponse = await fetch(hostname + resource);
   expect(getAllResponse.status).toBe(200);
@@ -105,6 +107,12 @@ test("Create, update and delete an item", async () => {
 test("When POSTing and PUTting with ID in request body, ignore ID in body", async () => {
   const hardCodedIdToIgnore = "myID";
 
+  // Initially, there are no items so a get all returns an empty array.
+  const getAllResponse = await fetch(hostname + resource);
+  expect(getAllResponse.status).toBe(200);
+  const jsonNoItems = await getAllResponse.json();
+  expect(jsonNoItems.length).toBe(0);
+
   // Create a new item, but ignore the ID in the request body.
   const newItem = { id: hardCodedIdToIgnore, name: "newItem" };
   const createNewResponse = await fetch(hostname + resource, {
@@ -133,4 +141,12 @@ test("When POSTing and PUTting with ID in request body, ignore ID in body", asyn
   const jsonUpdatedItem = await updateResponse.json();
   expect(jsonUpdatedItem.name).toBe("updatedItem");
   expect(jsonUpdatedItem.id).toEqual(jsonCreatedItem.id);
+
+  // Now there is one item. Get all items.
+  const getAllOneItemResponse = await fetch(hostname + resource);
+  expect(getAllOneItemResponse.status).toBe(200);
+  const jsonOneItem = await getAllOneItemResponse.json();
+  expect(jsonOneItem.length).toBe(1);
+  expect(jsonOneItem[0].name).toBe("updatedItem");
+  expect(jsonOneItem[0].id).toBe(jsonCreatedItem.id);
 });
