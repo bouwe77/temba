@@ -65,6 +65,9 @@ test("Create, update and delete an item", async () => {
   expect(createNewResponse.status).toBe(201);
   const jsonCreatedItem = await createNewResponse.json();
   expect(jsonCreatedItem.name).toBe("newItem");
+  expect(createNewResponse.headers.get("Location")).toEndWith(
+    "/songs/" + jsonCreatedItem.id
+  );
 
   // Now there is one item. Get all items.
   const getAllOneItemResponse = await fetch(hostname + resource);
