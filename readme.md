@@ -8,7 +8,7 @@ Powered by NodeJS, Express and MongoDB.
 
 This project is inspired by [json-server](https://github.com/typicode/json-server), but instead of a JSON file it uses a real database. The goal, however, is the same: Get you started with a REST API very quickly.
 
-# Table of contents
+## Table of contents
 
 [Temba?](#temba)
 
@@ -16,7 +16,9 @@ This project is inspired by [json-server](https://github.com/typicode/json-serve
 
 [Getting started](#getting-started)
 
-[Documentation](#documentation)
+[Features](#features)
+
+[Not supported (yet?)](#not-supported-yet)
 
 [When NOT to use?](#when-not-to-use)
 
@@ -24,7 +26,7 @@ This project is inspired by [json-server](https://github.com/typicode/json-serve
 
 ## Temba?
 
-The name Temba comes from the Star Trek - The Next Episode called "Darmok". In the Tamarian language Temba means something like _"gift"_. This is my gift to you... 🧔🏻 💖
+The name Temba comes from the Star Trek - The Next Generation episode called "Darmok". In the Tamarian language Temba means something like _"gift"_. This is my gift to you... 🧔🏻 💖
 
 ## Which problem does Temba solve?
 
@@ -59,7 +61,7 @@ Now follow these steps to get Temba up and running:
 
 6. Open your favorite HTTP client and start requesting data!
 
-## Documentation
+## Features
 
 Once you have the app up and running you can do CRUD requests to the resources you have configured in `temba-config.js`:
 
@@ -80,6 +82,18 @@ Partial updates using `PATCH`, or other HTTP methods are not (yet?) supported.
 
 When sending JSON data (`POST` and `PUT` requests), adding a `Content-Type: application/json` header is required.
 
+IDs are auto generated when creating resources. IDs in the JSON request body are ignored.
+
+If you request a resource (URI) that does not exist, a `404 Not Found` response is returned.
+
+Temba only supports JSON. If you send a request with invalid formatted JSON, a `400 Bad Request` response is returned.
+
+If you use an HTTP method that is not supported (everything but `GET`, `POST`, `PUT` and `DELETE`), a `405 Method Not Allowed` response is returned.
+
+On the root URI (e.g. http://localhost:8080/) only a `GET` request is supported, which shows you a message indicating the API is working. All other HTTP methods on the root URI return a `405 Method Not Allowed` response.
+
+## Not supported (yet?)
+
 Temba does not have any model validation, so you can store your resources in any format you like.
 So for example, creating the following two (very different) articles just works:
 
@@ -96,16 +110,6 @@ POST /articles
     "baz": "boo"
 }
 ```
-
-IDs are auto generated when creating resources. IDs in the JSON request body are ignored.
-
-If you request a resource (URI) that does not exist, a `404 Not Found` response is returned.
-
-Temba only supports JSON. If you send a request with invalid formatted JSON, a `400 Bad Request` response is returned.
-
-If you use an HTTP method that is not supported (everything but `GET`, `POST`, `PUT` and `DELETE`), a `405 Method Not Allowed` response is returned.
-
-On the root URI (e.g. http://localhost:8080/) only a `GET` request is supported, which shows you a message indicating the API is working. All other HTTP methods on the root URI return a `405 Method Not Allowed` response.
 
 Temba offers no ways for authentication or authorization (yet?), so if someone knows how to reach the API, they can read and mutate all your data, unless you restrict this in another way.
 
