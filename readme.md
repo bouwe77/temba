@@ -30,7 +30,7 @@ This project is inspired by [json-server](https://github.com/typicode/json-serve
 
 A metaphor for the declining of a gift. [Star Trek - The Next Generation, episode "Darmok"](https://memory-alpha.fandom.com/wiki/Temba)
 
-In the fictional Tamarian language _"Temba"_ means something like _"gift"_. This is my gift to you... 🧔🏻 💖
+In the fictional Tamarian language the word _"Temba"_ means something like _"gift"_. This is my gift to you... 🧔🏻 💖
 
 ## Which problem does Temba solve?
 
