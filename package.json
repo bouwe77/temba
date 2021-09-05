@@ -1,6 +1,6 @@
 {
   "name": "temba",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "",
   "main": "index.js",
   "scripts": {},
@@ -12,12 +12,12 @@
   "license": "ISC",
   "devDependencies": {
     "jest": "^27.1.0",
-    "jest-extended": "^0.11.5"
-  },
-  "dependencies": {
+    "jest-extended": "^0.11.5",
     "@babel/core": "^7.15.5",
     "@babel/node": "^7.15.4",
-    "@babel/preset-env": "^7.15.4",
+    "@babel/preset-env": "^7.15.4"
+  },
+  "dependencies": {
     "@rakered/mongo": "^1.6.0",
     "express": "^4.17.1"
   }
