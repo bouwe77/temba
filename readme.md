@@ -1,8 +1,8 @@
 # Temba
 
-> Get a simple REST API backed by MongoDB with zero coding in less than 30 seconds (seriously).
+> Get a simple MongoDB REST API with zero coding in less than 30 seconds (seriously).
 >
-> For developers who need a quick backend for their small and/or hobby projects.
+> For developers who need a quick backend for small projects.
 
 Powered by NodeJS, Express and MongoDB.
 
@@ -49,40 +49,47 @@ Prerequisites you need to have:
 - Node, NPM
 - Optional: A MongoDB database, either locally or in the cloud
 
-If you don't have a MongoDB (yet) Temba works with in memory data which is flushed everytime the server is restarted. This is good enough to give Temba a quick try.
+> Wthout a database, Temba also works. However, then data is kept in memory and flushed every time the server restarts.
 
-Now follow these steps to get Temba up and running:
+### Use the `temba-starter` project
 
-1. Clone the repo
+Clone the [temba-starter](https://github.com/bouwe/temba-starter) repo and you are up and running! Refer to the [Features](#features) section for configuration options.
 
-2. `npm i ci`
+### Manually adding to an existing app
 
-3. Optional: Rename the `.env.example` to `.env` and add your MongoDB connection settings
+1. `npm i temba`
 
-4. Edit `temba-config.js` to enter the resource names you want to support
+2. Example code to create a Temba server:
 
-5. Start Temba: `npm start`
+```js
+const temba = require("temba");
+const server = temba.create();
 
-6. Open your favorite HTTP client and start requesting data!
+const port = process.env.PORT || 3000;
+server.listen(port, () => {
+  console.log(`Temba is running on port ${port}`);
+});
+```
 
 ## Features
 
-Once you have the app up and running you can do CRUD requests to the resources you have configured in `temba-config.js`:
+Temba gives you a CRUD REST API to the resource names you have configured when creating the server:
 
 ```js
-const resourceNames = ["articles", "authors"];
+const config = { resourceNames: ["movies", "actors"] };
+const server = temba.create(config);
 ```
 
-So let's say we want to use the `articles` resource, then the following requests are supported:
+> Providing a configuration is not required. Also providing the `config.resourceNames` is not required. If you don't provide them, you have the default "articles" resource at your disposal.
 
-- `GET /articles` - Get all articles
-- `GET /articles/:id` - Get an article by its ID
-- `POST /articles` - Create a new article
-- `PUT /articles/:id` - Update (fully replace) an article by its ID
-- `DELETE /articles` - Delete all articles
-- `DELETE /articles/:id` - Delete an article by its ID
+As we have configured the `movies` resource, the following requests are supported:
 
-Partial updates using `PATCH`, or other HTTP methods are not (yet?) supported.
+- `GET /movies` - Get all movies
+- `GET /movies/:id` - Get a movie by its ID
+- `POST /movies` - Create a new movie
+- `PUT /movies/:id` - Update (fully replace) a movie by its ID
+- `DELETE /movies` - Delete all movies
+- `DELETE /movies/:id` - Delete a movie by its ID
 
 When sending JSON data (`POST` and `PUT` requests), adding a `Content-Type: application/json` header is required.
 
@@ -99,21 +106,24 @@ On the root URI (e.g. http://localhost:8080/) only a `GET` request is supported,
 ## Not supported (yet?)
 
 Temba does not have any model validation, so you can store your resources in any format you like.
-So for example, creating the following two (very different) articles just works:
+
+So creating the following two (very different) movies is perfectly fine:
 
 ```
-POST /articles
+POST /movies
 {
-    "title": "This is an article",
-    "text": "Lorem ipsum dolor..."
+    "title": "O Brother, Where Art Thou?",
+    "description": "In the deep south during the 1930s, three escaped convicts search for hidden treasure while a relentless lawman pursues them."
 }
 
-POST /articles
+POST /movies
 {
     "foo": "bar",
     "baz": "boo"
 }
 ```
+
+Partial updates using `PATCH`, or other HTTP methods are not (yet?) supported.
 
 Temba offers no ways for authentication or authorization (yet?), so if someone knows how to reach the API, they can read and mutate all your data, unless you restrict this in another way.
 
