@@ -1,8 +1,8 @@
 # Temba
 
-> Get a simple MongoDB REST API with zero coding in less than 30 seconds (seriously).
->
-> For developers who need a quick backend for small projects.
+**Get a simple MongoDB REST API with zero coding in less than 30 seconds (seriously).**
+
+For developers who need a quick backend for small projects.
 
 Powered by NodeJS, Express and MongoDB.
 
@@ -14,7 +14,7 @@ This project is inspired by [json-server](https://github.com/typicode/json-serve
 
 [Which problem does Temba solve?](#which-problem-does-temba-solve)
 
-[Getting started](#getting-started)
+[Getting Started](#getting-started)
 
 [Features](#features)
 
@@ -28,7 +28,7 @@ This project is inspired by [json-server](https://github.com/typicode/json-serve
 
 > _"Temba, at rest"_
 
-A metaphor for the declining of a gift. [Star Trek - The Next Generation, episode "Darmok"](https://memory-alpha.fandom.com/wiki/Temba)
+A metaphor for the declining of a gift, from the [Star Trek - The Next Generation, episode "Darmok"](https://memory-alpha.fandom.com/wiki/Temba).
 
 In the fictional Tamarian language the word _"Temba"_ means something like _"gift"_. This is my gift to you... 🧔🏻 💖
 
