@@ -11,10 +11,15 @@ This project is inspired by [json-server](https://github.com/typicode/json-serve
 # Table of contents
 
 [Temba?](#temba)
+
 [Which problem does Temba solve?](#which-problem-does-temba-solve)
+
 [Getting started](#getting-started)
+
 [Documentation](#documentation)
+
 [When NOT to use?](#when-not-to-use)
+
 [Under the hood](#under-the-hood)
 
 ## Temba?
