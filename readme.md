@@ -6,13 +6,11 @@ For developers who need a quick backend for small projects.
 
 Powered by NodeJS, Express and MongoDB.
 
-This project is inspired by [json-server](https://github.com/typicode/json-server), but instead of a JSON file it uses a real database. The goal, however, is the same: Get you started with a REST API very quickly.
+This project is inspired by the fantastic [json-server](https://github.com/typicode/json-server) project, but instead of a JSON file Temba uses a real database. The goal, however, is the same: Get you started with a REST API very quickly.
 
 ## Table of contents
 
 [Temba?](#temba)
-
-[Which problem does Temba solve?](#which-problem-does-temba-solve)
 
 [Getting Started](#getting-started)
 
@@ -24,23 +22,17 @@ This project is inspired by [json-server](https://github.com/typicode/json-serve
 
 [Under the hood](#under-the-hood)
 
+[Which problem does Temba solve?](#which-problem-does-temba-solve)
+
 ## Temba?
 
 > _"Temba, at rest"_
 
 A metaphor for the declining of a gift, from the [Star Trek - The Next Generation, episode "Darmok"](https://memory-alpha.fandom.com/wiki/Temba).
 
-In the fictional Tamarian language the word _"Temba"_ means something like _"gift"_. This is my gift to you... 🧔🏻 💖
+In the fictional Tamarian language the word _"Temba"_ means something like _"gift"_.
 
-## Which problem does Temba solve?
-
-The problem with JSON file solutions like json-server is the limitations you have when hosting your app.
-
-For example, hosting json-server on GitHub Pages means your API is essentially readonly, because although mutations are supported, your data is not really persisted.
-
-And hosting json-server on Heroku does give you persistence, but is not reliable because of its [ephemeral filesystem](https://devcenter.heroku.com/articles/dynos#ephemeral-filesystem).
-
-These limitations are the whole idea behind json-server, but if you don't like the persistence limitation and don't mind having a database, you might want to try Temba.
+This library is my gift to you... 🧔🏻 💖
 
 ## Getting Started
 
@@ -139,4 +131,14 @@ However, because it uses a database instead of a JSON file, it may be a quite ro
 
 ## Under the hood
 
-Temba is built with JavaScript, Node and Express.
+Temba is built with JavaScript, Node and Express. To communicate with MongoDB we use the fantastic [@rakered/mongo](https://www.npmjs.com/package/@rakered/mongo) package.
+
+## Which problem does Temba solve?
+
+The problem with JSON file solutions like json-server is the limitations you have when hosting your app.
+
+For example, hosting json-server on GitHub Pages means your API is essentially readonly, because although mutations are supported, your data is not really persisted.
+
+And hosting json-server on Heroku does give you persistence, but is not reliable because of its [ephemeral filesystem](https://devcenter.heroku.com/articles/dynos#ephemeral-filesystem).
+
+These limitations are of course the whole idea behind json-server, but if you want more persistence wise and don't mind having a database, you might want to try Temba.
