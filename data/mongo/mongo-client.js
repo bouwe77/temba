@@ -2,8 +2,8 @@ const { connect } = require("@rakered/mongo");
 
 let mongoConnection;
 
-async function connectDatabase() {
-  mongoConnection = await connect();
+async function connectDatabase(databaseUri) {
+  mongoConnection = await connect(databaseUri);
 }
 
 async function disconnectDatabase() {

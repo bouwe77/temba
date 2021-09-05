@@ -1,14 +1,16 @@
-const mongoUrl = process.env.MONGO_URL || null;
+const inMemoryQueries = require("./in-memory");
+const { connectDatabase } = require("./mongo/mongo-client");
+const mongoQueries = require("./mongo");
 
-let query;
-if (mongoUrl) {
-  const { connectDatabase } = require("./mongo/mongo-client");
-  const mongoQueries = require("./mongo");
-  connectDatabase();
-  query = mongoQueries;
-} else {
-  const inMemoryQueries = require("./in-memory");
-  query = inMemoryQueries;
+//TODO Rename "query" to queries"?
+
+function createQuery(connectionString) {
+  if (!connectionString) {
+    return inMemoryQueries;
+  }
+
+  connectDatabase(connectionString);
+  return mongoQueries;
 }
 
-module.exports = { query };
+module.exports = { createQuery };

@@ -1,25 +1,26 @@
-const { query } = require("../data");
+function createGetRoutes(query) {
+  return {
+    handleGetResource: async function handleGetResource(req, res) {
+      const { resourceName, id } = req.requestInfo;
 
-async function handleGetResource(req, res) {
-  const { resourceName, id } = req.requestInfo;
+      if (id) {
+        const item = await query.getById(resourceName, id);
 
-  if (id) {
-    const item = await query.getById(resourceName, id);
+        if (!item) res.status(404);
+        else {
+          res.status(200).json(item);
+        }
+      } else {
+        const items = await query.getAll(resourceName);
+        res.status(200).json(items);
+      }
 
-    if (!item) res.status(404);
-    else {
-      res.status(200).json(item);
-    }
-  } else {
-    const items = await query.getAll(resourceName);
-    res.status(200).json(items);
-  }
-
-  res.send();
+      res.send();
+    },
+    handleGetDefaultPage: function handleGetDefaultPage(_, res) {
+      res.send("It works! (ツ)");
+    },
+  };
 }
 
-function handleGetDefaultPage(_, res) {
-  res.send("It works! (ツ)");
-}
-
-module.exports = { handleGetResource, handleGetDefaultPage };
+module.exports = { createGetRoutes };

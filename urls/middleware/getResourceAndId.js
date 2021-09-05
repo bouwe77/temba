@@ -1,6 +1,6 @@
 const { parseUrl } = require("../urlParser");
 
-function getResourceAndId(req, res, next) {
+function getResourceAndId(req, _, next) {
   let urlInfo = parseUrl(req.url);
 
   req.requestInfo = { ...req.requestInfo, ...urlInfo };

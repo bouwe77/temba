@@ -1,12 +1,5 @@
 const { getConnection } = require("./mongo-client");
 
-//TODO refactor this function
-function removeUnderscoreFromId(item) {
-  const updatedItem = { ...item, id: item._id };
-  delete updatedItem._id;
-  return updatedItem;
-}
-
 async function getAll(resourceName) {
   const db = getConnection();
 
@@ -55,6 +48,12 @@ async function deleteAll(resourceName) {
   const db = getConnection();
 
   await db[resourceName].deleteMany({});
+}
+
+function removeUnderscoreFromId(item) {
+  const updatedItem = { ...item, id: item._id };
+  delete updatedItem._id;
+  return updatedItem;
 }
 
 module.exports = { getAll, getById, create, update, deleteById, deleteAll };
