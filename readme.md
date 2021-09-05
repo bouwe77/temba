@@ -1,12 +1,10 @@
 # REST I Want
 
-> Get a REST API backed by MongoDB with zero coding in less than 30 seconds (seriously). For developers who need a quick backend for their small and/or hobby projects.
+> Get a simple REST API backed by MongoDB with zero coding in less than 30 seconds (seriously). For developers who need a quick backend for their small and/or hobby projects.
 
 Powered by NodeJS, Express and MongoDB.
 
 This project is inspired by [json-server](https://github.com/typicode/json-server), but instead of a JSON file it uses a real database. The goal, however, is the same: Get you started with a REST API very quickly.
-
-The database is used as a key-value store, so every resource is a JSON document, which is read and updated in its entirety.
 
 ## Which problem does it solve?
 
@@ -62,7 +60,8 @@ Partial updates using `PATCH`, or other HTTP methods are not (yet?) supported.
 
 When sending JSON data (`POST` and `PUT` requests), adding a `Content-Type: application/json` header is required.
 
-At the moment «REST I Want» does not have any model validation, so you can store your resources in any format you like. So for example, creating the following two (very different) articles just works:
+«REST I Want» does not have any model validation, so you can store your resources in any format you like. 
+So for example, creating the following two (very different) articles just works:
 
 ```
 POST /articles
@@ -78,7 +77,7 @@ POST /articles
 }
 ```
 
-Resource identifiers are auto generated when creating resources and you have no influence on that. When you send the ID in a JSON request body it is ignored. IDs can only be sent via the URI.
+IDs are auto generated when creating resources. IDs in the JSON request body are ignored.
 
 If you request a resource (URI) that does not exist, a `404 Not Found` response is returned.
 
