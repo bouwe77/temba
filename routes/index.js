@@ -1,7 +1,7 @@
-const { createGetRoutes } = require("./get");
-const { createPostRoutes } = require("./post");
-const { createPutRoutes } = require("./put");
-const { createDeleteRoutes } = require("./delete");
+import { createGetRoutes } from "./get";
+import { createPostRoutes } from "./post";
+import { createPutRoutes } from "./put";
+import { createDeleteRoutes } from "./delete";
 
 function handleMethodNotAllowed(_, res) {
   res.status(405).json({ message: "Method Not Allowed" });
@@ -22,6 +22,6 @@ function createRoutes(query) {
   };
 }
 
-module.exports = {
+export default {
   createRoutes,
 };

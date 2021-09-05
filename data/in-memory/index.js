@@ -63,7 +63,7 @@ function createResourceArrayIfNecessary(resourceName) {
   if (!data.hasOwnProperty(resourceName)) data[resourceName] = [];
 }
 
-module.exports = {
+export default {
   getAll,
   getById,
   create,

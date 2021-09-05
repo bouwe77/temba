@@ -1,4 +1,4 @@
-var url = require("url");
+import { format } from "url";
 
 function createPostRoutes(query) {
   return {
@@ -9,7 +9,7 @@ function createPostRoutes(query) {
 
       res
         .set({
-          Location: url.format({
+          Location: format({
             protocol: req.protocol,
             host: req.get("host"),
             pathname: `${resourceName}/${newItem.id}`,
@@ -22,4 +22,4 @@ function createPostRoutes(query) {
   };
 }
 
-module.exports = { createPostRoutes };
+export default { createPostRoutes };

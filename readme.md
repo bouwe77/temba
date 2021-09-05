@@ -49,12 +49,14 @@ Clone the [temba-starter](https://github.com/bouwe/temba-starter) repo and you a
 
 ### Manually adding to an existing app
 
+If you don't want to (or can't) use the starter, add Temba to your app manually:
+
 1. `npm i temba`
 
 2. Example code to create a Temba server:
 
 ```js
-const temba = require("temba");
+import temba from ("temba");
 const server = temba.create();
 
 const port = process.env.PORT || 3000;

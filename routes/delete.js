@@ -17,4 +17,4 @@ function createDeleteRoutes(query) {
   };
 }
 
-module.exports = { createDeleteRoutes };
+export default { createDeleteRoutes };

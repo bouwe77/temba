@@ -15,4 +15,4 @@ function createValidateResourceMiddle(resourceNames) {
   };
 }
 
-module.exports = { createValidateResourceMiddle };
+export default { createValidateResourceMiddle };

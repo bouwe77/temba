@@ -1,4 +1,4 @@
-const { parseUrl } = require("../urlParser");
+import { parseUrl } from "../urlParser";
 
 function getResourceAndId(req, _, next) {
   let urlInfo = parseUrl(req.url);
@@ -10,4 +10,4 @@ function getResourceAndId(req, _, next) {
   return next();
 }
 
-module.exports = { getResourceAndId };
+export default { getResourceAndId };

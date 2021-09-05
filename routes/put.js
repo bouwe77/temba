@@ -1,4 +1,4 @@
-const { new404NotFoundError } = require("../errors");
+import { new404NotFoundError } from "../errors";
 
 function createPutRoutes(query) {
   return {
@@ -19,4 +19,4 @@ function createPutRoutes(query) {
   };
 }
 
-module.exports = { createPutRoutes };
+export default { createPutRoutes };

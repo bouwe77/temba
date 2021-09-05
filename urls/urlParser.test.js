@@ -1,4 +1,4 @@
-const { parseUrl } = require("./urlParser");
+import { parseUrl } from "./urlParser";
 
 const noResourceAndNoId = { resourceName: null, id: null };
 const resourceOnly = { resourceName: "stuff", id: null };

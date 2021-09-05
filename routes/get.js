@@ -23,4 +23,4 @@ function createGetRoutes(query) {
   };
 }
 
-module.exports = { createGetRoutes };
+export default { createGetRoutes };

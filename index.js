@@ -1,14 +1,12 @@
-const { getResourceAndId } = require("./urls/middleware/getResourceAndId");
-const { errorHandler } = require("./errors/middleware/errorHandler");
-const {
-  createValidateResourceMiddle,
-} = require("./urls/middleware/validateResource");
+import { getResourceAndId } from "./urls/middleware/getResourceAndId";
+import { errorHandler } from "./errors/middleware/errorHandler";
+import { createValidateResourceMiddle } from "./urls/middleware/validateResource";
 
-const { createRoutes } = require("./routes");
+import { createRoutes } from "./routes";
 
-const { createQuery } = require("./data");
+import { createQuery } from "./data";
 
-const express = require("express");
+import express, { json } from "express";
 
 function createServer(config) {
   if (!config) config = {};
@@ -20,7 +18,7 @@ function createServer(config) {
   const query = createQuery(config.connectionString);
 
   const app = express();
-  app.use(express.json());
+  app.use(json());
 
   // Routes
 
@@ -47,6 +45,6 @@ function createServer(config) {
   return app;
 }
 
-module.exports = {
-  create: (config) => createServer(config),
-};
+export function create(config) {
+  return createServer(config);
+}

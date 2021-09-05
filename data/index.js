@@ -1,6 +1,6 @@
-const inMemoryQueries = require("./in-memory");
-const { connectDatabase } = require("./mongo/mongo-client");
-const mongoQueries = require("./mongo");
+import inMemoryQueries from "./in-memory";
+import { connectDatabase } from "./mongo/mongo-client";
+import mongoQueries from "./mongo";
 
 //TODO Rename "query" to queries"?
 
@@ -13,4 +13,4 @@ function createQuery(connectionString) {
   return mongoQueries;
 }
 
-module.exports = { createQuery };
+export default { createQuery };

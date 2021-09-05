@@ -1,4 +1,4 @@
-const { getConnection } = require("./mongo-client");
+import { getConnection } from "./mongo-client";
 
 async function getAll(resourceName) {
   const db = getConnection();
@@ -56,4 +56,4 @@ function removeUnderscoreFromId(item) {
   return updatedItem;
 }
 
-module.exports = { getAll, getById, create, update, deleteById, deleteAll };
+export default { getAll, getById, create, update, deleteById, deleteAll };

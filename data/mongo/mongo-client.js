@@ -1,4 +1,4 @@
-const { connect } = require("@rakered/mongo");
+import { connect } from "@rakered/mongo";
 
 let mongoConnection;
 
@@ -14,7 +14,7 @@ function getConnection() {
   return mongoConnection;
 }
 
-module.exports = {
+export default {
   connectDatabase,
   disconnectDatabase,
   getConnection,
