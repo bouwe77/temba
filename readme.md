@@ -35,7 +35,7 @@ Now follow these steps to get «REST I Want» up and running:
 
 3. Optional: Rename the `.env.example` to `.env` and add your MongoDB connection settings
 
-4. Edit `restiwant-config.js` to enter the resource names you want to support
+4. Edit `temba-config.js` to enter the resource names you want to support
 
 5. Start «REST I Want»: `npm start`
 
@@ -43,7 +43,7 @@ Now follow these steps to get «REST I Want» up and running:
 
 ## Documentation
 
-Once you have the app up and running you can do CRUD requests to the resources you have configured in `restiwant-config.js`:
+Once you have the app up and running you can do CRUD requests to the resources you have configured in `temba-config.js`:
 
 ```js
 const resourceNames = ["articles", "authors"];

@@ -1,4 +1,4 @@
-const { resourceNames } = require("../../restiwant-config");
+const { resourceNames } = require("../../temba-config");
 
 function validateResource(req, _, next) {
   const { resourceName } = req.requestInfo;

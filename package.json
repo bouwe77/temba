@@ -1,5 +1,5 @@
 {
-  "name": "soksawat",
+  "name": "temba",
   "version": "0.1.0",
   "description": "",
   "main": "server.js",
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "restiwant"
+    "url": "temba"
   },
   "author": "Bouwe",
   "license": "ISC",
