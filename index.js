@@ -11,9 +11,9 @@ const { createQuery } = require("./data");
 const express = require("express");
 
 function createServer(config) {
-  if (!config) throw new Error("Please provide a config object");
+  if (!config) config = {};
   if (!config.resourceNames || config.resourceNames.length === 0)
-    config.resourceNames = ["songs", "articles"];
+    config.resourceNames = ["articles"];
 
   const validateResource = createValidateResourceMiddle(config.resourceNames);
 
