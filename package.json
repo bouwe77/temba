@@ -1,12 +1,9 @@
 {
   "name": "temba",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "start": "nodemon server.js",
-    "test": "jest --watch"
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "temba"
