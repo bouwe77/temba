@@ -1,12 +1,27 @@
 # Temba
 
-> Get a simple REST API backed by MongoDB with zero coding in less than 30 seconds (seriously). For developers who need a quick backend for their small and/or hobby projects.
+> Get a simple REST API backed by MongoDB with zero coding in less than 30 seconds (seriously).
+>
+> For developers who need a quick backend for their small and/or hobby projects.
 
 Powered by NodeJS, Express and MongoDB.
 
 This project is inspired by [json-server](https://github.com/typicode/json-server), but instead of a JSON file it uses a real database. The goal, however, is the same: Get you started with a REST API very quickly.
 
-## Which problem does it solve?
+# Table of contents
+
+[Temba?](#temba)
+[Which problem does Temba solve?](#which-problem-does-temba-solve)
+[Getting started](#getting-started)
+[Documentation](#documentation)
+[When NOT to use?](#when-not-to-use)
+[Under the hood](#under-the-hood)
+
+## Temba?
+
+The name Temba comes from the Star Trek - The Next Episode called "Darmok". In the Tamarian language Temba means something like _"gift"_. This is my gift to you... 🧔🏻 💖
+
+## Which problem does Temba solve?
 
 The problem with JSON file solutions like json-server is the limitations you have when hosting your app.
 
@@ -16,7 +31,7 @@ And hosting json-server on Heroku does give you persistence, but is not reliable
 
 These limitations are the whole idea behind json-server, but if you don't like the persistence limitation and don't mind having a database, you might want to try Temba.
 
-# Getting Started
+## Getting Started
 
 Prerequisites you need to have:
 
@@ -99,6 +114,6 @@ As you've read, Temba is very, very, limited in its functionality and this is mo
 
 However, because it uses a database instead of a JSON file, it may be a quite robust solution for your use case.
 
-# Under the hood
+## Under the hood
 
 Temba is built with JavaScript, Node and Express.
