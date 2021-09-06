@@ -13,6 +13,11 @@
   },
   "author": "Bouwe",
   "license": "ISC",
+  "files": [
+    "dist/**",
+    "package.json",
+    "!__tests__"
+  ],
   "devDependencies": {
     "@babel/core": "^7.15.5",
     "@babel/node": "^7.15.4",
