@@ -1,5 +1,5 @@
 import inMemoryQueries from './in-memory'
-import { connectDatabase } from './mongo/mongo-client'
+import connectDatabase from './mongo/mongo-client'
 import mongoQueries from './mongo'
 
 //TODO Rename "query" to queries"?

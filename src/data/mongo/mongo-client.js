@@ -14,4 +14,4 @@ function getConnection() {
   return mongoConnection
 }
 
-export { connectDatabase, disconnectDatabase, getConnection }
+export default { connectDatabase, disconnectDatabase, getConnection }

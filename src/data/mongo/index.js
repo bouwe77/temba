@@ -56,4 +56,4 @@ function removeUnderscoreFromId(item) {
   return updatedItem
 }
 
-export { getAll, getById, create, update, deleteById, deleteAll }
+export default { getAll, getById, create, update, deleteById, deleteAll }
