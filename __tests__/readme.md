@@ -1,27 +1,29 @@
 # End-to-End Tests for Temba
 
-These tests will be run locally (for now).
+The `__tests__` folder contains end to end tests. They need a running Temba server, which you can find in the `__tests__/app` folder.
 
-## How to:
+So what you do to run the tests is first start the Temba server app and then run the tests. For now, this is something you do locally.
+
+## Steps:
 
 1. Navigate to the Temba project root folder.
 
-1. Build Temba:
+2. Build Temba:
 
 ```bash
 npm run build
 ```
 
-1. Start the test app:
+3. Start the test app:
 
 ```bash
-node app/server.js
+node __tests__/app/server.js
 ```
 
-1. Check `_config.js` for the correct `hostname` and port.
+4. Check `__tests__/_config.js` for the correct `hostname` and port.
 
-1. Run the tests:
+5. Run the tests:
 
 ```bash
-npm t
+cd __tests__ && npm t
 ```
