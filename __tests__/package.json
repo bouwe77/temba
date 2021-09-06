@@ -6,8 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "babel-node app/server.js",
-    "piet": "node --experimental-vm-modules node_modules/.bin/jest --watch",
-    "test": "jest --watch"
+    "test": "node --experimental-vm-modules node_modules/.bin/jest --watch"
   },
   "author": "Bouwe (https://bouwe.io)",
   "license": "ISC",
