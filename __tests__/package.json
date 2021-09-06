@@ -1,0 +1,35 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "babel-node app/server.js",
+    "piet": "node --experimental-vm-modules node_modules/.bin/jest --watch",
+    "test": "jest --watch"
+  },
+  "author": "Bouwe (https://bouwe.io)",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.15.5",
+    "@babel/node": "^7.15.4",
+    "@babel/preset-env": "^7.15.4",
+    "jest": "^27.1.0",
+    "node-fetch": "^3.0.0"
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env"
+    ]
+  },
+  "jest": {
+    "testMatch": [
+      "**/?(*.)+(test).[jt]s?(x)"
+    ],
+    "setupFilesAfterEnv": [
+      "jest-extended"
+    ],
+    "transform": {}
+  }
+}

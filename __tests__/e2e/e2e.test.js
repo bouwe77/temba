@@ -11,7 +11,7 @@ beforeEach(async () => {
   expect(deleteAllResponse.status).toBe(204)
 })
 
-test('Create, update and delete an item', async () => {
+test.only('Create, update and delete an item', async () => {
   // Initially, there are no items so a get all returns an empty array.
   const getAllResponse = await fetch(hostname + resource)
   expect(getAllResponse.status).toBe(200)
