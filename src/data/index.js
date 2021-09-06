@@ -13,4 +13,4 @@ function createQuery(connectionString) {
   return mongoQueries;
 }
 
-export default { createQuery };
+export { createQuery };

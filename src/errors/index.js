@@ -4,6 +4,4 @@ function new404NotFoundError(message = "Not Found") {
   return error;
 }
 
-export default {
-  new404NotFoundError,
-};
+export { new404NotFoundError };

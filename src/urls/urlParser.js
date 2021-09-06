@@ -9,4 +9,4 @@ function parseUrl(url) {
   return { resourceName, id };
 }
 
-export default { parseUrl };
+export { parseUrl };

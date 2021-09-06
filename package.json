@@ -1,9 +1,12 @@
 {
   "name": "temba",
-  "version": "0.3.1",
+  "version": "0.4.1",
   "description": "",
-  "main": "index.js",
-  "scripts": {},
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "npx babel src --out-dir dist",
+    "start": "npx babel src --watch --out-dir dist"
+  },
   "repository": {
     "type": "git",
     "url": "temba"
@@ -11,13 +14,16 @@
   "author": "Bouwe",
   "license": "ISC",
   "devDependencies": {
-    "jest": "^27.1.0",
-    "jest-extended": "^0.11.5",
     "@babel/core": "^7.15.5",
     "@babel/node": "^7.15.4",
-    "@babel/preset-env": "^7.15.4"
+    "@babel/plugin-transform-runtime": "^7.15.0",
+    "@babel/preset-env": "^7.15.4",
+    "babel-core": "^7.0.0-bridge.0",
+    "jest": "^27.1.0",
+    "jest-extended": "^0.11.5"
   },
   "dependencies": {
+    "@babel/runtime": "^7.15.4",
     "@rakered/mongo": "^1.6.0",
     "express": "^4.17.1"
   }

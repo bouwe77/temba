@@ -63,11 +63,4 @@ function createResourceArrayIfNecessary(resourceName) {
   if (!data.hasOwnProperty(resourceName)) data[resourceName] = [];
 }
 
-export default {
-  getAll,
-  getById,
-  create,
-  update,
-  deleteById,
-  deleteAll,
-};
+export { getAll, getById, create, update, deleteById, deleteAll };

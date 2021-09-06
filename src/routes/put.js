@@ -19,4 +19,4 @@ function createPutRoutes(query) {
   };
 }
 
-export default { createPutRoutes };
+export { createPutRoutes };

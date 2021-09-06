@@ -10,4 +10,4 @@ function getResourceAndId(req, _, next) {
   return next();
 }
 
-export default { getResourceAndId };
+export { getResourceAndId };

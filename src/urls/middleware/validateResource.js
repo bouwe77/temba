@@ -1,4 +1,4 @@
-function createValidateResourceMiddle(resourceNames) {
+export function createValidateResourceMiddleware(resourceNames) {
   return function validateResource(req, _, next) {
     const { resourceName } = req.requestInfo;
 
@@ -14,5 +14,3 @@ function createValidateResourceMiddle(resourceNames) {
     return next();
   };
 }
-
-export default { createValidateResourceMiddle };

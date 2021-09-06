@@ -1,6 +1,6 @@
 import { getResourceAndId } from "./urls/middleware/getResourceAndId";
 import { errorHandler } from "./errors/middleware/errorHandler";
-import { createValidateResourceMiddle } from "./urls/middleware/validateResource";
+import { createValidateResourceMiddleware } from "./urls/middleware/validateResource";
 
 import { createRoutes } from "./routes";
 
@@ -13,7 +13,9 @@ function createServer(config) {
   if (!config.resourceNames || config.resourceNames.length === 0)
     config.resourceNames = ["articles"];
 
-  const validateResource = createValidateResourceMiddle(config.resourceNames);
+  const validateResource = createValidateResourceMiddleware(
+    config.resourceNames
+  );
 
   const query = createQuery(config.connectionString);
 

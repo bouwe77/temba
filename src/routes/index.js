@@ -22,6 +22,4 @@ function createRoutes(query) {
   };
 }
 
-export default {
-  createRoutes,
-};
+export { createRoutes };

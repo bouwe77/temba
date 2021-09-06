@@ -22,4 +22,4 @@ function createPostRoutes(query) {
   };
 }
 
-export default { createPostRoutes };
+export { createPostRoutes };
