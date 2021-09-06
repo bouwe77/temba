@@ -1,17 +1,17 @@
-import { connect } from "@rakered/mongo";
+import { connect } from '@rakered/mongo'
 
-let mongoConnection;
+let mongoConnection
 
 async function connectDatabase(databaseUri) {
-  mongoConnection = await connect(databaseUri);
+  mongoConnection = await connect(databaseUri)
 }
 
 async function disconnectDatabase() {
-  await mongoConnection.disconnect();
+  await mongoConnection.disconnect()
 }
 
 function getConnection() {
-  return mongoConnection;
+  return mongoConnection
 }
 
-export { connectDatabase, disconnectDatabase, getConnection };
+export { connectDatabase, disconnectDatabase, getConnection }

@@ -70,8 +70,8 @@ server.listen(port, () => {
 Temba gives you a CRUD REST API to the resource names you have configured when creating the server:
 
 ```js
-const config = { resourceNames: ["movies", "actors"] };
-const server = temba.create(config);
+const config = { resourceNames: ['movies', 'actors'] }
+const server = temba.create(config)
 ```
 
 > Providing a configuration is not required. Also providing the `config.resourceNames` is not required. If you don't provide them, you have the default "articles" resource at your disposal.

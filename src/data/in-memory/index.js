@@ -1,66 +1,66 @@
-const data = {};
+const data = {}
 
 function getAll(resourceName) {
-  createResourceArrayIfNecessary(resourceName);
+  createResourceArrayIfNecessary(resourceName)
 
   return new Promise((resolve) => {
-    resolve(data[resourceName]);
-  });
+    resolve(data[resourceName])
+  })
 }
 
 function getById(resourceName, id) {
-  createResourceArrayIfNecessary(resourceName);
+  createResourceArrayIfNecessary(resourceName)
 
   return new Promise((resolve) => {
-    resolve(data[resourceName].find((item) => item.id === id));
-  });
+    resolve(data[resourceName].find((item) => item.id === id))
+  })
 }
 
 function create(resourceName, item) {
-  createResourceArrayIfNecessary(resourceName);
+  createResourceArrayIfNecessary(resourceName)
 
-  const newItem = { ...item, id: String(new Date().getTime()) };
+  const newItem = { ...item, id: String(new Date().getTime()) }
 
-  data[resourceName] = [...data[resourceName], newItem];
+  data[resourceName] = [...data[resourceName], newItem]
 
   return new Promise((resolve) => {
-    resolve(newItem);
-  });
+    resolve(newItem)
+  })
 }
 
 function update(resourceName, item) {
-  createResourceArrayIfNecessary(resourceName);
+  createResourceArrayIfNecessary(resourceName)
 
-  const updatedItem = { ...item };
+  const updatedItem = { ...item }
   data[resourceName] = [
     ...data[resourceName].filter((r) => r.id !== item.id),
     updatedItem,
-  ];
+  ]
   return new Promise((resolve) => {
-    resolve(updatedItem);
-  });
+    resolve(updatedItem)
+  })
 }
 
 function deleteById(resourceName, id) {
-  createResourceArrayIfNecessary(resourceName);
+  createResourceArrayIfNecessary(resourceName)
 
-  data[resourceName].filter((item) => item.id !== id);
+  data[resourceName].filter((item) => item.id !== id)
   return new Promise((resolve) => {
-    resolve();
-  });
+    resolve()
+  })
 }
 
 function deleteAll(resourceName) {
-  createResourceArrayIfNecessary(resourceName);
+  createResourceArrayIfNecessary(resourceName)
 
-  data[resourceName] = [];
+  data[resourceName] = []
   return new Promise((resolve) => {
-    resolve([]);
-  });
+    resolve([])
+  })
 }
 
 function createResourceArrayIfNecessary(resourceName) {
-  if (!data.hasOwnProperty(resourceName)) data[resourceName] = [];
+  if (!data.hasOwnProperty(resourceName)) data[resourceName] = []
 }
 
-export { getAll, getById, create, update, deleteById, deleteAll };
+export { getAll, getById, create, update, deleteById, deleteAll }

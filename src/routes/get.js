@@ -1,26 +1,26 @@
 function createGetRoutes(query) {
   return {
     handleGetResource: async function handleGetResource(req, res) {
-      const { resourceName, id } = req.requestInfo;
+      const { resourceName, id } = req.requestInfo
 
       if (id) {
-        const item = await query.getById(resourceName, id);
+        const item = await query.getById(resourceName, id)
 
-        if (!item) res.status(404);
+        if (!item) res.status(404)
         else {
-          res.status(200).json(item);
+          res.status(200).json(item)
         }
       } else {
-        const items = await query.getAll(resourceName);
-        res.status(200).json(items);
+        const items = await query.getAll(resourceName)
+        res.status(200).json(items)
       }
 
-      res.send();
+      res.send()
     },
     handleGetDefaultPage: function handleGetDefaultPage(_, res) {
-      res.send("It works! (ツ)");
+      res.send('It works! (ツ)')
     },
-  };
+  }
 }
 
-export { createGetRoutes };
+export { createGetRoutes }

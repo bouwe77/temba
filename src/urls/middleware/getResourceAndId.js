@@ -1,13 +1,13 @@
-import { parseUrl } from "../urlParser";
+import { parseUrl } from '../urlParser'
 
 function getResourceAndId(req, _, next) {
-  let urlInfo = parseUrl(req.url);
+  let urlInfo = parseUrl(req.url)
 
-  req.requestInfo = { ...req.requestInfo, ...urlInfo };
+  req.requestInfo = { ...req.requestInfo, ...urlInfo }
 
-  console.log(req.requestInfo);
+  console.log(req.requestInfo)
 
-  return next();
+  return next()
 }
 
-export { getResourceAndId };
+export { getResourceAndId }
