@@ -1,5 +1,5 @@
 import inMemoryQueries from './in-memory'
-import connectDatabase from './mongo/connection'
+import mongoConnection from './mongo/connection'
 import mongoQueries from './mongo'
 
 //TODO Rename "query" to queries"?
@@ -9,7 +9,7 @@ function createQueries(connectionString) {
     return inMemoryQueries
   }
 
-  connectDatabase(connectionString)
+  mongoConnection.connectDatabase(connectionString)
   return mongoQueries
 }
 
