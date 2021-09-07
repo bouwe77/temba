@@ -1,4 +1,4 @@
-import { create } from '../../dist/index.js'
+import { create } from '../../dist/server.js'
 
 const config = {
   resourceNames: ['movies'],
