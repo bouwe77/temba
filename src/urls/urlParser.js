@@ -1,10 +1,10 @@
 function parseUrl(url) {
   if (!url || (url && !url.trim())) return { resourceName: null, id: null }
 
-  const segments = url.split('/').filter((i) => i)
+  const urlSegments = url.split('/').filter((i) => i)
 
-  const resourceName = segments.length > 0 ? segments[0] : null
-  const id = segments.length > 1 ? segments[1] : null
+  const resourceName = urlSegments.length > 0 ? urlSegments[0] : null
+  const id = urlSegments.length > 1 ? urlSegments[1] : null
 
   return { resourceName, id }
 }

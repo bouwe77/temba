@@ -1,5 +1,5 @@
 function errorHandler(err, _, res, next) {
-  console.log('errorHandler middleware: ' + err.message)
+  console.log('errorHandler: ' + err.message)
 
   if (!err.status) err.status = 500
 

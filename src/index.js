@@ -1,29 +1,25 @@
+import express, { json } from 'express'
+
 import { getResourceAndId } from './urls/middleware/getResourceAndId'
 import { errorHandler } from './errors/middleware/errorHandler'
 import { createValidateResourceMiddleware } from './urls/middleware/validateResource'
-
 import { createRoutes } from './routes'
+import { createQueries } from './queries'
+import { initConfig } from './config'
 
-import { createQuery } from './data'
-
-import express, { json } from 'express'
-
-function createServer(config) {
-  if (!config) config = {}
-  if (!config.resourceNames || config.resourceNames.length === 0)
-    config.resourceNames = ['articles']
+function createServer(userConfig) {
+  const config = initConfig(userConfig)
 
   const validateResource = createValidateResourceMiddleware(
     config.resourceNames,
   )
 
-  const query = createQuery(config.connectionString)
+  const query = createQueries(config.connectionString)
 
   const app = express()
   app.use(json())
 
   // Routes
-
   const routes = createRoutes(query)
 
   // A GET to the root URL shows a default message.
@@ -47,6 +43,6 @@ function createServer(config) {
   return app
 }
 
-export function create(config) {
-  return createServer(config)
+export function create(userConfig) {
+  return createServer(userConfig)
 }

@@ -1,4 +1,4 @@
-import { getConnection } from './mongo-client'
+import { getConnection } from './connection'
 
 async function getAll(resourceName) {
   const db = getConnection()

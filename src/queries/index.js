@@ -1,10 +1,10 @@
 import inMemoryQueries from './in-memory'
-import connectDatabase from './mongo/mongo-client'
+import connectDatabase from './mongo/connection'
 import mongoQueries from './mongo'
 
 //TODO Rename "query" to queries"?
 
-function createQuery(connectionString) {
+function createQueries(connectionString) {
   if (!connectionString) {
     return inMemoryQueries
   }
@@ -13,4 +13,4 @@ function createQuery(connectionString) {
   return mongoQueries
 }
 
-export { createQuery }
+export { createQueries }

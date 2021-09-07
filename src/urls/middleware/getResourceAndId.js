@@ -5,8 +5,6 @@ function getResourceAndId(req, _, next) {
 
   req.requestInfo = { ...req.requestInfo, ...urlInfo }
 
-  console.log(req.requestInfo)
-
   return next()
 }
 
