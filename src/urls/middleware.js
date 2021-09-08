@@ -1,4 +1,14 @@
-export function createValidateResourceMiddleware(resourceNames) {
+import { parseUrl } from './urlParser'
+
+function getResourceAndId(req, _, next) {
+  let urlInfo = parseUrl(req.url)
+
+  req.requestInfo = { ...req.requestInfo, ...urlInfo }
+
+  return next()
+}
+
+function createValidateResourceMiddleware(resourceNames) {
   return function validateResource(req, _, next) {
     const { resourceName } = req.requestInfo
 
@@ -14,3 +24,5 @@ export function createValidateResourceMiddleware(resourceNames) {
     return next()
   }
 }
+
+export { getResourceAndId, createValidateResourceMiddleware }

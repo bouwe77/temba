@@ -1,8 +1,10 @@
 import express, { json } from 'express'
 import morgan from 'morgan'
-import { getResourceAndId } from './urls/middleware/getResourceAndId'
-import { errorHandler } from './errors/middleware/errorHandler'
-import { createValidateResourceMiddleware } from './urls/middleware/validateResource'
+import { errorHandler } from './errors/middleware'
+import {
+  createValidateResourceMiddleware,
+  getResourceAndId,
+} from './urls/middleware'
 import { createRoutes } from './routes'
 import createQueries from './queries'
 import { initConfig } from './config'
