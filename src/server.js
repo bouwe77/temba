@@ -1,10 +1,10 @@
 import express, { json } from 'express'
-
+import morgan from 'morgan'
 import { getResourceAndId } from './urls/middleware/getResourceAndId'
 import { errorHandler } from './errors/middleware/errorHandler'
 import { createValidateResourceMiddleware } from './urls/middleware/validateResource'
 import { createRoutes } from './routes'
-import { createQueries } from './queries'
+import createQueries from './queries'
 import { initConfig } from './config'
 
 function createServer(userConfig) {
@@ -14,13 +14,14 @@ function createServer(userConfig) {
     config.resourceNames,
   )
 
-  const query = createQueries(config.connectionString)
+  const queries = createQueries(config.connectionString)
 
   const app = express()
   app.use(json())
+  app.use(morgan('tiny'))
 
   // Routes
-  const routes = createRoutes(query)
+  const routes = createRoutes(queries)
 
   // A GET to the root URL shows a default message.
   app.get('/', routes.handleGetDefaultPage)
