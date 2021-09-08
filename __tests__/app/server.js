@@ -3,7 +3,7 @@ import { create } from '../../dist/server.js'
 
 const config = {
   resourceNames: ['movies'],
-  connectionString: process.env.MONGO_URL,
+  //connectionString: process.env.MONGO_URL,
 }
 
 const server = create(config)
