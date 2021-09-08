@@ -48,7 +48,7 @@ function update(resourceName, item) {
 function deleteById(resourceName, id) {
   createResourceArrayIfNecessary(resourceName)
 
-  data[resourceName].filter((item) => item.id !== id)
+  data[resourceName] = data[resourceName].filter((item) => item.id !== id)
   return new Promise((resolve) => {
     resolve()
   })
