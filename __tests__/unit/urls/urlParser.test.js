@@ -1,4 +1,4 @@
-import { parseUrl } from './urlParser'
+import { parseUrl } from '../../../dist/urls/urlParser'
 
 const noResourceAndNoId = { resourceName: null, id: null }
 const resourceOnly = { resourceName: 'stuff', id: null }
