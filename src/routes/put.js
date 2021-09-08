@@ -1,8 +1,8 @@
 import { new404NotFoundError } from '../errors'
 
 function createPutRoutes(queries) {
-  return {
-    handlePut: async function handlePut(req, res, next) {
+  async function handlePut(req, res, next) {
+    try {
       const { resourceName, id } = req.requestInfo
 
       let item = null
@@ -14,8 +14,14 @@ function createPutRoutes(queries) {
 
       const updatedItem = await queries.update(resourceName, item)
 
-      res.status(200).json(updatedItem).send()
-    },
+      return res.status(200).json(updatedItem).send()
+    } catch (error) {
+      return next(error)
+    }
+  }
+
+  return {
+    handlePut,
   }
 }
 

@@ -1,6 +1,6 @@
 function createGetRoutes(queries) {
-  return {
-    handleGetResource: async function handleGetResource(req, res) {
+  async function handleGetResource(req, res, next) {
+    try {
       const { resourceName, id } = req.requestInfo
 
       if (id) {
@@ -14,18 +14,26 @@ function createGetRoutes(queries) {
         const items = await queries.getAll(resourceName)
         res.status(200).json(items)
       }
+    } catch (error) {
+      return next(error)
+    }
 
-      res.send()
-    },
-    handleGetDefaultPage: async function handleGetDefaultPage(_, res) {
-      try {
-        await queries.connectToDatabase()
-      } catch (error) {
-        return res.send('Could not connect to DB: ' + error.message)
-      }
+    return res.send()
+  }
 
-      res.send('It works! ツ')
-    },
+  async function handleGetDefaultPage(_, res) {
+    try {
+      await queries.connectToDatabase()
+    } catch (error) {
+      return res.send('Could not connect to DB: ' + error.message)
+    }
+
+    return res.send('It works! ツ')
+  }
+
+  return {
+    handleGetResource,
+    handleGetDefaultPage,
   }
 }
 

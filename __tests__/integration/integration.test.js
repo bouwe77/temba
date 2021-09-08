@@ -8,7 +8,7 @@ test('GET on root URL returns welcome text', async () => {
   expect(response.status).toBe(200)
 
   const text = await response.text()
-  expect(text).toBe('It works! (ツ)')
+  expect(text).toBe('It works! ツ')
 })
 
 test('POST on root URL returns Method Not Allowed error', async () => {

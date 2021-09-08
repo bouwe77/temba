@@ -43,6 +43,12 @@ function createServer(userConfig) {
   // Error middleware.
   app.use(errorHandler)
 
+  // app.use((error, req, res, next) => {
+  //   console.log('========== ERROR =================')
+  //   console.log(error.toString())
+  //   return res.status(500).json({ message: error.toString() })
+  // })
+
   return app
 }
 

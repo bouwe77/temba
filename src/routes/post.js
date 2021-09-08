@@ -1,13 +1,13 @@
 import { format } from 'url'
 
 function createPostRoutes(queries) {
-  return {
-    handlePost: async function handlePost(req, res) {
+  async function handlePost(req, res, next) {
+    try {
       const { resourceName } = req.requestInfo
 
       const newItem = await queries.create(resourceName, req.body)
 
-      res
+      return res
         .set({
           Location: format({
             protocol: req.protocol,
@@ -18,7 +18,13 @@ function createPostRoutes(queries) {
         .status(201)
         .json(newItem)
         .send()
-    },
+    } catch (error) {
+      return next(error)
+    }
+  }
+
+  return {
+    handlePost,
   }
 }
 
