@@ -7,11 +7,11 @@ function handleMethodNotAllowed(_, res) {
   res.status(405).json({ message: 'Method Not Allowed' })
 }
 
-function createRoutes(query) {
-  const getRoutes = createGetRoutes(query)
-  const postRoutes = createPostRoutes(query)
-  const putRoutes = createPutRoutes(query)
-  const deleteRoutes = createDeleteRoutes(query)
+function createRoutes(queries) {
+  const getRoutes = createGetRoutes(queries)
+  const postRoutes = createPostRoutes(queries)
+  const putRoutes = createPutRoutes(queries)
+  const deleteRoutes = createDeleteRoutes(queries)
 
   return {
     ...getRoutes,

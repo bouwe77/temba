@@ -1,16 +1,11 @@
 import inMemoryQueries from './in-memory'
-import mongoConnection from './mongo/connection'
-import mongoQueries from './mongo'
+import createMongoQueries from './mongo'
 
-//TODO Rename "query" to queries"?
-
-function createQueries(connectionString) {
+export default function createQueries(connectionString) {
   if (!connectionString) {
     return inMemoryQueries
   }
 
-  mongoConnection.connectDatabase(connectionString)
+  const mongoQueries = createMongoQueries(connectionString)
   return mongoQueries
 }
-
-export { createQueries }

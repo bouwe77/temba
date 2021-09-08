@@ -1,14 +1,30 @@
-import { getConnection } from './connection'
+import { connect } from '@rakered/mongo'
+
+let uri
+let db
+
+async function connectToDatabaseIfNecessary() {
+  if (!db) {
+    console.log('Connecting...')
+    db = await connect(uri)
+  }
+}
+
+export default function createMongoQueries(connectionString) {
+  uri = connectionString
+
+  return { getAll, getById, create, update, deleteById, deleteAll }
+}
 
 async function getAll(resourceName) {
-  const db = getConnection()
+  await connectToDatabaseIfNecessary()
 
   const items = await db[resourceName].find({})
   return items.map((item) => removeUnderscoreFromId(item))
 }
 
 async function getById(resourceName, id) {
-  const db = getConnection()
+  await connectToDatabaseIfNecessary()
 
   const item = await db[resourceName].findOne({ _id: id })
 
@@ -16,7 +32,7 @@ async function getById(resourceName, id) {
 }
 
 async function create(resourceName, item) {
-  const db = getConnection()
+  await connectToDatabaseIfNecessary()
 
   const createdItem = await db[resourceName].insertOne(item)
 
@@ -24,7 +40,7 @@ async function create(resourceName, item) {
 }
 
 async function update(resourceName, item) {
-  const db = getConnection()
+  await connectToDatabaseIfNecessary()
 
   const id = item.id
   delete item.id
@@ -39,13 +55,13 @@ async function update(resourceName, item) {
 }
 
 async function deleteById(resourceName, id) {
-  const db = getConnection()
+  await connectToDatabaseIfNecessary()
 
   await db[resourceName].deleteOne({ _id: id })
 }
 
 async function deleteAll(resourceName) {
-  const db = getConnection()
+  await connectToDatabaseIfNecessary()
 
   await db[resourceName].deleteMany({})
 }
@@ -55,5 +71,3 @@ function removeUnderscoreFromId(item) {
   delete updatedItem._id
   return updatedItem
 }
-
-export default { getAll, getById, create, update, deleteById, deleteAll }
