@@ -103,6 +103,12 @@ test('Create, update and delete an item', async () => {
     method: 'DELETE',
   })
   expect(deleteResponse.status).toBe(204)
+
+  // Check there are no items anymore.
+  const getAllResponse3 = await fetch(hostname + resource)
+  expect(getAllResponse3.status).toBe(200)
+  const jsonNoItems3 = await getAllResponse3.json()
+  expect(jsonNoItems3.length).toBe(0)
 })
 
 test('When POSTing and PUTting with ID in request body, ignore ID in body', async () => {
