@@ -1,5 +1,9 @@
 const data = {}
 
+function connectToDatabase() {
+  // do nothing
+}
+
 function getAll(resourceName) {
   createResourceArrayIfNecessary(resourceName)
 
@@ -63,4 +67,12 @@ function createResourceArrayIfNecessary(resourceName) {
   if (!data.hasOwnProperty(resourceName)) data[resourceName] = []
 }
 
-export default { getAll, getById, create, update, deleteById, deleteAll }
+export default {
+  connectToDatabase,
+  getAll,
+  getById,
+  create,
+  update,
+  deleteById,
+  deleteAll,
+}

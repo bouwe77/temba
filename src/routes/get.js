@@ -17,8 +17,14 @@ function createGetRoutes(queries) {
 
       res.send()
     },
-    handleGetDefaultPage: function handleGetDefaultPage(_, res) {
-      res.send('It works! (ツ)')
+    handleGetDefaultPage: async function handleGetDefaultPage(_, res) {
+      try {
+        await queries.connectToDatabase()
+      } catch (error) {
+        return res.send('Could not connect to DB: ' + error.message)
+      }
+
+      res.send('It works! ツ')
     },
   }
 }
