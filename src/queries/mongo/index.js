@@ -20,6 +20,9 @@ async function getAll(resourceName) {
   await connectToDatabaseIfNecessary()
 
   const items = await db[resourceName].find({})
+
+  if (!items) return []
+
   return items.map((item) => removeUnderscoreFromId(item))
 }
 
@@ -27,6 +30,8 @@ async function getById(resourceName, id) {
   await connectToDatabaseIfNecessary()
 
   const item = await db[resourceName].findOne({ _id: id })
+
+  if (!item) return null
 
   return removeUnderscoreFromId(item)
 }
