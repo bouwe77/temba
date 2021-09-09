@@ -32,8 +32,6 @@ A metaphor for the declining of a gift, from the [Star Trek - The Next Generatio
 
 In the fictional Tamarian language the word _"Temba"_ means something like _"gift"_.
 
-This library is my gift to you... 🧔🏻 💖
-
 ## Getting Started
 
 Prerequisites you need to have:
