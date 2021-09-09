@@ -45,7 +45,7 @@ Prerequisites you need to have:
 
 ### Use the `temba-starter` project
 
-Clone the [temba-starter](https://github.com/bouwe/temba-starter) repo and you are up and running! Refer to the [Features](#features) section for configuration options.
+Clone the [temba-starter](https://github.com/bouwe77/temba-starter) repo and you are up and running! Refer to the [Features](#features) section for configuration options.
 
 ### Manually adding to an existing app
 
