@@ -24,7 +24,7 @@ function createServer(userConfig) {
   app.use(morgan('tiny'))
 
   if (config.staticFolder) {
-    app.use(express.static(staticFolder))
+    app.use(express.static(config.staticFolder))
   }
 
   // Routes
