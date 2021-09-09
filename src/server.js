@@ -23,6 +23,10 @@ function createServer(userConfig) {
   app.use(json())
   app.use(morgan('tiny'))
 
+  if (config.staticFolder) {
+    app.use(express.static(staticFolder))
+  }
+
   // Routes
   const routes = createRoutes(queries)
 
