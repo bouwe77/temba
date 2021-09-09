@@ -8,8 +8,10 @@ function getResourceAndId(req, _, next) {
   return next()
 }
 
-function createValidateResourceMiddleware(resourceNames) {
+function createValidateResourceMiddleware(validateResources, resourceNames) {
   return function validateResource(req, _, next) {
+    if (!validateResources) return next()
+
     const { resourceName } = req.requestInfo
 
     if (!resourceName) return next()

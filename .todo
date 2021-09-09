@@ -1,8 +1,8 @@
 TODO
 
-- Controle op geconfigureerde resource names optioneel via config
+- Integratietest voor config.validateResources
 - Alle Jest meuk naar de root project folder, zodat unit tests het ook weer doen
-- Tests config.test.js maken
+- Tests voor de initConfig in config.test.js maken
 - Logger in gebruik nemen en zinvollere logging
 - TypeScript
 - ESLint

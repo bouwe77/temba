@@ -13,6 +13,7 @@ function createServer(userConfig) {
   const config = initConfig(userConfig)
 
   const validateResource = createValidateResourceMiddleware(
+    config.validateResources,
     config.resourceNames,
   )
 

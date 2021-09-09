@@ -7,6 +7,13 @@ export function initConfig(config) {
     config.resourceNames = ['articles']
 
   if (
+    typeof config.validateResources === 'undefined' ||
+    config.validateResources === null
+  ) {
+    config.validateResources = true
+  } else config.validateResources = !!config.validateResources
+
+  if (
     !config.logLevel ||
     config.logLevel.length === 0 ||
     !Object.keys(logLevels).includes(config.logLevel.toUpperCase())
