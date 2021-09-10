@@ -2,7 +2,7 @@ import { parseUrl } from './urlParser'
 
 function createResourceAndIdParser(pathPrefix) {
   return function getResourceAndId(req, _, next) {
-    const url = req.url.replace(pathPrefix, '')
+    const url = req.baseUrl.replace(pathPrefix, '')
     let urlInfo = parseUrl(url)
 
     req.requestInfo = { ...req.requestInfo, ...urlInfo }

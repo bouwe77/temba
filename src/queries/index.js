@@ -1,7 +1,7 @@
 import inMemoryQueries from './in-memory'
 import createMongoQueries from './mongo'
 
-export default function createQueries(connectionString) {
+function createQueries(connectionString) {
   if (!connectionString) {
     return inMemoryQueries
   }
@@ -9,3 +9,5 @@ export default function createQueries(connectionString) {
   const mongoQueries = createMongoQueries(connectionString)
   return mongoQueries
 }
+
+export { createQueries }

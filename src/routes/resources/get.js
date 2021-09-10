@@ -21,19 +21,8 @@ function createGetRoutes(queries) {
     return res.send()
   }
 
-  async function handleGetDefaultPage(_, res) {
-    try {
-      await queries.connectToDatabase()
-    } catch (error) {
-      return res.send('Could not connect to DB: ' + error.message)
-    }
-
-    return res.send('It works! ツ')
-  }
-
   return {
     handleGetResource,
-    handleGetDefaultPage,
   }
 }
 

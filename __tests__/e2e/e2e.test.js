@@ -19,7 +19,7 @@ test('Create, update and delete an item', async () => {
   expect(jsonNoItems.length).toBe(0)
 
   // Initially, there are no items so a getting an id returns a 404.
-  const getOneResponse = await fetch(hostname + resource + '/id_does_not_exist')
+  const getOneResponse = await fetch(hostname + resource + 'id_does_not_exist')
   expect(getOneResponse.status).toBe(404)
 
   // Initially, there are no items so a updating an id returns a 404.
