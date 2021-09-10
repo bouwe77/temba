@@ -3,7 +3,7 @@ import morgan from 'morgan'
 import { errorHandler } from './errors/middleware'
 import {
   createValidateResourceMiddleware,
-  getResourceAndId,
+  createResourceAndIdParser,
 } from './urls/middleware'
 import { createRoutes } from './routes'
 import createQueries from './queries'
@@ -16,6 +16,7 @@ function createServer(userConfig) {
     config.validateResources,
     config.resourceNames,
   )
+  const getResourceAndId = createResourceAndIdParser(config.pathPrefix)
 
   const queries = createQueries(config.connectionString)
 
@@ -31,19 +32,24 @@ function createServer(userConfig) {
   const routes = createRoutes(queries)
 
   // A GET to the root URL shows a default message.
-  app.get('/', routes.handleGetDefaultPage)
+  app.get('/' + config.pathPrefix, routes.handleGetDefaultPage)
 
   // All other requests to the root URL are not allowed.
   app.all('/', routes.handleMethodNotAllowed)
+  if (config.pathPrefix)
+    app.all(config.pathPrefix, routes.handleMethodNotAllowed)
 
   // GET, POST, PUT and DELETE to a specific URL are handled.
-  app.get('*', getResourceAndId, validateResource, routes.handleGetResource)
-  app.post('*', getResourceAndId, validateResource, routes.handlePost)
-  app.put('*', getResourceAndId, validateResource, routes.handlePut)
-  app.delete('*', getResourceAndId, validateResource, routes.handleDelete)
+  app
+    .route(config.pathPrefix + '*')
+    .get(getResourceAndId, validateResource, routes.handleGetResource)
+    .post(getResourceAndId, validateResource, routes.handlePost)
+    .put(getResourceAndId, validateResource, routes.handlePut)
+    .delete(getResourceAndId, validateResource, routes.handleDelete)
 
   // All other methods to a specific URL are not allowed.
   app.all('*', routes.handleMethodNotAllowed)
+  if (config.pathPrefix) app.all('*', routes.handleMethodNotAllowed)
 
   // Error middleware.
   app.use(errorHandler)

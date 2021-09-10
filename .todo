@@ -1,5 +1,6 @@
 TODO
 
+- config.apiPrefix toevoegen
 - Validatie config.staticFolder: geen slashes of zo, gewoon een enkele foldernaam
 - Integratietest voor config.validateResources
 - Alle Jest meuk naar de root project folder, zodat unit tests het ook weer doen

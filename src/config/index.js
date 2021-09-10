@@ -21,5 +21,14 @@ export function initConfig(config) {
     config.logLevel = logLevels.INFO
   } else config.logLevel = config.logLevel.toUpperCase()
 
+  if (config.staticFolder) {
+    config.staticFolder = config.staticFolder.replace(/[^a-zA-Z0-9]/g, '')
+  } else config.staticFolder = null
+
+  if (config.pathPrefix) {
+    config.pathPrefix =
+      '/' + config.pathPrefix.replace(/[^a-zA-Z0-9]/g, '') + '/'
+  } else config.pathPrefix = ''
+
   return config
 }
