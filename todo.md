@@ -7,10 +7,7 @@
   - [ ] Make integration tests depending on the user config provided to temba
   - [ ] As integration tests become more complete, simplify E2E tests
 
-- E2E met fetch uitkleden: alleen smoke tests
-- Uitgebreider (meerdere configs) testen met supertest
 - Tests voor de initConfig in config.test.js maken
-- Integratietest voor config.validateResources true/false 404
 - Config documenteren
 - Logger in gebruik nemen en zinvollere logging
 - TypeScript
