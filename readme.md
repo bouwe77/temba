@@ -14,15 +14,7 @@ This project is inspired by the fantastic [json-server](https://github.com/typic
 
 [Getting Started](#getting-started)
 
-[Features](#features)
-
-[Not supported (yet?)](#not-supported-yet)
-
-[When NOT to use?](#when-not-to-use)
-
-[Under the hood](#under-the-hood)
-
-[Which problem does Temba solve?](#which-problem-does-temba-solve)
+[Usage](#usage)
 
 ## Temba?
 
@@ -146,9 +138,7 @@ const server = temba.create(config)
 
 ### Config settings overview
 
-Configuring Temba is optional, it already works out of the box.
-
-However, if you want to use some or all of the settings, you can provide them when creating the Temba server:
+Configuring Temba is optional, it already works out of the box. None of the settings are applicable until you configure them:
 
 ```js
 const config = {
@@ -160,7 +150,7 @@ const config = {
 const server = temba.create(config)
 ```
 
-Here are all the possible settings:
+These are all the possible settings:
 
 | Config setting     | Description                                                               |
 | :----------------- | :------------------------------------------------------------------------ |
@@ -196,12 +186,6 @@ Temba offers no ways for authentication or authorization (yet?), so if someone k
 Also nested (parent-child) are not supported (yet?), so every URI has the /:resource/:id structure and there is no way to indicate any relation, apart from within the JSON itself perhaps.
 
 Also there is no filtering, sorting, searching, custom routes, etc. (yet?).
-
-## When NOT to use
-
-As you've read, Temba is very, very, limited in its functionality and this is mostly deliberate to keep it simple. It is not meant as an enterprise solution.
-
-However, because it uses a database instead of a JSON file, it may be a quite robust solution for your use case.
 
 ## Under the hood
 
