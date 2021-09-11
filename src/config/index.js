@@ -1,33 +1,43 @@
 import { logLevels } from '../logging'
 
-export function initConfig(config) {
-  if (!config) config = {}
+const defaultConfig = {
+  resourceNames: ['articles'],
+  validateResources: true,
+  logLevel: logLevels.DEBUG,
+  staticFolder: null,
+  apiPrefix: '',
+}
 
-  if (!config.resourceNames || config.resourceNames.length === 0)
-    config.resourceNames = ['articles']
+export function initConfig(userConfig) {
+  if (!userConfig) returndefaultConfig
 
+  const config = { ...defaultConfig }
+
+  if (userConfig.resourceNames && userConfig.resourceNames.length > 0) {
+    config.resourceNames = userConfig.resourceNames
+  }
   if (
-    typeof config.validateResources === 'undefined' ||
-    config.validateResources === null
+    typeof userConfig.validateResources !== 'undefined' &&
+    userConfig.validateResources !== null
   ) {
-    config.validateResources = true
-  } else config.validateResources = !!config.validateResources
-
+    config.validateResources = !!userConfig.validateResources
+  }
   if (
-    !config.logLevel ||
-    config.logLevel.length === 0 ||
-    !Object.keys(logLevels).includes(config.logLevel.toUpperCase())
+    userConfig.logLevel &&
+    userConfig.logLevel.length !== 0 &&
+    Object.keys(logLevels).includes(userConfig.logLevel.toUpperCase())
   ) {
-    config.logLevel = logLevels.INFO
-  } else config.logLevel = config.logLevel.toUpperCase()
+    config.logLevel = userConfig.logLevel.toUpperCase()
+  }
 
-  if (config.staticFolder) {
-    config.staticFolder = config.staticFolder.replace(/[^a-zA-Z0-9]/g, '')
-  } else config.staticFolder = null
+  if (userConfig.staticFolder) {
+    config.staticFolder = userConfig.staticFolder.replace(/[^a-zA-Z0-9]/g, '')
+  }
 
-  if (config.apiPrefix) {
-    config.apiPrefix = '/' + config.apiPrefix.replace(/[^a-zA-Z0-9]/g, '') + '/'
-  } else config.apiPrefix = ''
+  if (userConfig.apiPrefix) {
+    userConfig.apiPrefix =
+      '/' + userConfig.apiPrefix.replace(/[^a-zA-Z0-9]/g, '') + '/'
+  }
 
   return config
 }
