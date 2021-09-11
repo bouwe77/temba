@@ -1,4 +1,4 @@
-import { new404NotFoundError } from '../../errors'
+import { new404NotFoundError } from '../errors'
 
 function createPutRoutes(queries) {
   async function handlePut(req, res, next) {

@@ -5,7 +5,7 @@ import { createDeleteRoutes } from './delete'
 import {
   createValidateResourceMiddleware,
   createResourceAndIdParser,
-} from '../../urls/middleware'
+} from '../urls/middleware'
 
 import express from 'express'
 
@@ -35,4 +35,18 @@ function createResourceRouter(
   return resourceRouter
 }
 
-export { createResourceRouter }
+// A GET to the root URL shows a default message.
+const rootRouter = express.Router()
+rootRouter.get('/', async (_, res) => {
+  return res.send('It works! ツ')
+})
+
+// All other requests to the root URL are not allowed.
+rootRouter.all('/', handleMethodNotAllowed)
+
+// Route for handling not allowed methods.
+function handleMethodNotAllowed(_, res) {
+  res.status(405).json({ message: 'Method Not Allowed' })
+}
+
+export { createResourceRouter, rootRouter, handleMethodNotAllowed }

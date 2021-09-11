@@ -1,11 +1,13 @@
 import express, { json } from 'express'
 import morgan from 'morgan'
 import { errorHandler } from './errors/middleware'
-import { createResourceRouter } from './routes/resources/router'
+import {
+  createResourceRouter,
+  rootRouter,
+  handleMethodNotAllowed,
+} from './routes'
 import { createQueries } from './queries'
 import { initConfig } from './config'
-import { createRootRouter } from './routes/root/router'
-import { handleMethodNotAllowed } from './routes/utils'
 
 function createServer(userConfig) {
   const config = initConfig(userConfig)
@@ -21,7 +23,6 @@ function createServer(userConfig) {
   }
 
   // Routes
-  const rootRouter = createRootRouter(queries)
   const rootPath = config.apiPrefix ? `${config.apiPrefix}` : '/'
   app.use(rootPath, rootRouter)
 
