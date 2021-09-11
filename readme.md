@@ -146,16 +146,9 @@ const server = temba.create(config)
 
 ### Config settings overview
 
-All config settings are optional, so you only need to provide the ones you want to differ from the default. In fact, you don't even need to provide a config at all.
+Configuring Temba is optional, it already works out of the box.
 
-| Config setting     | Default value | Description                                                                |
-| ------------------ | ------------- | -------------------------------------------------------------------------- |
-| `resourceNames`    | `[]`          | See [Allowing specific resources only](#allowing- specific-resources-only) |
-| `connectionString` | `null`        | See [MongoDB](#mongodb)                                                    |
-| `staticFolder`     | `null`        | See [Static assets](#static-assets)                                        |
-| `apiPrefix`        | `null`        | See [REST URIs prefixes](#rest-uris-prefixes)                              |
-
-Example of a full config:
+However, if you want to use some or all of the settings, you can provide them when creating the Temba server:
 
 ```js
 const config = {
@@ -164,7 +157,17 @@ const config = {
   staticFolder: 'build',
   apiPrefix: 'api',
 }
+const server = temba.create(config)
 ```
+
+Here are all the possible settings:
+
+| Config setting     | Description                                                               |
+| ------------------ | ------------------------------------------------------------------------- |
+| `resourceNames`    | See [Allowing specific resources only](#allowing-specific-resources-only) |
+| `connectionString` | See [MongoDB](#mongodb)                                                   |
+| `staticFolder`     | See [Static assets](#static-assets)                                       |
+| `apiPrefix`        | See [REST URIs prefixes](#rest-uris-prefixes)                             |
 
 ## Not supported (yet?)
 
