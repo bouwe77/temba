@@ -22,18 +22,18 @@ function createServer(userConfig) {
 
   // Routes
   const rootRouter = createRootRouter(queries)
-  const rootPath = config.pathPrefix ? `/${config.pathPrefix}` : '/'
+  const rootPath = config.pathPrefix ? `${config.pathPrefix}` : '/'
   app.use(rootPath, rootRouter)
 
   // GET, POST, PUT and DELETE to a specific URL are handled.
   const resourceRouter = createResourceRouter(queries, config)
-  const resourcePath = config.pathPrefix ? `/${config.pathPrefix}/*` : '*'
+  const resourcePath = config.pathPrefix ? `${config.pathPrefix}*` : '*'
   app.use(resourcePath, resourceRouter)
 
   // All other methods to a specific URL are not allowed.
   app.all('*', handleMethodNotAllowed)
   if (config.pathPrefix)
-    app.all(`/${config.pathPrefix}/*`, handleMethodNotAllowed)
+    app.all(`${config.pathPrefix}*`, handleMethodNotAllowed)
 
   // Error middleware.
   app.use(errorHandler)
