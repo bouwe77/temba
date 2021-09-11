@@ -1,7 +1,7 @@
 import fetch from 'node-fetch'
 
-import { hostname } from '../_config'
-const resource = '/movies/'
+import { hostname } from './_config'
+const resource = '/articles/'
 
 beforeEach(async () => {
   // Delete all items.

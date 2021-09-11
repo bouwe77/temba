@@ -1,8 +1,8 @@
 import 'dotenv/config'
-import { create } from '../../dist/server.js'
+import { create } from '../../../dist/server.js'
 
 const config = {
-  resourceNames: ['movies'],
+  // resourceNames: ['movies'],
   //connectionString: process.env.MONGO_URL,
   //Prefix: 'api',
 }

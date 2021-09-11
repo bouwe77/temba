@@ -5,8 +5,9 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "babel-node app/server.js",
-    "test": "node --experimental-vm-modules node_modules/.bin/jest --watch"
+    "start": "babel-node e2e/app/server.js",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest --watch --testPathIgnorePatterns=e2e",
+    "test:e2e": "node --experimental-vm-modules node_modules/.bin/jest --testPathPattern=/e2e/"
   },
   "author": "Bouwe (https://bouwe.io)",
   "license": "ISC",

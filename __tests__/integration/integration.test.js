@@ -1,6 +1,6 @@
 import fetch from 'node-fetch'
 
-import { hostname } from '../_config'
+import { hostname } from '../e2e/_config'
 
 test('GET on root URL returns welcome text', async () => {
   const response = await fetch(hostname)
