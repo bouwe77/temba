@@ -163,7 +163,7 @@ const server = temba.create(config)
 Here are all the possible settings:
 
 | Config setting     | Description                                                               |
-| ------------------ | ------------------------------------------------------------------------- |
+| :----------------- | :------------------------------------------------------------------------ |
 | `resourceNames`    | See [Allowing specific resources only](#allowing-specific-resources-only) |
 | `connectionString` | See [MongoDB](#mongodb)                                                   |
 | `staticFolder`     | See [Static assets](#static-assets)                                       |
