@@ -9,7 +9,7 @@ const defaultConfig = {
 }
 
 export function initConfig(userConfig) {
-  if (!userConfig) returndefaultConfig
+  if (!userConfig) return defaultConfig
 
   const config = { ...defaultConfig }
 

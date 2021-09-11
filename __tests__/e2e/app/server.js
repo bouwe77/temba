@@ -1,13 +1,7 @@
 import 'dotenv/config'
 import { create } from '../../../dist/server.js'
 
-const config = {
-  // resourceNames: ['movies'],
-  //connectionString: process.env.MONGO_URL,
-  //Prefix: 'api',
-}
-
-const server = create(config)
+const server = create()
 
 const port = process.env.PORT || 3000
 server.listen(port, () => {
