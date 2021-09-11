@@ -1,6 +1,6 @@
 {
   "name": "temba",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "description": "",
   "main": "dist/server.js",
   "scripts": {
