@@ -1,10 +1,12 @@
 # TODO
 
 - Test setup
-  [X] Separate running unit+integration test from E2E tests
-  [ ] Change integration tests so they run with supertest
-  [ ] Make integration tests depending on the user config provided to temba
-  [ ] As integration tests become more complete, simplify E2E tests
+
+  - [x] Separate running unit+integration test from E2E tests
+  - [ ] Change integration tests so they run with supertest
+  - [ ] Make integration tests depending on the user config provided to temba
+  - [ ] As integration tests become more complete, simplify E2E tests
+
 - E2E met fetch uitkleden: alleen smoke tests
 - Uitgebreider (meerdere configs) testen met supertest
 - Tests voor de initConfig in config.test.js maken
