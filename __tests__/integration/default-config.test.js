@@ -40,16 +40,7 @@ test('PATCH on root URL returns Method Not Allowed error', async () => {
   expect(response.body.message).toEqual('Method Not Allowed')
 })
 
-test('An allowed method on an unknown resource returns 404 Not Found', async () => {
-  const response = await request(tembaServer).get('/unknown_resource')
-
-  expect(response.statusCode).toEqual(404)
-  expect(response.body.message).toEqual(
-    "'unknown_resource' is an unknown resource",
-  )
-})
-
-test('An not allowed method on an unknown resource returns 405 Method Not Allowed', async () => {
+test('A not allowed method on an unknown resource returns 405 Method Not Allowed', async () => {
   const response = await request(tembaServer).patch('/unknown_resource')
 
   expect(response.statusCode).toEqual(405)
