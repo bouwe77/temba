@@ -25,10 +25,9 @@ export function initConfig(config) {
     config.staticFolder = config.staticFolder.replace(/[^a-zA-Z0-9]/g, '')
   } else config.staticFolder = null
 
-  if (config.pathPrefix) {
-    config.pathPrefix =
-      '/' + config.pathPrefix.replace(/[^a-zA-Z0-9]/g, '') + '/'
-  } else config.pathPrefix = ''
+  if (config.apiPrefix) {
+    config.apiPrefix = '/' + config.apiPrefix.replace(/[^a-zA-Z0-9]/g, '') + '/'
+  } else config.apiPrefix = ''
 
   return config
 }

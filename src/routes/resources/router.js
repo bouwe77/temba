@@ -11,7 +11,7 @@ import express from 'express'
 
 function createResourceRouter(
   queries,
-  { validateResources, resourceNames, pathPrefix },
+  { validateResources, resourceNames, apiPrefix },
 ) {
   const { handleGetResource } = createGetRoutes(queries)
   const { handlePost } = createPostRoutes(queries)
@@ -22,7 +22,7 @@ function createResourceRouter(
     validateResources,
     resourceNames,
   )
-  const getResourceAndId = createResourceAndIdParser(pathPrefix)
+  const getResourceAndId = createResourceAndIdParser(apiPrefix)
 
   var resourceRouter = express.Router()
 

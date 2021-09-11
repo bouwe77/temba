@@ -1,8 +1,8 @@
 import { parseUrl } from './urlParser'
 
-function createResourceAndIdParser(pathPrefix) {
+function createResourceAndIdParser(apiPrefix) {
   return function getResourceAndId(req, _, next) {
-    const url = req.baseUrl.replace(pathPrefix, '')
+    const url = req.baseUrl.replace(apiPrefix, '')
     let urlInfo = parseUrl(url)
 
     req.requestInfo = { ...req.requestInfo, ...urlInfo }
