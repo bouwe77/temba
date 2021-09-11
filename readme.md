@@ -161,7 +161,7 @@ These are all the possible settings:
 
 ## Not supported (yet?)
 
-Temba does not have any model validation, so you can store your resources in any format you like.
+Temba is still very basic. It does not have any model validation, so you can store your resources in any format you like.
 
 So creating the following two (very different) movies is perfectly fine:
 
@@ -199,4 +199,4 @@ For example, hosting json-server on GitHub Pages means your API is essentially r
 
 And hosting json-server on Heroku does give you persistence, but is not reliable because of its [ephemeral filesystem](https://devcenter.heroku.com/articles/dynos#ephemeral-filesystem).
 
-These limitations are of course the whole idea behind json-server, but if you want more persistence wise and don't mind having a database, you might want to try Temba.
+These limitations are of course the whole idea behind json-server, it's for mocking and prototyping. But if you want more (persistence wise) and don't mind having a database, although not yet very feature rich, you might want to try Temba.
