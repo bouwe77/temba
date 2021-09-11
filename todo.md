@@ -3,12 +3,11 @@
 - Test setup
 
   - [x] Separate running unit+integration test from E2E tests
-  - [ ] Change integration tests so they run with supertest
+  - [x] Change integration tests so they run with supertest
   - [ ] Make integration tests depending on the user config provided to temba
   - [ ] As integration tests become more complete, simplify E2E tests
 
 - Tests voor de initConfig in config.test.js maken
-- Config documenteren
 - Logger in gebruik nemen en zinvollere logging
 - TypeScript
 - ESLint
