@@ -10,7 +10,7 @@ This project is inspired by the fantastic [json-server](https://github.com/typic
 
 ## Table of contents
 
-[Temba?](#temba)
+[Temba?](#temba-1)
 
 [Getting Started](#getting-started)
 
@@ -65,9 +65,9 @@ By passing a config object to the `create` function you can customize Temba's be
 
 Out of the box, Temba gives you a CRUD REST API to any resource name you can think of.
 
-Whether you `GET` either `/people`, `/movies`, `/pokemons`, or whatever, it all returns a `200 OK` with a `[]` JSON response. As soon as you `POST` a resource, then that will be returned upon a `GET` of that collection. You can also `DELETE`, or `PUT` resources by its ID, unless it does not exist of course.
+Whether you `GET` either `/people`, `/movies`, `/pokemons`, or whatever, it all returns a `200 OK` with a `[]` JSON response. As soon as you `POST` a resource, then that will be returned upon a `GET` of that resource. You can also `DELETE`, or `PUT` resources by its ID, unless it does not exist of course.
 
-For a specific collection, Temba supports the following requests:
+For a specific resource, in this case `/movies`, Temba supports the following requests:
 
 - `GET /movies` - Get all movies
 - `GET /movies/:id` - Get a movie by its ID
@@ -84,7 +84,7 @@ On the root URI (e.g. http://localhost:8080/) only a `GET` request is supported,
 
 ### MongoDB
 
-When starting Temba, you can use it for sending your requests to it immediately. However, then the data resides in memory and is flushed as soon as the server restarts. To persist your data, provide the `connectionString` config setting for your MongoDB database:
+When starting Temba, you can send your requests to it immediately. However, then the data resides in memory and is flushed as soon as the server restarts. To persist your data, provide the `connectionString` config setting for your MongoDB database:
 
 ```js
 const config = {
@@ -93,9 +93,11 @@ const config = {
 const server = temba.create(config)
 ```
 
+For every resource you use in your requests a collection is created in the database. However, not until you actually store (create) a resource with a `POST`.
+
 ### Allowing specific resources only
 
-If you only want to allow specific collection names, configure them by providing a `resourceNames` key in the config object when creating the Temba server:
+If you only want to allow specific resource names, configure them by providing a `resourceNames` key in the config object when creating the Temba server:
 
 ```js
 const config = { resourceNames: ['movies', 'actors'] }
@@ -121,11 +123,9 @@ const config = { staticFolder: 'build' }
 const server = temba.create(config)
 ```
 
-This way, you could build both a REST API as the web app consuming it into one project.
+This way, you could build both a REST API, and the web app consuming it, into one project.
 
-If you configure the `staticFolder`, assets in there are reached by the root URL. For example, if you have an index.html document in the static folder, the URL is `http://example.com/index.html`.
-
-However, to avoid conflicts between the resourcee URIs and the routes in your web app you might want to add an `apiPrefix` to the REST API:
+However, to avoid possible conflicts between the API resources and the routes in your web app you might want to add an `apiPrefix` to the REST API:
 
 ### REST URIs prefixes
 
@@ -185,11 +185,11 @@ Temba offers no ways for authentication or authorization (yet?), so if someone k
 
 Also nested (parent-child) are not supported (yet?), so every URI has the /:resource/:id structure and there is no way to indicate any relation, apart from within the JSON itself perhaps.
 
-Also there is no filtering, sorting, searching, custom routes, etc. (yet?).
+And there is no filtering, sorting, searching, custom routes, etc. (yet?).
 
 ## Under the hood
 
-Temba is built with JavaScript, Node and Express. To communicate with MongoDB we use the fantastic [@rakered/mongo](https://www.npmjs.com/package/@rakered/mongo) package.
+Temba is built with JavaScript, Node, Express, Jest, Testing Library, Supertest, and [@rakered/mongo](https://www.npmjs.com/package/@rakered/mongo).
 
 ## Which problem does Temba solve?
 
