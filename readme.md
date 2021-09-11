@@ -63,18 +63,19 @@ server.listen(port, () => {
 });
 ```
 
-## Features
+### Configuration
 
-Temba gives you a CRUD REST API to the resource names you have configured when creating the server:
+By passing a config object to the `create` function you can customize Temba's behavior. Refer to the documentation below for the various possibilities.
 
-```js
-const config = { resourceNames: ['movies', 'actors'] }
-const server = temba.create(config)
-```
+## Usage
 
-> Providing a configuration is not required. Also providing the `config.resourceNames` is not required. If you don't provide them, you have the default "articles" resource at your disposal.
+### Introduction
 
-As we have configured the `movies` resource, the following requests are supported:
+Out of the box, Temba gives you a CRUD REST API to any resource name you can think of.
+
+Whether you `GET` either `/people`, `/movies`, `/pokemons`, or whatever, it all returns a `200 OK` with a `[]` JSON response. As soon as you `POST` a resource, then that will be returned upon a `GET` of that collection. You can also `DELETE`, or `PUT` resources by its ID, unless it does not exist of course.
+
+For a specific collection, Temba supports the following requests:
 
 - `GET /movies` - Get all movies
 - `GET /movies/:id` - Get a movie by its ID
@@ -83,17 +84,87 @@ As we have configured the `movies` resource, the following requests are supporte
 - `DELETE /movies` - Delete all movies
 - `DELETE /movies/:id` - Delete a movie by its ID
 
+### Supported HTTP methods
+
+Requests with an HTTP method that is not supported, everything but `GET`, `POST`, `PUT` and `DELETE`, will return a `405 Method Not Allowed` response.
+
+On the root URI (e.g. http://localhost:8080/) only a `GET` request is supported, which shows you a message indicating the API is working. All other HTTP methods on the root URI return a `405 Method Not Allowed` response.
+
+### MongoDB
+
+When starting Temba, you can use it for sending your requests to it immediately. However, then the data resides in memory and is flushed as soon as the server restarts. To persist your data, provide the `connectionString` config setting for your MongoDB database:
+
+```js
+const config = {
+  connectionString: 'mongodb://localhost:27017',
+}
+const server = temba.create(config)
+```
+
+### Allowing specific resources only
+
+If you only want to allow specific collection names, configure them by providing a `resourceNames` key in the config object when creating the Temba server:
+
+```js
+const config = { resourceNames: ['movies', 'actors'] }
+const server = temba.create(config)
+```
+
+Requests on these resources only give a `404 Not Found` if the ID does not exist. Requests on any other resource will return a `404 Not Found`.
+
+### JSON
+
 When sending JSON data (`POST` and `PUT` requests), adding a `Content-Type: application/json` header is required.
 
 IDs are auto generated when creating resources. IDs in the JSON request body are ignored.
 
-If you request a resource (URI) that does not exist, a `404 Not Found` response is returned.
-
 Temba only supports JSON. If you send a request with invalid formatted JSON, a `400 Bad Request` response is returned.
 
-If you use an HTTP method that is not supported (everything but `GET`, `POST`, `PUT` and `DELETE`), a `405 Method Not Allowed` response is returned.
+### Static assets
 
-On the root URI (e.g. http://localhost:8080/) only a `GET` request is supported, which shows you a message indicating the API is working. All other HTTP methods on the root URI return a `405 Method Not Allowed` response.
+If you want to host static assets next to the REST API, configure the `staticFolder`:
+
+```js
+const config = { staticFolder: 'build' }
+const server = temba.create(config)
+```
+
+This way, you could build both a REST API as the web app consuming it into one project.
+
+If you configure the `staticFolder`, assets in there are reached by the root URL. For example, if you have an index.html document in the static folder, the URL is `http://example.com/index.html`.
+
+However, to avoid conflicts between the resourcee URIs and the routes in your web app you might want to add an `apiPrefix` to the REST API:
+
+### REST URIs prefixes
+
+With the `apiPrefix` config setting, all REST resources get an extra path segment in front of them. If the `apiPrefix` is `'api'`, `/movies/12345` becomes `/api/movies/12345`:
+
+```js
+const config = { apiPrefix: 'api' }
+const server = temba.create(config)
+```
+
+### Config settings overview
+
+All config settings are optional, so you only need to provide the ones you want to differ from the default. In fact, you don't even need to provide a config at all.
+
+| Config setting     | Default value | Description                                                                |
+| ------------------ | ------------- | -------------------------------------------------------------------------- |
+| `resourceNames`    | `[]`          | See [Allowing specific resources only](#allowing- specific-resources-only) |
+| `connectionString` | `null`        | See [MongoDB](#mongodb)                                                    |
+| `staticFolder`     | `null`        | See [Static assets](#static-assets)                                        |
+| `apiPrefix`        | `null`        | See [REST URIs prefixes](#rest-uris-prefixes)                              |
+
+Example of a full config:
+
+```js
+const config = {
+  resourceNames: ['movies', 'actors'],
+  connectionString: 'mongodb://localhost:27017',
+  staticFolder: 'build',
+  apiPrefix: 'api',
+}
+```
 
 ## Not supported (yet?)
 

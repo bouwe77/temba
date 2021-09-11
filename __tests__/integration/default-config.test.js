@@ -1,7 +1,7 @@
 import request from 'supertest'
 import { create } from '../../dist/server.js'
 
-// This Temba server is created with the default configuration, because no config object is passed.
+// This Temba server is created with the default configuration, i.e. no config object is supplied.
 const tembaServer = create()
 
 test('GET on root URL returns welcome text', async () => {

@@ -1,8 +1,8 @@
 import { logLevels } from '../logging'
 
 const defaultConfig = {
-  resourceNames: ['articles'],
-  validateResources: true,
+  resourceNames: [],
+  validateResources: false,
   logLevel: logLevels.DEBUG,
   staticFolder: null,
   apiPrefix: '',
@@ -15,13 +15,9 @@ export function initConfig(userConfig) {
 
   if (userConfig.resourceNames && userConfig.resourceNames.length > 0) {
     config.resourceNames = userConfig.resourceNames
+    config.validateResources = true
   }
-  if (
-    typeof userConfig.validateResources !== 'undefined' &&
-    userConfig.validateResources !== null
-  ) {
-    config.validateResources = !!userConfig.validateResources
-  }
+
   if (
     userConfig.logLevel &&
     userConfig.logLevel.length !== 0 &&
