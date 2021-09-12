@@ -35,7 +35,7 @@ Prerequisites you need to have:
 
 ### Use the `temba-starter` project
 
-Clone the [temba-starter](https://github.com/bouwe77/temba-starter) repo and you are up and running! Refer to the [Features](#features) section for configuration options.
+Clone the [temba-starter](https://github.com/bouwe77/temba-starter) repo and you are up and running! Refer to the [Config settings overview](#config-settings-overview) section for configuration options.
 
 ### Manually adding to an existing app
 
@@ -104,7 +104,7 @@ const config = { resourceNames: ['movies', 'actors'] }
 const server = temba.create(config)
 ```
 
-Requests on these resources only give a `404 Not Found` if the ID does not exist. Requests on any other resource will return a `404 Not Found`.
+Requests on these resources only give a `404 Not Found` if the ID does not exist. Requests on any other resource will always return a `404 Not Found`.
 
 ### JSON
 
@@ -123,13 +123,13 @@ const config = { staticFolder: 'build' }
 const server = temba.create(config)
 ```
 
-This way, you could build both a REST API, and the web app consuming it, into one project.
+This way, you can create a REST API, and the web app consuming it, in one project.
 
 However, to avoid possible conflicts between the API resources and the routes in your web app you might want to add an `apiPrefix` to the REST API:
 
 ### REST URIs prefixes
 
-With the `apiPrefix` config setting, all REST resources get an extra path segment in front of them. If the `apiPrefix` is `'api'`, `/movies/12345` becomes `/api/movies/12345`:
+With the `apiPrefix` config setting, all REST resources get an extra path segment in front of them. If the `apiPrefix` is `'api'`, then `/movies/12345` becomes `/api/movies/12345`:
 
 ```js
 const config = { apiPrefix: 'api' }
@@ -183,7 +183,7 @@ Partial updates using `PATCH`, or other HTTP methods are not (yet?) supported.
 
 Temba offers no ways for authentication or authorization (yet?), so if someone knows how to reach the API, they can read and mutate all your data, unless you restrict this in another way.
 
-Also nested (parent-child) are not supported (yet?), so every URI has the /:resource/:id structure and there is no way to indicate any relation, apart from within the JSON itself perhaps.
+Also nested (parent-child) routes are not supported (yet?), so every URI has the /:resource/:id structure and there is no way to indicate any relation, apart from within the JSON itself perhaps.
 
 And there is no filtering, sorting, searching, custom routes, etc. (yet?).
 
