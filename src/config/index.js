@@ -6,6 +6,7 @@ const defaultConfig = {
   logLevel: logLevels.DEBUG,
   staticFolder: null,
   apiPrefix: '',
+  connectionString: null,
 }
 
 export function initConfig(userConfig) {
@@ -33,6 +34,10 @@ export function initConfig(userConfig) {
   if (userConfig.apiPrefix) {
     config.apiPrefix =
       '/' + userConfig.apiPrefix.replace(/[^a-zA-Z0-9]/g, '') + '/'
+  }
+
+  if (userConfig.connectionString && userConfig.connectionString.length > 0) {
+    config.connectionString = userConfig.connectionString
   }
 
   return config
