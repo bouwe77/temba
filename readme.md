@@ -104,7 +104,7 @@ const config = { resourceNames: ['movies', 'actors'] }
 const server = temba.create(config)
 ```
 
-Requests on these resources only give a `404 Not Found` if the ID does not exist. Requests on any other resource will return a `404 Not Found`.
+Requests on these resources only give a `404 Not Found` if the ID does not exist. Requests on any other resource will always return a `404 Not Found`.
 
 ### JSON
 
@@ -123,13 +123,13 @@ const config = { staticFolder: 'build' }
 const server = temba.create(config)
 ```
 
-This way, you could build both a REST API, and the web app consuming it, into one project.
+This way, you can create a REST API, and the web app consuming it, in one project.
 
 However, to avoid possible conflicts between the API resources and the routes in your web app you might want to add an `apiPrefix` to the REST API:
 
 ### REST URIs prefixes
 
-With the `apiPrefix` config setting, all REST resources get an extra path segment in front of them. If the `apiPrefix` is `'api'`, `/movies/12345` becomes `/api/movies/12345`:
+With the `apiPrefix` config setting, all REST resources get an extra path segment in front of them. If the `apiPrefix` is `'api'`, then `/movies/12345` becomes `/api/movies/12345`:
 
 ```js
 const config = { apiPrefix: 'api' }
