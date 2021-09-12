@@ -5,6 +5,7 @@ import {
   createResourceRouter,
   rootRouter,
   handleMethodNotAllowed,
+  handleNotFound,
 } from './routes'
 import { createQueries } from './queries'
 import { initConfig } from './config'
@@ -22,16 +23,24 @@ function createServer(userConfig) {
     app.use(express.static(config.staticFolder))
   }
 
-  // Routes
+  // On the root URL (with apiPrefix if applicable) only a GET is allowed.
   const rootPath = config.apiPrefix ? `${config.apiPrefix}` : '/'
   app.use(rootPath, rootRouter)
 
-  // GET, POST, PUT and DELETE to a specific URL are handled.
+  // For all other URLs, only GET, POST, PUT and DELETE are allowed and handled.
   const resourceRouter = createResourceRouter(queries, config)
   const resourcePath = config.apiPrefix ? `${config.apiPrefix}*` : '*'
   app.use(resourcePath, resourceRouter)
 
-  // All other methods to a specific URL are not allowed.
+  // In case of an API prefix, GET, POST, PUT and DELETE requests to all other URLs return a 404 Not Found.
+  if (config.apiPrefix) {
+    app.get('*', handleNotFound)
+    app.post('*', handleNotFound)
+    app.put('*', handleNotFound)
+    app.delete('*', handleNotFound)
+  }
+
+  // All other methods to any URL are not allowed.
   app.all('*', handleMethodNotAllowed)
   if (config.apiPrefix) app.all(`${config.apiPrefix}*`, handleMethodNotAllowed)
 

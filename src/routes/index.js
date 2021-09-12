@@ -49,4 +49,14 @@ function handleMethodNotAllowed(_, res) {
   res.status(405).json({ message: 'Method Not Allowed' })
 }
 
-export { createResourceRouter, rootRouter, handleMethodNotAllowed }
+// Route for handling not found.
+function handleNotFound(_, res) {
+  res.status(404).json({ message: 'Not Found' })
+}
+
+export {
+  createResourceRouter,
+  rootRouter,
+  handleMethodNotAllowed,
+  handleNotFound,
+}

@@ -31,7 +31,7 @@ export function initConfig(userConfig) {
   }
 
   if (userConfig.apiPrefix) {
-    userConfig.apiPrefix =
+    config.apiPrefix =
       '/' + userConfig.apiPrefix.replace(/[^a-zA-Z0-9]/g, '') + '/'
   }
 
