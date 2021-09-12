@@ -22,7 +22,6 @@ function createValidateResourceMiddleware(validateResources, resourceNames) {
     if (!resourceNames.includes(resourceName.toLowerCase())) {
       const error = new Error(`'${resourceName}' is an unknown resource`)
       error.status = 404
-      console.log('validateResource: ' + error.message)
       return next(error)
     }
 
