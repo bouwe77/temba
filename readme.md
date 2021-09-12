@@ -35,7 +35,7 @@ Prerequisites you need to have:
 
 ### Use the `temba-starter` project
 
-Clone the [temba-starter](https://github.com/bouwe77/temba-starter) repo and you are up and running! Refer to the [Features](#features) section for configuration options.
+Clone the [temba-starter](https://github.com/bouwe77/temba-starter) repo and you are up and running! Refer to the [Config settings overview](#config-settings-overview) section for configuration options.
 
 ### Manually adding to an existing app
 
@@ -183,7 +183,7 @@ Partial updates using `PATCH`, or other HTTP methods are not (yet?) supported.
 
 Temba offers no ways for authentication or authorization (yet?), so if someone knows how to reach the API, they can read and mutate all your data, unless you restrict this in another way.
 
-Also nested (parent-child) are not supported (yet?), so every URI has the /:resource/:id structure and there is no way to indicate any relation, apart from within the JSON itself perhaps.
+Also nested (parent-child) routes are not supported (yet?), so every URI has the /:resource/:id structure and there is no way to indicate any relation, apart from within the JSON itself perhaps.
 
 And there is no filtering, sorting, searching, custom routes, etc. (yet?).
 
