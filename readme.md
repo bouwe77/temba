@@ -33,9 +33,13 @@ Prerequisites you need to have:
 
 > Wthout a database, Temba also works. However, then data is kept in memory and flushed every time the server restarts.
 
-### Use the `temba-starter` project
+### Use `npx`
 
-Clone the [temba-starter](https://github.com/bouwe77/temba-starter) repo and you are up and running! Refer to the [Config settings overview](#config-settings-overview) section for configuration options.
+Create your own Temba server with the following command and you are up and running!
+
+```bash
+npx create-temba-server my-rest-api
+```
 
 ### Manually adding to an existing app
 
