@@ -1,7 +1,7 @@
 {
   "name": "temba",
-  "version": "0.7.3",
-  "description": "",
+  "version": "0.7.4",
+  "description": "Get a simple MongoDB REST API with zero coding in less than 30 seconds (seriously).",
   "main": "dist/server.js",
   "scripts": {
     "build": "rm -rf dist && npx babel src --out-dir dist",
@@ -9,9 +9,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "temba"
+    "url": "https://github.com/bouwe77/temba.git"
   },
-  "author": "Bouwe",
+  "homepage": "https://github.com/bouwe77/temba#readme",
+  "author": "Bouwe (https://bouwe.io)",
   "license": "ISC",
   "files": [
     "dist/**",
