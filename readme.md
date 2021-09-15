@@ -69,9 +69,9 @@ By passing a config object to the `create` function you can customize Temba's be
 
 Out of the box, Temba gives you a CRUD REST API to any resource name you can think of.
 
-Whether you `GET` either `/people`, `/movies`, `/pokemons`, or whatever, it all returns a `200 OK` with a `[]` JSON response. As soon as you `POST` a resource, then that will be returned upon a `GET` of that resource. You can also `DELETE`, or `PUT` resources by its ID, unless it does not exist of course.
+Whether you `GET` either `/people`, `/movies`, `/pokemons`, or whatever, it all returns a `200 OK` with a `[]` JSON response. As soon as you `POST` a new resource, followed by a `GET` of that resource, the new resource will be returned. You can also `DELETE`, or `PUT` resources by its ID.
 
-For a specific resource, in this case `/movies`, Temba supports the following requests:
+For a every resource, for example `/movies`, Temba supports the following requests:
 
 - `GET /movies` - Get all movies
 - `GET /movies/:id` - Get a movie by its ID
@@ -82,7 +82,7 @@ For a specific resource, in this case `/movies`, Temba supports the following re
 
 ### Supported HTTP methods
 
-Requests with an HTTP method that is not supported, everything but `GET`, `POST`, `PUT` and `DELETE`, will return a `405 Method Not Allowed` response.
+Requests with an HTTP method that is not supported, so everything but `GET`, `POST`, `PUT` and `DELETE`, a `405 Method Not Allowed` response will be returned.
 
 On the root URI (e.g. http://localhost:8080/) only a `GET` request is supported, which shows you a message indicating the API is working. All other HTTP methods on the root URI return a `405 Method Not Allowed` response.
 
@@ -112,11 +112,11 @@ Requests on these resources only give a `404 Not Found` if the ID does not exist
 
 ### JSON
 
+Temba only supports JSON. If you send a request with invalid formatted JSON, a `400 Bad Request` response is returned.
+
 When sending JSON data (`POST` and `PUT` requests), adding a `Content-Type: application/json` header is required.
 
 IDs are auto generated when creating resources. IDs in the JSON request body are ignored.
-
-Temba only supports JSON. If you send a request with invalid formatted JSON, a `400 Bad Request` response is returned.
 
 ### Static assets
 
@@ -127,7 +127,7 @@ const config = { staticFolder: 'build' }
 const server = temba.create(config)
 ```
 
-This way, you can create a REST API, and the web app consuming it, in one project.
+This way, you could create a REST API, and the web app consuming it, in one project.
 
 However, to avoid possible conflicts between the API resources and the routes in your web app you might want to add an `apiPrefix` to the REST API:
 
@@ -139,6 +139,10 @@ With the `apiPrefix` config setting, all REST resources get an extra path segmen
 const config = { apiPrefix: 'api' }
 const server = temba.create(config)
 ```
+
+After configuring the `apiPrefix`, requests to the root URL will either return a `404 Not Found` or a `405 Method Not Allowed`, depending on the HTTP method.
+
+If you have configured both an `apiPrefix` and a `staticFolder`, a `GET` on the root URL will return the `index.html` in the `staticFolder`, if there is one.
 
 ### Config settings overview
 
@@ -197,10 +201,10 @@ Temba is built with JavaScript, Node, Express, Jest, Testing Library, Supertest,
 
 ## Which problem does Temba solve?
 
-The problem with JSON file solutions like json-server is the limitations you have when hosting your app.
+The problem with JSON file solutions like json-server is the limitations you have when hosting your app, because your data is stored in a file.
 
-For example, hosting json-server on GitHub Pages means your API is essentially readonly, because although mutations are supported, your data is not really persisted.
+For example, hosting json-server on GitHub Pages means your API is essentially readonly, because, although mutations are supported, your data is not really persisted.
 
 And hosting json-server on Heroku does give you persistence, but is not reliable because of its [ephemeral filesystem](https://devcenter.heroku.com/articles/dynos#ephemeral-filesystem).
 
-These limitations are of course the whole idea behind json-server, it's for mocking and prototyping. But if you want more (persistence wise) and don't mind having a database, although not yet very feature rich, you might want to try Temba.
+These limitations are of course the whole idea behind json-server, it's for simple mocking and prototyping. But if you want more (persistence wise) and don't mind having a database, you might want to try Temba.
