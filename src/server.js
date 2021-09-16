@@ -9,6 +9,7 @@ import {
 } from './routes'
 import { createQueries } from './queries'
 import { initConfig } from './config'
+import cors from 'cors'
 
 function createServer(userConfig) {
   const config = initConfig(userConfig)
@@ -17,7 +18,12 @@ function createServer(userConfig) {
 
   const app = express()
   app.use(json())
+
+  // Add HTTP request logging.
   app.use(morgan('tiny'))
+
+  // Enable CORS for all requests.
+  app.use(cors({ origin: true, credentials: true }))
 
   if (config.staticFolder) {
     app.use(express.static(config.staticFolder))
