@@ -10,7 +10,7 @@ import {
 import { createQueries } from './queries'
 import { initConfig } from './config'
 import cors from 'cors'
-import { addCacheHeaders } from './caching/middleware'
+import { addCacheHeaders, createCachingMiddleware } from './caching/middleware'
 
 function createServer(userConfig) {
   const config = initConfig(userConfig)
@@ -32,7 +32,8 @@ function createServer(userConfig) {
   }
 
   // Add cache headers to every response.
-  app.use(addCacheHeaders)
+  const cachingMiddleware = createCachingMiddleware(config.cacheControl)
+  app.use(cachingMiddleware)
 
   // On the root URL (with apiPrefix if applicable) only a GET is allowed.
   const rootPath = config.apiPrefix ? `${config.apiPrefix}` : '/'

@@ -7,6 +7,7 @@ const defaultConfig = {
   staticFolder: null,
   apiPrefix: '',
   connectionString: null,
+  cacheControl: 'no-store',
 }
 
 export function initConfig(userConfig) {
@@ -38,6 +39,10 @@ export function initConfig(userConfig) {
 
   if (userConfig.connectionString && userConfig.connectionString.length > 0) {
     config.connectionString = userConfig.connectionString
+  }
+
+  if (userConfig.cacheControl && userConfig.cacheControl.length > 0) {
+    config.cacheControl = userConfig.cacheControl
   }
 
   return config

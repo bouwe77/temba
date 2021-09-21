@@ -146,7 +146,7 @@ If you have configured both an `apiPrefix` and a `staticFolder`, a `GET` on the 
 
 ### Config settings overview
 
-Configuring Temba is optional, it already works out of the box. None of the settings are applicable until you configure them:
+Configuring Temba is optional, it already works out of the box. None of the settings are used until you configure them:
 
 ```js
 const config = {
@@ -154,6 +154,7 @@ const config = {
   connectionString: 'mongodb://localhost:27017',
   staticFolder: 'build',
   apiPrefix: 'api',
+  cacheControl: 'public, max-age=300',
 }
 const server = temba.create(config)
 ```
@@ -166,6 +167,7 @@ These are all the possible settings:
 | `connectionString` | See [MongoDB](#mongodb)                                                   |
 | `staticFolder`     | See [Static assets](#static-assets)                                       |
 | `apiPrefix`        | See [REST URIs prefixes](#rest-uris-prefixes)                             |
+| `cacheControl`     | The `Cache-control` response header value for each GET request.           |
 
 ## Not supported (yet?)
 
