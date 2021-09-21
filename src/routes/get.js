@@ -1,4 +1,4 @@
-function createGetRoutes(queries) {
+function createGetRoutes(queries, cacheControl) {
   async function handleGetResource(req, res, next) {
     try {
       const { resourceName, id } = req.requestInfo
@@ -8,15 +8,20 @@ function createGetRoutes(queries) {
 
         if (!item) {
           res.status(404)
+          res.set('Cache-control', cacheControl)
           return res.send()
         }
 
-        res.status(200).json(item)
+        res.status(200)
+        res.set('Cache-control', cacheControl)
+        res.json(item)
         return res.send()
       }
 
       const items = await queries.getAll(resourceName)
-      res.status(200).json(items)
+      res.status(200)
+      res.set('Cache-control', cacheControl)
+      res.json(items)
       return res.send()
     } catch (error) {
       return next(error)
