@@ -10,6 +10,7 @@ import {
 import { createQueries } from './queries'
 import { initConfig } from './config'
 import cors from 'cors'
+import { createDelayMiddleware } from './delay/middleware'
 
 function createServer(userConfig) {
   const config = initConfig(userConfig)
@@ -24,6 +25,11 @@ function createServer(userConfig) {
 
   // Enable CORS for all requests.
   app.use(cors({ origin: true, credentials: true }))
+
+  if (config.delay > 0) {
+    const delayMiddleware = createDelayMiddleware(config.delay)
+    app.use(delayMiddleware)
+  }
 
   // Serve a static folder, if configured.
   if (config.staticFolder) {

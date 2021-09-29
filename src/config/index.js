@@ -8,6 +8,7 @@ const defaultConfig = {
   apiPrefix: '',
   connectionString: null,
   cacheControl: 'no-store',
+  delay: 0,
 }
 
 export function initConfig(userConfig) {
@@ -43,6 +44,16 @@ export function initConfig(userConfig) {
 
   if (userConfig.cacheControl && userConfig.cacheControl.length > 0) {
     config.cacheControl = userConfig.cacheControl
+  }
+
+  if (
+    userConfig.delay &&
+    userConfig.delay.length !== 0 &&
+    typeof Number(userConfig.delay) === 'number' &&
+    Number(userConfig.delay) > 0 &&
+    Number(userConfig.delay) < 10000
+  ) {
+    config.delay = Number(userConfig.delay)
   }
 
   return config

@@ -155,19 +155,21 @@ const config = {
   staticFolder: 'build',
   apiPrefix: 'api',
   cacheControl: 'public, max-age=300',
+  delay: 500,
 }
 const server = temba.create(config)
 ```
 
 These are all the possible settings:
 
-| Config setting     | Description                                                               |
-| :----------------- | :------------------------------------------------------------------------ |
-| `resourceNames`    | See [Allowing specific resources only](#allowing-specific-resources-only) |
-| `connectionString` | See [MongoDB](#mongodb)                                                   |
-| `staticFolder`     | See [Static assets](#static-assets)                                       |
-| `apiPrefix`        | See [REST URIs prefixes](#rest-uris-prefixes)                             |
-| `cacheControl`     | The `Cache-control` response header value for each GET request.           |
+| Config setting     | Description                                                                                |
+| :----------------- | :----------------------------------------------------------------------------------------- |
+| `resourceNames`    | See [Allowing specific resources only](#allowing-specific-resources-only)                  |
+| `connectionString` | See [MongoDB](#mongodb)                                                                    |
+| `staticFolder`     | See [Static assets](#static-assets)                                                        |
+| `apiPrefix`        | See [REST URIs prefixes](#rest-uris-prefixes)                                              |
+| `cacheControl`     | The `Cache-control` response header value for each GET request.                            |
+| `delay`            | After processing the request, the delay in milliseconds before the request should be sent. |
 
 ## Not supported (yet?)
 
