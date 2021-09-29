@@ -1,3 +1,4 @@
+import { TembaError } from '../errors/types'
 import { parseUrl } from './urlParser'
 
 function createResourceAndIdParser(apiPrefix) {
@@ -20,8 +21,10 @@ function createValidateResourceMiddleware(validateResources, resourceNames) {
     if (!resourceName) return next()
 
     if (!resourceNames.includes(resourceName.toLowerCase())) {
-      const error = new Error(`'${resourceName}' is an unknown resource`)
-      error.status = 404
+      const error = new TembaError(
+        `'${resourceName}' is an unknown resource`,
+        404,
+      )
       return next(error)
     }
 

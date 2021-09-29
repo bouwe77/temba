@@ -49,7 +49,7 @@ function deleteById(resourceName, id) {
   createResourceArrayIfNecessary(resourceName)
 
   data[resourceName] = data[resourceName].filter((item) => item.id !== id)
-  return new Promise((resolve) => {
+  return new Promise<void>((resolve) => {
     resolve()
   })
 }
