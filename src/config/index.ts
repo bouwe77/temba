@@ -1,9 +1,8 @@
-import { logLevels } from '../logging'
+import { TembaConfig } from './types'
 
-const defaultConfig = {
+const defaultConfig: TembaConfig = {
   resourceNames: [],
   validateResources: false,
-  logLevel: logLevels.DEBUG,
   staticFolder: null,
   apiPrefix: '',
   connectionString: null,
@@ -11,7 +10,7 @@ const defaultConfig = {
   delay: 0,
 }
 
-export function initConfig(userConfig) {
+export function initConfig(userConfig: TembaConfig): TembaConfig {
   if (!userConfig) return defaultConfig
 
   const config = { ...defaultConfig }
@@ -19,14 +18,6 @@ export function initConfig(userConfig) {
   if (userConfig.resourceNames && userConfig.resourceNames.length > 0) {
     config.resourceNames = userConfig.resourceNames
     config.validateResources = true
-  }
-
-  if (
-    userConfig.logLevel &&
-    userConfig.logLevel.length !== 0 &&
-    Object.keys(logLevels).includes(userConfig.logLevel.toUpperCase())
-  ) {
-    config.logLevel = userConfig.logLevel.toUpperCase()
   }
 
   if (userConfig.staticFolder) {
@@ -48,7 +39,6 @@ export function initConfig(userConfig) {
 
   if (
     userConfig.delay &&
-    userConfig.delay.length !== 0 &&
     typeof Number(userConfig.delay) === 'number' &&
     Number(userConfig.delay) > 0 &&
     Number(userConfig.delay) < 10000
