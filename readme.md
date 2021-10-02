@@ -41,6 +41,8 @@ Create your own Temba server with the following command and you are up and runni
 npx create-temba-server my-rest-api
 ```
 
+With this command you clone the [Temba-starter](https://github.com/bouwe77/temba-starter) repository and install all dependencies.
+
 ### Manually adding to an existing app
 
 If you don't want to (or can't) use the starter, add Temba to your app manually:
