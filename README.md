@@ -63,7 +63,7 @@ server.listen(port, () => {
 
 ### Configuration
 
-By passing a config object to the `create` function you can customize Temba's behavior. Refer to the documentation below for the various possibilities.
+By passing a config object to the `create` function you can customize Temba's behavior. Refer to the [config settings](#config-settings-overview) below for the various possibilities.
 
 ## Usage
 
