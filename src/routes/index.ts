@@ -7,12 +7,12 @@ import {
   createResourceAndIdParser,
 } from '../urls/middleware'
 
-import express from 'express'
+import express, { Router, Request, Response } from 'express'
+import { TembaConfig } from '../config/types'
 
-function createResourceRouter(
-  queries,
-  { validateResources, resourceNames, apiPrefix, cacheControl },
-) {
+function createResourceRouter(queries, config: TembaConfig): Router {
+  const { validateResources, resourceNames, apiPrefix, cacheControl } = config
+
   const { handleGetResource } = createGetRoutes(queries, cacheControl)
   const { handlePost } = createPostRoutes(queries)
   const { handlePut } = createPutRoutes(queries)
@@ -24,7 +24,7 @@ function createResourceRouter(
   )
   const getResourceAndId = createResourceAndIdParser(apiPrefix)
 
-  var resourceRouter = express.Router()
+  const resourceRouter = express.Router()
 
   resourceRouter
     .get('*', getResourceAndId, validateResource, handleGetResource)
@@ -45,12 +45,12 @@ rootRouter.get('/', async (_, res) => {
 rootRouter.all('/', handleMethodNotAllowed)
 
 // Route for handling not allowed methods.
-function handleMethodNotAllowed(_, res) {
+function handleMethodNotAllowed(_: Request, res: Response): void {
   res.status(405).json({ message: 'Method Not Allowed' })
 }
 
 // Route for handling not found.
-function handleNotFound(_, res) {
+function handleNotFound(_: Request, res: Response): void {
   res.status(404).json({ message: 'Not Found' })
 }
 

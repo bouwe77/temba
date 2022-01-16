@@ -1,5 +1,7 @@
-import express, { json } from 'express'
+import express, { json, Express } from 'express'
 import morgan from 'morgan'
+import cors from 'cors'
+
 import { errorHandler } from './errors/middleware'
 import {
   createResourceRouter,
@@ -9,10 +11,10 @@ import {
 } from './routes'
 import { createQueries } from './queries'
 import { initConfig } from './config'
-import cors from 'cors'
 import { createDelayMiddleware } from './delay/middleware'
+import { TembaConfig } from './config/types'
 
-function createServer(userConfig) {
+function createServer(userConfig: TembaConfig): Express {
   const config = initConfig(userConfig)
 
   const queries = createQueries(config.connectionString)
@@ -63,6 +65,6 @@ function createServer(userConfig) {
   return app
 }
 
-export function create(userConfig) {
+export function create(userConfig: TembaConfig): Express {
   return createServer(userConfig)
 }

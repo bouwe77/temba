@@ -1,10 +1,15 @@
+import { Request, Response, NextFunction } from 'express'
 import { TembaError } from '../errors/types'
 import { parseUrl } from './urlParser'
 
 function createResourceAndIdParser(apiPrefix) {
-  return function getResourceAndId(req, _, next) {
+  return function getResourceAndId(
+    req: Request,
+    _: Response,
+    next: NextFunction,
+  ): void {
     const url = req.baseUrl.replace(apiPrefix, '')
-    let urlInfo = parseUrl(url)
+    const urlInfo = parseUrl(url)
 
     req.requestInfo = { ...req.requestInfo, ...urlInfo }
 
