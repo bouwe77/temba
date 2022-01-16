@@ -1,6 +1,9 @@
 # Temba
+
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+
 [![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 **Get a simple MongoDB REST API with zero coding in less than 30 seconds (seriously).**
@@ -48,7 +51,7 @@ With this command you clone the [Temba-starter](https://github.com/bouwe77/temba
 
 ### Manually adding to an existing app
 
-If you don't want to (or can't) use the starter, add Temba to your app manually:
+Alternatively, add Temba to your app manually:
 
 1. `npm i temba`
 
@@ -76,7 +79,7 @@ Out of the box, Temba gives you a CRUD REST API to any resource name you can thi
 
 Whether you `GET` either `/people`, `/movies`, `/pokemons`, or whatever, it all returns a `200 OK` with a `[]` JSON response. As soon as you `POST` a new resource, followed by a `GET` of that resource, the new resource will be returned. You can also `DELETE`, or `PUT` resources by its ID.
 
-For a every resource, for example `/movies`, Temba supports the following requests:
+For every resource (`movies` is just an example), Temba supports the following requests:
 
 - `GET /movies` - Get all movies
 - `GET /movies/:id` - Get a movie by its ID
@@ -87,7 +90,7 @@ For a every resource, for example `/movies`, Temba supports the following reques
 
 ### Supported HTTP methods
 
-Requests with an HTTP method that is not supported, so everything but `GET`, `POST`, `PUT` and `DELETE`, a `405 Method Not Allowed` response will be returned.
+The HTTP methods that are supported are `GET`, `POST`, `PUT` and `DELETE`. For any other HTTP method a `405 Method Not Allowed` response will be returned.
 
 On the root URI (e.g. http://localhost:8080/) only a `GET` request is supported, which shows you a message indicating the API is working. All other HTTP methods on the root URI return a `405 Method Not Allowed` response.
 
@@ -102,7 +105,7 @@ const config = {
 const server = temba.create(config)
 ```
 
-For every resource you use in your requests a collection is created in the database. However, not until you actually store (create) a resource with a `POST`.
+For every resource you use in your requests, a collection is created in the database. However, not until you actually store (create) a resource with a `POST`.
 
 ### Allowing specific resources only
 
@@ -206,7 +209,7 @@ And there is no filtering, sorting, searching, custom routes, etc. (yet?).
 
 ## Under the hood
 
-Temba is built with JavaScript, Node, Express, Jest, Testing Library, Supertest, and [@rakered/mongo](https://www.npmjs.com/package/@rakered/mongo).
+Temba is built with JavaScript, [Node](https://nodejs.org), [Express](https://expressjs.com/), [Jest](https://jestjs.io/), [Testing Library](https://testing-library.com/), [Supertest](https://www.npmjs.com/package/supertest), and [@rakered/mongo](https://www.npmjs.com/package/@rakered/mongo).
 
 ## Which problem does Temba solve?
 
