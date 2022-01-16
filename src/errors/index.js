@@ -4,4 +4,10 @@ function new404NotFoundError(message = 'Not Found') {
   return error
 }
 
-export { new404NotFoundError }
+function new400BadRequestError(message = 'Bad Request') {
+  const error = new Error(message)
+  error.status = 400
+  return error
+}
+
+export { new404NotFoundError, new400BadRequestError }

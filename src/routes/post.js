@@ -1,11 +1,18 @@
 import { format } from 'url'
+import { validateRequestBody } from './validator'
 
-function createPostRoutes(queries) {
+function createPostRoutes(queries, requestBodyValidator) {
   async function handlePost(req, res, next) {
     try {
       const { resourceName } = req.requestInfo
 
-      const newItem = await queries.create(resourceName, req.body)
+      const requestBody = validateRequestBody(
+        requestBodyValidator.post,
+        resourceName,
+        req.body,
+      )
+
+      const newItem = await queries.create(resourceName, requestBody)
 
       return res
         .set({

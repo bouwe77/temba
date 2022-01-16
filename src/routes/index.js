@@ -11,11 +11,17 @@ import express from 'express'
 
 function createResourceRouter(
   queries,
-  { validateResources, resourceNames, apiPrefix, cacheControl },
+  {
+    validateResources,
+    resourceNames,
+    apiPrefix,
+    cacheControl,
+    requestBodyValidator,
+  },
 ) {
   const { handleGetResource } = createGetRoutes(queries, cacheControl)
-  const { handlePost } = createPostRoutes(queries)
-  const { handlePut } = createPutRoutes(queries)
+  const { handlePost } = createPostRoutes(queries, requestBodyValidator)
+  const { handlePut } = createPutRoutes(queries, requestBodyValidator)
   const { handleDelete } = createDeleteRoutes(queries)
 
   const validateResource = createValidateResourceMiddleware(

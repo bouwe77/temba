@@ -9,6 +9,10 @@ const defaultConfig = {
   connectionString: null,
   cacheControl: 'no-store',
   delay: 0,
+  requestBodyValidator: {
+    post: () => {},
+    put: () => {},
+  },
 }
 
 export function initConfig(userConfig) {
@@ -54,6 +58,21 @@ export function initConfig(userConfig) {
     Number(userConfig.delay) < 10000
   ) {
     config.delay = Number(userConfig.delay)
+  }
+
+  if (userConfig.requestBodyValidator) {
+    if (
+      userConfig.requestBodyValidator.post &&
+      typeof userConfig.requestBodyValidator.post === 'function'
+    ) {
+      config.requestBodyValidator.post = userConfig.requestBodyValidator.post
+    }
+    if (
+      userConfig.requestBodyValidator.put &&
+      typeof userConfig.requestBodyValidator.put === 'function'
+    ) {
+      config.requestBodyValidator.put = userConfig.requestBodyValidator.put
+    }
   }
 
   return config
