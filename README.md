@@ -259,7 +259,7 @@ These are all the possible settings:
 | `apiPrefix`            | See [REST URIs prefixes](#rest-uris-prefixes)                                              |
 | `cacheControl`         | The `Cache-control` response header value for each GET request.                            |
 | `delay`                | After processing the request, the delay in milliseconds before the request should be sent. |
-| `requestBodyValidator` | Bla                                                                                        |
+| `requestBodyValidator` | See [Request body validation or mutation](#request-body-validation-or-mutation)            |
 
 ## Not supported (yet?)
 
