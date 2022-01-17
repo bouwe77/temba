@@ -137,7 +137,7 @@ const server = temba.create(config)
 
 This way, you could create a REST API, and the web app consuming it, in one project.
 
-However, to avoid possible conflicts between the API resources and the routes in your web app you might want to add an `apiPrefix` to the REST API:
+However, to avoid possible conflicts between the API resources and the web app routes you might want to add an `apiPrefix` to the REST API:
 
 ### REST URIs prefixes
 
@@ -152,38 +152,11 @@ After configuring the `apiPrefix`, requests to the root URL will either return a
 
 If you have configured both an `apiPrefix` and a `staticFolder`, a `GET` on the root URL will return the `index.html` in the `staticFolder`, if there is one.
 
-### Config settings overview
+### Request body validation or mutation
 
-Configuring Temba is optional, it already works out of the box. None of the settings are used until you configure them:
+Temba does not validate request bodies.
 
-```js
-const config = {
-  resourceNames: ['movies', 'actors'],
-  connectionString: 'mongodb://localhost:27017',
-  staticFolder: 'build',
-  apiPrefix: 'api',
-  cacheControl: 'public, max-age=300',
-  delay: 500,
-}
-const server = temba.create(config)
-```
-
-These are all the possible settings:
-
-| Config setting     | Description                                                                                |
-| :----------------- | :----------------------------------------------------------------------------------------- |
-| `resourceNames`    | See [Allowing specific resources only](#allowing-specific-resources-only)                  |
-| `connectionString` | See [MongoDB](#mongodb)                                                                    |
-| `staticFolder`     | See [Static assets](#static-assets)                                                        |
-| `apiPrefix`        | See [REST URIs prefixes](#rest-uris-prefixes)                                              |
-| `cacheControl`     | The `Cache-control` response header value for each GET request.                            |
-| `delay`            | After processing the request, the delay in milliseconds before the request should be sent. |
-
-## Not supported (yet?)
-
-Temba is still very basic. It does not have any model validation, so you can store your resources in any format you like.
-
-So creating the following two (very different) movies is perfectly fine:
+This means you can store your resources in any format you like. So creating the following two (very different) _movies_ is perfectly fine:
 
 ```
 POST /movies
@@ -199,13 +172,114 @@ POST /movies
 }
 ```
 
+You can even omit a request body when doing a `POST` or `PUT`. If you don't want that, and build proper validation, use the `requestBodyValidator` config setting:
+
+If you want to do input validation before the `POST` or `PUT` request body is saved to the database, configure Temba as follows:
+
+```js
+const config = {
+  requestBodyValidator: {
+    post: (resourceName, requestBody) {
+      // Validate, or even change the requestBody
+    },
+    put: (resourceName, requestBody) {
+      // Validate, or even change the requestBody
+    }
+  }
+}
+
+const server = temba.create(config)
+```
+
+The `requestBodyValidator` is an object with a `post` and/or `put` field, which contains the callback function you want Temba to call before the JSON is saved to the database.
+
+The callback function receives two arguments: The `resourceName`, which for example is `movies` if you request `POST /movies`. The second argument is the `requestBody`, which is the JSON object in the request body.
+
+Your callback function can return the following things:
+
+- `void`: Temba will just save the request body as-is. An example of this is when you have validated the request body and everything looks fine.
+- `string`: If you return a string Temba will return a `400 Bad Request` with the string as error message.
+- `object`: Return an object if you want to change the request body. Temba will save the returned object instead of the original request body.
+
+Example:
+
+```js
+const config = {
+  requestBodyValidator: {
+    post: (resourceName, requestBody) {
+      // Do not allow Pokemons to be created: 400 Bad Request
+      if (resourceName === 'pokemons') return 'You are not allowed to create new Pokemons'
+
+      // Add a genre to Star Trek films:
+      if (resourceName === 'movies' && requestBody.title.startsWith('Star Trek')) return {...requestBody, genre: 'Science Fiction'}
+
+      // If you end up here, void will be returned, so the request will just be saved.
+    },
+  }
+}
+
+const server = temba.create(config)
+```
+
+### Config settings overview
+
+Configuring Temba is optional, it already works out of the box.
+
+Here is an example of the config settings for Temba, and how you define them:
+
+```js
+const config = {
+  resourceNames: ['movies', 'actors'],
+  connectionString: 'mongodb://localhost:27017',
+  staticFolder: 'build',
+  apiPrefix: 'api',
+  cacheControl: 'public, max-age=300',
+  delay: 500,
+  requestBodyValidator: {
+    post: (resourceName, requestBody) {
+      // Validate, or even change the requestBody
+    },
+    put: (resourceName, requestBody) {
+      // Validate, or even change the requestBody
+    }
+  }
+}
+const server = temba.create(config)
+```
+
+None of the settings are required, and none of them have default values that actually do something. So only the settings you define are used.
+
+These are all the possible settings:
+
+| Config setting         | Description                                                                                |
+| :--------------------- | :----------------------------------------------------------------------------------------- |
+| `resourceNames`        | See [Allowing specific resources only](#allowing-specific-resources-only)                  |
+| `connectionString`     | See [MongoDB](#mongodb)                                                                    |
+| `staticFolder`         | See [Static assets](#static-assets)                                                        |
+| `apiPrefix`            | See [REST URIs prefixes](#rest-uris-prefixes)                                              |
+| `cacheControl`         | The `Cache-control` response header value for each GET request.                            |
+| `delay`                | After processing the request, the delay in milliseconds before the request should be sent. |
+| `requestBodyValidator` | Bla                                                                                        |
+
+## Not supported (yet?)
+
+The following features would be very nice for Temba to support:
+
+### `PATCH` requests
+
 Partial updates using `PATCH`, or other HTTP methods are not (yet?) supported.
+
+### Auth
 
 Temba offers no ways for authentication or authorization (yet?), so if someone knows how to reach the API, they can read and mutate all your data, unless you restrict this in another way.
 
+### Nested parent-child resources
+
 Also nested (parent-child) routes are not supported (yet?), so every URI has the /:resource/:id structure and there is no way to indicate any relation, apart from within the JSON itself perhaps.
 
-And there is no filtering, sorting, searching, custom routes, etc. (yet?).
+### Filtering and sorting
+
+And there is no filtering, sorting, searching, etc. (yet?).
 
 ## Under the hood
 
