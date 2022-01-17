@@ -179,13 +179,13 @@ If you want to do input validation before the `POST` or `PUT` request body is sa
 ```js
 const config = {
   requestBodyValidator: {
-    post: (resourceName, requestBody) {
+    post: (resourceName, requestBody) => {
       // Validate, or even change the requestBody
     },
-    put: (resourceName, requestBody) {
+    put: (resourceName, requestBody) => {
       // Validate, or even change the requestBody
-    }
-  }
+    },
+  },
 }
 
 const server = temba.create(config)
@@ -206,16 +206,21 @@ Example:
 ```js
 const config = {
   requestBodyValidator: {
-    post: (resourceName, requestBody) {
+    post: (resourceName, requestBody) => {
       // Do not allow Pokemons to be created: 400 Bad Request
-      if (resourceName === 'pokemons') return 'You are not allowed to create new Pokemons'
+      if (resourceName === 'pokemons')
+        return 'You are not allowed to create new Pokemons'
 
       // Add a genre to Star Trek films:
-      if (resourceName === 'movies' && requestBody.title.startsWith('Star Trek')) return {...requestBody, genre: 'Science Fiction'}
+      if (
+        resourceName === 'movies' &&
+        requestBody.title.startsWith('Star Trek')
+      )
+        return { ...requestBody, genre: 'Science Fiction' }
 
       // If you end up here, void will be returned, so the request will just be saved.
     },
-  }
+  },
 }
 
 const server = temba.create(config)
@@ -236,13 +241,13 @@ const config = {
   cacheControl: 'public, max-age=300',
   delay: 500,
   requestBodyValidator: {
-    post: (resourceName, requestBody) {
+    post: (resourceName, requestBody) => {
       // Validate, or even change the requestBody
     },
-    put: (resourceName, requestBody) {
+    put: (resourceName, requestBody) => {
       // Validate, or even change the requestBody
-    }
-  }
+    },
+  },
 }
 const server = temba.create(config)
 ```
