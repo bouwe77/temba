@@ -1,9 +1,11 @@
 # Temba
 
+<p align="center">
 [![Temba on NPM](https://img.shields.io/npm/v/temba)](https://www.npmjs.com/package/temba)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
+</p>
 
 **Get a simple MongoDB REST API with zero coding in less than 30 seconds (seriously).**
 
