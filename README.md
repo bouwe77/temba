@@ -6,6 +6,8 @@
 
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
+[![Temba on NPM](https://img.shields.io/npm/v/temba)](https://www.npmjs.com/package/temba)
+
 **Get a simple MongoDB REST API with zero coding in less than 30 seconds (seriously).**
 
 For developers who need a quick backend for small projects.
