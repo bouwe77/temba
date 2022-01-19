@@ -1,4 +1,4 @@
-name: Publish Markdown and static assets to 'docs' folder
+name: Publish to NPM
 
 on:
   push:
