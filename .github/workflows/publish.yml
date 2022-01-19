@@ -13,7 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Display version from package.json
-        run: node -p "require('./package.json').version"
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@master    
       - name: Build
         run: npm run build
       - name: Publish to NPM
