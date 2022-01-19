@@ -12,10 +12,12 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - name: Display version from package.json
+      - name: Determine version from package.json
         id: package-version
-        uses: martinbeentjes/npm-get-version-action@master    
-      - name: Build
-        run: npm run build
-      - name: Publish to NPM
-        run: npm publish
+        uses: martinbeentjes/npm-get-version-action@master
+      - name: Display version
+        run: echo ${{ steps.package-version.outputs.current-version}}
+      #- name: Build
+      #  run: npm run build
+      #- name: Publish to NPM
+      #  run: npm publish
