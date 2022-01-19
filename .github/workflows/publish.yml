@@ -21,7 +21,7 @@ jobs:
         uses: martinbeentjes/npm-get-version-action@master
       - name: Display version
         run: echo ${{ steps.package-version.outputs.current-version}}
-      #- name: Build
-      #  run: npm run build
-      #- name: Publish to NPM
-      #  run: npm publish
+      - name: Build
+        run: npm run build
+      - name: Publish to NPM
+        run: npm publish
