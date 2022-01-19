@@ -12,6 +12,10 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
+      - name: Check-out the repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
       - name: Determine version from package.json
         id: package-version
         uses: martinbeentjes/npm-get-version-action@master
