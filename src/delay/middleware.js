@@ -1,4 +1,4 @@
-const pause = require('connect-pause')
+import pause from 'connect-pause'
 
 function createDelayMiddleware(delay) {
   return function (req, res, next) {

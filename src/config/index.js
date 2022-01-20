@@ -10,8 +10,12 @@ const defaultConfig = {
   cacheControl: 'no-store',
   delay: 0,
   requestBodyValidator: {
-    post: () => {},
-    put: () => {},
+    post: () => {
+      // do nothing
+    },
+    put: () => {
+      // do nothing
+    },
   },
 }
 
