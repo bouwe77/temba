@@ -38,7 +38,7 @@ Prerequisites you need to have:
 
 > Wthout a database, Temba also works. However, then data is kept in memory and flushed every time the server restarts.
 
-### Use `npx`
+### Use the starter with `npx`
 
 Create your own Temba server with the following command and you are up and running!
 
@@ -70,9 +70,7 @@ server.listen(port, () => {
 
 By passing a config object to the `create` function you can customize Temba's behavior. Refer to the [config settings](#config-settings-overview) below for the various possibilities.
 
-## Usage
-
-### Introduction
+## What does Temba do?
 
 Out of the box, Temba gives you a CRUD REST API to any resource name you can think of.
 
@@ -92,6 +90,16 @@ For every resource (`movies` is just an example), Temba supports the following r
 The HTTP methods that are supported are `GET`, `POST`, `PUT` and `DELETE`. For any other HTTP method a `405 Method Not Allowed` response will be returned.
 
 On the root URI (e.g. http://localhost:8080/) only a `GET` request is supported, which shows you a message indicating the API is working. All other HTTP methods on the root URI return a `405 Method Not Allowed` response.
+
+### JSON
+
+Temba only supports JSON. If you send a request with invalid formatted JSON, a `400 Bad Request` response is returned.
+
+When sending JSON data (`POST` and `PUT` requests), adding a `Content-Type: application/json` header is required.
+
+IDs are auto generated when creating resources. IDs in the JSON request body are ignored.
+
+## Usage
 
 ### MongoDB
 
@@ -116,14 +124,6 @@ const server = temba.create(config)
 ```
 
 Requests on these resources only give a `404 Not Found` if the ID does not exist. Requests on any other resource will always return a `404 Not Found`.
-
-### JSON
-
-Temba only supports JSON. If you send a request with invalid formatted JSON, a `400 Bad Request` response is returned.
-
-When sending JSON data (`POST` and `PUT` requests), adding a `Content-Type: application/json` header is required.
-
-IDs are auto generated when creating resources. IDs in the JSON request body are ignored.
 
 ### Static assets
 
