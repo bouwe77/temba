@@ -93,17 +93,19 @@ On the root URI (e.g. http://localhost:8080/) only a `GET` request is supported,
 
 ### JSON
 
-Temba only supports JSON. If you send a request with invalid formatted JSON, a `400 Bad Request` response is returned.
+Temba supports JSON only.
 
-When sending JSON data (`POST` and `PUT` requests), adding a `Content-Type: application/json` header is required.
+Request bodies sent with a `POST` and `PUT` requests are valid when the request body is either empty, or when it's valid formatted JSON. Adding a `Content-Type: application/json` header is required. If you send a request with invalid formatted JSON, a `400 Bad Request` response is returned.
 
-IDs are auto generated when creating resources. IDs in the JSON request body are ignored.
+Any valid formatted JSON is accepted and stored. If you want to validate or even change the JSON in the request bodies, check out the [`requestBodyValidator`](#request-body-validation-or-mutation) callbacks.
+
+IDs are auto generated when creating resources. IDs in the JSON request body are ignored for any request.
 
 ## Usage
 
-### MongoDB
+### In-memory or MongoDB
 
-When starting Temba, you can send your requests to it immediately. However, then the data resides in memory and is flushed as soon as the server restarts. To persist your data, provide the `connectionString` config setting for your MongoDB database:
+By default data is stored in memory. This means the data is flushed when the server restarts. To persist your data, provide the `connectionString` config setting for your MongoDB database:
 
 ```js
 const config = {
