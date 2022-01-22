@@ -19,6 +19,8 @@ This project is inspired by the fantastic [json-server](https://github.com/typic
 
 [Getting Started](#getting-started)
 
+[What Tema does](#what-tema-does]
+
 [Usage](#usage)
 
 ## Temba?
@@ -46,7 +48,7 @@ Create your own Temba server with the following command and you are up and runni
 npx create-temba-server my-rest-api
 ```
 
-With this command you clone the [Temba-starter](https://github.com/bouwe77/temba-starter) repository and install all dependencies.
+This command clones the [Temba-starter](https://github.com/bouwe77/temba-starter) repository and installs all dependencies.
 
 ### Manually adding to an existing app
 
@@ -70,7 +72,7 @@ server.listen(port, () => {
 
 By passing a config object to the `create` function you can customize Temba's behavior. Refer to the [config settings](#config-settings-overview) below for the various possibilities.
 
-## What does Temba do?
+## What Temba does
 
 Out of the box, Temba gives you a CRUD REST API to any resource name you can think of.
 
