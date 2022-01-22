@@ -1,3 +1,4 @@
+import { new404NotFoundError } from '../errors'
 import { parseUrl } from './urlParser'
 
 function createResourceAndIdParser(apiPrefix) {
@@ -20,8 +21,9 @@ function createValidateResourceMiddleware(validateResources, resourceNames) {
     if (!resourceName) return next()
 
     if (!resourceNames.includes(resourceName.toLowerCase())) {
-      const error = new Error(`'${resourceName}' is an unknown resource`)
-      error.status = 404
+      const error = new404NotFoundError(
+        `'${resourceName}' is an unknown resource`,
+      )
       return next(error)
     }
 

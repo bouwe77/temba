@@ -1,13 +1,11 @@
+import { TembaError } from './types'
+
 function new404NotFoundError(message = 'Not Found') {
-  const error = new Error(message)
-  error.status = 404
-  return error
+  return new TembaError(message, 404)
 }
 
 function new400BadRequestError(message = 'Bad Request') {
-  const error = new Error(message)
-  error.status = 400
-  return error
+  return new TembaError(message, 400)
 }
 
 export { new404NotFoundError, new400BadRequestError }
