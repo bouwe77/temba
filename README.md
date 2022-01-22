@@ -19,7 +19,7 @@ This project is inspired by the fantastic [json-server](https://github.com/typic
 
 [Getting Started](#getting-started)
 
-[What Tema does](#what-tema-does]
+[What Tema does](#what-tema-does)
 
 [Usage](#usage)
 
