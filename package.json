@@ -5,8 +5,7 @@
   "main": "dist/server.js",
   "scripts": {
     "build": "tsc",
-    "start": "tsc && node dist/server.ts",
-    "test": "jest",
+    "test": "jest --watch",
     "lint": "eslint --ignore-path .eslintignore --ext .js,.ts .",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\""
   },
@@ -20,7 +19,7 @@
   "files": [
     "dist/**",
     "package.json",
-    "!__tests__"
+    "!tests"
   ],
   "devDependencies": {
     "@types/cors": "^2.8.12",
