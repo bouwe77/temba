@@ -1,16 +1,16 @@
 import express, { json } from 'express'
 import morgan from 'morgan'
-import { errorHandler } from './errors/middleware'
+import { errorHandler } from './errors/errors'
 import {
   createResourceRouter,
   rootRouter,
   handleMethodNotAllowed,
   handleNotFound,
-} from './routes'
-import { createQueries } from './queries'
+} from './routes/routes'
+import { createQueries } from './queries/queries'
 import { Config, initConfig } from './config'
 import cors from 'cors'
-import { createDelayMiddleware } from './delay/middleware'
+import { createDelayMiddleware } from './delay/delayMiddleware'
 
 function createServer(userConfig?: Config) {
   const config = initConfig(userConfig)

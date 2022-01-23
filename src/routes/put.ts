@@ -1,4 +1,4 @@
-import { new404NotFoundError } from '../errors'
+import { new404NotFoundError } from '../errors/errors'
 import { validateRequestBody } from './validator'
 
 function createPutRoutes(queries, requestBodyValidator) {

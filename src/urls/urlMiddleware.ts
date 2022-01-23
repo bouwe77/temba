@@ -1,10 +1,10 @@
-import { new404NotFoundError } from '../errors'
+import { new404NotFoundError } from '../errors/errors'
 import { parseUrl } from './urlParser'
 
 function createResourceAndIdParser(apiPrefix) {
   return function getResourceAndId(req, _, next) {
     const url = req.baseUrl.replace(apiPrefix, '')
-    let urlInfo = parseUrl(url)
+    const urlInfo = parseUrl(url)
 
     req.requestInfo = { ...req.requestInfo, ...urlInfo }
 

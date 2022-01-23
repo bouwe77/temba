@@ -1,4 +1,7 @@
-import { new400BadRequestError, new500InternalServerError } from '../errors'
+import {
+  new400BadRequestError,
+  new500InternalServerError,
+} from '../errors/errors'
 import { ValidatorCallback } from './types'
 
 function validateRequestBody(
@@ -19,7 +22,7 @@ function validateRequestBody(
 
   if (typeof requestBody !== 'object') {
     throw new500InternalServerError(
-      'requestBodyValidator must return void, string, or an object',
+      'Your requestBodyValidator callback must return void, string, or an object',
     )
   }
 

@@ -3,7 +3,7 @@ import { create } from '../../../src/server'
 
 describe.only('requestBodyValidators that return a (new or changed) requestBody', () => {
   const requestBodyValidator = {
-    post: (resourceName, requestBody) => {
+    post: (resourceName) => {
       expect(['movies', 'pokemons']).toContain(resourceName)
       if (resourceName === 'movies') return { title: 'The Matrix' }
     },

@@ -5,7 +5,7 @@ import { createDeleteRoutes } from './delete'
 import {
   createValidateResourceMiddleware,
   createResourceAndIdParser,
-} from '../urls/middleware'
+} from '../urls/urlMiddleware'
 
 import express from 'express'
 import { Config } from '../config'
