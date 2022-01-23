@@ -8,6 +8,7 @@ import {
 } from '../urls/middleware'
 
 import express from 'express'
+import { Config } from '../config'
 
 function createResourceRouter(
   queries,
@@ -17,7 +18,7 @@ function createResourceRouter(
     apiPrefix,
     cacheControl,
     requestBodyValidator,
-  },
+  }: Config,
 ) {
   const { handleGetResource } = createGetRoutes(queries, cacheControl)
   const { handlePost } = createPostRoutes(queries, requestBodyValidator)
@@ -30,7 +31,7 @@ function createResourceRouter(
   )
   const getResourceAndId = createResourceAndIdParser(apiPrefix)
 
-  var resourceRouter = express.Router()
+  const resourceRouter = express.Router()
 
   resourceRouter
     .get('*', getResourceAndId, validateResource, handleGetResource)

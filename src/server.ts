@@ -8,11 +8,11 @@ import {
   handleNotFound,
 } from './routes'
 import { createQueries } from './queries'
-import { initConfig } from './config'
+import { Config, initConfig } from './config'
 import cors from 'cors'
 import { createDelayMiddleware } from './delay/middleware'
 
-function createServer(userConfig) {
+function createServer(userConfig?: Config) {
   const config = initConfig(userConfig)
 
   const queries = createQueries(config.connectionString)
@@ -63,6 +63,6 @@ function createServer(userConfig) {
   return app
 }
 
-export function create(userConfig) {
+export function create(userConfig?: Config) {
   return createServer(userConfig)
 }
