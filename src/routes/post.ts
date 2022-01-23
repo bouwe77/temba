@@ -25,7 +25,7 @@ function createPostRoutes(queries, requestBodyValidator) {
         .status(201)
         .json(newItem)
         .send()
-    } catch (error) {
+    } catch (error: unknown) {
       return next(error)
     }
   }

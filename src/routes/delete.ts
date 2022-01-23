@@ -11,7 +11,7 @@ function createDeleteRoutes(queries) {
       } else {
         await queries.deleteAll(resourceName)
       }
-    } catch (error) {
+    } catch (error: unknown) {
       return next(error)
     }
 

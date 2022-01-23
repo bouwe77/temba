@@ -22,7 +22,7 @@ function createGetRoutes(queries, cacheControl) {
       res.status(200)
       res.json(items)
       return res.send()
-    } catch (error) {
+    } catch (error: unknown) {
       return next(error)
     }
   }

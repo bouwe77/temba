@@ -22,7 +22,7 @@ function createPutRoutes(queries, requestBodyValidator) {
       const updatedItem = await queries.update(resourceName, item)
 
       return res.status(200).json(updatedItem).send()
-    } catch (error) {
+    } catch (error: unknown) {
       return next(error)
     }
   }
