@@ -1,5 +1,5 @@
 import request from 'supertest'
-import { create } from '../../../dist/server.js'
+import { create } from '../../../src/server'
 
 describe.only('requestBodyValidators that return a (new or changed) requestBody', () => {
   const requestBodyValidator = {

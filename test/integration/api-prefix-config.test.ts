@@ -1,5 +1,5 @@
 import request from 'supertest'
-import { create } from '../../dist/server.js'
+import { create } from '../../src/server'
 
 // This Temba server is created with an apiPrefix configured
 const apiPrefix = 'api'

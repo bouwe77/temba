@@ -1,5 +1,5 @@
 import request from 'supertest'
-import { create } from '../../../dist/server.js'
+import { create } from '../../../src/server'
 
 describe('requestBodyValidators that return a string to indicate a 400 Bad Request should be returned', () => {
   const requestBodyValidator = {

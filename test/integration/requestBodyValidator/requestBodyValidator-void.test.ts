@@ -1,5 +1,5 @@
 import request from 'supertest'
-import { create } from '../../../dist/server.js'
+import { create } from '../../../src/server'
 
 // The possible values for the requestBodyValidator object:
 // - undefined, null, or an empty object
