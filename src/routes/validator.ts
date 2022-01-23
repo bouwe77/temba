@@ -1,9 +1,14 @@
-import { new400BadRequestError } from '../errors'
+import { new400BadRequestError, new500InternalServerError } from '../errors'
+import { ValidatorCallback } from './types'
 
-function validateRequestBody(validator, resourceName, requestBody) {
+function validateRequestBody(
+  validator: ValidatorCallback,
+  resourceName: string,
+  requestBody: unknown,
+): object {
   const validationResult = validator(resourceName, requestBody)
 
-  if (!validationResult) return requestBody
+  if (!validationResult && typeof requestBody === 'object') return requestBody
 
   if (typeof validationResult === 'string') {
     throw new400BadRequestError(validationResult)
@@ -11,6 +16,12 @@ function validateRequestBody(validator, resourceName, requestBody) {
 
   // The requestBody was replaced by something else.
   if (validationResult) requestBody = validationResult
+
+  if (typeof requestBody !== 'object') {
+    throw new500InternalServerError(
+      'requestBodyValidator must return void, string, or an object',
+    )
+  }
 
   return requestBody
 }
