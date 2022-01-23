@@ -1,10 +1,10 @@
-import { TembaError } from './types'
+import { HttpError } from './types'
 
 function errorHandler(e: unknown, _, res) {
   let status = 500
   let message = 'Unknown error'
 
-  if (e instanceof TembaError) {
+  if (e instanceof HttpError) {
     console.log({ HONDENTRONT: e })
     status = e.status
     message = e.message

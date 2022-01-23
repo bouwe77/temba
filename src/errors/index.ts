@@ -1,11 +1,15 @@
-import { TembaError } from './types'
+import { HttpError } from './types'
 
 function new404NotFoundError(message = 'Not Found') {
-  return new TembaError(message, 404)
+  return new HttpError(404, message)
 }
 
 function new400BadRequestError(message = 'Bad Request') {
-  return new TembaError(message, 400)
+  return new HttpError(400, message)
 }
 
-export { new404NotFoundError, new400BadRequestError }
+function new500InternalServerError(message = 'Internal Server Error') {
+  return new HttpError(500, message)
+}
+
+export { new404NotFoundError, new400BadRequestError, new500InternalServerError }
