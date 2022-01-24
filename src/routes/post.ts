@@ -6,11 +6,10 @@ function createPostRoutes(queries, requestBodyValidator) {
     try {
       const { resourceName } = req.requestInfo
 
-      const requestBody = validateRequestBody(
-        requestBodyValidator.post,
-        resourceName,
-        req.body,
-      )
+      const requestBody = validateRequestBody(requestBodyValidator.post, req)
+
+      if (typeof requestBody === 'string')
+        return res.status(400).json({ message: requestBody }).send()
 
       const newItem = await queries.create(resourceName, requestBody)
 

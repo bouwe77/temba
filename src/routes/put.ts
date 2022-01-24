@@ -6,15 +6,15 @@ function createPutRoutes(queries, requestBodyValidator) {
     try {
       const { resourceName, id } = req.requestInfo
 
-      const requestBody = validateRequestBody(
-        requestBodyValidator.put,
-        resourceName,
-        req.body,
-      )
+      const requestBody = validateRequestBody(requestBodyValidator.put, req)
+
+      if (typeof requestBody === 'string')
+        return res.status(400).json({ message: requestBody }).send()
 
       let item = null
       if (id) item = await queries.getById(resourceName, id)
 
+      // TODO return a response instead of calling next
       if (!item) return next(new404NotFoundError(`ID '${id}' not found`))
 
       item = { ...requestBody, id }
