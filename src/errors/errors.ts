@@ -12,14 +12,10 @@ export class HttpError extends Error {
 
 // This is the error middleware that will be used by the server.
 function errorHandler(e: unknown, _, res) {
-  let status = 500
+  const status = 500
   let message = 'Unknown error'
 
-  if (e instanceof HttpError) {
-    console.log({ HONDENTRONT: e })
-    status = e.status
-    message = e.message
-  } else if (e instanceof Error) {
+  if (e instanceof Error) {
     message = e.message
   }
 
