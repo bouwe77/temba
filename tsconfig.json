@@ -1,13 +1,15 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "module": "commonjs",
+    "module": "es6",
     "esModuleInterop": true,
     "target": "es6",
     "moduleResolution": "node",
     "sourceMap": true,
-    "outDir": "./dist"
+    "outDir": "dist",
+    "strict": true,
+    "declaration": true
   },
-  "include": ["./src/**/*"],
+  "include": ["src"],
   "lib": ["es2019"]
 }
