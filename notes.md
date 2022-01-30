@@ -12,7 +12,7 @@ It's also a way I can get feedback on how I do things, because many of these thi
 
 - `npm run build`
 
-- `npm publish`
+- `npm publish ./dist`
 
 # Testing HTTP requests
 
