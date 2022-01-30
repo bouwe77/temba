@@ -1,9 +1,8 @@
 # Temba
 
+[![Temba on NPM](https://img.shields.io/npm/v/temba)](https://www.npmjs.com/package/temba)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-
 [![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
-
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 **Get a simple MongoDB REST API with zero coding in less than 30 seconds (seriously).**
@@ -19,6 +18,8 @@ This project is inspired by the fantastic [json-server](https://github.com/typic
 [Temba?](#temba-1)
 
 [Getting Started](#getting-started)
+
+[What Tema does](#what-temba-does)
 
 [Usage](#usage)
 
@@ -39,7 +40,7 @@ Prerequisites you need to have:
 
 > Wthout a database, Temba also works. However, then data is kept in memory and flushed every time the server restarts.
 
-### Use `npx`
+### Use the starter with `npx`
 
 Create your own Temba server with the following command and you are up and running!
 
@@ -47,7 +48,7 @@ Create your own Temba server with the following command and you are up and runni
 npx create-temba-server my-rest-api
 ```
 
-With this command you clone the [Temba-starter](https://github.com/bouwe77/temba-starter) repository and install all dependencies.
+This command clones the [Temba-starter](https://github.com/bouwe77/temba-starter) repository and installs all dependencies.
 
 ### Manually adding to an existing app
 
@@ -71,9 +72,7 @@ server.listen(port, () => {
 
 By passing a config object to the `create` function you can customize Temba's behavior. Refer to the [config settings](#config-settings-overview) below for the various possibilities.
 
-## Usage
-
-### Introduction
+## What Temba does
 
 Out of the box, Temba gives you a CRUD REST API to any resource name you can think of.
 
@@ -94,9 +93,21 @@ The HTTP methods that are supported are `GET`, `POST`, `PUT` and `DELETE`. For a
 
 On the root URI (e.g. http://localhost:8080/) only a `GET` request is supported, which shows you a message indicating the API is working. All other HTTP methods on the root URI return a `405 Method Not Allowed` response.
 
-### MongoDB
+### JSON
 
-When starting Temba, you can send your requests to it immediately. However, then the data resides in memory and is flushed as soon as the server restarts. To persist your data, provide the `connectionString` config setting for your MongoDB database:
+Temba supports JSON only.
+
+Request bodies sent with a `POST` and `PUT` requests are valid when the request body is either empty, or when it's valid formatted JSON. Adding a `Content-Type: application/json` header is required. If you send a request with invalid formatted JSON, a `400 Bad Request` response is returned.
+
+Any valid formatted JSON is accepted and stored. If you want to validate or even change the JSON in the request bodies, check out the [`requestBodyValidator`](#request-body-validation-or-mutation) callbacks.
+
+IDs are auto generated when creating resources. IDs in the JSON request body are ignored for any request.
+
+## Usage
+
+### In-memory or MongoDB
+
+By default data is stored in memory. This means the data is flushed when the server restarts. To persist your data, provide the `connectionString` config setting for your MongoDB database:
 
 ```js
 const config = {
@@ -117,14 +128,6 @@ const server = temba.create(config)
 ```
 
 Requests on these resources only give a `404 Not Found` if the ID does not exist. Requests on any other resource will always return a `404 Not Found`.
-
-### JSON
-
-Temba only supports JSON. If you send a request with invalid formatted JSON, a `400 Bad Request` response is returned.
-
-When sending JSON data (`POST` and `PUT` requests), adding a `Content-Type: application/json` header is required.
-
-IDs are auto generated when creating resources. IDs in the JSON request body are ignored.
 
 ### Static assets
 
