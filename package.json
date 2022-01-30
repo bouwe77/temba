@@ -2,7 +2,7 @@
   "name": "temba",
   "version": "0.10.0",
   "description": "Get a simple MongoDB REST API with zero coding in less than 30 seconds (seriously).",
-  "main": "dist/server.js",
+  "main": "dist/server.ts",
   "scripts": {
     "build": "tsc",
     "test": "jest --watch",
