@@ -1,8 +1,11 @@
 # Temba
 
 [![Temba on NPM](https://img.shields.io/npm/v/temba)](https://www.npmjs.com/package/temba)
+
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+
 [![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 **Get a simple MongoDB REST API with zero coding in less than 30 seconds (seriously).**
@@ -19,7 +22,7 @@ This project is inspired by the fantastic [json-server](https://github.com/typic
 
 [Getting Started](#getting-started)
 
-[What Tema does](#what-temba-does)
+[What Temba does](#what-temba-does)
 
 [Usage](#usage)
 
