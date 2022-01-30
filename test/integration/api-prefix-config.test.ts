@@ -1,6 +1,10 @@
 import request from 'supertest'
 import { create } from '../../src/server'
 
+/*
+  Tests when configuring the apiPrefix.
+*/
+
 // This Temba server is created with an apiPrefix configured
 const apiPrefix = 'api'
 const tembaServer = create({ apiPrefix })

@@ -1,6 +1,10 @@
 import request from 'supertest'
 import { create } from '../../src/server'
 
+/*
+  Tests on the root URL: "/"
+*/
+
 // This Temba server is created with the default configuration, i.e. no config object is supplied.
 const tembaServer = create()
 

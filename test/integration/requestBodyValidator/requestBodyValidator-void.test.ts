@@ -1,19 +1,6 @@
 import request from 'supertest'
 import { create } from '../../../src/server'
 
-// The possible values for the requestBodyValidator object:
-// - undefined, null, or an empty object
-// - An object with a post or put field, or both, which contain a function
-
-// Return types of a requestBodyValidator function:
-// 1) void: Everything is fine and/or nothing to validate
-// 2) string: A 400 Bad Request Error message
-// 3) Anything else: A mutated requestBody
-
-// LET OP Je kunt nu volgens mij een lege request body meegeven, en Temba vindt dat prima.
-// Eigenlijk is dat ook wel prima, want als je dat niet wilt dan maak je gewoon een
-// requestBodyValidator die dat afvangt.
-
 describe('requestBodyValidators that return nothing (void) to indicate nothing should be done', () => {
   const requestBodyValidator = {
     post: (resourceName, requestBody) => {
