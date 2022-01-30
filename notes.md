@@ -8,7 +8,7 @@ It's also a way I can get feedback on how I do things, because many of these thi
 
 # Publishing a new version to NPM
 
-- Change the version number in `package.json`
+- Change the version number: `npm version patch|minor|major -"description of the change..."`
 
 - `npm run build`
 
