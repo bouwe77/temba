@@ -4,7 +4,7 @@
   "description": "Get a simple MongoDB REST API with zero coding in less than 30 seconds (seriously).",
   "main": "dist/server.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf dist && tsc && cp package.json README.md ./dist",
     "test": "jest --watch",
     "lint": "eslint --ignore-path .gitignore --ext .js,.ts .",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\""
