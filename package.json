@@ -18,8 +18,8 @@
   "license": "ISC",
   "files": [
     "dist/**",
-    "package.json",
-    "README.md"
+    "dist/package.json",
+    "dist/README.md"
   ],
   "devDependencies": {
     "@types/cors": "^2.8.12",
