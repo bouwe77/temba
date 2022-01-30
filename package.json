@@ -17,9 +17,7 @@
   "author": "Bouwe (https://bouwe.io)",
   "license": "ISC",
   "files": [
-    "dist/**",
-    "dist/package.json",
-    "dist/README.md"
+    "dist/**"
   ],
   "devDependencies": {
     "@types/cors": "^2.8.12",
