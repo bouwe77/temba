@@ -178,9 +178,7 @@ POST /movies
 }
 ```
 
-You can even omit a request body when doing a `POST` or `PUT`. If you don't want that, and build proper validation, use the `requestBodyValidator` config setting:
-
-If you want to do input validation before the `POST` or `PUT` request body is saved to the database, configure Temba as follows:
+You can even omit a request body when doing a `POST` or `PUT`. If you don't want that, and want to have proper validation, use the `requestBodyValidator` config setting:
 
 ```js
 const config = {
