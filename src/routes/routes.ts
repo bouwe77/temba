@@ -1,6 +1,7 @@
 import { createGetRoutes } from './get'
 import { createPostRoutes } from './post'
 import { createPutRoutes } from './put'
+import { createPatchRoutes } from './patch'
 import { createDeleteRoutes } from './delete'
 import {
   createValidateResourceMiddleware,
@@ -23,6 +24,7 @@ function createResourceRouter(
   const { handleGetResource } = createGetRoutes(queries, cacheControl)
   const { handlePost } = createPostRoutes(queries, requestBodyValidator)
   const { handlePut } = createPutRoutes(queries, requestBodyValidator)
+  const { handlePatch } = createPatchRoutes(queries) //, requestBodyValidator)
   const { handleDelete } = createDeleteRoutes(queries)
 
   const validateResource = createValidateResourceMiddleware(
@@ -37,6 +39,7 @@ function createResourceRouter(
     .get('*', getResourceAndId, validateResource, handleGetResource)
     .post('*', getResourceAndId, validateResource, handlePost)
     .put('*', getResourceAndId, validateResource, handlePut)
+    .patch('*', getResourceAndId, validateResource, handlePatch)
     .delete('*', getResourceAndId, validateResource, handleDelete)
 
   return resourceRouter
