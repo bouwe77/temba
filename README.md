@@ -92,7 +92,7 @@ For every resource (`movies` is just an example), Temba supports the following r
 
 ### Supported HTTP methods
 
-The HTTP methods that are supported are `GET`, `POST`, `PUT` and `DELETE`. For any other HTTP method a `405 Method Not Allowed` response will be returned.
+The HTTP methods that are supported are `GET`, `POST`, `PUT` and `DELETE`.
 
 On the root URI (e.g. http://localhost:8080/) only a `GET` request is supported, which shows you a message indicating the API is working. All other HTTP methods on the root URI return a `405 Method Not Allowed` response.
 
