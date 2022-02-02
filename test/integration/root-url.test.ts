@@ -1,5 +1,5 @@
 import request from 'supertest'
-import { create } from '../../src/server'
+import { create } from '../../src/index'
 
 /*
   Tests on the root URL: "/"

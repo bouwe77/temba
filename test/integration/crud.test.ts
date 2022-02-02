@@ -1,5 +1,5 @@
 import request from 'supertest'
-import { create } from '../../src/server'
+import { create } from '../../src/index'
 import 'jest-extended'
 
 /*
@@ -74,14 +74,14 @@ test('Create, update and delete an item', async () => {
   expect(getJustOneItemResponse.body.name).toBe('newItem')
   expect(getJustOneItemResponse.body.id).toBe(createdNewItem.id)
 
-  // Update one item by ID.
-  const updatedItem = { id: createdNewItem.id, name: 'updatedItem' }
+  // Replace (PUT) one item by ID.
+  const replacedItem = { id: createdNewItem.id, name: 'replacedItem' }
   const updateResponse = await request(tembaServer)
     .put(resource + createdNewItem.id)
-    .send(updatedItem)
+    .send(replacedItem)
 
   expect(updateResponse.status).toBe(200)
-  expect(updateResponse.body.name).toBe('updatedItem')
+  expect(updateResponse.body.name).toBe('replacedItem')
   expect(updateResponse.body.id).toEqual(createdNewItem.id)
 
   // Get one item by ID.
@@ -89,7 +89,7 @@ test('Create, update and delete an item', async () => {
     resource + createdNewItem.id,
   )
   expect(getJustOneUpdateItemResponse.status).toBe(200)
-  expect(getJustOneUpdateItemResponse.body.name).toBe('updatedItem')
+  expect(getJustOneUpdateItemResponse.body.name).toBe('replacedItem')
   expect(getJustOneUpdateItemResponse.body.id).toBe(createdNewItem.id)
 
   // Delete one item by ID.
@@ -110,6 +110,7 @@ test('Create, update and delete an item', async () => {
   expect(getAllResponse2.body.length).toBe(0)
 })
 
+//TODO add PATCH here
 test('When POSTing and PUTting with ID in request body, ignore ID in body', async () => {
   const hardCodedIdToIgnore = 'myID'
 

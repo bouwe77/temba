@@ -1,5 +1,5 @@
 import request from 'supertest'
-import { create } from '../../../src/server'
+import { create } from '../../../src/index'
 
 describe('requestBodyValidators that return nothing (void) to indicate nothing should be done', () => {
   const requestBodyValidator = {
