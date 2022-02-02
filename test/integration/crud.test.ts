@@ -17,7 +17,7 @@ beforeEach(async () => {
   expect(deleteAllResponse.status).toBe(204)
 })
 
-test('Create, update and delete an item', async () => {
+test('Read, create, replace, update and delete resources', async () => {
   // Initially, there are no items so a get all returns an empty array.
   const getAllResponse = await request(tembaServer).get(resource)
   expect(getAllResponse.status).toBe(200)
@@ -29,12 +29,12 @@ test('Create, update and delete an item', async () => {
   )
   expect(getOneResponse.status).toBe(404)
 
-  // Initially, there are no items so a updating an id returns a 404.
+  // Initially, there are no items so a replacing an id returns a 404.
   const nonExistingItem = { id: 'id_does_not_exist', name: 'this should fail' }
-  const updateNonExistingResponse = await request(tembaServer)
+  const replaceNonExistingResponse = await request(tembaServer)
     .put(resource + 'id_does_not_exist')
     .send(nonExistingItem)
-  expect(updateNonExistingResponse.status).toBe(404)
+  expect(replaceNonExistingResponse.status).toBe(404)
 
   // Initially, there are no items, but deleting an id always returns a 204 anyway.
   const deleteNonExistingResponse = await request(tembaServer).delete(
@@ -76,21 +76,21 @@ test('Create, update and delete an item', async () => {
 
   // Replace (PUT) one item by ID.
   const replacedItem = { id: createdNewItem.id, name: 'replacedItem' }
-  const updateResponse = await request(tembaServer)
+  const replaceResponse = await request(tembaServer)
     .put(resource + createdNewItem.id)
     .send(replacedItem)
 
-  expect(updateResponse.status).toBe(200)
-  expect(updateResponse.body.name).toBe('replacedItem')
-  expect(updateResponse.body.id).toEqual(createdNewItem.id)
+  expect(replaceResponse.status).toBe(200)
+  expect(replaceResponse.body.name).toBe('replacedItem')
+  expect(replaceResponse.body.id).toEqual(createdNewItem.id)
 
   // Get one item by ID.
-  const getJustOneUpdateItemResponse = await request(tembaServer).get(
+  const getJustOneReplacedItemResponse = await request(tembaServer).get(
     resource + createdNewItem.id,
   )
-  expect(getJustOneUpdateItemResponse.status).toBe(200)
-  expect(getJustOneUpdateItemResponse.body.name).toBe('replacedItem')
-  expect(getJustOneUpdateItemResponse.body.id).toBe(createdNewItem.id)
+  expect(getJustOneReplacedItemResponse.status).toBe(200)
+  expect(getJustOneReplacedItemResponse.body.name).toBe('replacedItem')
+  expect(getJustOneReplacedItemResponse.body.id).toBe(createdNewItem.id)
 
   // Delete one item by ID.
   const deleteResponse = await request(tembaServer).delete(
@@ -130,20 +130,20 @@ test('When POSTing and PUTting with ID in request body, ignore ID in body', asyn
   expect(newCreatedItem.id.length).toBeGreaterThan(0)
   expect(newCreatedItem.id).not.toEqual(hardCodedIdToIgnore)
 
-  // Update one item by ID in the URI and ignore the ID in the request body.
-  const updatedItem = { id: hardCodedIdToIgnore, name: 'updatedItem' }
-  const updateResponse = await request(tembaServer)
+  // Replace one item by ID in the URI and ignore the ID in the request body.
+  const replacedItem = { id: hardCodedIdToIgnore, name: 'replacedItem' }
+  const replaceResponse = await request(tembaServer)
     .put(resource + newCreatedItem.id)
-    .send(updatedItem)
-  expect(updateResponse.status).toBe(200)
-  expect(updateResponse.body.name).toBe('updatedItem')
-  expect(updateResponse.body.id).toEqual(newCreatedItem.id)
+    .send(replacedItem)
+  expect(replaceResponse.status).toBe(200)
+  expect(replaceResponse.body.name).toBe('replacedItem')
+  expect(replaceResponse.body.id).toEqual(newCreatedItem.id)
 
   // Now there is one item. Get all items.
   const getAllOneItemResponse = await request(tembaServer).get(resource)
   expect(getAllOneItemResponse.status).toBe(200)
   expect(getAllOneItemResponse.body.length).toBe(1)
-  expect(getAllOneItemResponse.body[0].name).toBe('updatedItem')
+  expect(getAllOneItemResponse.body[0].name).toBe('replacedItem')
   expect(getAllOneItemResponse.body[0].id).toBe(newCreatedItem.id)
 })
 
