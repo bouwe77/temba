@@ -29,12 +29,18 @@ test('Read, create, replace, update and delete resources', async () => {
   )
   expect(getOneResponse.status).toBe(404)
 
-  // Initially, there are no items so a replacing an id returns a 404.
+  // Initially, there are no items so a replacing something by id returns a 404.
   const nonExistingItem = { id: 'id_does_not_exist', name: 'this should fail' }
   const replaceNonExistingResponse = await request(tembaServer)
     .put(resource + 'id_does_not_exist')
     .send(nonExistingItem)
   expect(replaceNonExistingResponse.status).toBe(404)
+
+  // Initially, there are no items so a updating something by id returns a 404.
+  const updateNonExistingResponse = await request(tembaServer)
+    .patch(resource + 'id_does_not_exist')
+    .send(nonExistingItem)
+  expect(updateNonExistingResponse.status).toBe(404)
 
   // Initially, there are no items, but deleting an id always returns a 204 anyway.
   const deleteNonExistingResponse = await request(tembaServer).delete(
@@ -75,7 +81,7 @@ test('Read, create, replace, update and delete resources', async () => {
   expect(getJustOneItemResponse.body.id).toBe(createdNewItem.id)
 
   // Replace (PUT) one item by ID.
-  const replacedItem = { id: createdNewItem.id, name: 'replacedItem' }
+  const replacedItem = { name: 'replacedItem', hello: 'world' }
   const replaceResponse = await request(tembaServer)
     .put(resource + createdNewItem.id)
     .send(replacedItem)
@@ -91,6 +97,18 @@ test('Read, create, replace, update and delete resources', async () => {
   expect(getJustOneReplacedItemResponse.status).toBe(200)
   expect(getJustOneReplacedItemResponse.body.name).toBe('replacedItem')
   expect(getJustOneReplacedItemResponse.body.id).toBe(createdNewItem.id)
+
+  // Update (PATCH) one item by ID.
+  // This request updates the name, adds the something property and leaves all other properties unchanged.
+  const updatedItem = { name: 'updatedItem', something: 'in the way' }
+  const updateResponse = await request(tembaServer)
+    .patch(resource + createdNewItem.id)
+    .send(updatedItem)
+  expect(updateResponse.status).toBe(200)
+  expect(updateResponse.body.name).toBe('updatedItem')
+  expect(updateResponse.body.hello).toEqual(replacedItem.hello)
+  expect(updateResponse.body.id).toEqual(createdNewItem.id)
+  expect(updateResponse.body.something).toEqual(updatedItem.something)
 
   // Delete one item by ID.
   const deleteResponse = await request(tembaServer).delete(
@@ -110,7 +128,6 @@ test('Read, create, replace, update and delete resources', async () => {
   expect(getAllResponse2.body.length).toBe(0)
 })
 
-//TODO add PATCH here
 test('When POSTing and PUTting with ID in request body, ignore ID in body', async () => {
   const hardCodedIdToIgnore = 'myID'
 
@@ -139,11 +156,20 @@ test('When POSTing and PUTting with ID in request body, ignore ID in body', asyn
   expect(replaceResponse.body.name).toBe('replacedItem')
   expect(replaceResponse.body.id).toEqual(newCreatedItem.id)
 
+  // Update one item by ID in the URI and ignore the ID in the request body.
+  const updatedItem = { id: hardCodedIdToIgnore, name: 'updatedItem' }
+  const updateResponse = await request(tembaServer)
+    .put(resource + newCreatedItem.id)
+    .send(updatedItem)
+  expect(updateResponse.status).toBe(200)
+  expect(updateResponse.body.name).toBe('updatedItem')
+  expect(updateResponse.body.id).toEqual(newCreatedItem.id)
+
   // Now there is one item. Get all items.
   const getAllOneItemResponse = await request(tembaServer).get(resource)
   expect(getAllOneItemResponse.status).toBe(200)
   expect(getAllOneItemResponse.body.length).toBe(1)
-  expect(getAllOneItemResponse.body[0].name).toBe('replacedItem')
+  expect(getAllOneItemResponse.body[0].name).toBe('updatedItem')
   expect(getAllOneItemResponse.body[0].id).toBe(newCreatedItem.id)
 })
 

@@ -24,7 +24,7 @@ function createResourceRouter(
   const { handleGetResource } = createGetRoutes(queries, cacheControl)
   const { handlePost } = createPostRoutes(queries, requestBodyValidator)
   const { handlePut } = createPutRoutes(queries, requestBodyValidator)
-  const { handlePatch } = createPatchRoutes(queries) //, requestBodyValidator)
+  const { handlePatch } = createPatchRoutes(queries, requestBodyValidator)
   const { handleDelete } = createDeleteRoutes(queries)
 
   const validateResource = createValidateResourceMiddleware(

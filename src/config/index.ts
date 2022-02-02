@@ -23,6 +23,9 @@ const defaultConfig: Config = {
     post: () => {
       // do nothing
     },
+    patch: () => {
+      // do nothing
+    },
     put: () => {
       // do nothing
     },
@@ -72,6 +75,12 @@ export function initConfig(userConfig: Config): Config {
       typeof userConfig.requestBodyValidator.post === 'function'
     ) {
       config.requestBodyValidator.post = userConfig.requestBodyValidator.post
+    }
+    if (
+      userConfig.requestBodyValidator.patch &&
+      typeof userConfig.requestBodyValidator.patch === 'function'
+    ) {
+      config.requestBodyValidator.patch = userConfig.requestBodyValidator.patch
     }
     if (
       userConfig.requestBodyValidator.put &&

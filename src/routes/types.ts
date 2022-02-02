@@ -4,6 +4,7 @@ export type ValidatorCallback = (
 ) => void | string | object
 
 export type RequestBodyValidator = {
-  post: ValidatorCallback
-  put: ValidatorCallback
+  post?: ValidatorCallback
+  patch?: ValidatorCallback
+  put?: ValidatorCallback
 }

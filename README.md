@@ -79,20 +79,21 @@ By passing a config object to the `create` function you can customize Temba's be
 
 Out of the box, Temba gives you a CRUD REST API to any resource name you can think of.
 
-Whether you `GET` either `/people`, `/movies`, `/pokemons`, or whatever, it all returns a `200 OK` with a `[]` JSON response. As soon as you `POST` a new resource, followed by a `GET` of that resource, the new resource will be returned. You can also `DELETE`, or `PUT` resources by its ID.
+Whether you `GET` either `/people`, `/movies`, `/pokemons`, or whatever, it all returns a `200 OK` with a `[]` JSON response. As soon as you `POST` a new resource, followed by a `GET` of that resource, the new resource will be returned. You can also `DELETE`, `PATCH`, or `PUT` resources by its ID.
 
 For every resource (`movies` is just an example), Temba supports the following requests:
 
 - `GET /movies` - Get all movies
 - `GET /movies/:id` - Get a movie by its ID
 - `POST /movies` - Create a new movie
-- `PUT /movies/:id` - Replace a movie by its ID
+- `PATCH /movies/:id` - Partially update a movie by its ID
+- `PUT /movies/:id` - Fully replace a movie by its ID
 - `DELETE /movies` - Delete all movies
 - `DELETE /movies/:id` - Delete a movie by its ID
 
 ### Supported HTTP methods
 
-The HTTP methods that are supported are `GET`, `POST`, `PUT` and `DELETE`.
+The HTTP methods that are supported are `GET`, `POST`, `PATCH`, `PUT` and `DELETE`.
 
 On the root URI (e.g. http://localhost:8080/) only a `GET` request is supported, which shows you a message indicating the API is working. All other HTTP methods on the root URI return a `405 Method Not Allowed` response.
 
@@ -100,7 +101,7 @@ On the root URI (e.g. http://localhost:8080/) only a `GET` request is supported,
 
 Temba supports JSON only.
 
-Request bodies sent with a `POST` and `PUT` requests are valid when the request body is either empty, or when it's valid formatted JSON. Adding a `Content-Type: application/json` header is required. If you send a request with invalid formatted JSON, a `400 Bad Request` response is returned.
+Request bodies sent with a `POST`, `PATCH`, and `PUT` requests are valid when the request body is either empty, or when it's valid formatted JSON. Adding a `Content-Type: application/json` header is required. If you send a request with invalid formatted JSON, a `400 Bad Request` response is returned.
 
 Any valid formatted JSON is accepted and stored. If you want to validate or even change the JSON in the request bodies, check out the [`requestBodyValidator`](#request-body-validation-or-mutation) callbacks.
 
@@ -178,7 +179,7 @@ POST /movies
 }
 ```
 
-You can even omit a request body when doing a `POST` or `PUT`. If you don't want that, and want to have proper validation, use the `requestBodyValidator` config setting:
+You can even omit a request body when doing a `POST`, `PATCH`, or `PUT`. If you don't want that, and want to have proper validation, use the `requestBodyValidator` config setting:
 
 ```js
 const config = {
@@ -189,13 +190,16 @@ const config = {
     put: (resourceName, requestBody) => {
       // Validate, or even change the requestBody
     },
+    patch: (resourceName, requestBody) => {
+      // Validate, or even change the requestBody
+    },
   },
 }
 
 const server = temba.create(config)
 ```
 
-The `requestBodyValidator` is an object with a `post` and/or `put` field, which contains the callback function you want Temba to call before the JSON is saved to the database.
+The `requestBodyValidator` is an object with a `post`, and/or `patch`, and/or `put` field, which contains the callback function you want Temba to call before the JSON is saved to the database.
 
 The callback function receives two arguments: The `resourceName`, which for example is `movies` if you request `POST /movies`. The second argument is the `requestBody`, which is the JSON object in the request body.
 
@@ -248,6 +252,9 @@ const config = {
     post: (resourceName, requestBody) => {
       // Validate, or even change the requestBody
     },
+    patch: (resourceName, requestBody) => {
+      // Validate, or even change the requestBody
+    },
     put: (resourceName, requestBody) => {
       // Validate, or even change the requestBody
     },
@@ -273,10 +280,6 @@ These are all the possible settings:
 ## Not supported (yet?)
 
 The following features would be very nice for Temba to support:
-
-### `PATCH` requests
-
-Partial updates using `PATCH`, or other HTTP methods are not (yet?) supported.
 
 ### Auth
 
