@@ -9,7 +9,7 @@ describe.only('requestBodyValidators that return a (new or changed) requestBody'
     },
     put: (resourceName, requestBody) => {
       expect(resourceName).toBe('pokemons')
-      return { ...requestBody, updated: true }
+      return { ...requestBody, replaced: true }
     },
   }
 
@@ -55,6 +55,6 @@ describe.only('requestBodyValidators that return a (new or changed) requestBody'
     expect(response.statusCode).toEqual(200)
     expect(response.body.id).toEqual(id)
     expect(response.body.name).toEqual('Mew')
-    expect(response.body.updated).toEqual(true)
+    expect(response.body.replaced).toEqual(true)
   })
 })

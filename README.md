@@ -86,7 +86,7 @@ For every resource (`movies` is just an example), Temba supports the following r
 - `GET /movies` - Get all movies
 - `GET /movies/:id` - Get a movie by its ID
 - `POST /movies` - Create a new movie
-- `PUT /movies/:id` - Update (fully replace) a movie by its ID
+- `PUT /movies/:id` - Replace a movie by its ID
 - `DELETE /movies` - Delete all movies
 - `DELETE /movies/:id` - Delete a movie by its ID
 

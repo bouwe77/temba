@@ -19,9 +19,9 @@ function createPutRoutes(queries, requestBodyValidator) {
 
       item = { ...requestBody, id }
 
-      const updatedItem = await queries.update(resourceName, item)
+      const replacedItem = await queries.replace(resourceName, item)
 
-      return res.status(200).json(updatedItem).send()
+      return res.status(200).json(replacedItem).send()
     } catch (error: unknown) {
       return next(error)
     }
