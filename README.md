@@ -284,7 +284,7 @@ Temba offers no ways for authentication or authorization (yet?), so if someone k
 
 ### Nested parent-child resources
 
-Also nested (parent-child) routes are not supported (yet?), so every URI has the /:resource/:id structure and there is no way to indicate any relation, apart from within the JSON itself perhaps.
+Also nested (parent-child) URI routes are not supported (yet?). So every URI has the /:resource/:id structure and there is no way to indicate any deeper relation through the URI.
 
 ### Filtering and sorting
 
@@ -292,7 +292,7 @@ And there is no filtering, sorting, searching, etc. (yet?).
 
 ## Under the hood
 
-Temba is built with JavaScript, [Node](https://nodejs.org), [Express](https://expressjs.com/), [Jest](https://jestjs.io/), [Testing Library](https://testing-library.com/), [Supertest](https://www.npmjs.com/package/supertest), and [@rakered/mongo](https://www.npmjs.com/package/@rakered/mongo).
+Temba is built with JavaScript, [Node](https://nodejs.org), [Express](https://expressjs.com/), [Jest](https://jestjs.io/), [Supertest](https://www.npmjs.com/package/supertest), and [@rakered/mongo](https://www.npmjs.com/package/@rakered/mongo).
 
 ## Which problem does Temba solve?
 
