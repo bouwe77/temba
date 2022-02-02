@@ -35,18 +35,3 @@ test('DELETE on root URL returns Method Not Allowed error', async () => {
   expect(response.statusCode).toEqual(405)
   expect(response.body.message).toEqual('Method Not Allowed')
 })
-
-// There are so many other HTTP methods, but just check PATCH here only.
-test('PATCH on root URL returns Method Not Allowed error', async () => {
-  const response = await request(tembaServer).patch('/')
-
-  expect(response.statusCode).toEqual(405)
-  expect(response.body.message).toEqual('Method Not Allowed')
-})
-
-test('A not allowed method on a resource returns 405 Method Not Allowed', async () => {
-  const response = await request(tembaServer).patch('/unknown_resource')
-
-  expect(response.statusCode).toEqual(405)
-  expect(response.body.message).toEqual('Method Not Allowed')
-})
