@@ -1,6 +1,8 @@
 import request from 'supertest'
 import { create } from '../../../src/index'
 
+//TODO add patch
+
 describe('requestBodyValidators that return a string to indicate a 400 Bad Request should be returned', () => {
   const requestBodyValidator = {
     post: (resourceName, requestBody) => {

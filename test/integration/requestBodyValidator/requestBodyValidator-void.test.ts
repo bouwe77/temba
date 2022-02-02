@@ -1,6 +1,8 @@
 import request from 'supertest'
 import { create } from '../../../src/index'
 
+//TODO add patch
+
 describe('requestBodyValidators that return nothing (void) to indicate nothing should be done', () => {
   const requestBodyValidator = {
     post: (resourceName, requestBody) => {
