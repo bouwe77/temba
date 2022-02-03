@@ -110,6 +110,14 @@ test('Read, create, replace, update and delete resources', async () => {
   expect(updateResponse.body.id).toEqual(createdNewItem.id)
   expect(updateResponse.body.something).toEqual(updatedItem.something)
 
+  // Get one item by ID.
+  const getJustOneUpdatedItemResponse = await request(tembaServer).get(
+    resource + createdNewItem.id,
+  )
+  expect(getJustOneUpdatedItemResponse.status).toBe(200)
+  expect(getJustOneUpdatedItemResponse.body.name).toBe('updatedItem')
+  expect(getJustOneUpdatedItemResponse.body.id).toBe(createdNewItem.id)
+
   // Delete one item by ID.
   const deleteResponse = await request(tembaServer).delete(
     resource + createdNewItem.id,
