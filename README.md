@@ -62,13 +62,13 @@ Alternatively, add Temba to your app manually:
 2. Example code to create a Temba server:
 
 ```js
-import temba from ("temba");
-const server = temba.create();
+import temba from "temba"
+const server = temba.create()
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3000
 server.listen(port, () => {
-  console.log(`Temba is running on port ${port}`);
-});
+  console.log(`Temba is running on port ${port}`)
+})
 ```
 
 ### Configuration
