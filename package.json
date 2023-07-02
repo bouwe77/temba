@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "rm -rf dist && tsc && cp package.json README.md ./dist",
-    "test": "jest --watch",
+    "test": "jest --silent --no-cache",
+    "test:watch": "jest --watch --no-cache",
     "lint": "eslint --ignore-path .gitignore --ext .js,.ts .",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\""
   },
