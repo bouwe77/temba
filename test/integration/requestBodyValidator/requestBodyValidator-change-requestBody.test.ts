@@ -3,7 +3,7 @@ import { create } from '../../../src/index'
 
 //TODO add patch
 
-describe.only('requestBodyValidators that return a (new or changed) requestBody', () => {
+describe('requestBodyValidators that return a (new or changed) requestBody', () => {
   const requestBodyValidator = {
     post: (resourceName) => {
       expect(['movies', 'pokemons']).toContain(resourceName)
