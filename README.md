@@ -137,20 +137,20 @@ Requests on these resources only give a `404 Not Found` if the ID does not exist
 
 ### Static assets
 
-If you want to host static assets next to the API, configure the `staticFolder`:
+If you want to host static assets, next to the API, configure the `staticFolder`:
 
 ```js
 const config = { staticFolder: 'build' }
 const server = temba.create(config)
 ```
 
-With this setting, sending a GET request to the root URL, returns the content that is in the `'./build'` folder in your project.
+With this setting, sending a `GET` request to the root URL, returns the content that is in the `'./build'` folder in your project.
 
 This way, you could create an API, and the web app consuming it, in one project.
 
-Without configuring a `staticFolder`, a `GET` to the root URL returns `"It works! ツ"`. When the `staticFolder` is configured, it returns whatever is in the `"build"` folder, for example an HTML page.
+Without configuring a `staticFolder`, a `GET` to the root URL returns `"It works! ツ"`. When the `staticFolder` is configured, it returns whatever is in the `build` folder in your project, for example an HTML page.
 
-However, this might cause conflicts between the API resources and the web app routes: If the web app in the `"build"` folder has a route to `"/products"`, but there is also a `/products` API resource, the web app route is returned.
+However, this might cause conflicts between the API resources and the web app routes: If the web app in the `build` folder has a route to `/products`, but there is also a `/products` API resource, the web app route is returned.
 
 To be able to still access the `/products` API resource, configure an `apiPrefix`:
 
@@ -312,7 +312,7 @@ const config = {
 const server = temba.create(config)
 ```
 
-* `/` will be handled by Temba, and will return the build folder contents
+* `/` will be handled by Temba, and will return the `staticFolder` (`build`) folder contents
 * `/stuff` and `/api/stuff` will be handled by the custom router
 * `/movies` will return a `404 Not Found`, because of `apiPrefix`
 * `/api/movies` will return movies, handled by Temba
@@ -329,6 +329,7 @@ const config = {
   connectionString: 'mongodb://localhost:27017',
   staticFolder: 'build',
   apiPrefix: 'api',
+  customRouter: router,
   cacheControl: 'public, max-age=300',
   delay: 500,
   requestBodyValidator: {
@@ -346,7 +347,7 @@ const config = {
 const server = temba.create(config)
 ```
 
-None of the settings are required, and none of them have default values that actually do something. So only the settings you define are used.
+None of the settings are required, and only the settings you define are used.
 
 These are all the possible settings:
 
@@ -356,6 +357,7 @@ These are all the possible settings:
 | `connectionString`     | See [MongoDB](#mongodb)                                                                    |
 | `staticFolder`         | See [Static assets](#static-assets)                                                        |
 | `apiPrefix`            | See [API prefix](#api-prefix)                                              |
+| `customRouter`            | See [Custom router](#custom-router)                                              |
 | `cacheControl`         | The `Cache-control` response header value for each GET request.                            |
 | `delay`                | After processing the request, the delay in milliseconds before the request should be sent. |
 | `requestBodyValidator` | See [Request body validation or mutation](#request-body-validation-or-mutation)            |
