@@ -38,6 +38,7 @@ function createResourceRouter(
   const resourceRouter = express.Router()
 
   resourceRouter
+    // The router.get() function automatically handles HEAD requests as well, unless router.head is called first.
     .get('*', getResourceAndId, validateResource, handleGetResource)
     .post('*', getResourceAndId, validateResource, handlePost)
     .put('*', getResourceAndId, validateResource, handlePut)

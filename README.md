@@ -90,10 +90,12 @@ For every resource (`movies` is just an example), Temba supports the following r
 - `PUT /movies/:id` - Fully replace a movie by its ID
 - `DELETE /movies` - Delete all movies
 - `DELETE /movies/:id` - Delete a movie by its ID
+- `HEAD /movies` - Get all movies, but without the response body
+- `HEAD /movies/:id` - Get a movie by its ID, but without the response body
 
 ### Supported HTTP methods
 
-The HTTP methods that are supported are `GET`, `POST`, `PATCH`, `PUT` and `DELETE`.
+The HTTP methods that are supported are `GET`, `POST`, `PATCH`, `PUT`, `DELETE`, and `HEAD`.
 
 On the root URI (e.g. http://localhost:8080/) only a `GET` request is supported, which shows you a message indicating the API is working. All other HTTP methods on the root URI return a `405 Method Not Allowed` response.
 
