@@ -9,18 +9,20 @@ import {
 } from '../urls/urlMiddleware'
 
 import express from 'express'
-import { Config } from '../config'
+import { RouterConfig } from '../config'
 
 function createResourceRouter(
   queries,
-  {
+  routerCounfig: RouterConfig,
+) {
+
+  const {
     validateResources,
     resourceNames,
     apiPrefix,
     cacheControl,
     requestBodyValidator,
-  }: Config,
-) {
+  } = routerCounfig
   const { handleGetResource } = createGetRoutes(queries, cacheControl)
   const { handlePost } = createPostRoutes(queries, requestBodyValidator)
   const { handlePut } = createPutRoutes(queries, requestBodyValidator)

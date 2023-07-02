@@ -8,11 +8,11 @@ import {
   handleNotFound,
 } from './routes/routes'
 import { createQueries } from './queries/queries'
-import { Config, initConfig } from './config'
+import { Config, UserConfig, initConfig } from './config'
 import cors from 'cors'
 import { createDelayMiddleware } from './delay/delayMiddleware'
 
-function createServer(userConfig?: Config) {
+function createServer(userConfig?: UserConfig) {
   const config = initConfig(userConfig)
 
   const queries = createQueries(config.connectionString)
@@ -31,6 +31,9 @@ function createServer(userConfig?: Config) {
     app.use(delayMiddleware)
   }
 
+  //TODO customRoutes:
+  // - Al deze routing code naar een aparte functie
+
   // Serve a static folder, if configured.
   if (config.staticFolder) {
     app.use(express.static(config.staticFolder))
@@ -40,12 +43,17 @@ function createServer(userConfig?: Config) {
   const rootPath = config.apiPrefix ? `${config.apiPrefix}` : '/'
   app.use(rootPath, rootRouter)
 
+  if (config.customRouter) {
+    app.use(config.customRouter)
+  }
+
   // For all other URLs, only GET, POST, PUT and DELETE are allowed and handled.
   const resourceRouter = createResourceRouter(queries, config)
   const resourcePath = config.apiPrefix ? `${config.apiPrefix}*` : '*'
   app.use(resourcePath, resourceRouter)
 
   // In case of an API prefix, GET, POST, PUT and DELETE requests to all other URLs return a 404 Not Found.
+  //TODO Hier missen toch HTTP methods?
   if (config.apiPrefix) {
     app.get('*', handleNotFound)
     app.post('*', handleNotFound)

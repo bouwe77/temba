@@ -135,29 +135,37 @@ Requests on these resources only give a `404 Not Found` if the ID does not exist
 
 ### Static assets
 
-If you want to host static assets next to the REST API, configure the `staticFolder`:
+If you want to host static assets next to the API, configure the `staticFolder`:
 
 ```js
 const config = { staticFolder: 'build' }
 const server = temba.create(config)
 ```
 
-This way, you could create a REST API, and the web app consuming it, in one project.
+With this setting, sending a GET request to the root URL, returns the content that is in the `'./build'` folder in your project.
 
-However, to avoid possible conflicts between the API resources and the web app routes you might want to add an `apiPrefix` to the REST API:
+This way, you could create an API, and the web app consuming it, in one project.
 
-### REST URIs prefixes
+Without configuring a `staticFolder`, a `GET` to the root URL returns `"It works! ツ"`. When the `staticFolder` is configured, it returns whatever is in the `"build"` folder, for example an HTML page.
 
-With the `apiPrefix` config setting, all REST resources get an extra path segment in front of them. If the `apiPrefix` is `'api'`, then `/movies/12345` becomes `/api/movies/12345`:
+However, this might cause conflicts between the API resources and the web app routes: If the web app in the `"build"` folder has a route to `"/products"`, but there is also a `/products` API resource, the web app route is returned.
+
+To be able to still access the `/products` API resource, configure an `apiPrefix`:
+
+### API prefix
+
+With the `apiPrefix` config setting, all resources get an extra path segment in front of them. If the `apiPrefix` is `'api'`, then `/movies/12345` becomes `/api/movies/12345`:
 
 ```js
 const config = { apiPrefix: 'api' }
 const server = temba.create(config)
 ```
 
-After configuring the `apiPrefix`, requests to the root URL will either return a `404 Not Found` or a `405 Method Not Allowed`, depending on the HTTP method.
+A request to the `apiPrefix` (e.g. http://localhost:1234/api) will now return the `"It works! ツ"` response message.
 
-If you have configured both an `apiPrefix` and a `staticFolder`, a `GET` on the root URL will return the `index.html` in the `staticFolder`, if there is one.
+After configuring the `apiPrefix`, requests to the root URL (e.g. http://localhost:1234/), instead of the `"It works! ツ"` response message, will now either return a `404 Not Found` on `GET` requests, or a `405 Method Not Allowed` for all other HTTP methods.
+
+However, if you configured both an `apiPrefix` and a `staticFolder`, a `GET` on the root URL will return the content in the `staticFolder`.
 
 ### Request body validation or mutation
 
@@ -234,6 +242,79 @@ const config = {
 const server = temba.create(config)
 ```
 
+## Custom router
+
+Although `temba.create()` returns an Express instance, adding your own routes, as you would normally do with Express, is not possible:
+
+```js
+const server = temba.create()
+
+// 🛑 Although `server` is an Express instance, the following does not work:
+server.get('/hello', (req, res) => {
+  res.send('hello world')
+})
+```
+
+The reason is that Temba is in charge of all Express routes, to make sure only resource routes can be overruled by a custom router. To add your own routes, create an Express router, and configure it as a `customRouter`:
+
+```js
+// Example code of how to create an Express router, from the official Express docs at https://expressjs.com/en/guide/routing.html:
+const express = require('express')
+const router = express.Router()
+
+// middleware that is specific to this router
+router.use((req, res, next) => {
+  console.log('Time: ', Date.now())
+  next()
+})
+// define the home page route
+router.get('/', (req, res) => {
+  res.send('Birds home page')
+})
+// define the about route
+router.get('/about', (req, res) => {
+  res.send('About birds')
+})
+
+// Add the custom router to Temba config
+const config = {
+  customRouter: router
+}
+
+const server = temba.create(config)
+```
+
+> 💁 Don't overuse `customRouter`, as it defeats the purpose of Temba being a simple out-of-the-box solution.
+
+A `customRouter` can only overrule resource routes. The root URL (with or without `staticFolder`) will always be handled by Temba.
+
+So for the following router and config:
+
+```
+router.get('/', (req, res) => {
+  res.send('Birds home page')
+})
+router.get('/stuff', (req, res) => {
+  res.send('Some stuff')
+})
+router.get('api/stuff', (req, res) => {
+  res.send('Some API stuff')
+})
+
+const config = {
+  resourceNames: ['stuff'],
+  staticFolder: 'build',
+  apiPrefix: 'api',
+  customRouter: router,
+}
+const server = temba.create(config)
+```
+
+* `/` will be handled by Temba, and will return the build folder contents
+* `/stuff` and `/api/stuff` will be handled by the custom router
+* `/movies` will return a `404 Not Found`, because of `apiPrefix`
+* `/api/movies` will return movies, handled by Temba
+
 ### Config settings overview
 
 Configuring Temba is optional, it already works out of the box.
@@ -272,7 +353,7 @@ These are all the possible settings:
 | `resourceNames`        | See [Allowing specific resources only](#allowing-specific-resources-only)                  |
 | `connectionString`     | See [MongoDB](#mongodb)                                                                    |
 | `staticFolder`         | See [Static assets](#static-assets)                                                        |
-| `apiPrefix`            | See [REST URIs prefixes](#rest-uris-prefixes)                                              |
+| `apiPrefix`            | See [API prefix](#api-prefix)                                              |
 | `cacheControl`         | The `Cache-control` response header value for each GET request.                            |
 | `delay`                | After processing the request, the delay in milliseconds before the request should be sent. |
 | `requestBodyValidator` | See [Request body validation or mutation](#request-body-validation-or-mutation)            |
