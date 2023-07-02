@@ -1,6 +1,27 @@
+import { Router } from 'express'
 import { RequestBodyValidator } from '../routes/types'
 
-export type Config = {
+export type Config =  {
+  validateResources: boolean
+  resourceNames: string[]
+  apiPrefix: string
+  cacheControl: string
+  requestBodyValidator: RequestBodyValidator
+  staticFolder: string
+  connectionString: string
+  delay: number
+  customRouter: Router
+}
+
+export type RouterConfig = Pick<Config, 
+  'validateResources' | 
+  'resourceNames' |
+  'apiPrefix' |
+  'cacheControl' |
+  'requestBodyValidator'
+>;
+
+export type UserConfig = {
   resourceNames?: string[]
   validateResources?: boolean
   staticFolder?: string
@@ -9,6 +30,7 @@ export type Config = {
   cacheControl?: string
   delay?: number
   requestBodyValidator?: RequestBodyValidator
+  customRouter?: Router
 }
 
 const defaultConfig: Config = {
@@ -30,12 +52,13 @@ const defaultConfig: Config = {
       // do nothing
     },
   },
+  customRouter: null,
 }
 
-export function initConfig(userConfig: Config): Config {
+export function initConfig(userConfig: UserConfig): Config {
   if (!userConfig) return defaultConfig
 
-  const config = { ...defaultConfig }
+  const config = { ...defaultConfig } as Config
 
   if (userConfig.resourceNames && userConfig.resourceNames.length > 0) {
     config.resourceNames = userConfig.resourceNames
@@ -88,6 +111,10 @@ export function initConfig(userConfig: Config): Config {
     ) {
       config.requestBodyValidator.put = userConfig.requestBodyValidator.put
     }
+  }
+
+  if (userConfig.customRouter) {
+    config.customRouter = userConfig.customRouter
   }
 
   return config
