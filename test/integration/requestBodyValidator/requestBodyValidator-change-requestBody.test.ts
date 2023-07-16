@@ -1,5 +1,6 @@
 import request from 'supertest'
 import { create } from '../../../src/index'
+import { Config } from '../../../src/config'
 
 //TODO add patch
 
@@ -15,7 +16,7 @@ describe('requestBodyValidators that return a (new or changed) requestBody', () 
     },
   }
 
-  const tembaServer = create({ requestBodyValidator })
+  const tembaServer = create({ requestBodyValidator } as unknown as Config)
 
   test('POST with a requestBodyValidator that returns a requestBody', async () => {
     const resourceUrl = '/movies'

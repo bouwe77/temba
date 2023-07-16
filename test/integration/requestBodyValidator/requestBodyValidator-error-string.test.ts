@@ -1,5 +1,6 @@
 import request from 'supertest'
 import { create } from '../../../src/index'
+import { Config } from '../../../src/config'
 
 //TODO add patch
 
@@ -19,7 +20,7 @@ describe('requestBodyValidators that return a string to indicate a 400 Bad Reque
     },
   }
 
-  const tembaServer = create({ requestBodyValidator })
+  const tembaServer = create({ requestBodyValidator } as unknown as Config)
 
   test('POST with a requestBodyValidator that returns an error string should result in 400 Bad Request', async () => {
     const expectedResourceName = 'movies'

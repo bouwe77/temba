@@ -1,5 +1,6 @@
 import request from 'supertest'
 import { create } from '../../../src/index'
+import { Config } from '../../../src/config'
 
 //TODO add patch
 
@@ -17,7 +18,7 @@ describe('requestBodyValidators that return nothing (void) to indicate nothing s
     },
   }
 
-  const tembaServer = create({ requestBodyValidator })
+  const tembaServer = create({ requestBodyValidator } as unknown as Config)
 
   test('POST with a requestBodyValidator that returns void', async () => {
     const resourceUrl = '/movies'
