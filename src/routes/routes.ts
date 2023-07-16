@@ -11,19 +11,21 @@ import {
 import express from 'express'
 import { RouterConfig } from '../config'
 
-function createResourceRouter(
-  queries,
-  routerCounfig: RouterConfig,
-) {
-
+function createResourceRouter(queries, routerConfig: RouterConfig) {
   const {
     validateResources,
     resourceNames,
     apiPrefix,
     cacheControl,
     requestBodyValidator,
-  } = routerCounfig
-  const { handleGetResource } = createGetRoutes(queries, cacheControl)
+    responseBodyInterceptor,
+  } = routerConfig
+
+  const { handleGetResource } = createGetRoutes(
+    queries,
+    cacheControl,
+    responseBodyInterceptor,
+  )
   const { handlePost } = createPostRoutes(queries, requestBodyValidator)
   const { handlePut } = createPutRoutes(queries, requestBodyValidator)
   const { handlePatch } = createPatchRoutes(queries, requestBodyValidator)

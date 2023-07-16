@@ -1,25 +1,28 @@
 import { Router } from 'express'
-import { RequestBodyValidator } from '../routes/types'
+import { RequestBodyValidator, ResponseBodyInterceptor } from '../routes/types'
 
-export type Config =  {
+export type Config = {
   validateResources: boolean
   resourceNames: string[]
   apiPrefix: string
   cacheControl: string
   requestBodyValidator: RequestBodyValidator
+  responseBodyInterceptor: ResponseBodyInterceptor
   staticFolder: string
   connectionString: string
   delay: number
   customRouter: Router
 }
 
-export type RouterConfig = Pick<Config, 
-  'validateResources' | 
-  'resourceNames' |
-  'apiPrefix' |
-  'cacheControl' |
-  'requestBodyValidator'
->;
+export type RouterConfig = Pick<
+  Config,
+  | 'validateResources'
+  | 'resourceNames'
+  | 'apiPrefix'
+  | 'cacheControl'
+  | 'requestBodyValidator'
+  | 'responseBodyInterceptor'
+>
 
 export type UserConfig = {
   resourceNames?: string[]
@@ -30,6 +33,7 @@ export type UserConfig = {
   cacheControl?: string
   delay?: number
   requestBodyValidator?: RequestBodyValidator
+  responseBodyInterceptor?: ResponseBodyInterceptor
   customRouter?: Router
 }
 
@@ -51,6 +55,9 @@ const defaultConfig: Config = {
     put: () => {
       // do nothing
     },
+  },
+  responseBodyInterceptor: (resourceName, responseBody, id) => {
+    return responseBody
   },
   customRouter: null,
 }
@@ -111,6 +118,10 @@ export function initConfig(userConfig: UserConfig): Config {
     ) {
       config.requestBodyValidator.put = userConfig.requestBodyValidator.put
     }
+  }
+
+  if (userConfig.responseBodyInterceptor) {
+    config.responseBodyInterceptor = userConfig.responseBodyInterceptor
   }
 
   if (userConfig.customRouter) {

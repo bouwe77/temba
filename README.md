@@ -62,7 +62,7 @@ Alternatively, add Temba to your app manually:
 2. Example code to create a Temba server:
 
 ```js
-import temba from "temba"
+import temba from 'temba'
 const server = temba.create()
 
 const port = process.env.PORT || 3000
@@ -226,14 +226,10 @@ const config = {
   requestBodyValidator: {
     post: (resourceName, requestBody) => {
       // Do not allow Pokemons to be created: 400 Bad Request
-      if (resourceName === 'pokemons')
-        return 'You are not allowed to create new Pokemons'
+      if (resourceName === 'pokemons') return 'You are not allowed to create new Pokemons'
 
       // Add a genre to Star Trek films:
-      if (
-        resourceName === 'movies' &&
-        requestBody.title.startsWith('Star Trek')
-      )
+      if (resourceName === 'movies' && requestBody.title.startsWith('Star Trek'))
         return { ...requestBody, genre: 'Science Fiction' }
 
       // If you end up here, void will be returned, so the request will just be saved.
@@ -243,6 +239,48 @@ const config = {
 
 const server = temba.create(config)
 ```
+
+## Response body interception
+
+To change the response body of a `GET` request, configure a `responseBodyInterceptor`, and return the updated response body:
+
+```js
+const config = {
+  responseBodyInterceptor: (resourceName, id, responseBody) => {
+    return resourceName === 'movies' ? {
+      if (id) {
+        // responseBody is an object
+        return {
+          ...responseBody,
+          stuff: 'more stuff',
+        }
+      } : {
+        // responseBody is an array
+        return responseBody.map(x => (
+          {
+            ...x,
+            stuff: 'more stuff'
+          }
+        ))
+      }
+    }
+
+    // If you end up here, the response body will just be returned unchanged.
+  },
+}
+
+const server = temba.create(config)
+```
+
+`responseBodyInterceptor` is a callback function that provides the `resourceName`, `responseBody`, and the `id`. Depending on whether it's a collection or item request, the `responseBody` is either an array or object, and the `id' can be `undefined`.
+
+In the example above we check for the `id` being defined, but a runtime check to determine the type of `responseBody` would also suffice.
+
+Whatever you return in this function will become the response body and will be serialized as JSON and returned to the client.
+
+If you don't return anything, the response body will be sent as-is.
+
+The `responseBodyInterceptor` will only be called when the response was successful, i.e. a `200 OK` status code.
 
 ## Custom router
 
@@ -280,7 +318,7 @@ router.get('/about', (req, res) => {
 
 // Add the custom router to Temba config
 const config = {
-  customRouter: router
+  customRouter: router,
 }
 
 const server = temba.create(config)
@@ -312,10 +350,10 @@ const config = {
 const server = temba.create(config)
 ```
 
-* `/` will be handled by Temba, and will return the `staticFolder` (`build`) folder contents
-* `/stuff` and `/api/stuff` will be handled by the custom router
-* `/movies` will return a `404 Not Found`, because of `apiPrefix`
-* `/api/movies` will return movies, handled by Temba
+- `/` will be handled by Temba, and will return the `staticFolder` (`build`) folder contents
+- `/stuff` and `/api/stuff` will be handled by the custom router
+- `/movies` will return a `404 Not Found`, because of `apiPrefix`
+- `/api/movies` will return movies, handled by Temba
 
 ### Config settings overview
 
@@ -356,8 +394,8 @@ These are all the possible settings:
 | `resourceNames`        | See [Allowing specific resources only](#allowing-specific-resources-only)                  |
 | `connectionString`     | See [MongoDB](#mongodb)                                                                    |
 | `staticFolder`         | See [Static assets](#static-assets)                                                        |
-| `apiPrefix`            | See [API prefix](#api-prefix)                                              |
-| `customRouter`            | See [Custom router](#custom-router)                                              |
+| `apiPrefix`            | See [API prefix](#api-prefix)                                                              |
+| `customRouter`         | See [Custom router](#custom-router)                                                        |
 | `cacheControl`         | The `Cache-control` response header value for each GET request.                            |
 | `delay`                | After processing the request, the delay in milliseconds before the request should be sent. |
 | `requestBodyValidator` | See [Request body validation or mutation](#request-body-validation-or-mutation)            |

@@ -8,3 +8,9 @@ export type RequestBodyValidator = {
   patch?: ValidatorCallback
   put?: ValidatorCallback
 }
+
+export type ResponseBodyInterceptor = (
+  resourceName: string,
+  responseBody: unknown,
+  id?: string,
+ ) => unknown
