@@ -246,22 +246,20 @@ To change the response body of a `GET` request, configure a `responseBodyInterce
 
 ```js
 const config = {
-  responseBodyInterceptor: (resourceName, id, responseBody) => {
-    return resourceName === 'movies' ? {
+  responseBodyInterceptor: (resourceName, responseBody, id) => {
+    if (resourceName === 'movies') {
       if (id) {
         // responseBody is an object
         return {
           ...responseBody,
           stuff: 'more stuff',
         }
-      } : {
+      } else {
         // responseBody is an array
-        return responseBody.map(x => (
-          {
-            ...x,
-            stuff: 'more stuff'
-          }
-        ))
+        return responseBody.map((x) => ({
+          ...x,
+          stuff: 'more stuff',
+        }))
       }
     }
 
