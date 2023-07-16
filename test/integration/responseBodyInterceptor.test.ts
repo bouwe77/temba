@@ -24,7 +24,9 @@ describe('responseBodyInterceptor unusual (but allowed) implementations', () => 
       expect(response.text).toEqual('[]')
 
       // Create an item
-      const createNewResponse = await request(tembaServer).post('/stuff').send({ name: 'newItem' })
+      const {
+        body: { id: newId },
+      } = await request(tembaServer).post('/stuff').send({ name: 'newItem' })
 
       // As the responseBodyInterceptor returns nothing, the response body should be the same
       // as it would be without the responseBodyInterceptor.
@@ -33,7 +35,7 @@ describe('responseBodyInterceptor unusual (but allowed) implementations', () => 
       expect(response2.body[0].name).toBe('newItem')
 
       // Now get the item by its id, which should also just return the same item.
-      const response3 = await request(tembaServer).get('/stuff/' + createNewResponse.body.id)
+      const response3 = await request(tembaServer).get('/stuff/' + newId)
       expect(response3.body.name).toEqual('newItem')
     },
   )
@@ -95,10 +97,8 @@ describe('responseBodyInterceptor returns an updated response', () => {
 
   test('GET a collection just returns the same collection', async () => {
     // Create 2 items
-    const newItem1 = { name: 'newItem1' }
-    await request(tembaServer).post('/stuff').send(newItem1)
-    const newItem2 = { name: 'newItem2' }
-    await request(tembaServer).post('/stuff').send(newItem2)
+    await request(tembaServer).post('/stuff').send({ name: 'newItem1' })
+    await request(tembaServer).post('/stuff').send({ name: 'newItem2' })
 
     // Now get the collection, which should have extra stuff
     const getAllResponse = await request(tembaServer).get('/stuff')
@@ -113,14 +113,16 @@ describe('responseBodyInterceptor returns an updated response', () => {
   test('GET an item just returns the same item', async () => {
     // Create an item
     const newItem = { name: 'newItem' }
-    const createNewResponse = await request(tembaServer).post('/stuff').send(newItem)
+    const {
+      body: { id },
+    } = await request(tembaServer).post('/stuff').send(newItem)
 
     // Now get the item, which should just return the same item.
-    const response = await request(tembaServer).get('/stuff/' + createNewResponse.body.id)
+    const response = await request(tembaServer).get('/stuff/' + id)
 
     expect(response.statusCode).toEqual(200)
     expect(response.body.name).toEqual('newItem')
-    expect(response.body.id).toEqual(createNewResponse.body.id)
+    expect(response.body.id).toEqual(id)
     expect(response.body.extra).toEqual('stuff')
   })
 })

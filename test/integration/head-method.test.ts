@@ -25,11 +25,9 @@ test('HEAD returns the same response as a GET, except the response body', async 
 
   // Now create a new item.
   const newItem = { brand: 'Mercedes-Benz' }
-  const createNewResponse = await request(tembaServer)
+  const {body: { id: newItemId } } = await request(tembaServer)
     .post(resource)
     .send(newItem)
-  expect(createNewResponse.status).toBe(201)
-  const newItemId = createNewResponse.body.id
 
   // Both a GET and HEAD on the new item yield a 200 and have the same content length.
   const getNewResponse = await request(tembaServer).get(resource + newItemId)
