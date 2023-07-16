@@ -25,9 +25,7 @@ describe('CRUD', () => {
     expect(getAllResponse.body.length).toBe(0)
 
     // Initially, there are no items so a getting an id returns a 404.
-    const getOneResponse = await request(tembaServer).get(
-      resource + 'id_does_not_exist',
-    )
+    const getOneResponse = await request(tembaServer).get(resource + 'id_does_not_exist')
     expect(getOneResponse.status).toBe(404)
 
     // Initially, there are no items so a replacing something by id returns a 404.
@@ -59,15 +57,11 @@ describe('CRUD', () => {
 
     // Create a new item.
     const newItem = { name: 'newItem' }
-    const createNewResponse = await request(tembaServer)
-      .post(resource)
-      .send(newItem)
+    const createNewResponse = await request(tembaServer).post(resource).send(newItem)
     const createdNewItem = createNewResponse.body
     expect(createNewResponse.status).toBe(201)
     expect(createdNewItem.name).toBe('newItem')
-    expect(createNewResponse.header.location).toEndWith(
-      resource + createdNewItem.id,
-    )
+    expect(createNewResponse.header.location.endsWith(resource + createdNewItem.id)).toBe(true)
 
     // Now there is one item. Get all items.
     const getAllOneItemResponse = await request(tembaServer).get(resource)
@@ -77,9 +71,7 @@ describe('CRUD', () => {
     expect(getAllOneItemResponse.body[0].id).toBe(createdNewItem.id)
 
     // Get one item by ID.
-    const getJustOneItemResponse = await request(tembaServer).get(
-      resource + createdNewItem.id,
-    )
+    const getJustOneItemResponse = await request(tembaServer).get(resource + createdNewItem.id)
     expect(getJustOneItemResponse.status).toBe(200)
     expect(getJustOneItemResponse.body.name).toBe('newItem')
     expect(getJustOneItemResponse.body.id).toBe(createdNewItem.id)
@@ -123,15 +115,11 @@ describe('CRUD', () => {
     expect(getJustOneUpdatedItemResponse.body.id).toBe(createdNewItem.id)
 
     // Delete one item by ID.
-    const deleteResponse = await request(tembaServer).delete(
-      resource + createdNewItem.id,
-    )
+    const deleteResponse = await request(tembaServer).delete(resource + createdNewItem.id)
     expect(deleteResponse.status).toBe(204)
 
     // Get one item by ID.
-    const getJustDeletedItemResponse = await request(tembaServer).get(
-      resource + createdNewItem.id,
-    )
+    const getJustDeletedItemResponse = await request(tembaServer).get(resource + createdNewItem.id)
     expect(getJustDeletedItemResponse.status).toBe(404)
 
     // Check there are no items anymore.
@@ -150,9 +138,7 @@ describe('CRUD', () => {
 
     // Create a new item, but ignore the ID in the request body.
     const newItem = { id: hardCodedIdToIgnore, name: 'newItem' }
-    const createNewResponse = await request(tembaServer)
-      .post(resource)
-      .send(newItem)
+    const createNewResponse = await request(tembaServer).post(resource).send(newItem)
     const newCreatedItem = createNewResponse.body
     expect(createNewResponse.status).toBe(201)
     expect(newCreatedItem.name).toBe('newItem')
@@ -187,14 +173,10 @@ describe('CRUD', () => {
 
   test('DELETE on resource URL (without ID) deletes all resources', async () => {
     // Create 2 new items.
-    const createNewResponse1 = await request(tembaServer)
-      .post(resource)
-      .send({ name: 'item 1' })
+    const createNewResponse1 = await request(tembaServer).post(resource).send({ name: 'item 1' })
     expect(createNewResponse1.status).toBe(201)
     const item1Id = createNewResponse1.body.id
-    const createNewResponse2 = await request(tembaServer)
-      .post(resource)
-      .send({ name: 'item 2' })
+    const createNewResponse2 = await request(tembaServer).post(resource).send({ name: 'item 2' })
     expect(createNewResponse2.status).toBe(201)
     const item2Id = createNewResponse2.body.id
 
