@@ -17,6 +17,9 @@ if [ -z "$(git status --porcelain)" ]; then
     version=$(npm version $1)
     npm run build
     npm publish ./dist
+
+    sleep 5
+
     git tag $version -m "$version"
     git push origin $version
     git push origin --tags
