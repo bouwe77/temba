@@ -18,7 +18,7 @@ if [ -z "$(git status --porcelain)" ]; then
     npm run build
     npm publish ./dist
     git tag v$version -m "$version"
-    git push origin v$version
+    git push origin $version
     git push origin --tags
 else 
   echo "Error: Commit all changes before publishing"
