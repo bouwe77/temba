@@ -28,9 +28,9 @@ This project is inspired by the fantastic [json-server](https://github.com/typic
 
 ## Temba?
 
-> _"Temba, at rest"_
+> _"Temba, at REST"_
 
-A metaphor for the declining of a gift, from the [Star Trek - The Next Generation, episode "Darmok"](https://memory-alpha.fandom.com/wiki/Temba).
+A metaphor for the declining of a gift, from the [Star Trek - The Next Generation episode "Darmok"](https://memory-alpha.fandom.com/wiki/Temba).
 
 In the fictional Tamarian language the word _"Temba"_ means something like _"gift"_.
 
@@ -49,9 +49,13 @@ Create your own Temba server with the following command and you are up and runni
 
 ```bash
 npx create-temba-server my-rest-api
+cd my-rest-api
+npm start
 ```
 
-This command clones the [Temba-starter](https://github.com/bouwe77/temba-starter) repository and installs all dependencies.
+This command clones the [Temba-starter](https://github.com/bouwe77/temba-starter) repository, installs all dependencies, and starts the server.
+
+Once the server is running, you can issue any HTTP request, and it probably will just work, but [learn more here](#what-temba-does).
 
 ### Manually adding to an existing app
 
