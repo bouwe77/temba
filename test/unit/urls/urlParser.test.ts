@@ -1,4 +1,4 @@
-import { parseUrl } from '../../../dist/urls/urlParser'
+import { parseUrl } from '../../../src/urls/urlParser'
 
 const noResourceAndNoId = { resourceName: null, id: null }
 const resourceOnly = { resourceName: 'stuff', id: null }
@@ -32,13 +32,10 @@ test.each([
   ['/stuff/foo/bar', resourceAndId],
   ['stuff/foo/bar/', resourceAndId],
   ['/stuff/foo/bar/', resourceAndId],
-])(
-  "URL '%s' has additional path items next to a resource and id: %o",
-  (url, expected) => {
-    const actual = parseUrl(url)
-    expect(actual).toEqual(expected)
-  },
-)
+])("URL '%s' has additional path items next to a resource and id: %o", (url, expected) => {
+  const actual = parseUrl(url)
+  expect(actual).toEqual(expected)
+})
 
 test.each([
   [undefined, noResourceAndNoId],
