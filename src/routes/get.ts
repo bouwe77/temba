@@ -1,7 +1,5 @@
-import { new500InternalServerError } from '../errors/errors'
-
 function createGetRoutes(queries, cacheControl, responseBodyInterceptor) {
-  async function handleGetResource(req, res, next) {
+  async function handleGetResource(req, res) {
     try {
       const { resourceName, id } = req.requestInfo
 
@@ -21,11 +19,9 @@ function createGetRoutes(queries, cacheControl, responseBodyInterceptor) {
             theItem = responseBodyInterceptor(resourceName, item, id)
             if (!theItem) theItem = item
           } catch (error) {
-            return res
-              .status(500)
-              .json({
-                message: 'Error in responseBodyInterceptor: ' + error.message,
-              })
+            return res.status(500).json({
+              message: 'Error in responseBodyInterceptor: ' + error.message,
+            })
           }
         }
 
@@ -42,11 +38,9 @@ function createGetRoutes(queries, cacheControl, responseBodyInterceptor) {
           theItems = responseBodyInterceptor(resourceName, items)
           if (!theItems) theItems = items
         } catch (error) {
-          return res
-            .status(500)
-            .json({
-              message: 'Error in responseBodyInterceptor: ' + error.message,
-            })
+          return res.status(500).json({
+            message: 'Error in responseBodyInterceptor: ' + error.message,
+          })
         }
       }
 
@@ -54,7 +48,7 @@ function createGetRoutes(queries, cacheControl, responseBodyInterceptor) {
       res.json(theItems)
       return res.send()
     } catch (error: unknown) {
-      return next(error)
+      return res.status(500).json({ message: (error as Error).message })
     }
   }
 

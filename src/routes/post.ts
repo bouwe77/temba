@@ -2,7 +2,7 @@ import { format } from 'url'
 import { validateRequestBody } from './validator'
 
 function createPostRoutes(queries, requestBodyValidator) {
-  async function handlePost(req, res, next) {
+  async function handlePost(req, res) {
     try {
       const { resourceName } = req.requestInfo
 
@@ -25,7 +25,7 @@ function createPostRoutes(queries, requestBodyValidator) {
         .json(newItem)
         .send()
     } catch (error: unknown) {
-      return next(error)
+      return res.status(500).json({ message: (error as Error).message })
     }
   }
 

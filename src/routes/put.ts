@@ -1,8 +1,7 @@
-import { new404NotFoundError } from '../errors/errors'
 import { validateRequestBody } from './validator'
 
 function createPutRoutes(queries, requestBodyValidator) {
-  async function handlePut(req, res, next) {
+  async function handlePut(req, res) {
     try {
       const { resourceName, id } = req.requestInfo
 
@@ -14,8 +13,10 @@ function createPutRoutes(queries, requestBodyValidator) {
       let item = null
       if (id) item = await queries.getById(resourceName, id)
 
-      // TODO return a response instead of calling next
-      if (!item) return next(new404NotFoundError(`ID '${id}' not found`))
+      if (!item)
+        return res.status(404).json({
+          message: `ID '${id}' not found`,
+        })
 
       item = { ...requestBody, id }
 
@@ -23,7 +24,7 @@ function createPutRoutes(queries, requestBodyValidator) {
 
       return res.status(200).json(replacedItem).send()
     } catch (error: unknown) {
-      return next(error)
+      return res.status(500).json({ message: (error as Error).message })
     }
   }
 
