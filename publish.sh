@@ -18,7 +18,7 @@ if [ -z "$(git status --porcelain)" ]; then
     npm run build
     npm publish ./dist
 
-    open https://github.com/bouwe77/temba/releases/new?tag=$version&title=$version&prerelease=1
+    open "https://github.com/bouwe77/temba/releases/new?tag=$version&title=$version&prerelease=1"
 
     # git tag $version -m "$version"
     # git push origin $version
