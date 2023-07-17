@@ -1,15 +1,13 @@
 # Notes
 
-This document contains instructions and commands I like to use when working on building Temba.
-
-I tend to forget these kind of things so I decided to write them down here.
-
-It's also a way I can get feedback on how I do things, because many of these things undoubtly can be done way easier. :)
+Notes to self and contributors.
 
 # Publishing a new version to NPM
 
-- Change the version number: `npm version patch|minor|major -"description of the change..."`
+Call `publish.sh` and provide either `patch`, `minor`, or `major`, example:
 
-- `npm run build`
+```
+./publish.sh patch
+```
 
-- `npm publish ./dist`
+This script updates the version, builds the code, and publishes to NPM.
