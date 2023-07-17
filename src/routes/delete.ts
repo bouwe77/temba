@@ -1,5 +1,5 @@
 function createDeleteRoutes(queries) {
-  async function handleDelete(req, res, next) {
+  async function handleDelete(req, res) {
     try {
       const { resourceName, id } = req.requestInfo
 
@@ -12,7 +12,7 @@ function createDeleteRoutes(queries) {
         await queries.deleteAll(resourceName)
       }
     } catch (error: unknown) {
-      return next(error)
+      return res.status(500).json({ message: (error as Error).message })
     }
 
     return res.status(204).send()
