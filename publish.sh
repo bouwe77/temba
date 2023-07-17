@@ -18,11 +18,11 @@ if [ -z "$(git status --porcelain)" ]; then
     npm run build
     npm publish ./dist
 
-    sleep 5
+    open https://github.com/octo-org/octo-repo/releases/new?tag=$version
 
-    git tag $version -m "$version"
-    git push origin $version
-    git push origin --tags
+    # git tag $version -m "$version"
+    # git push origin $version
+    # git push origin --tags
 else 
   echo "Error: Commit all changes before publishing"
   exit 1
