@@ -1,6 +1,5 @@
 import express, { json } from 'express'
 import morgan from 'morgan'
-import { errorHandler } from './errors/errors'
 import {
   createResourceRouter,
   rootRouter,
@@ -64,9 +63,6 @@ function createServer(userConfig?: UserConfig) {
   // All other methods to any URL are not allowed.
   app.all('*', handleMethodNotAllowed)
   if (config.apiPrefix) app.all(`${config.apiPrefix}*`, handleMethodNotAllowed)
-
-  // Error middleware.
-  app.use(errorHandler)
 
   return app
 }
