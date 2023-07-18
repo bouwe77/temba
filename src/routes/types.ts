@@ -1,12 +1,12 @@
-export type ValidatorCallback = (
+export type RequestBodyInterceptorCallback = (
   resourceName: string,
   requestBody: unknown,
 ) => void | string | object
 
 export type RequestBodyInterceptor = {
-  post?: ValidatorCallback
-  patch?: ValidatorCallback
-  put?: ValidatorCallback
+  post?: RequestBodyInterceptorCallback
+  patch?: RequestBodyInterceptorCallback
+  put?: RequestBodyInterceptorCallback
 }
 
 export type ResponseBodyInterceptor = (

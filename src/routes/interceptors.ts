@@ -1,10 +1,10 @@
-import { ValidatorCallback } from './types'
+import { RequestBodyInterceptorCallback } from './types'
 
-function interceptRequestBody(validator: ValidatorCallback, req): string | object {
+function interceptRequestBody(intercept: RequestBodyInterceptorCallback, req): string | object {
   const { resourceName } = req.requestInfo
   let requestBody = req.body
 
-  const validationResult = validator(resourceName, requestBody)
+  const validationResult = intercept(resourceName, requestBody)
 
   if (!validationResult && typeof requestBody === 'object') return requestBody
 
