@@ -1,11 +1,11 @@
-import { validateRequestBody } from './validator'
+import { interceptRequestBody } from './interceptors'
 
 function createPutRoutes(queries, requestBodyInterceptor) {
   async function handlePut(req, res) {
     try {
       const { resourceName, id } = req.requestInfo
 
-      const requestBody = validateRequestBody(requestBodyInterceptor.put, req)
+      const requestBody = interceptRequestBody(requestBodyInterceptor.put, req)
 
       if (typeof requestBody === 'string')
         return res.status(400).json({ message: requestBody }).send()

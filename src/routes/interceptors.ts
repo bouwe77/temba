@@ -1,9 +1,6 @@
 import { ValidatorCallback } from './types'
 
-function validateRequestBody(
-  validator: ValidatorCallback,
-  req,
-): string | object {
+function interceptRequestBody(validator: ValidatorCallback, req): string | object {
   const { resourceName } = req.requestInfo
   let requestBody = req.body
 
@@ -21,4 +18,4 @@ function validateRequestBody(
   } else return req.body
 }
 
-export { validateRequestBody }
+export { interceptRequestBody }
