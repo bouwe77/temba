@@ -109,7 +109,7 @@ Temba supports JSON only.
 
 Request bodies sent with a `POST`, `PATCH`, and `PUT` requests are valid when the request body is either empty, or when it's valid formatted JSON. Adding a `Content-Type: application/json` header is required. If you send a request with invalid formatted JSON, a `400 Bad Request` response is returned.
 
-Any valid formatted JSON is accepted and stored. If you want to validate or even change the JSON in the request bodies, check out the [`requestBodyValidator`](#request-body-validation-or-mutation) callbacks.
+Any valid formatted JSON is accepted and stored. If you want to validate or even change the JSON in the request bodies, check out the [`requestBodyInterceptor`](#request-body-validation-or-mutation) callbacks.
 
 IDs are auto generated when creating resources. IDs in the JSON request body are ignored for any request.
 
@@ -193,11 +193,11 @@ POST /movies
 }
 ```
 
-You can even omit a request body when doing a `POST`, `PATCH`, or `PUT`. If you don't want that, and want to have proper validation, use the `requestBodyValidator` config setting:
+You can even omit a request body when doing a `POST`, `PATCH`, or `PUT`. If you don't want that, and want to have proper validation, use the `requestBodyInterceptor` config setting:
 
 ```js
 const config = {
-  requestBodyValidator: {
+  requestBodyInterceptor: {
     post: (resourceName, requestBody) => {
       // Validate, or even change the requestBody
     },
@@ -213,7 +213,7 @@ const config = {
 const server = temba.create(config)
 ```
 
-The `requestBodyValidator` is an object with a `post`, and/or `patch`, and/or `put` field, which contains the callback function you want Temba to call before the JSON is saved to the database.
+The `requestBodyInterceptor` is an object with a `post`, and/or `patch`, and/or `put` field, which contains the callback function you want Temba to call before the JSON is saved to the database.
 
 The callback function receives two arguments: The `resourceName`, which for example is `movies` if you request `POST /movies`. The second argument is the `requestBody`, which is the JSON object in the request body.
 
@@ -227,7 +227,7 @@ Example:
 
 ```js
 const config = {
-  requestBodyValidator: {
+  requestBodyInterceptor: {
     post: (resourceName, requestBody) => {
       // Do not allow Pokemons to be created: 400 Bad Request
       if (resourceName === 'pokemons') return 'You are not allowed to create new Pokemons'
@@ -244,7 +244,7 @@ const config = {
 const server = temba.create(config)
 ```
 
-## Response body interception
+## Mutate the response body
 
 To change the response body of a `GET` request, configure a `responseBodyInterceptor`, and return the updated response body:
 
@@ -372,7 +372,7 @@ const config = {
   customRouter: router,
   cacheControl: 'public, max-age=300',
   delay: 500,
-  requestBodyValidator: {
+  requestBodyInterceptor: {
     post: (resourceName, requestBody) => {
       // Validate, or even change the requestBody
     },
@@ -391,16 +391,16 @@ None of the settings are required, and only the settings you define are used.
 
 These are all the possible settings:
 
-| Config setting         | Description                                                                                |
-| :--------------------- | :----------------------------------------------------------------------------------------- |
-| `resourceNames`        | See [Allowing specific resources only](#allowing-specific-resources-only)                  |
-| `connectionString`     | See [MongoDB](#mongodb)                                                                    |
-| `staticFolder`         | See [Static assets](#static-assets)                                                        |
-| `apiPrefix`            | See [API prefix](#api-prefix)                                                              |
-| `customRouter`         | See [Custom router](#custom-router)                                                        |
-| `cacheControl`         | The `Cache-control` response header value for each GET request.                            |
-| `delay`                | After processing the request, the delay in milliseconds before the request should be sent. |
-| `requestBodyValidator` | See [Request body validation or mutation](#request-body-validation-or-mutation)            |
+| Config setting           | Description                                                                                |
+| :----------------------- | :----------------------------------------------------------------------------------------- |
+| `resourceNames`          | See [Allowing specific resources only](#allowing-specific-resources-only)                  |
+| `connectionString`       | See [MongoDB](#mongodb)                                                                    |
+| `staticFolder`           | See [Static assets](#static-assets)                                                        |
+| `apiPrefix`              | See [API prefix](#api-prefix)                                                              |
+| `customRouter`           | See [Custom router](#custom-router)                                                        |
+| `cacheControl`           | The `Cache-control` response header value for each GET request.                            |
+| `delay`                  | After processing the request, the delay in milliseconds before the request should be sent. |
+| `requestBodyInterceptor` | See [Request body validation or mutation](#request-body-validation-or-mutation)            |
 
 ## Not supported (yet?)
 

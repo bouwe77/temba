@@ -1,12 +1,12 @@
 import { format } from 'url'
 import { validateRequestBody } from './validator'
 
-function createPostRoutes(queries, requestBodyValidator) {
+function createPostRoutes(queries, requestBodyInterceptor) {
   async function handlePost(req, res) {
     try {
       const { resourceName } = req.requestInfo
 
-      const requestBody = validateRequestBody(requestBodyValidator.post, req)
+      const requestBody = validateRequestBody(requestBodyInterceptor.post, req)
 
       if (typeof requestBody === 'string')
         return res.status(400).json({ message: requestBody }).send()

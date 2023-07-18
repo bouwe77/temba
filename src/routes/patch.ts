@@ -1,11 +1,11 @@
 import { validateRequestBody } from './validator'
 
-function createPatchRoutes(queries, requestBodyValidator) {
+function createPatchRoutes(queries, requestBodyInterceptor) {
   async function handlePatch(req, res) {
     try {
       const { resourceName, id } = req.requestInfo
 
-      const requestBody = validateRequestBody(requestBodyValidator.patch, req)
+      const requestBody = validateRequestBody(requestBodyInterceptor.patch, req)
 
       if (typeof requestBody === 'string')
         return res.status(400).json({ message: requestBody }).send()

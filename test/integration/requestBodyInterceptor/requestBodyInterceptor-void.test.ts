@@ -4,39 +4,33 @@ import { Config } from '../../../src/config'
 
 //TODO add patch
 
-describe('requestBodyValidators that return a string to indicate a 400 Bad Request should be returned', () => {
-  const requestBodyValidator = {
+describe('requestBodyInterceptors that return nothing (void) to indicate nothing should be done', () => {
+  const requestBodyInterceptor = {
     post: (resourceName, requestBody) => {
       expect(['movies', 'pokemons']).toContain(resourceName)
       if (resourceName === 'movies') expect(requestBody).toEqual({})
-      if (resourceName === 'pokemons')
-        expect(requestBody).toEqual({ name: 'Pikachu' })
-      if (resourceName === 'movies') return '400 Bad Request error from POST'
+      if (resourceName === 'pokemons') expect(requestBody).toEqual({ name: 'Pikachu' })
     },
     put: (resourceName, requestBody) => {
       expect(resourceName).toBe('pokemons')
       expect(requestBody).toEqual({})
-      return '400 Bad Request error from PUT'
     },
   }
 
-  const tembaServer = create({ requestBodyValidator } as unknown as Config)
+  const tembaServer = create({ requestBodyInterceptor } as unknown as Config)
 
-  test('POST with a requestBodyValidator that returns an error string should result in 400 Bad Request', async () => {
-    const expectedResourceName = 'movies'
-    const resourceUrl = '/' + expectedResourceName
+  test('POST with a requestBodyInterceptor that returns void', async () => {
+    const resourceUrl = '/movies'
 
     // Send a POST request.
     // The request body is empty because that's not important for this test.
     const response = await request(tembaServer).post(resourceUrl)
 
-    expect(response.statusCode).toEqual(400)
-    expect(response.body.message).toEqual('400 Bad Request error from POST')
+    expect(response.statusCode).toEqual(201)
   })
 
-  test('PUT with a requestBodyValidator that returns an error string should result in 400 Bad Request', async () => {
-    const expectedResourceName = 'pokemons'
-    const resourceUrl = '/' + expectedResourceName
+  test('PUT with a requestBodyInterceptor that returns void', async () => {
+    const resourceUrl = '/pokemons'
 
     // First create a resource, so we have an id to PUT to.
     const postResponse = await request(tembaServer)
@@ -50,7 +44,6 @@ describe('requestBodyValidators that return a string to indicate a 400 Bad Reque
     // The request body is empty because that's not important for this test.
     const response = await request(tembaServer).put(`${resourceUrl}/${id}`)
 
-    expect(response.statusCode).toEqual(400)
-    expect(response.body.message).toEqual('400 Bad Request error from PUT')
+    expect(response.statusCode).toEqual(200)
   })
 })

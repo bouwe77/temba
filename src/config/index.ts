@@ -1,12 +1,12 @@
 import { Router } from 'express'
-import { RequestBodyValidator, ResponseBodyInterceptor } from '../routes/types'
+import { RequestBodyInterceptor, ResponseBodyInterceptor } from '../routes/types'
 
 export type Config = {
   validateResources: boolean
   resourceNames: string[]
   apiPrefix: string
   cacheControl: string
-  requestBodyValidator: RequestBodyValidator
+  requestBodyInterceptor: RequestBodyInterceptor
   responseBodyInterceptor: ResponseBodyInterceptor
   staticFolder: string
   connectionString: string
@@ -20,7 +20,7 @@ export type RouterConfig = Pick<
   | 'resourceNames'
   | 'apiPrefix'
   | 'cacheControl'
-  | 'requestBodyValidator'
+  | 'requestBodyInterceptor'
   | 'responseBodyInterceptor'
 >
 
@@ -32,7 +32,7 @@ export type UserConfig = {
   connectionString?: string
   cacheControl?: string
   delay?: number
-  requestBodyValidator?: RequestBodyValidator
+  requestBodyInterceptor?: RequestBodyInterceptor
   responseBodyInterceptor?: ResponseBodyInterceptor
   customRouter?: Router
 }
@@ -45,7 +45,7 @@ const defaultConfig: Config = {
   connectionString: null,
   cacheControl: 'no-store',
   delay: 0,
-  requestBodyValidator: {
+  requestBodyInterceptor: {
     post: () => {
       // do nothing
     },
@@ -77,8 +77,7 @@ export function initConfig(userConfig: UserConfig): Config {
   }
 
   if (userConfig.apiPrefix) {
-    config.apiPrefix =
-      '/' + userConfig.apiPrefix.replace(/[^a-zA-Z0-9]/g, '') + '/'
+    config.apiPrefix = '/' + userConfig.apiPrefix.replace(/[^a-zA-Z0-9]/g, '') + '/'
   }
 
   if (userConfig.connectionString && userConfig.connectionString.length > 0) {
@@ -99,24 +98,24 @@ export function initConfig(userConfig: UserConfig): Config {
     config.delay = Number(userConfig.delay)
   }
 
-  if (userConfig.requestBodyValidator) {
+  if (userConfig.requestBodyInterceptor) {
     if (
-      userConfig.requestBodyValidator.post &&
-      typeof userConfig.requestBodyValidator.post === 'function'
+      userConfig.requestBodyInterceptor.post &&
+      typeof userConfig.requestBodyInterceptor.post === 'function'
     ) {
-      config.requestBodyValidator.post = userConfig.requestBodyValidator.post
+      config.requestBodyInterceptor.post = userConfig.requestBodyInterceptor.post
     }
     if (
-      userConfig.requestBodyValidator.patch &&
-      typeof userConfig.requestBodyValidator.patch === 'function'
+      userConfig.requestBodyInterceptor.patch &&
+      typeof userConfig.requestBodyInterceptor.patch === 'function'
     ) {
-      config.requestBodyValidator.patch = userConfig.requestBodyValidator.patch
+      config.requestBodyInterceptor.patch = userConfig.requestBodyInterceptor.patch
     }
     if (
-      userConfig.requestBodyValidator.put &&
-      typeof userConfig.requestBodyValidator.put === 'function'
+      userConfig.requestBodyInterceptor.put &&
+      typeof userConfig.requestBodyInterceptor.put === 'function'
     ) {
-      config.requestBodyValidator.put = userConfig.requestBodyValidator.put
+      config.requestBodyInterceptor.put = userConfig.requestBodyInterceptor.put
     }
   }
 
