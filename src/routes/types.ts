@@ -11,8 +11,10 @@ export type RequestBodyInterceptor = {
   put?: RequestBodyInterceptorCallback
 }
 
-export type ResponseBodyInterceptor = (
-  resourceName: string,
-  responseBody: unknown,
-  id?: string,
-) => unknown
+type ResponseInfo = {
+  resourceName: string
+  responseBody: unknown
+  id?: string
+}
+
+export type ResponseBodyInterceptor = (info: ResponseInfo) => unknown

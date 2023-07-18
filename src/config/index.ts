@@ -56,7 +56,7 @@ const defaultConfig: Config = {
       // do nothing
     },
   },
-  responseBodyInterceptor: (resourceName, responseBody, id) => {
+  responseBodyInterceptor: ({ responseBody }) => {
     return responseBody
   },
   customRouter: null,

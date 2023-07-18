@@ -16,7 +16,7 @@ function createGetRoutes(queries, cacheControl, responseBodyInterceptor) {
         let theItem = item
         if (responseBodyInterceptor) {
           try {
-            theItem = responseBodyInterceptor(resourceName, item, id)
+            theItem = responseBodyInterceptor({ resourceName, responseBody: item, id })
             if (!theItem) theItem = item
           } catch (error) {
             return res.status(500).json({
@@ -35,7 +35,7 @@ function createGetRoutes(queries, cacheControl, responseBodyInterceptor) {
       let theItems = items
       if (responseBodyInterceptor) {
         try {
-          theItems = responseBodyInterceptor(resourceName, items)
+          theItems = responseBodyInterceptor({ resourceName, responseBody: items })
           if (!theItems) theItems = items
         } catch (error) {
           return res.status(500).json({
