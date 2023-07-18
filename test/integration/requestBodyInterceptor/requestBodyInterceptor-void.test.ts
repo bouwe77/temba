@@ -6,12 +6,12 @@ import { Config } from '../../../src/config'
 
 describe('requestBodyInterceptors that return nothing (void) to indicate nothing should be done', () => {
   const requestBodyInterceptor = {
-    post: (resourceName, requestBody) => {
+    post: ({ resourceName, requestBody }) => {
       expect(['movies', 'pokemons']).toContain(resourceName)
       if (resourceName === 'movies') expect(requestBody).toEqual({})
       if (resourceName === 'pokemons') expect(requestBody).toEqual({ name: 'Pikachu' })
     },
-    put: (resourceName, requestBody) => {
+    put: ({ resourceName, requestBody }) => {
       expect(resourceName).toBe('pokemons')
       expect(requestBody).toEqual({})
     },

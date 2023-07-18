@@ -6,11 +6,11 @@ import { Config } from '../../../src/config'
 
 describe('requestBodyInterceptors that return a (new or changed) requestBody', () => {
   const requestBodyInterceptor = {
-    post: (resourceName) => {
+    post: ({ resourceName }) => {
       expect(['movies', 'pokemons']).toContain(resourceName)
       if (resourceName === 'movies') return { title: 'The Matrix' }
     },
-    put: (resourceName, requestBody) => {
+    put: ({ resourceName, requestBody }) => {
       expect(resourceName).toBe('pokemons')
       return { ...requestBody, replaced: true }
     },

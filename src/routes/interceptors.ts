@@ -4,7 +4,7 @@ function interceptRequestBody(intercept: RequestBodyInterceptorCallback, req): s
   const { resourceName } = req.requestInfo
   let requestBody = req.body
 
-  const validationResult = intercept(resourceName, requestBody)
+  const validationResult = intercept({ resourceName, requestBody })
 
   if (!validationResult && typeof requestBody === 'object') return requestBody
 

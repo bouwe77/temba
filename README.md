@@ -198,13 +198,13 @@ You can even omit a request body when doing a `POST`, `PATCH`, or `PUT`. If you 
 ```js
 const config = {
   requestBodyInterceptor: {
-    post: (resourceName, requestBody) => {
+    post: ({ resourceName, requestBody }) => {
       // Validate, or even change the requestBody
     },
-    put: (resourceName, requestBody) => {
+    put: ({ resourceName, requestBody }) => {
       // Validate, or even change the requestBody
     },
-    patch: (resourceName, requestBody) => {
+    patch: ({ resourceName, requestBody }) => {
       // Validate, or even change the requestBody
     },
   },
@@ -215,7 +215,7 @@ const server = temba.create(config)
 
 The `requestBodyInterceptor` is an object with a `post`, and/or `patch`, and/or `put` field, which contains the callback function you want Temba to call before the JSON is saved to the database.
 
-The callback function receives two arguments: The `resourceName`, which for example is `movies` if you request `POST /movies`. The second argument is the `requestBody`, which is the JSON object in the request body.
+The callback function receives an object containing the `resourceName`, which for example is `movies` if you request `POST /movies`, and the `requestBody`, which is the JSON object of the request body.
 
 Your callback function can return the following things:
 
@@ -228,7 +228,7 @@ Example:
 ```js
 const config = {
   requestBodyInterceptor: {
-    post: (resourceName, requestBody) => {
+    post: ({ resourceName, requestBody }) => {
       // Do not allow Pokemons to be created: 400 Bad Request
       if (resourceName === 'pokemons') return 'You are not allowed to create new Pokemons'
 
@@ -373,13 +373,13 @@ const config = {
   cacheControl: 'public, max-age=300',
   delay: 500,
   requestBodyInterceptor: {
-    post: (resourceName, requestBody) => {
+    post: ({ resourceName, requestBody }) => {
       // Validate, or even change the requestBody
     },
-    patch: (resourceName, requestBody) => {
+    patch: ({ resourceName, requestBody }) => {
       // Validate, or even change the requestBody
     },
-    put: (resourceName, requestBody) => {
+    put: ({ resourceName, requestBody }) => {
       // Validate, or even change the requestBody
     },
   },

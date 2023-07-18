@@ -1,7 +1,9 @@
-export type RequestBodyInterceptorCallback = (
-  resourceName: string,
-  requestBody: unknown,
-) => void | string | object
+type RequestInfo = {
+  resourceName: string
+  requestBody: unknown
+}
+
+export type RequestBodyInterceptorCallback = (info: RequestInfo) => void | string | object
 
 export type RequestBodyInterceptor = {
   post?: RequestBodyInterceptorCallback

@@ -6,13 +6,13 @@ import { Config } from '../../../src/config'
 
 describe('requestBodyInterceptors that return a string to indicate a 400 Bad Request should be returned', () => {
   const requestBodyInterceptor = {
-    post: (resourceName, requestBody) => {
+    post: ({ resourceName, requestBody }) => {
       expect(['movies', 'pokemons']).toContain(resourceName)
       if (resourceName === 'movies') expect(requestBody).toEqual({})
       if (resourceName === 'pokemons') expect(requestBody).toEqual({ name: 'Pikachu' })
       if (resourceName === 'movies') return '400 Bad Request error from POST'
     },
-    put: (resourceName, requestBody) => {
+    put: ({ resourceName, requestBody }) => {
       expect(resourceName).toBe('pokemons')
       expect(requestBody).toEqual({})
       return '400 Bad Request error from PUT'
