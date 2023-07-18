@@ -422,16 +422,6 @@ And there is no filtering, sorting, searching, etc. (yet?).
 
 Temba is built with JavaScript, [Node](https://nodejs.org), [Express](https://expressjs.com/), [Jest](https://jestjs.io/), [Supertest](https://www.npmjs.com/package/supertest), and [@rakered/mongo](https://www.npmjs.com/package/@rakered/mongo).
 
-## Which problem does Temba solve?
-
-The problem with JSON file solutions like json-server is the limitations you have when hosting your app, because your data is stored in a file.
-
-For example, hosting json-server on GitHub Pages means your API is essentially readonly, because, although mutations are supported, your data is not really persisted.
-
-And hosting json-server on Heroku does give you persistence, but is not reliable because of its [ephemeral filesystem](https://devcenter.heroku.com/articles/dynos#ephemeral-filesystem).
-
-These limitations are of course the whole idea behind json-server, it's for simple mocking and prototyping. But if you want more (persistence wise) and don't mind having a database, you might want to try Temba.
-
 ## Contributors ✨
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
