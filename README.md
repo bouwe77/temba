@@ -28,6 +28,8 @@ No need for any coding, unless you want to opt-out of the defaults, or want to d
 
 [Usage](#usage)
 
+[Config settings overview](#config-settings-overview)
+
 ## Temba?
 
 > _"Temba, at REST"_
@@ -59,7 +61,7 @@ This command clones the [Temba-starter](https://github.com/bouwe77/temba-starter
 
 Once the server is running, you can issue any HTTP request, and it probably will just work, but [learn more here](#what-temba-does).
 
-### Manually adding to an existing app
+### Adding to an existing app
 
 Alternatively, add Temba to your app manually:
 
@@ -79,7 +81,7 @@ server.listen(port, () => {
 
 ### Configuration
 
-By passing a config object to the `create` function you can customize Temba's behavior. Refer to the [config settings](#config-settings-overview) below for the various possibilities.
+To opt-out or customize Temba's workings, pass a `config` object to the `create` function. Learn more in the [Usage](#usage) section, or check out the [config settings](#config-settings-overview).
 
 ## What Temba does
 
@@ -246,7 +248,7 @@ const config = {
 const server = temba.create(config)
 ```
 
-## Response body interception
+### Response body interception
 
 To change the response body of a `GET` request, before it's being sent to the client, configure a `responseBodyInterceptor`, and return the updated response body:
 
@@ -286,7 +288,7 @@ If you don't return anything, the response body will be sent as-is.
 
 The `responseBodyInterceptor` will only be called when the response was successful, i.e. a `200 OK` status code.
 
-## Custom router
+### Custom router
 
 Although `temba.create()` returns an Express instance, adding your own routes, as you would normally do with Express, is not possible:
 
@@ -359,7 +361,7 @@ const server = temba.create(config)
 - `/movies` will return a `404 Not Found`, because of `apiPrefix`
 - `/api/movies` will return movies, handled by Temba
 
-### Config settings overview
+## Config settings overview
 
 Configuring Temba is optional, it already works out of the box.
 
