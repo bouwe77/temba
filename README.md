@@ -16,6 +16,8 @@ Powered by NodeJS, Express and MongoDB.
 
 This project is inspired by the fantastic [json-server](https://github.com/typicode/json-server) project, but instead of a JSON file Temba uses a real database. The goal, however, is the same: Get you started with a REST API very quickly.
 
+No need for any coding, unless you want to opt-out of the defaults, or want to do more customization.
+
 ## Table of contents
 
 [Temba?](#temba-1)
