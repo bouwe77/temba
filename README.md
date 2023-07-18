@@ -248,7 +248,7 @@ const server = temba.create(config)
 
 ## Response body interception
 
-To change the response body of a `GET` request, configure a `responseBodyInterceptor`, and return the updated response body:
+To change the response body of a `GET` request, before it's being sent to the client, configure a `responseBodyInterceptor`, and return the updated response body:
 
 ```js
 const config = {
@@ -299,7 +299,7 @@ server.get('/hello', (req, res) => {
 })
 ```
 
-The reason is that Temba is in charge of all Express routes, to make sure only resource routes can be overruled by a custom router. To add your own routes, create an Express router, and configure it as a `customRouter`:
+The reason is that Temba is in charge of all Express routes, to make sure only _resource routes_ can be overruled by a custom router. To add your own routes, create an Express router, and configure it as a `customRouter`:
 
 ```js
 // Example code of how to create an Express router, from the official Express docs at https://expressjs.com/en/guide/routing.html:
@@ -393,16 +393,17 @@ None of the settings are required, and only the settings you define are used.
 
 These are all the possible settings:
 
-| Config setting         | Description                                                                                |
-| :--------------------- | :----------------------------------------------------------------------------------------- |
-| `resourceNames`        | See [Allowing specific resources only](#allowing-specific-resources-only)                  |
-| `connectionString`     | See [MongoDB](#mongodb)                                                                    |
-| `staticFolder`         | See [Static assets](#static-assets)                                                        |
-| `apiPrefix`            | See [API prefix](#api-prefix)                                                              |
-| `customRouter`         | See [Custom router](#custom-router)                                                        |
-| `cacheControl`         | The `Cache-control` response header value for each GET request.                            |
-| `delay`                | After processing the request, the delay in milliseconds before the request should be sent. |
-| `requestBodyValidator` | See [Request body validation or mutation](#request-body-validation-or-mutation)            |
+| Config setting            | Description                                                                                |
+| :------------------------ | :----------------------------------------------------------------------------------------- |
+| `resourceNames`           | See [Allowing specific resources only](#allowing-specific-resources-only)                  |
+| `connectionString`        | See [MongoDB](#mongodb)                                                                    |
+| `staticFolder`            | See [Static assets](#static-assets)                                                        |
+| `apiPrefix`               | See [API prefix](#api-prefix)                                                              |
+| `customRouter`            | See [Custom router](#custom-router)                                                        |
+| `cacheControl`            | The `Cache-control` response header value for each GET request.                            |
+| `delay`                   | After processing the request, the delay in milliseconds before the request should be sent. |
+| `requestBodyValidator`    | See [Request body validation or mutation](#request-body-validation-or-mutation)            |
+| `responseBodyInterceptor` | See [Response body interception](#response-body-interception)                              |
 
 ## Not supported (yet?)
 
