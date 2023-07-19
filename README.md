@@ -52,7 +52,7 @@ Prerequisites you need to have:
 Create your own Temba server with the following command and you are up and running!
 
 ```bash
-npx create-temba-server my-rest-api@latest
+npx create-temba-server@latest my-rest-api
 cd my-rest-api
 npm start
 ```
