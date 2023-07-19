@@ -407,21 +407,17 @@ These are all the possible settings:
 | `requestBodyInterceptor`  | See [Request body validation or mutation](#request-body-validation-or-mutation)            |
 | `responseBodyInterceptor` | See [Response body interception](#request-body-validation-or-mutation)                     |
 
-## Not supported (yet?)
+## Roadmap
 
-The following features would be very nice for Temba to support:
+Although I won't promise if and when, these are some things to consider for the future:
 
-### Auth
+- **Authorization bearer tokens**, probably by providing a callback function so you can check the token however you want.
 
-Temba offers no ways for authentication or authorization (yet?), so if someone knows how to reach the API, they can read and mutate all your data, unless you restrict this in another way.
+- Better **security**, for example CORS, CSRF, etc.
 
-### Nested parent-child resources
+- Connecting to a **SQLite** database
 
-Also nested (parent-child) URI routes are not supported (yet?). So every URI has the /:resource/:id structure and there is no way to indicate any deeper relation through the URI.
-
-### Filtering and sorting
-
-And there is no filtering, sorting, searching, etc. (yet?).
+- Generic **filtering and sorting**, for example: `GET /api/movies?filter=releaseYear ge 1980 and releaseYear le 1989&sort=-releaseYear,title&page=2&limit=20&fields=title,releaseYear,genre`
 
 ## Under the hood
 
