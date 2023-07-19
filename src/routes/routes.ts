@@ -3,10 +3,7 @@ import { createPostRoutes } from './post'
 import { createPutRoutes } from './put'
 import { createPatchRoutes } from './patch'
 import { createDeleteRoutes } from './delete'
-import {
-  createValidateResourceMiddleware,
-  createResourceAndIdParser,
-} from '../urls/urlMiddleware'
+import { createValidateResourceMiddleware, createResourceAndIdParser } from '../urls/urlMiddleware'
 
 import express from 'express'
 import { RouterConfig } from '../config'
@@ -17,24 +14,17 @@ function createResourceRouter(queries, routerConfig: RouterConfig) {
     resourceNames,
     apiPrefix,
     cacheControl,
-    requestBodyValidator,
+    requestBodyInterceptor,
     responseBodyInterceptor,
   } = routerConfig
 
-  const { handleGetResource } = createGetRoutes(
-    queries,
-    cacheControl,
-    responseBodyInterceptor,
-  )
-  const { handlePost } = createPostRoutes(queries, requestBodyValidator)
-  const { handlePut } = createPutRoutes(queries, requestBodyValidator)
-  const { handlePatch } = createPatchRoutes(queries, requestBodyValidator)
+  const { handleGetResource } = createGetRoutes(queries, cacheControl, responseBodyInterceptor)
+  const { handlePost } = createPostRoutes(queries, requestBodyInterceptor)
+  const { handlePut } = createPutRoutes(queries, requestBodyInterceptor)
+  const { handlePatch } = createPatchRoutes(queries, requestBodyInterceptor)
   const { handleDelete } = createDeleteRoutes(queries)
 
-  const validateResource = createValidateResourceMiddleware(
-    validateResources,
-    resourceNames,
-  )
+  const validateResource = createValidateResourceMiddleware(validateResources, resourceNames)
   const getResourceAndId = createResourceAndIdParser(apiPrefix)
 
   const resourceRouter = express.Router()
@@ -69,9 +59,4 @@ function handleNotFound(_, res) {
   res.status(404).json({ message: 'Not Found' })
 }
 
-export {
-  createResourceRouter,
-  rootRouter,
-  handleMethodNotAllowed,
-  handleNotFound,
-}
+export { createResourceRouter, rootRouter, handleMethodNotAllowed, handleNotFound }

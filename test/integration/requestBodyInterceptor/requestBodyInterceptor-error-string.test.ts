@@ -4,25 +4,24 @@ import { Config } from '../../../src/config'
 
 //TODO add patch
 
-describe('requestBodyValidators that return a string to indicate a 400 Bad Request should be returned', () => {
-  const requestBodyValidator = {
-    post: (resourceName, requestBody) => {
+describe('requestBodyInterceptors that return a string to indicate a 400 Bad Request should be returned', () => {
+  const requestBodyInterceptor = {
+    post: ({ resourceName, requestBody }) => {
       expect(['movies', 'pokemons']).toContain(resourceName)
       if (resourceName === 'movies') expect(requestBody).toEqual({})
-      if (resourceName === 'pokemons')
-        expect(requestBody).toEqual({ name: 'Pikachu' })
+      if (resourceName === 'pokemons') expect(requestBody).toEqual({ name: 'Pikachu' })
       if (resourceName === 'movies') return '400 Bad Request error from POST'
     },
-    put: (resourceName, requestBody) => {
+    put: ({ resourceName, requestBody }) => {
       expect(resourceName).toBe('pokemons')
       expect(requestBody).toEqual({})
       return '400 Bad Request error from PUT'
     },
   }
 
-  const tembaServer = create({ requestBodyValidator } as unknown as Config)
+  const tembaServer = create({ requestBodyInterceptor } as unknown as Config)
 
-  test('POST with a requestBodyValidator that returns an error string should result in 400 Bad Request', async () => {
+  test('POST with a requestBodyInterceptor that returns an error string should result in 400 Bad Request', async () => {
     const expectedResourceName = 'movies'
     const resourceUrl = '/' + expectedResourceName
 
@@ -34,7 +33,7 @@ describe('requestBodyValidators that return a string to indicate a 400 Bad Reque
     expect(response.body.message).toEqual('400 Bad Request error from POST')
   })
 
-  test('PUT with a requestBodyValidator that returns an error string should result in 400 Bad Request', async () => {
+  test('PUT with a requestBodyInterceptor that returns an error string should result in 400 Bad Request', async () => {
     const expectedResourceName = 'pokemons'
     const resourceUrl = '/' + expectedResourceName
 

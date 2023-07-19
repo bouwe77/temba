@@ -113,7 +113,7 @@ Temba supports JSON only.
 
 Request bodies sent with a `POST`, `PATCH`, and `PUT` requests are valid when the request body is either empty, or when it's valid formatted JSON. Adding a `Content-Type: application/json` header is required. If you send a request with invalid formatted JSON, a `400 Bad Request` response is returned.
 
-Any valid formatted JSON is accepted and stored. If you want to validate or even change the JSON in the request bodies, check out the [`requestBodyValidator`](#request-body-validation-or-mutation) callbacks.
+Any valid formatted JSON is accepted and stored. If you want to validate or even change the JSON in the request bodies, check out the [`requestBodyInterceptor`](#request-body-validation-or-mutation) callbacks.
 
 IDs are auto generated when creating resources. IDs in the JSON request body are ignored for any request.
 
@@ -197,18 +197,18 @@ POST /movies
 }
 ```
 
-You can even omit a request body when doing a `POST`, `PATCH`, or `PUT`. If you don't want that, and want to have proper validation, use the `requestBodyValidator` config setting:
+You can even omit a request body when doing a `POST`, `PATCH`, or `PUT`. If you don't want that, and want to have proper validation, use the `requestBodyInterceptor` config setting:
 
 ```js
 const config = {
-  requestBodyValidator: {
-    post: (resourceName, requestBody) => {
+  requestBodyInterceptor: {
+    post: ({ resourceName, requestBody }) => {
       // Validate, or even change the requestBody
     },
-    put: (resourceName, requestBody) => {
+    put: ({ resourceName, requestBody }) => {
       // Validate, or even change the requestBody
     },
-    patch: (resourceName, requestBody) => {
+    patch: ({ resourceName, requestBody }) => {
       // Validate, or even change the requestBody
     },
   },
@@ -217,9 +217,9 @@ const config = {
 const server = temba.create(config)
 ```
 
-The `requestBodyValidator` is an object with a `post`, and/or `patch`, and/or `put` field, which contains the callback function you want Temba to call before the JSON is saved to the database.
+The `requestBodyInterceptor` is an object with a `post`, and/or `patch`, and/or `put` field, which contains the callback function you want Temba to call before the JSON is saved to the database.
 
-The callback function receives two arguments: The `resourceName`, which for example is `movies` if you request `POST /movies`. The second argument is the `requestBody`, which is the JSON object in the request body.
+The callback function receives an object containing the `resourceName`, which for example is `movies` if you request `POST /movies`, and the `requestBody`, which is the JSON object of the request body.
 
 Your callback function can return the following things:
 
@@ -231,8 +231,8 @@ Example:
 
 ```js
 const config = {
-  requestBodyValidator: {
-    post: (resourceName, requestBody) => {
+  requestBodyInterceptor: {
+    post: ({ resourceName, requestBody }) => {
       // Do not allow Pokemons to be created: 400 Bad Request
       if (resourceName === 'pokemons') return 'You are not allowed to create new Pokemons'
 
@@ -254,7 +254,7 @@ To change the response body of a `GET` request, before it's being sent to the cl
 
 ```js
 const config = {
-  responseBodyInterceptor: (resourceName, responseBody, id) => {
+  responseBodyInterceptor: ({ resourceName, responseBody, id }) => {
     if (resourceName === 'movies') {
       if (id) {
         // responseBody is an object
@@ -278,7 +278,7 @@ const config = {
 const server = temba.create(config)
 ```
 
-`responseBodyInterceptor` is a callback function that provides the `resourceName`, `responseBody`, and the `id`. Depending on whether it's a collection or item request, the `responseBody` is either an array or object, and the `id' can be `undefined`.
+`responseBodyInterceptor` is a callback function that provides an object containing the `resourceName`, `responseBody`, and the `id`. Depending on whether it's a collection or item request, the `responseBody` is either an array or object, and the `id' can be `undefined`.
 
 In the example above we check for the `id` being defined, but a runtime check to determine the type of `responseBody` would also suffice.
 
@@ -376,14 +376,14 @@ const config = {
   customRouter: router,
   cacheControl: 'public, max-age=300',
   delay: 500,
-  requestBodyValidator: {
-    post: (resourceName, requestBody) => {
+  requestBodyInterceptor: {
+    post: ({ resourceName, requestBody }) => {
       // Validate, or even change the requestBody
     },
-    patch: (resourceName, requestBody) => {
+    patch: ({ resourceName, requestBody }) => {
       // Validate, or even change the requestBody
     },
-    put: (resourceName, requestBody) => {
+    put: ({ resourceName, requestBody }) => {
       // Validate, or even change the requestBody
     },
   },
@@ -404,8 +404,8 @@ These are all the possible settings:
 | `customRouter`            | See [Custom router](#custom-router)                                                        |
 | `cacheControl`            | The `Cache-control` response header value for each GET request.                            |
 | `delay`                   | After processing the request, the delay in milliseconds before the request should be sent. |
-| `requestBodyValidator`    | See [Request body validation or mutation](#request-body-validation-or-mutation)            |
-| `responseBodyInterceptor` | See [Response body interception](#response-body-interception)                              |
+| `requestBodyInterceptor`  | See [Request body validation or mutation](#request-body-validation-or-mutation)            |
+| `responseBodyInterceptor` | See [Response body interception](#request-body-validation-or-mutation)                     |
 
 ## Not supported (yet?)
 

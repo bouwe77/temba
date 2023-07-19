@@ -4,21 +4,21 @@ import { Config } from '../../../src/config'
 
 //TODO add patch
 
-describe('requestBodyValidators that return a (new or changed) requestBody', () => {
-  const requestBodyValidator = {
-    post: (resourceName) => {
+describe('requestBodyInterceptors that return a (new or changed) requestBody', () => {
+  const requestBodyInterceptor = {
+    post: ({ resourceName }) => {
       expect(['movies', 'pokemons']).toContain(resourceName)
       if (resourceName === 'movies') return { title: 'The Matrix' }
     },
-    put: (resourceName, requestBody) => {
+    put: ({ resourceName, requestBody }) => {
       expect(resourceName).toBe('pokemons')
       return { ...requestBody, replaced: true }
     },
   }
 
-  const tembaServer = create({ requestBodyValidator } as unknown as Config)
+  const tembaServer = create({ requestBodyInterceptor } as unknown as Config)
 
-  test('POST with a requestBodyValidator that returns a requestBody', async () => {
+  test('POST with a requestBodyInterceptor that returns a requestBody', async () => {
     const resourceUrl = '/movies'
 
     // Send a POST request.
@@ -37,7 +37,7 @@ describe('requestBodyValidators that return a (new or changed) requestBody', () 
     expect(getResponse.body.title).toEqual('The Matrix')
   })
 
-  test('PUT with a requestBodyValidator that returns a requestBody', async () => {
+  test('PUT with a requestBodyInterceptor that returns a requestBody', async () => {
     const resourceUrl = '/pokemons'
 
     // First create a resource, so we have an id to PUT to.

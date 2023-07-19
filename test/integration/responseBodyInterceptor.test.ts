@@ -54,7 +54,7 @@ describe('responseBodyInterceptor unusual (but allowed) implementations', () => 
 
   test('When responseBodyInterceptor does not return an object or array, still return the intercepted value', async () => {
     const tembaServer = create({
-      responseBodyInterceptor: (resourceName, responseBody, id) => {
+      responseBodyInterceptor: ({ id }) => {
         if (id) return 'A string, instead of an object'
         else return 'A string, instead of an array'
       },
@@ -76,7 +76,7 @@ describe('responseBodyInterceptor unusual (but allowed) implementations', () => 
 
 describe('responseBodyInterceptor returns an updated response', () => {
   const tembaServer = create({
-    responseBodyInterceptor: (resourceName, responseBody, id) => {
+    responseBodyInterceptor: ({ resourceName, responseBody, id }) => {
       if (resourceName === 'stuff') {
         if (id) {
           return { ...responseBody, extra: 'stuff' }

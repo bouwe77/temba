@@ -4,23 +4,22 @@ import { Config } from '../../../src/config'
 
 //TODO add patch
 
-describe('requestBodyValidators that return nothing (void) to indicate nothing should be done', () => {
-  const requestBodyValidator = {
-    post: (resourceName, requestBody) => {
+describe('requestBodyInterceptors that return nothing (void) to indicate nothing should be done', () => {
+  const requestBodyInterceptor = {
+    post: ({ resourceName, requestBody }) => {
       expect(['movies', 'pokemons']).toContain(resourceName)
       if (resourceName === 'movies') expect(requestBody).toEqual({})
-      if (resourceName === 'pokemons')
-        expect(requestBody).toEqual({ name: 'Pikachu' })
+      if (resourceName === 'pokemons') expect(requestBody).toEqual({ name: 'Pikachu' })
     },
-    put: (resourceName, requestBody) => {
+    put: ({ resourceName, requestBody }) => {
       expect(resourceName).toBe('pokemons')
       expect(requestBody).toEqual({})
     },
   }
 
-  const tembaServer = create({ requestBodyValidator } as unknown as Config)
+  const tembaServer = create({ requestBodyInterceptor } as unknown as Config)
 
-  test('POST with a requestBodyValidator that returns void', async () => {
+  test('POST with a requestBodyInterceptor that returns void', async () => {
     const resourceUrl = '/movies'
 
     // Send a POST request.
@@ -30,7 +29,7 @@ describe('requestBodyValidators that return nothing (void) to indicate nothing s
     expect(response.statusCode).toEqual(201)
   })
 
-  test('PUT with a requestBodyValidator that returns void', async () => {
+  test('PUT with a requestBodyInterceptor that returns void', async () => {
     const resourceUrl = '/pokemons'
 
     // First create a resource, so we have an id to PUT to.
