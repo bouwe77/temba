@@ -387,6 +387,9 @@ const config = {
       // Validate, or even change the requestBody
     },
   },
+  responseBodyInterceptor: ({ resourceName, responseBody, id }) => {
+    // Change the response body before it is sent to the client
+  },
 }
 const server = temba.create(config)
 ```
