@@ -16,6 +16,8 @@ Powered by NodeJS, Express and MongoDB.
 
 This project is inspired by the fantastic [json-server](https://github.com/typicode/json-server) project, but instead of a JSON file Temba uses a real database. The goal, however, is the same: Get you started with a REST API very quickly.
 
+No need for any coding, unless you want to opt-out of the defaults, or want to do more customization.
+
 ## Table of contents
 
 [Temba?](#temba-1)
@@ -25,6 +27,8 @@ This project is inspired by the fantastic [json-server](https://github.com/typic
 [What Temba does](#what-temba-does)
 
 [Usage](#usage)
+
+[Config settings overview](#config-settings-overview)
 
 ## Temba?
 
@@ -57,7 +61,7 @@ This command clones the [Temba-starter](https://github.com/bouwe77/temba-starter
 
 Once the server is running, you can issue any HTTP request, and it probably will just work, but [learn more here](#what-temba-does).
 
-### Manually adding to an existing app
+### Adding to an existing app
 
 Alternatively, add Temba to your app manually:
 
@@ -77,7 +81,7 @@ server.listen(port, () => {
 
 ### Configuration
 
-By passing a config object to the `create` function you can customize Temba's behavior. Refer to the [config settings](#config-settings-overview) below for the various possibilities.
+To opt-out or customize Temba's workings, pass a `config` object to the `create` function. Learn more in the [Usage](#usage) section, or check out the [config settings](#config-settings-overview).
 
 ## What Temba does
 
@@ -244,9 +248,9 @@ const config = {
 const server = temba.create(config)
 ```
 
-## Mutate the response body
+### Response body interception
 
-To change the response body of a `GET` request, configure a `responseBodyInterceptor`, and return the updated response body:
+To change the response body of a `GET` request, before it's being sent to the client, configure a `responseBodyInterceptor`, and return the updated response body:
 
 ```js
 const config = {
@@ -284,7 +288,7 @@ If you don't return anything, the response body will be sent as-is.
 
 The `responseBodyInterceptor` will only be called when the response was successful, i.e. a `200 OK` status code.
 
-## Custom router
+### Custom router
 
 Although `temba.create()` returns an Express instance, adding your own routes, as you would normally do with Express, is not possible:
 
@@ -297,7 +301,7 @@ server.get('/hello', (req, res) => {
 })
 ```
 
-The reason is that Temba is in charge of all Express routes, to make sure only resource routes can be overruled by a custom router. To add your own routes, create an Express router, and configure it as a `customRouter`:
+The reason is that Temba is in charge of all Express routes, to make sure only _resource routes_ can be overruled by a custom router. To add your own routes, create an Express router, and configure it as a `customRouter`:
 
 ```js
 // Example code of how to create an Express router, from the official Express docs at https://expressjs.com/en/guide/routing.html:
@@ -357,7 +361,7 @@ const server = temba.create(config)
 - `/movies` will return a `404 Not Found`, because of `apiPrefix`
 - `/api/movies` will return movies, handled by Temba
 
-### Config settings overview
+## Config settings overview
 
 Configuring Temba is optional, it already works out of the box.
 
@@ -391,16 +395,17 @@ None of the settings are required, and only the settings you define are used.
 
 These are all the possible settings:
 
-| Config setting           | Description                                                                                |
-| :----------------------- | :----------------------------------------------------------------------------------------- |
-| `resourceNames`          | See [Allowing specific resources only](#allowing-specific-resources-only)                  |
-| `connectionString`       | See [MongoDB](#mongodb)                                                                    |
-| `staticFolder`           | See [Static assets](#static-assets)                                                        |
-| `apiPrefix`              | See [API prefix](#api-prefix)                                                              |
-| `customRouter`           | See [Custom router](#custom-router)                                                        |
-| `cacheControl`           | The `Cache-control` response header value for each GET request.                            |
-| `delay`                  | After processing the request, the delay in milliseconds before the request should be sent. |
-| `requestBodyInterceptor` | See [Request body validation or mutation](#request-body-validation-or-mutation)            |
+| Config setting            | Description                                                                                |
+| :------------------------ | :----------------------------------------------------------------------------------------- |
+| `resourceNames`           | See [Allowing specific resources only](#allowing-specific-resources-only)                  |
+| `connectionString`        | See [MongoDB](#mongodb)                                                                    |
+| `staticFolder`            | See [Static assets](#static-assets)                                                        |
+| `apiPrefix`               | See [API prefix](#api-prefix)                                                              |
+| `customRouter`            | See [Custom router](#custom-router)                                                        |
+| `cacheControl`            | The `Cache-control` response header value for each GET request.                            |
+| `delay`                   | After processing the request, the delay in milliseconds before the request should be sent. |
+| `requestBodyInterceptor`  | See [Request body validation or mutation](#request-body-validation-or-mutation)            |
+| `responseBodyInterceptor` | See [Response body interception](#request-body-validation-or-mutation)                     |
 
 ## Not supported (yet?)
 
@@ -421,16 +426,6 @@ And there is no filtering, sorting, searching, etc. (yet?).
 ## Under the hood
 
 Temba is built with JavaScript, [Node](https://nodejs.org), [Express](https://expressjs.com/), [Jest](https://jestjs.io/), [Supertest](https://www.npmjs.com/package/supertest), and [@rakered/mongo](https://www.npmjs.com/package/@rakered/mongo).
-
-## Which problem does Temba solve?
-
-The problem with JSON file solutions like json-server is the limitations you have when hosting your app, because your data is stored in a file.
-
-For example, hosting json-server on GitHub Pages means your API is essentially readonly, because, although mutations are supported, your data is not really persisted.
-
-And hosting json-server on Heroku does give you persistence, but is not reliable because of its [ephemeral filesystem](https://devcenter.heroku.com/articles/dynos#ephemeral-filesystem).
-
-These limitations are of course the whole idea behind json-server, it's for simple mocking and prototyping. But if you want more (persistence wise) and don't mind having a database, you might want to try Temba.
 
 ## Contributors ✨
 
