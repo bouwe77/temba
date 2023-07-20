@@ -55,11 +55,12 @@ describe('CRUD', () => {
     expect(getAllResponse2.body.length).toBe(0)
 
     // Create a new item.
-    const newItem = { name: 'newItem' }
+    const newItem = { name: 'newItem', done: false }
     const createNewResponse = await request(tembaServer).post(resource).send(newItem)
     const createdNewItem = createNewResponse.body
     expect(createNewResponse.status).toBe(201)
     expect(createdNewItem.name).toBe('newItem')
+    expect(createdNewItem.done).toBe(false)
     expect(createNewResponse.header.location.endsWith(resource + createdNewItem.id)).toBe(true)
 
     // Now there is one item. Get all items.
@@ -76,6 +77,7 @@ describe('CRUD', () => {
     expect(getJustOneItemResponse.body.id).toBe(createdNewItem.id)
 
     // Replace (PUT) one item by ID.
+    // Here we add the field "hello", and remove the field "done"
     const replacedItem = { name: 'replacedItem', hello: 'world' }
     const replaceResponse = await request(tembaServer)
       .put(resource + createdNewItem.id)
@@ -83,6 +85,8 @@ describe('CRUD', () => {
 
     expect(replaceResponse.status).toBe(200)
     expect(replaceResponse.body.name).toBe('replacedItem')
+    expect(replaceResponse.body.hello).toEqual('world')
+    expect(replaceResponse.body.done).toBeUndefined()
     expect(replaceResponse.body.id).toEqual(createdNewItem.id)
 
     // Get one item by ID.

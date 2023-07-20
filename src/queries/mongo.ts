@@ -12,6 +12,7 @@ export default function createMongoQueries(connectionString) {
     getById,
     create,
     update,
+    replace,
     deleteById,
     deleteAll,
   }
@@ -65,6 +66,19 @@ async function update(resourceName, item) {
   )
 
   return removeUnderscoreFromId(updatedItem.value)
+}
+
+async function replace(resourceName, item) {
+  await connectToDatabase()
+
+  const id = item.id
+  delete item.id
+
+  const replacedItem = await db[resourceName].findOneAndReplace({ _id: id }, item, {
+    returnOriginal: false,
+  })
+
+  return removeUnderscoreFromId(replacedItem.value)
 }
 
 async function deleteById(resourceName, id) {

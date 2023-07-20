@@ -36,13 +36,14 @@ function update(resourceName, item) {
   createResourceArrayIfNecessary(resourceName)
 
   const updatedItem = { ...item }
-  data[resourceName] = [
-    ...data[resourceName].filter((r) => r.id !== item.id),
-    updatedItem,
-  ]
+  data[resourceName] = [...data[resourceName].filter((r) => r.id !== item.id), updatedItem]
   return new Promise((resolve) => {
     resolve(updatedItem)
   })
+}
+
+function replace(resourceName, item) {
+  return update(resourceName, item)
 }
 
 function deleteById(resourceName, id) {
@@ -73,6 +74,7 @@ export default {
   getById,
   create,
   update,
+  replace,
   deleteById,
   deleteAll,
 }

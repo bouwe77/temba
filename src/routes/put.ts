@@ -20,7 +20,7 @@ function createPutRoutes(queries, requestBodyInterceptor) {
 
       item = { ...requestBody, id }
 
-      const replacedItem = await queries.update(resourceName, item)
+      const replacedItem = await queries.replace(resourceName, item)
 
       return res.status(200).json(replacedItem).send()
     } catch (error: unknown) {
