@@ -74,11 +74,9 @@ async function replace(resourceName, item) {
   const id = item.id
   delete item.id
 
-  const replacedItem = await db[resourceName].findOneAndReplace(
-    { _id: id },
-    { $set: item },
-    { returnOriginal: false },
-  )
+  const replacedItem = await db[resourceName].findOneAndReplace({ _id: id }, item, {
+    returnOriginal: false,
+  })
 
   return removeUnderscoreFromId(replacedItem.value)
 }
