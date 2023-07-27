@@ -422,6 +422,10 @@ Although I won't promise if and when, these are some things to consider for the 
 
 - Generic **filtering and sorting**, for example: `GET /api/movies?filter=releaseYear ge 1980 and releaseYear le 1989&sort=-releaseYear,title&page=2&limit=20&fields=title,releaseYear,genre`
 
+- Intial data seed when using in-memory.
+
+- Get rid of Express?
+
 ## Under the hood
 
 Temba is built with JavaScript, [Node](https://nodejs.org), [Express](https://expressjs.com/), [Jest](https://jestjs.io/), [Supertest](https://www.npmjs.com/package/supertest), and [@rakered/mongo](https://www.npmjs.com/package/@rakered/mongo).
