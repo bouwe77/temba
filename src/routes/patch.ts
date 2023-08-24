@@ -1,6 +1,7 @@
 import { interceptRequestBody } from './interceptors'
+import { removeNullFields } from './utils'
 
-function createPatchRoutes(queries, requestBodyInterceptor) {
+function createPatchRoutes(queries, requestBodyInterceptor, returnNullFields) {
   async function handlePatch(req, res) {
     try {
       const { resourceName, id } = req.requestInfo
@@ -22,7 +23,10 @@ function createPatchRoutes(queries, requestBodyInterceptor) {
 
       const updatedItem = await queries.update(resourceName, item)
 
-      return res.status(200).json(updatedItem).send()
+      return res
+        .status(200)
+        .json(returnNullFields ? updatedItem : removeNullFields(updatedItem))
+        .send()
     } catch (error: unknown) {
       return res.status(500).json({ message: (error as Error).message })
     }

@@ -137,7 +137,9 @@ For every resource you use in your requests, a collection is created in the data
 If you only want to allow specific resource names, configure them by providing a `resourceNames` key in the config object when creating the Temba server:
 
 ```js
-const config = { resourceNames: ['movies', 'actors'] }
+const config = {
+  resourceNames: ['movies', 'actors'],
+}
 const server = temba.create(config)
 ```
 
@@ -148,7 +150,9 @@ Requests on these resources only give a `404 Not Found` if the ID does not exist
 If you want to host static assets, next to the API, configure the `staticFolder`:
 
 ```js
-const config = { staticFolder: 'build' }
+const config = {
+  staticFolder: 'build',
+}
 const server = temba.create(config)
 ```
 
@@ -167,7 +171,9 @@ To be able to still access the `/products` API resource, configure an `apiPrefix
 With the `apiPrefix` config setting, all resources get an extra path segment in front of them. If the `apiPrefix` is `'api'`, then `/movies/12345` becomes `/api/movies/12345`:
 
 ```js
-const config = { apiPrefix: 'api' }
+const config = {
+  apiPrefix: 'api',
+}
 const server = temba.create(config)
 ```
 
@@ -348,10 +354,10 @@ router.get('api/stuff', (req, res) => {
 })
 
 const config = {
-  resourceNames: ['stuff'],
-  staticFolder: 'build',
   apiPrefix: 'api',
   customRouter: router,
+  resourceNames: ['stuff'],
+  staticFolder: 'build',
 }
 const server = temba.create(config)
 ```
@@ -369,12 +375,10 @@ Here is an example of the config settings for Temba, and how you define them:
 
 ```js
 const config = {
-  resourceNames: ['movies', 'actors'],
-  connectionString: 'mongodb://localhost:27017',
-  staticFolder: 'build',
   apiPrefix: 'api',
-  customRouter: router,
   cacheControl: 'public, max-age=300',
+  connectionString: 'mongodb://localhost:27017',
+  customRouter: router,
   delay: 500,
   requestBodyInterceptor: {
     post: ({ resourceName, requestBody }) => {
@@ -387,28 +391,30 @@ const config = {
       // Validate, or even change the requestBody
     },
   },
+  resourceNames: ['movies', 'actors'],
   responseBodyInterceptor: ({ resourceName, responseBody, id }) => {
     // Change the response body before it is sent to the client
   },
+  returnNullFields: false,
+  staticFolder: 'build',
 }
 const server = temba.create(config)
 ```
 
-None of the settings are required, and only the settings you define are used.
-
 These are all the possible settings:
 
-| Config setting            | Description                                                                                |
-| :------------------------ | :----------------------------------------------------------------------------------------- |
-| `resourceNames`           | See [Allowing specific resources only](#allowing-specific-resources-only)                  |
-| `connectionString`        | See [MongoDB](#mongodb)                                                                    |
-| `staticFolder`            | See [Static assets](#static-assets)                                                        |
-| `apiPrefix`               | See [API prefix](#api-prefix)                                                              |
-| `customRouter`            | See [Custom router](#custom-router)                                                        |
-| `cacheControl`            | The `Cache-control` response header value for each GET request.                            |
-| `delay`                   | After processing the request, the delay in milliseconds before the request should be sent. |
-| `requestBodyInterceptor`  | See [Request body validation or mutation](#request-body-validation-or-mutation)            |
-| `responseBodyInterceptor` | See [Response body interception](#request-body-validation-or-mutation)                     |
+| Config setting            | Description                                                                                | Default value |
+| :------------------------ | :----------------------------------------------------------------------------------------- | :------------ |
+| `apiPrefix`               | See [API prefix](#api-prefix)                                                              | `null`        |
+| `cacheControl`            | The `Cache-control` response header value for each GET request.                            | `'no-store'`  |
+| `connectionString`        | See [MongoDB](#mongodb)                                                                    | `null`        |
+| `customRouter`            | See [Custom router](#custom-router)                                                        | `null`        |
+| `delay`                   | After processing the request, the delay in milliseconds before the request should be sent. | `0`           |
+| `requestBodyInterceptor`  | See [Request body validation or mutation](#request-body-validation-or-mutation)            | `noop`        |
+| `resourceNames`           | See [Allowing specific resources only](#allowing-specific-resources-only)                  | `[]`          |
+| `responseBodyInterceptor` | See [Response body interception](#request-body-validation-or-mutation)                     | `noop`        |
+| `returnNullFields`        | Whether fields with a `null` value should be returned in responses.                        | `true`        |
+| `staticFolder`            | See [Static assets](#static-assets)                                                        | `null`        |
 
 ## Roadmap
 

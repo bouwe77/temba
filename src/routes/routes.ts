@@ -16,12 +16,18 @@ function createResourceRouter(queries, routerConfig: RouterConfig) {
     cacheControl,
     requestBodyInterceptor,
     responseBodyInterceptor,
+    returnNullFields,
   } = routerConfig
 
-  const { handleGetResource } = createGetRoutes(queries, cacheControl, responseBodyInterceptor)
-  const { handlePost } = createPostRoutes(queries, requestBodyInterceptor)
-  const { handlePut } = createPutRoutes(queries, requestBodyInterceptor)
-  const { handlePatch } = createPatchRoutes(queries, requestBodyInterceptor)
+  const { handleGetResource } = createGetRoutes(
+    queries,
+    cacheControl,
+    responseBodyInterceptor,
+    returnNullFields,
+  )
+  const { handlePost } = createPostRoutes(queries, requestBodyInterceptor, returnNullFields)
+  const { handlePut } = createPutRoutes(queries, requestBodyInterceptor, returnNullFields)
+  const { handlePatch } = createPatchRoutes(queries, requestBodyInterceptor, returnNullFields)
   const { handleDelete } = createDeleteRoutes(queries)
 
   const validateResource = createValidateResourceMiddleware(validateResources, resourceNames)

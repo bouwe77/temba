@@ -1,7 +1,8 @@
 import { format } from 'url'
 import { interceptRequestBody } from './interceptors'
+import { removeNullFields } from './utils'
 
-function createPostRoutes(queries, requestBodyInterceptor) {
+function createPostRoutes(queries, requestBodyInterceptor, returnNullFields) {
   async function handlePost(req, res) {
     try {
       const { resourceName } = req.requestInfo
@@ -22,7 +23,7 @@ function createPostRoutes(queries, requestBodyInterceptor) {
           }),
         })
         .status(201)
-        .json(newItem)
+        .json(returnNullFields ? newItem : removeNullFields(newItem))
         .send()
     } catch (error: unknown) {
       return res.status(500).json({ message: (error as Error).message })
