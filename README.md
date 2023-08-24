@@ -390,11 +390,10 @@ const config = {
   responseBodyInterceptor: ({ resourceName, responseBody, id }) => {
     // Change the response body before it is sent to the client
   },
+  returnNullFields: false,
 }
 const server = temba.create(config)
 ```
-
-None of the settings are required, and only the settings you define are used.
 
 These are all the possible settings:
 
@@ -409,6 +408,7 @@ These are all the possible settings:
 | `delay`                   | After processing the request, the delay in milliseconds before the request should be sent. |
 | `requestBodyInterceptor`  | See [Request body validation or mutation](#request-body-validation-or-mutation)            |
 | `responseBodyInterceptor` | See [Response body interception](#request-body-validation-or-mutation)                     |
+| `returnNullFields`        | Whether fields with a `null` value should be returned in responses.                        |
 
 ## Roadmap
 

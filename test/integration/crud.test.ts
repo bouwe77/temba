@@ -77,8 +77,8 @@ describe('CRUD', () => {
     expect(getJustOneItemResponse.body.id).toBe(createdNewItem.id)
 
     // Replace (PUT) one item by ID.
-    // Here we add the field "hello", and remove the field "done"
-    const replacedItem = { name: 'replacedItem', hello: 'world' }
+    // Here we add the field "hello" and "foo", and remove the field "done"
+    const replacedItem = { name: 'replacedItem', hello: 'world', foo: 'bar' }
     const replaceResponse = await request(tembaServer)
       .put(resource + createdNewItem.id)
       .send(replacedItem)
@@ -86,6 +86,7 @@ describe('CRUD', () => {
     expect(replaceResponse.status).toBe(200)
     expect(replaceResponse.body.name).toBe('replacedItem')
     expect(replaceResponse.body.hello).toEqual('world')
+    expect(replaceResponse.body.foo).toEqual('bar')
     expect(replaceResponse.body.done).toBeUndefined()
     expect(replaceResponse.body.id).toEqual(createdNewItem.id)
 
@@ -95,19 +96,22 @@ describe('CRUD', () => {
     )
     expect(getJustOneReplacedItemResponse.status).toBe(200)
     expect(getJustOneReplacedItemResponse.body.name).toBe('replacedItem')
+    expect(getJustOneReplacedItemResponse.body.hello).toEqual('world')
+    expect(getJustOneReplacedItemResponse.body.foo).toEqual('bar')
     expect(getJustOneReplacedItemResponse.body.id).toBe(createdNewItem.id)
 
     // Update (PATCH) one item by ID.
-    // This request updates the name, adds the something property and leaves all other properties unchanged.
-    const updatedItem = { name: 'updatedItem', something: 'in the way' }
+    // Here we update the "name", add the "something" field, clear the "foo" field, and leave all other properties unchanged.
+    const updatedItem = { name: 'updatedItem', something: 'in the way', foo: null }
     const updateResponse = await request(tembaServer)
       .patch(resource + createdNewItem.id)
       .send(updatedItem)
     expect(updateResponse.status).toBe(200)
     expect(updateResponse.body.name).toBe('updatedItem')
-    expect(updateResponse.body.hello).toEqual(replacedItem.hello)
+    expect(updateResponse.body.hello).toEqual('world')
+    expect(updateResponse.body.something).toEqual('in the way')
+    expect(updateResponse.body.foo).toBeNull()
     expect(updateResponse.body.id).toEqual(createdNewItem.id)
-    expect(updateResponse.body.something).toEqual(updatedItem.something)
 
     // Get one item by ID.
     const getJustOneUpdatedItemResponse = await request(tembaServer).get(
@@ -115,6 +119,9 @@ describe('CRUD', () => {
     )
     expect(getJustOneUpdatedItemResponse.status).toBe(200)
     expect(getJustOneUpdatedItemResponse.body.name).toBe('updatedItem')
+    expect(getJustOneUpdatedItemResponse.body.hello).toEqual('world')
+    expect(getJustOneUpdatedItemResponse.body.something).toEqual('in the way')
+    expect(getJustOneUpdatedItemResponse.body.foo).toBeNull()
     expect(getJustOneUpdatedItemResponse.body.id).toBe(createdNewItem.id)
 
     // Delete one item by ID.

@@ -1,4 +1,6 @@
-function createGetRoutes(queries, cacheControl, responseBodyInterceptor) {
+import { removeNullFields } from './utils'
+
+function createGetRoutes(queries, cacheControl, responseBodyInterceptor, returnNullFields) {
   async function handleGetResource(req, res) {
     try {
       const { resourceName, id } = req.requestInfo
@@ -26,7 +28,7 @@ function createGetRoutes(queries, cacheControl, responseBodyInterceptor) {
         }
 
         res.status(200)
-        res.json(theItem)
+        res.json(returnNullFields ? theItem : removeNullFields(theItem))
         return res.send()
       }
 
@@ -45,7 +47,7 @@ function createGetRoutes(queries, cacheControl, responseBodyInterceptor) {
       }
 
       res.status(200)
-      res.json(theItems)
+      res.json(returnNullFields ? theItems : theItems.map((item) => removeNullFields(item)))
       return res.send()
     } catch (error: unknown) {
       return res.status(500).json({ message: (error as Error).message })

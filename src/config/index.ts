@@ -12,6 +12,7 @@ export type Config = {
   connectionString: string
   delay: number
   customRouter: Router
+  returnNullFields: boolean
 }
 
 export type RouterConfig = Pick<
@@ -22,11 +23,11 @@ export type RouterConfig = Pick<
   | 'cacheControl'
   | 'requestBodyInterceptor'
   | 'responseBodyInterceptor'
+  | 'returnNullFields'
 >
 
 export type UserConfig = {
   resourceNames?: string[]
-  validateResources?: boolean
   staticFolder?: string
   apiPrefix?: string
   connectionString?: string
@@ -35,6 +36,7 @@ export type UserConfig = {
   requestBodyInterceptor?: RequestBodyInterceptor
   responseBodyInterceptor?: ResponseBodyInterceptor
   customRouter?: Router
+  returnNullFields?: boolean
 }
 
 const defaultConfig: Config = {
@@ -60,6 +62,7 @@ const defaultConfig: Config = {
     return responseBody
   },
   customRouter: null,
+  returnNullFields: true,
 }
 
 export function initConfig(userConfig: UserConfig): Config {
@@ -126,6 +129,8 @@ export function initConfig(userConfig: UserConfig): Config {
   if (userConfig.customRouter) {
     config.customRouter = userConfig.customRouter
   }
+
+  config.returnNullFields = userConfig.returnNullFields ?? true
 
   return config
 }

@@ -1,6 +1,7 @@
 import { interceptRequestBody } from './interceptors'
+import { removeNullFields } from './utils'
 
-function createPutRoutes(queries, requestBodyInterceptor) {
+function createPutRoutes(queries, requestBodyInterceptor, returnNullFields) {
   async function handlePut(req, res) {
     try {
       const { resourceName, id } = req.requestInfo
@@ -22,7 +23,10 @@ function createPutRoutes(queries, requestBodyInterceptor) {
 
       const replacedItem = await queries.replace(resourceName, item)
 
-      return res.status(200).json(replacedItem).send()
+      return res
+        .status(200)
+        .json(returnNullFields ? replacedItem : removeNullFields(replacedItem))
+        .send()
     } catch (error: unknown) {
       return res.status(500).json({ message: (error as Error).message })
     }
