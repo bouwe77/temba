@@ -137,7 +137,9 @@ For every resource you use in your requests, a collection is created in the data
 If you only want to allow specific resource names, configure them by providing a `resourceNames` key in the config object when creating the Temba server:
 
 ```js
-const config = { resourceNames: ['movies', 'actors'] }
+const config = {
+  resourceNames: ['movies', 'actors'],
+}
 const server = temba.create(config)
 ```
 
@@ -148,7 +150,9 @@ Requests on these resources only give a `404 Not Found` if the ID does not exist
 If you want to host static assets, next to the API, configure the `staticFolder`:
 
 ```js
-const config = { staticFolder: 'build' }
+const config = {
+  staticFolder: 'build',
+}
 const server = temba.create(config)
 ```
 
@@ -167,7 +171,9 @@ To be able to still access the `/products` API resource, configure an `apiPrefix
 With the `apiPrefix` config setting, all resources get an extra path segment in front of them. If the `apiPrefix` is `'api'`, then `/movies/12345` becomes `/api/movies/12345`:
 
 ```js
-const config = { apiPrefix: 'api' }
+const config = {
+  apiPrefix: 'api',
+}
 const server = temba.create(config)
 ```
 
