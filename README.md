@@ -348,10 +348,10 @@ router.get('api/stuff', (req, res) => {
 })
 
 const config = {
-  resourceNames: ['stuff'],
-  staticFolder: 'build',
   apiPrefix: 'api',
   customRouter: router,
+  resourceNames: ['stuff'],
+  staticFolder: 'build',
 }
 const server = temba.create(config)
 ```
@@ -369,12 +369,10 @@ Here is an example of the config settings for Temba, and how you define them:
 
 ```js
 const config = {
-  resourceNames: ['movies', 'actors'],
-  connectionString: 'mongodb://localhost:27017',
-  staticFolder: 'build',
   apiPrefix: 'api',
-  customRouter: router,
   cacheControl: 'public, max-age=300',
+  connectionString: 'mongodb://localhost:27017',
+  customRouter: router,
   delay: 500,
   requestBodyInterceptor: {
     post: ({ resourceName, requestBody }) => {
@@ -387,10 +385,12 @@ const config = {
       // Validate, or even change the requestBody
     },
   },
+  resourceNames: ['movies', 'actors'],
   responseBodyInterceptor: ({ resourceName, responseBody, id }) => {
     // Change the response body before it is sent to the client
   },
   returnNullFields: false,
+  staticFolder: 'build',
 }
 const server = temba.create(config)
 ```
@@ -399,16 +399,16 @@ These are all the possible settings:
 
 | Config setting            | Description                                                                                | Default value |
 | :------------------------ | :----------------------------------------------------------------------------------------- | :------------ |
-| `resourceNames`           | See [Allowing specific resources only](#allowing-specific-resources-only)                  | `[]`          |
-| `connectionString`        | See [MongoDB](#mongodb)                                                                    | `null`        |
-| `staticFolder`            | See [Static assets](#static-assets)                                                        | `null`        |
 | `apiPrefix`               | See [API prefix](#api-prefix)                                                              | `null`        |
-| `customRouter`            | See [Custom router](#custom-router)                                                        | `null`        |
 | `cacheControl`            | The `Cache-control` response header value for each GET request.                            | `'no-store'`  |
+| `connectionString`        | See [MongoDB](#mongodb)                                                                    | `null`        |
+| `customRouter`            | See [Custom router](#custom-router)                                                        | `null`        |
 | `delay`                   | After processing the request, the delay in milliseconds before the request should be sent. | `0`           |
 | `requestBodyInterceptor`  | See [Request body validation or mutation](#request-body-validation-or-mutation)            | `noop`        |
+| `resourceNames`           | See [Allowing specific resources only](#allowing-specific-resources-only)                  | `[]`          |
 | `responseBodyInterceptor` | See [Response body interception](#request-body-validation-or-mutation)                     | `noop`        |
 | `returnNullFields`        | Whether fields with a `null` value should be returned in responses.                        | `true`        |
+| `staticFolder`            | See [Static assets](#static-assets)                                                        | `null`        |
 
 ## Roadmap
 
