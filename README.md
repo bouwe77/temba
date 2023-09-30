@@ -424,7 +424,7 @@ Although I won't promise if and when, these are some things to consider for the 
 
 - Better **security**, for example CORS, CSRF, etc.
 
-- Connecting to a **SQLite** database
+- Connecting to a **SQLite** database, see #1
 
 - Opt-in logging with debug-js events
 
