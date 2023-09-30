@@ -426,6 +426,8 @@ Although I won't promise if and when, these are some things to consider for the 
 
 - Connecting to a **SQLite** database
 
+- Opt-in logging with debug-js events
+
 - Generic **filtering and sorting**, for example: `GET /api/movies?filter=releaseYear ge 1980 and releaseYear le 1989&sort=-releaseYear,title&page=2&limit=20&fields=title,releaseYear,genre`
 
 - Intial data seed when using in-memory.
