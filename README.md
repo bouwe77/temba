@@ -424,7 +424,7 @@ Although I won't promise if and when, these are some things to consider for the 
 
 - Better **security**, for example CORS, CSRF, etc.
 
-- Connecting to a **SQLite** database, see #1
+- Connecting to a **SQLite** database, see https://github.com/bouwe77/temba/issues/24
 
 - Opt-in logging with debug-js events
 
