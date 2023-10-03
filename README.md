@@ -420,19 +420,19 @@ These are all the possible settings:
 
 Although I won't promise if and when, these are some things to consider for the future:
 
+- Intial data seed when using in-memory.
+
+- Validation using JSON Schema (see https://github.com/bouwe77/temba/issues/25)
+
+- Get rid of Express? (see https://github.com/bouwe77/temba/issues/26)
+
 - **Authorization bearer tokens**, probably by providing a callback function so you can check the token however you want.
 
 - Better **security**, for example CORS, CSRF, etc.
 
-- Validation using JSON Schema (see #25)
-
 - Opt-in logging with debug-js events
 
 - Generic **filtering and sorting**, for example: `GET /api/movies?filter=releaseYear ge 1980 and releaseYear le 1989&sort=-releaseYear,title&page=2&limit=20&fields=title,releaseYear,genre`
-
-- Intial data seed when using in-memory.
-
-- Get rid of Express? (see #26)
 
 ## Under the hood
 
