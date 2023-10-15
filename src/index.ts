@@ -73,14 +73,12 @@ function createServer(userConfig?: UserConfig) {
         return
       }
 
-      app.listen(3000, () => {
-        console.log(`Server listening on port ${3000}`)
+      app.listen(config.port, () => {
+        console.log(`Server listening on port ${config.port}`)
       })
     },
     Express: config.isTesting ? app : undefined,
   }
-
-  //  return app
 }
 
 export function create(userConfig?: Config) {
