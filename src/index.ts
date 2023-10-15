@@ -74,7 +74,7 @@ function createServer(userConfig?: UserConfig) {
       }
 
       app.listen(config.port, () => {
-        console.log(`Server listening on port ${config.port}`)
+        console.log(`✅ Server listening on port ${config.port}`)
       })
     },
     Express: config.isTesting ? app : undefined,
