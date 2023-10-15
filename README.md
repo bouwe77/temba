@@ -380,6 +380,7 @@ const config = {
   connectionString: 'mongodb://localhost:27017',
   customRouter: router,
   delay: 500,
+  port: 4321,
   requestBodyInterceptor: {
     post: ({ resourceName, requestBody }) => {
       // Validate, or even change the requestBody
@@ -410,6 +411,7 @@ These are all the possible settings:
 | `connectionString`        | See [MongoDB](#mongodb)                                                                    | `null`        |
 | `customRouter`            | See [Custom router](#custom-router)                                                        | `null`        |
 | `delay`                   | After processing the request, the delay in milliseconds before the request should be sent. | `0`           |
+| `port`                    | The port your Temba server listens on                                                      | `3000`        |
 | `requestBodyInterceptor`  | See [Request body validation or mutation](#request-body-validation-or-mutation)            | `noop`        |
 | `resourceNames`           | See [Allowing specific resources only](#allowing-specific-resources-only)                  | `[]`          |
 | `responseBodyInterceptor` | See [Response body interception](#request-body-validation-or-mutation)                     | `noop`        |
