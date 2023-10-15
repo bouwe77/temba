@@ -1,7 +1,7 @@
 import request from 'supertest'
-import { create } from '../../src/index'
 import express from 'express'
 import { Config } from '../../src/config'
+import createServer from './createServer'
 
 describe('Configuring only a customRouter', () => {
   const customRouter = express.Router()
@@ -12,7 +12,7 @@ describe('Configuring only a customRouter', () => {
     return res.send('Hello, World!')
   })
 
-  const tembaServer = create({ customRouter } as unknown as Config)
+  const tembaServer = createServer({ customRouter } as unknown as Config)
 
   test("Temba's root URL takes presedence over a root URL in a customRouter", async () => {
     // The root URL is controlled by Temba, so the custom router's root URL is ignored.
@@ -39,7 +39,7 @@ describe('Configuring customRouter + resourceNames', () => {
     return res.send('Hello, World!')
   })
 
-  const tembaServer = create({
+  const tembaServer = createServer({
     customRouter,
     resourceNames: ['hello'],
   } as unknown as Config)
@@ -61,7 +61,7 @@ describe('Configuring customRouter + resourceNames', () => {
       return res.send('Goodbye, World!')
     })
 
-    const tembaServer = create({
+    const tembaServer = createServer({
       apiPrefix: '/api',
       customRouter,
     } as unknown as Config)
@@ -78,9 +78,7 @@ describe('Configuring customRouter + resourceNames', () => {
       expect(response2.text).toEqual('Hello, World!')
 
       // The /api/goodbye route is from customRouter, and also within the apiPrefix path, but still uses the customRouter's implementation.
-      const customRouterresponse = await request(tembaServer).get(
-        '/api/goodbye',
-      )
+      const customRouterresponse = await request(tembaServer).get('/api/goodbye')
       expect(customRouterresponse.statusCode).toEqual(200)
       expect(customRouterresponse.text).toEqual('Goodbye, World!')
     })

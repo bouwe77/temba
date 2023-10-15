@@ -64,7 +64,23 @@ function createServer(userConfig?: UserConfig) {
   app.all('*', handleMethodNotAllowed)
   if (config.apiPrefix) app.all(`${config.apiPrefix}*`, handleMethodNotAllowed)
 
-  return app
+  return {
+    start: () => {
+      if (config.isTesting) {
+        console.log(
+          '⛔️ To have your server listen to a port, remove or disable isTesting from your config.',
+        )
+        return
+      }
+
+      app.listen(3000, () => {
+        console.log(`Server listening on port ${3000}`)
+      })
+    },
+    Express: config.isTesting ? app : undefined,
+  }
+
+  //  return app
 }
 
 export function create(userConfig?: Config) {

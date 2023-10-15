@@ -1,6 +1,6 @@
 import request from 'supertest'
-import { create } from '../../../src/index'
 import { Config } from '../../../src/config'
+import createServer from '../createServer'
 
 //TODO add patch
 
@@ -16,7 +16,7 @@ describe('requestBodyInterceptors that return a (new or changed) requestBody', (
     },
   }
 
-  const tembaServer = create({ requestBodyInterceptor } as unknown as Config)
+  const tembaServer = createServer({ requestBodyInterceptor } as unknown as Config)
 
   test('POST with a requestBodyInterceptor that returns a requestBody', async () => {
     const resourceUrl = '/movies'
