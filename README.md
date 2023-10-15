@@ -75,7 +75,7 @@ const server = temba.create()
 server.start()
 ```
 
-3. In your console you'll see:
+3.In your console you'll see:
 
 ```
 ✅ Server listening on port 3000
