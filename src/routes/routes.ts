@@ -48,7 +48,7 @@ function createResourceRouter(queries, routerConfig: RouterConfig) {
 }
 
 // A GET to the root URL shows a default message.
-const rootRouter = router()
+const rootRouter = express.Router()
 rootRouter.get('/', async (_, res) => {
   return res.send('It works! ツ')
 })
