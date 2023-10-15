@@ -10,6 +10,7 @@ import { createQueries } from './queries/queries'
 import { Config, UserConfig, initConfig } from './config'
 import cors from 'cors'
 import { createDelayMiddleware } from './delay/delayMiddleware'
+import e from 'express'
 
 function createServer(userConfig?: UserConfig) {
   const config = initConfig(userConfig)
@@ -79,6 +80,10 @@ function createServer(userConfig?: UserConfig) {
     },
     Express: config.isTesting ? app : undefined,
   }
+}
+
+export function router() {
+  return express.Router()
 }
 
 export function create(userConfig?: Config) {

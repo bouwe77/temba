@@ -1,10 +1,10 @@
 import request from 'supertest'
-import express from 'express'
 import { Config } from '../../src/config'
 import createServer from './createServer'
+import { router } from '../../src'
 
 describe('Configuring only a customRouter', () => {
-  const customRouter = express.Router()
+  const customRouter = router()
   customRouter.get('/', async (_, res) => {
     return res.send('Overriding the root URL should not be possible...')
   })
@@ -34,7 +34,7 @@ describe('Configuring only a customRouter', () => {
 })
 
 describe('Configuring customRouter + resourceNames', () => {
-  const customRouter = express.Router()
+  const customRouter = router()
   customRouter.get('/hello', async (_, res) => {
     return res.send('Hello, World!')
   })
@@ -53,7 +53,7 @@ describe('Configuring customRouter + resourceNames', () => {
   })
 
   describe('Configuring customRouter + apiPrefix', () => {
-    const customRouter = express.Router()
+    const customRouter = router()
     customRouter.get('/hello', async (_, res) => {
       return res.send('Hello, World!')
     })

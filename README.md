@@ -298,12 +298,12 @@ The `responseBodyInterceptor` will only be called when the response was successf
 
 ### Custom router
 
-Because Temba uses Express under the hood, you can create an Express router, and configure it as a `customRouter`:
+Create your own routes, in addition to those from Temba, by configuring them as a `customRouter`:
 
 ```js
+const router = temba.router()
+
 // Example code of how to create an Express router, from the official Express docs at https://expressjs.com/en/guide/routing.html:
-const express = require('express')
-const router = express.Router()
 
 // middleware that is specific to this router
 router.use((req, res, next) => {
