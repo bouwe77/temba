@@ -75,7 +75,7 @@ const server = temba.create()
 server.start()
 ```
 
-3.In your console you'll see:
+3. In your console you'll see:
 
 ```
 ✅ Server listening on port 3000
@@ -417,15 +417,11 @@ Although I won't promise if and when, these are some things to consider for the 
 
 - Better **security**, for example CORS, CSRF, etc.
 
-- Connecting to a **SQLite** database, see https://github.com/bouwe77/temba/issues/24
-
 - Opt-in logging with debug-js events
 
 - Generic **filtering and sorting**, for example: `GET /api/movies?filter=releaseYear ge 1980 and releaseYear le 1989&sort=-releaseYear,title&page=2&limit=20&fields=title,releaseYear,genre`
 
 - Intial data seed when using in-memory.
-
-- Get rid of Express?
 
 ## Under the hood
 
