@@ -1,6 +1,6 @@
-# Notes
+# Dev Guide
 
-Notes to self and contributors.
+Notes to self, and contributors.
 
 # Publishing a new version to NPM
 
