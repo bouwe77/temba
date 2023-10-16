@@ -30,9 +30,6 @@ function createServer(userConfig?: UserConfig) {
     app.use(delayMiddleware)
   }
 
-  //TODO customRoutes:
-  // - Al deze routing code naar een aparte functie
-
   // Serve a static folder, if configured.
   if (config.staticFolder) {
     app.use(express.static(config.staticFolder))
@@ -67,9 +64,7 @@ function createServer(userConfig?: UserConfig) {
   return {
     start: () => {
       if (config.isTesting) {
-        console.log(
-          '⛔️ To have your server listen to a port, remove or disable isTesting from your config.',
-        )
+        console.log('⛔️ Server not started. Remove or disable isTesting from your config.')
         return
       }
 
@@ -77,6 +72,7 @@ function createServer(userConfig?: UserConfig) {
         console.log(`✅ Server listening on port ${config.port}`)
       })
     },
+    // Expose Express for testing purposes only, e.g. usage with supertest.
     Express: config.isTesting ? app : undefined,
   }
 }
