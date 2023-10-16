@@ -1,6 +1,6 @@
 import request from 'supertest'
-import { create } from '../../../src/index'
 import { Config } from '../../../src/config'
+import createServer from '../createServer'
 
 //TODO add patch
 
@@ -19,7 +19,7 @@ describe('requestBodyInterceptors that return a string to indicate a 400 Bad Req
     },
   }
 
-  const tembaServer = create({ requestBodyInterceptor } as unknown as Config)
+  const tembaServer = createServer({ requestBodyInterceptor } as unknown as Config)
 
   test('POST with a requestBodyInterceptor that returns an error string should result in 400 Bad Request', async () => {
     const expectedResourceName = 'movies'

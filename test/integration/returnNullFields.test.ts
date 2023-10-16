@@ -1,13 +1,13 @@
 import request from 'supertest'
-import { create } from '../../src/index'
 import { Config } from '../../src/config'
+import createServer from './createServer'
 
 /*
   Tests when configuring returnNullFields.
 */
 
 test.each([true, false])('returnNullFields setting is %s', async (returnNullFields) => {
-  const tembaServer = create({ returnNullFields } as unknown as Config)
+  const tembaServer = createServer({ returnNullFields } as unknown as Config)
 
   // Create a car
   const createResponse = await request(tembaServer)

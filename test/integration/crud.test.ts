@@ -1,6 +1,6 @@
 import request from 'supertest'
-import { create } from '../../src/index'
 import 'jest-extended'
+import createServer from './createServer'
 
 /*
   Tests for a CRUD roundtrip along all supported HTTP methods.
@@ -8,7 +8,7 @@ import 'jest-extended'
 
 describe('CRUD', () => {
   // This Temba server is created with the default configuration, i.e. no config object is supplied.
-  const tembaServer = create()
+  const tembaServer = createServer()
 
   const resource = '/articles/'
 

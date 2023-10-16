@@ -1,13 +1,13 @@
 import request from 'supertest'
-import { create } from '../../src/index'
 import { Config } from '../../src/config'
+import createServer from './createServer'
 
 describe('responseBodyInterceptor unusual (but allowed) implementations', () => {
   const noReturnValues = [undefined, null]
   test.each(noReturnValues)(
     'When responseBodyInterceptor returns nothing, return original response body',
     async (returnValue) => {
-      const tembaServer = create({
+      const tembaServer = createServer({
         responseBodyInterceptor: () => {
           //do not return anyhting when returnValue is undefeind
           if (typeof returnValue !== 'undefined') return returnValue
@@ -41,7 +41,7 @@ describe('responseBodyInterceptor unusual (but allowed) implementations', () => 
   )
 
   test('When responseBodyInterceptor throws an exception, return a 500 status with error details', async () => {
-    const tembaServer = create({
+    const tembaServer = createServer({
       responseBodyInterceptor: () => {
         throw new Error('Something went wrong')
       },
@@ -53,7 +53,7 @@ describe('responseBodyInterceptor unusual (but allowed) implementations', () => 
   })
 
   test('When responseBodyInterceptor does not return an object or array, still return the intercepted value', async () => {
-    const tembaServer = create({
+    const tembaServer = createServer({
       responseBodyInterceptor: ({ id }) => {
         if (id) return 'A string, instead of an object'
         else return 'A string, instead of an array'
@@ -75,7 +75,7 @@ describe('responseBodyInterceptor unusual (but allowed) implementations', () => 
 })
 
 describe('responseBodyInterceptor returns an updated response', () => {
-  const tembaServer = create({
+  const tembaServer = createServer({
     responseBodyInterceptor: ({ resourceName, responseBody, id }) => {
       if (resourceName === 'stuff') {
         if (id) {

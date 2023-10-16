@@ -72,11 +72,13 @@ Alternatively, add Temba to your app manually:
 ```js
 import temba from 'temba'
 const server = temba.create()
+server.start()
+```
 
-const port = process.env.PORT || 3000
-server.listen(port, () => {
-  console.log(`Temba is running on port ${port}`)
-})
+3.In your console you'll see:
+
+```
+✅ Server listening on port 3000
 ```
 
 ### Configuration
@@ -296,18 +298,7 @@ The `responseBodyInterceptor` will only be called when the response was successf
 
 ### Custom router
 
-Although `temba.create()` returns an Express instance, adding your own routes, as you would normally do with Express, is not possible:
-
-```js
-const server = temba.create()
-
-// 🛑 Although `server` is an Express instance, the following does not work:
-server.get('/hello', (req, res) => {
-  res.send('hello world')
-})
-```
-
-The reason is that Temba is in charge of all Express routes, to make sure only _resource routes_ can be overruled by a custom router. To add your own routes, create an Express router, and configure it as a `customRouter`:
+Because Temba uses Express under the hood, you can create an Express router, and configure it as a `customRouter`:
 
 ```js
 // Example code of how to create an Express router, from the official Express docs at https://expressjs.com/en/guide/routing.html:
@@ -380,6 +371,7 @@ const config = {
   connectionString: 'mongodb://localhost:27017',
   customRouter: router,
   delay: 500,
+  port: 4321,
   requestBodyInterceptor: {
     post: ({ resourceName, requestBody }) => {
       // Validate, or even change the requestBody
@@ -410,6 +402,7 @@ These are all the possible settings:
 | `connectionString`        | See [MongoDB](#mongodb)                                                                    | `null`        |
 | `customRouter`            | See [Custom router](#custom-router)                                                        | `null`        |
 | `delay`                   | After processing the request, the delay in milliseconds before the request should be sent. | `0`           |
+| `port`                    | The port your Temba server listens on                                                      | `3000`        |
 | `requestBodyInterceptor`  | See [Request body validation or mutation](#request-body-validation-or-mutation)            | `noop`        |
 | `resourceNames`           | See [Allowing specific resources only](#allowing-specific-resources-only)                  | `[]`          |
 | `responseBodyInterceptor` | See [Response body interception](#request-body-validation-or-mutation)                     | `noop`        |

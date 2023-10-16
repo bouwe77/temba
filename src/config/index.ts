@@ -13,6 +13,8 @@ export type Config = {
   delay: number
   customRouter: Router
   returnNullFields: boolean
+  isTesting: boolean
+  port: number
 }
 
 export type RouterConfig = Pick<
@@ -37,6 +39,8 @@ export type UserConfig = {
   responseBodyInterceptor?: ResponseBodyInterceptor
   customRouter?: Router
   returnNullFields?: boolean
+  isTesting?: boolean
+  port?: number
 }
 
 const defaultConfig: Config = {
@@ -63,6 +67,8 @@ const defaultConfig: Config = {
   },
   customRouter: null,
   returnNullFields: true,
+  isTesting: false,
+  port: 3000,
 }
 
 export function initConfig(userConfig: UserConfig): Config {
@@ -131,6 +137,10 @@ export function initConfig(userConfig: UserConfig): Config {
   }
 
   config.returnNullFields = userConfig.returnNullFields ?? true
+
+  config.isTesting = userConfig.isTesting ?? false
+
+  config.port = userConfig.port ?? 3000
 
   return config
 }

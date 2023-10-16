@@ -1,6 +1,6 @@
 import request from 'supertest'
-import { create } from '../../src/index'
 import { Config } from '../../src/config'
+import createServer from './createServer'
 
 /*
   Tests when configuring the apiPrefix.
@@ -8,7 +8,7 @@ import { Config } from '../../src/config'
 
 // This Temba server is created with an apiPrefix configured
 const apiPrefix = 'api'
-const tembaServer = create({ apiPrefix } as unknown as Config)
+const tembaServer = createServer({ apiPrefix } as unknown as Config)
 
 test('GET on root URL returns 404 Not Found error', async () => {
   const response = await request(tembaServer).get('/')
