@@ -7,7 +7,6 @@ import { createValidateResourceMiddleware, createResourceAndIdParser } from '../
 
 import express from 'express'
 import { RouterConfig } from '../config'
-import { router } from '..'
 
 function createResourceRouter(queries, routerConfig: RouterConfig) {
   const {
@@ -34,7 +33,7 @@ function createResourceRouter(queries, routerConfig: RouterConfig) {
   const validateResource = createValidateResourceMiddleware(validateResources, resourceNames)
   const getResourceAndId = createResourceAndIdParser(apiPrefix)
 
-  const resourceRouter = router()
+  const resourceRouter = express.Router()
 
   resourceRouter
     // The router.get() function automatically handles HEAD requests as well, unless router.head is called first.
