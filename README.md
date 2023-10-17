@@ -286,7 +286,7 @@ const config = {
 const server = temba.create(config)
 ```
 
-`responseBodyInterceptor` is a callback function that provides an object containing the `resourceName`, `responseBody`, and the `id`. Depending on whether it's a collection or item request, the `responseBody` is either an array or object, and the `id' can be `undefined`.
+`responseBodyInterceptor` is a callback function that provides an object containing the `resourceName`, `responseBody`, and the `id`. Depending on whether it's a collection or item request, the `responseBody` is either an array or object, and the `id` can be `undefined`.
 
 In the example above we check for the `id` being defined, but a runtime check to determine the type of `responseBody` would also suffice.
 
