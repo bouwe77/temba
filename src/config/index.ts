@@ -3,7 +3,7 @@ import { RequestBodyInterceptor, ResponseBodyInterceptor } from '../routes/types
 
 export type Config = {
   validateResources: boolean
-  resourceNames: string[]
+  resources: string[]
   apiPrefix: string
   cacheControl: string
   requestBodyInterceptor: RequestBodyInterceptor
@@ -21,7 +21,7 @@ export type Config = {
 export type RouterConfig = Pick<
   Config,
   | 'validateResources'
-  | 'resourceNames'
+  | 'resources'
   | 'apiPrefix'
   | 'cacheControl'
   | 'requestBodyInterceptor'
@@ -31,7 +31,7 @@ export type RouterConfig = Pick<
 >
 
 export type UserConfig = {
-  resourceNames?: string[]
+  resources?: string[]
   staticFolder?: string
   apiPrefix?: string
   connectionString?: string
@@ -47,7 +47,7 @@ export type UserConfig = {
 }
 
 const defaultConfig: Config = {
-  resourceNames: [],
+  resources: [],
   validateResources: false,
   staticFolder: null,
   apiPrefix: '',
@@ -65,8 +65,8 @@ const defaultConfig: Config = {
       // do nothing
     },
   },
-  responseBodyInterceptor: ({ responseBody }) => {
-    return responseBody
+  responseBodyInterceptor: ({ body }) => {
+    return body
   },
   customRouter: null,
   returnNullFields: true,
@@ -80,8 +80,8 @@ export function initConfig(userConfig: UserConfig): Config {
 
   const config = { ...defaultConfig } as Config
 
-  if (userConfig.resourceNames && userConfig.resourceNames.length > 0) {
-    config.resourceNames = userConfig.resourceNames
+  if (userConfig.resources && userConfig.resources.length > 0) {
+    config.resources = userConfig.resources
     config.validateResources = true
   }
 

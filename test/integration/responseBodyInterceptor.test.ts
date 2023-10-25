@@ -76,12 +76,12 @@ describe('responseBodyInterceptor unusual (but allowed) implementations', () => 
 
 describe('responseBodyInterceptor returns an updated response', () => {
   const tembaServer = createServer({
-    responseBodyInterceptor: ({ resourceName, responseBody, id }) => {
-      if (resourceName === 'stuff') {
+    responseBodyInterceptor: ({ resource, body, id }) => {
+      if (resource === 'stuff') {
         if (id) {
-          return { ...responseBody, extra: 'stuff' }
+          return { ...body, extra: 'stuff' }
         } else {
-          return responseBody.map((item, index) => ({
+          return body.map((item, index) => ({
             ...item,
             extra: 'stuff ' + index,
           }))

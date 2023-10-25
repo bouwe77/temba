@@ -5,30 +5,29 @@ import { removeNullFields } from './utils'
 function createPutRoutes(queries, requestBodyInterceptor, returnNullFields, schemas) {
   async function handlePut(req, res) {
     try {
-      const { resourceName, id } = req.requestInfo
+      const { resource, id } = req.requestInfo
 
-      const schema = schemas[resourceName]?.put
+      const schema = schemas[resource]?.put
       const isValid = schema ? validate(req.body, schema) : true
       if (!isValid) {
         return res.status(400).json({ message: 'AJV zegt nee' })
       }
 
-      const requestBody = interceptRequestBody(requestBodyInterceptor.put, req)
+      const body = interceptRequestBody(requestBodyInterceptor.put, req)
 
-      if (typeof requestBody === 'string')
-        return res.status(400).json({ message: requestBody }).send()
+      if (typeof body === 'string') return res.status(400).json({ message: body }).send()
 
       let item = null
-      if (id) item = await queries.getById(resourceName, id)
+      if (id) item = await queries.getById(resource, id)
 
       if (!item)
         return res.status(404).json({
           message: `ID '${id}' not found`,
         })
 
-      item = { ...requestBody, id }
+      item = { ...body, id }
 
-      const replacedItem = await queries.replace(resourceName, item)
+      const replacedItem = await queries.replace(resource, item)
 
       return res
         .status(200)

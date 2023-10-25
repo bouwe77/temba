@@ -11,17 +11,17 @@ function createResourceAndIdParser(apiPrefix) {
   }
 }
 
-function createValidateResourceMiddleware(validateResources, resourceNames) {
+function createValidateResourceMiddleware(validateResources, resources) {
   return function validateResource(req, res, next) {
     if (!validateResources) return next()
 
-    const { resourceName } = req.requestInfo
+    const { resource } = req.requestInfo
 
-    if (!resourceName) return next()
+    if (!resource) return next()
 
-    if (!resourceNames.includes(resourceName.toLowerCase())) {
+    if (!resources.includes(resource.toLowerCase())) {
       return res.status(404).json({
-        message: `'${resourceName}' is an unknown resource`,
+        message: `'${resource}' is an unknown resource`,
       })
     }
 

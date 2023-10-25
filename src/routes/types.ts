@@ -1,6 +1,6 @@
 type RequestInfo = {
-  resourceName: string
-  requestBody: unknown
+  resource: string
+  body: unknown
 }
 
 export type RequestBodyInterceptorCallback = (info: RequestInfo) => void | string | object
@@ -12,8 +12,8 @@ export type RequestBodyInterceptor = {
 }
 
 type ResponseInfo = {
-  resourceName: string
-  responseBody: unknown
+  resource: string
+  body: unknown
   id?: string
 }
 

@@ -5,30 +5,29 @@ import { removeNullFields } from './utils'
 function createPatchRoutes(queries, requestBodyInterceptor, returnNullFields, schemas) {
   async function handlePatch(req, res) {
     try {
-      const { resourceName, id } = req.requestInfo
+      const { resource, id } = req.requestInfo
 
-      const schema = schemas[resourceName]?.patch
+      const schema = schemas[resource]?.patch
       const isValid = schema ? validate(req.body, schema) : true
       if (!isValid) {
         return res.status(400).json({ message: 'AJV zegt nee' })
       }
 
-      const requestBody = interceptRequestBody(requestBodyInterceptor.patch, req)
+      const body = interceptRequestBody(requestBodyInterceptor.patch, req)
 
-      if (typeof requestBody === 'string')
-        return res.status(400).json({ message: requestBody }).send()
+      if (typeof body === 'string') return res.status(400).json({ message: body }).send()
 
       let item = null
-      if (id) item = await queries.getById(resourceName, id)
+      if (id) item = await queries.getById(resource, id)
 
       if (!item)
         return res.status(404).json({
           message: `ID '${id}' not found`,
         })
 
-      item = { ...item, ...requestBody, id }
+      item = { ...item, ...body, id }
 
-      const updatedItem = await queries.update(resourceName, item)
+      const updatedItem = await queries.update(resource, item)
 
       return res
         .status(200)

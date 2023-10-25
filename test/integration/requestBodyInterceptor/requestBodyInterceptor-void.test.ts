@@ -6,14 +6,14 @@ import createServer from '../createServer'
 
 describe('requestBodyInterceptors that return nothing (void) to indicate nothing should be done', () => {
   const requestBodyInterceptor = {
-    post: ({ resourceName, requestBody }) => {
-      expect(['movies', 'pokemons']).toContain(resourceName)
-      if (resourceName === 'movies') expect(requestBody).toEqual({})
-      if (resourceName === 'pokemons') expect(requestBody).toEqual({ name: 'Pikachu' })
+    post: ({ resource, body }) => {
+      expect(['movies', 'pokemons']).toContain(resource)
+      if (resource === 'movies') expect(body).toEqual({})
+      if (resource === 'pokemons') expect(body).toEqual({ name: 'Pikachu' })
     },
-    put: ({ resourceName, requestBody }) => {
-      expect(resourceName).toBe('pokemons')
-      expect(requestBody).toEqual({})
+    put: ({ resource, body }) => {
+      expect(resource).toBe('pokemons')
+      expect(body).toEqual({})
     },
   }
 
