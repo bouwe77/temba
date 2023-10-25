@@ -4,21 +4,21 @@ import createServer from '../createServer'
 
 //TODO add patch
 
-describe('requestBodyInterceptors that return a (new or changed) requestBody', () => {
+describe('requestBodyInterceptors that return a (new or changed) request body', () => {
   const requestBodyInterceptor = {
-    post: ({ resourceName }) => {
-      expect(['movies', 'pokemons']).toContain(resourceName)
-      if (resourceName === 'movies') return { title: 'The Matrix' }
+    post: ({ resource }) => {
+      expect(['movies', 'pokemons']).toContain(resource)
+      if (resource === 'movies') return { title: 'The Matrix' }
     },
-    put: ({ resourceName, requestBody }) => {
-      expect(resourceName).toBe('pokemons')
-      return { ...requestBody, replaced: true }
+    put: ({ resource, body }) => {
+      expect(resource).toBe('pokemons')
+      return { ...body, replaced: true }
     },
   }
 
   const tembaServer = createServer({ requestBodyInterceptor } as unknown as Config)
 
-  test('POST with a requestBodyInterceptor that returns a requestBody', async () => {
+  test('POST with a requestBodyInterceptor that returns a request body', async () => {
     const resourceUrl = '/movies'
 
     // Send a POST request.
@@ -37,7 +37,7 @@ describe('requestBodyInterceptors that return a (new or changed) requestBody', (
     expect(getResponse.body.title).toEqual('The Matrix')
   })
 
-  test('PUT with a requestBodyInterceptor that returns a requestBody', async () => {
+  test('PUT with a requestBodyInterceptor that returns a request body', async () => {
     const resourceUrl = '/pokemons'
 
     // First create a resource, so we have an id to PUT to.

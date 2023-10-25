@@ -20,7 +20,7 @@ describe('Configuring only a customRouter', () => {
     expect(rootResponse.statusCode).toEqual(200)
     expect(rootResponse.text).toEqual('It works! ツ')
 
-    // As we did not configure resourceNames, any resource route is handled by Temba and return an empty array.
+    // As we did not configure resources, any resource route is handled by Temba and return an empty array.
     const getAllResponse = await request(tembaServer).get('/stuff')
     expect(getAllResponse.status).toBe(200)
     expect(getAllResponse.body.length).toBe(0)
@@ -33,7 +33,7 @@ describe('Configuring only a customRouter', () => {
   })
 })
 
-describe('Configuring customRouter + resourceNames', () => {
+describe('Configuring customRouter + resources', () => {
   const customRouter = express.Router()
   customRouter.get('/hello', async (_, res) => {
     return res.send('Hello, World!')
@@ -41,12 +41,12 @@ describe('Configuring customRouter + resourceNames', () => {
 
   const tembaServer = createServer({
     customRouter,
-    resourceNames: ['hello'],
+    resources: ['hello'],
   } as unknown as Config)
 
-  test('customRouter takes presedence over resourceNames', async () => {
+  test('customRouter takes presedence over resources', async () => {
     // The /hello route is configured both through a custom Express router,
-    // and as resourceName, but the customRouter overrides the Temba route.
+    // and as resource, but the customRouter overrides the Temba route.
     const response = await request(tembaServer).get('/hello')
     expect(response.statusCode).toEqual(200)
     expect(response.text).toEqual('Hello, World!')
@@ -67,7 +67,7 @@ describe('Configuring customRouter + resourceNames', () => {
     } as unknown as Config)
 
     test('customRouter takes presedence over apiPrefix routes', async () => {
-      // As we did not configure resourceNames, any resource route through the apiPrefix is handled by Temba and return an empty array.
+      // As we did not configure resources, any resource route through the apiPrefix is handled by Temba and return an empty array.
       const getAllResponse = await request(tembaServer).get('/api/hello')
       expect(getAllResponse.status).toBe(200)
       expect(getAllResponse.body.length).toBe(0)

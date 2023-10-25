@@ -136,11 +136,11 @@ For every resource you use in your requests, a collection is created in the data
 
 ### Allowing specific resources only
 
-If you only want to allow specific resource names, configure them by providing a `resourceNames` key in the config object when creating the Temba server:
+If you only want to allow specific resource names, configure them by providing a `resources` key in the config object when creating the Temba server:
 
 ```js
 const config = {
-  resourceNames: ['movies', 'actors'],
+  resources: ['movies', 'actors'],
 }
 const server = temba.create(config)
 ```
@@ -210,14 +210,14 @@ You can even omit a request body when doing a `POST`, `PATCH`, or `PUT`. If you 
 ```js
 const config = {
   requestBodyInterceptor: {
-    post: ({ resourceName, requestBody }) => {
-      // Validate, or even change the requestBody
+    post: ({ resource, body }) => {
+      // Validate, or even change the request body
     },
-    put: ({ resourceName, requestBody }) => {
-      // Validate, or even change the requestBody
+    put: ({ resource, body }) => {
+      // Validate, or even change the request body
     },
-    patch: ({ resourceName, requestBody }) => {
-      // Validate, or even change the requestBody
+    patch: ({ resource, body }) => {
+      // Validate, or even change the request body
     },
   },
 }
@@ -227,7 +227,7 @@ const server = temba.create(config)
 
 The `requestBodyInterceptor` is an object with a `post`, and/or `patch`, and/or `put` field, which contains the callback function you want Temba to call before the JSON is saved to the database.
 
-The callback function receives an object containing the `resourceName`, which for example is `movies` if you request `POST /movies`, and the `requestBody`, which is the JSON object of the request body.
+The callback function receives an object containing the `resource`, which for example is `movies` if you request `POST /movies`, and the `body`, which is the JSON object of the request body.
 
 Your callback function can return the following things:
 
@@ -240,13 +240,13 @@ Example:
 ```js
 const config = {
   requestBodyInterceptor: {
-    post: ({ resourceName, requestBody }) => {
-      // Do not allow Pokemons to be created: 400 Bad Request
-      if (resourceName === 'pokemons') return 'You are not allowed to create new Pokemons'
+    post: ({ resource, body }) => {
+      // Do not allow Pokemons to be created: 400 Bad Req best
+      if (resource === 'pokemons') return 'You are not allowed to create new Pokemons'
 
       // Add a genre to Star Trek films:
-      if (resourceName === 'movies' && requestBody.title.startsWith('Star Trek'))
-        return { ...requestBody, genre: 'Science Fiction' }
+      if (resource === 'movies' && body.title.startsWith('Star Trek'))
+        return { ...body, genre: 'Science Fiction' }
 
       // If you end up here, void will be returned, so the request will just be saved.
     },
@@ -262,17 +262,17 @@ To change the response body of a `GET` request, before it's being sent to the cl
 
 ```js
 const config = {
-  responseBodyInterceptor: ({ resourceName, responseBody, id }) => {
-    if (resourceName === 'movies') {
+  responseBodyInterceptor: ({ resource, body, id }) => {
+    if (resource === 'movies') {
       if (id) {
-        // responseBody is an object
+        // response body is an object
         return {
-          ...responseBody,
+          ...body,
           stuff: 'more stuff',
         }
       } else {
-        // responseBody is an array
-        return responseBody.map((x) => ({
+        // response body is an array
+        return body.map((x) => ({
           ...x,
           stuff: 'more stuff',
         }))
@@ -286,9 +286,9 @@ const config = {
 const server = temba.create(config)
 ```
 
-`responseBodyInterceptor` is a callback function that provides an object containing the `resourceName`, `responseBody`, and the `id`. Depending on whether it's a collection or item request, the `responseBody` is either an array or object, and the `id` can be `undefined`.
+`responseBodyInterceptor` is a callback function that provides an object containing the `resource`, `body`, and the `id`. Depending on whether it's a collection or item request, the `body` is either an array or object, and the `id` can be `undefined`.
 
-In the example above we check for the `id` being defined, but a runtime check to determine the type of `responseBody` would also suffice.
+In the example above we check for the `id` being defined, but a runtime check to determine the type of `body` would also suffice.
 
 Whatever you return in this function will become the response body and will be serialized as JSON and returned to the client.
 
@@ -347,7 +347,7 @@ router.get('api/stuff', (req, res) => {
 const config = {
   apiPrefix: 'api',
   customRouter: router,
-  resourceNames: ['stuff'],
+  resources: ['stuff'],
   staticFolder: 'build',
 }
 const server = temba.create(config)
@@ -373,18 +373,18 @@ const config = {
   delay: 500,
   port: 4321,
   requestBodyInterceptor: {
-    post: ({ resourceName, requestBody }) => {
-      // Validate, or even change the requestBody
+    post: ({ resource, body }) => {
+      // Validate, or even change the request body
     },
-    patch: ({ resourceName, requestBody }) => {
-      // Validate, or even change the requestBody
+    patch: ({ resource, body }) => {
+      // Validate, or even change the request body
     },
-    put: ({ resourceName, requestBody }) => {
-      // Validate, or even change the requestBody
+    put: ({ resource, body }) => {
+      // Validate, or even change the request body
     },
   },
-  resourceNames: ['movies', 'actors'],
-  responseBodyInterceptor: ({ resourceName, responseBody, id }) => {
+  resources: ['movies', 'actors'],
+  responseBodyInterceptor: ({ resource, body, id }) => {
     // Change the response body before it is sent to the client
   },
   returnNullFields: false,
@@ -404,7 +404,7 @@ These are all the possible settings:
 | `delay`                   | After processing the request, the delay in milliseconds before the request should be sent. | `0`           |
 | `port`                    | The port your Temba server listens on                                                      | `3000`        |
 | `requestBodyInterceptor`  | See [Request body validation or mutation](#request-body-validation-or-mutation)            | `noop`        |
-| `resourceNames`           | See [Allowing specific resources only](#allowing-specific-resources-only)                  | `[]`          |
+| `resources`               | See [Allowing specific resources only](#allowing-specific-resources-only)                  | `[]`          |
 | `responseBodyInterceptor` | See [Response body interception](#request-body-validation-or-mutation)                     | `noop`        |
 | `returnNullFields`        | Whether fields with a `null` value should be returned in responses.                        | `true`        |
 | `staticFolder`            | See [Static assets](#static-assets)                                                        | `null`        |

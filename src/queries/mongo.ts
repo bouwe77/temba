@@ -31,41 +31,41 @@ async function connectToDatabase() {
   }
 }
 
-async function getAll(resourceName) {
+async function getAll(resource) {
   await connectToDatabase()
 
-  const items = await db[resourceName].find({})
+  const items = await db[resource].find({})
 
   if (!items) return []
 
   return items.map((item) => removeUnderscoreFromId(item))
 }
 
-async function getById(resourceName, id) {
+async function getById(resource, id) {
   await connectToDatabase()
 
-  const item = await db[resourceName].findOne({ _id: id })
+  const item = await db[resource].findOne({ _id: id })
 
   if (!item) return null
 
   return removeUnderscoreFromId(item)
 }
 
-async function create(resourceName, item) {
+async function create(resource, item) {
   await connectToDatabase()
 
-  const createdItem = await db[resourceName].insertOne(item)
+  const createdItem = await db[resource].insertOne(item)
 
   return removeUnderscoreFromId(createdItem.ops[0])
 }
 
-async function update(resourceName, item) {
+async function update(resource, item) {
   await connectToDatabase()
 
   const id = item.id
   delete item.id
 
-  const updatedItem = await db[resourceName].findOneAndUpdate(
+  const updatedItem = await db[resource].findOneAndUpdate(
     { _id: id },
     { $set: item },
     { returnOriginal: false },
@@ -74,29 +74,29 @@ async function update(resourceName, item) {
   return removeUnderscoreFromId(updatedItem.value)
 }
 
-async function replace(resourceName, item) {
+async function replace(resource, item) {
   await connectToDatabase()
 
   const id = item.id
   delete item.id
 
-  const replacedItem = await db[resourceName].findOneAndReplace({ _id: id }, item, {
+  const replacedItem = await db[resource].findOneAndReplace({ _id: id }, item, {
     returnOriginal: false,
   })
 
   return removeUnderscoreFromId(replacedItem.value)
 }
 
-async function deleteById(resourceName, id) {
+async function deleteById(resource, id) {
   await connectToDatabase()
 
-  await db[resourceName].deleteOne({ _id: id })
+  await db[resource].deleteOne({ _id: id })
 }
 
-async function deleteAll(resourceName) {
+async function deleteAll(resource) {
   await connectToDatabase()
 
-  await db[resourceName].deleteMany({})
+  await db[resource].deleteMany({})
 }
 
 function removeUnderscoreFromId(item) {

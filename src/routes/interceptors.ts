@@ -1,20 +1,20 @@
 import { RequestBodyInterceptorCallback } from './types'
 
 function interceptRequestBody(intercept: RequestBodyInterceptorCallback, req): string | object {
-  const { resourceName } = req.requestInfo
-  let requestBody = req.body
+  const { resource } = req.requestInfo
+  let body = req.body
 
-  const validationResult = intercept({ resourceName, requestBody })
+  const validationResult = intercept({ resource, body })
 
-  if (!validationResult && typeof requestBody === 'object') return requestBody
+  if (!validationResult && typeof body === 'object') return body
 
   if (typeof validationResult === 'string') return validationResult
 
-  // The requestBody was replaced by something else.
-  if (validationResult) requestBody = validationResult
+  // The request body was replaced by something else.
+  if (validationResult) body = validationResult
 
-  if (typeof requestBody === 'object') {
-    return requestBody
+  if (typeof body === 'object') {
+    return body
   } else return req.body
 }
 

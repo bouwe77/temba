@@ -11,7 +11,7 @@ import { RouterConfig } from '../config'
 function createResourceRouter(queries, routerConfig: RouterConfig) {
   const {
     validateResources,
-    resourceNames,
+    resources,
     apiPrefix,
     cacheControl,
     requestBodyInterceptor,
@@ -30,7 +30,7 @@ function createResourceRouter(queries, routerConfig: RouterConfig) {
   const { handlePatch } = createPatchRoutes(queries, requestBodyInterceptor, returnNullFields)
   const { handleDelete } = createDeleteRoutes(queries)
 
-  const validateResource = createValidateResourceMiddleware(validateResources, resourceNames)
+  const validateResource = createValidateResourceMiddleware(validateResources, resources)
   const getResourceAndId = createResourceAndIdParser(apiPrefix)
 
   const resourceRouter = express.Router()
