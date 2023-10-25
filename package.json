@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "@rakered/mongo": "^1.6.0",
+    "ajv": "^8.12.0",
     "connect-pause": "^0.1.0",
     "cors": "^2.8.5",
     "express": "^4.18.2",
