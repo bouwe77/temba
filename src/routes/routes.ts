@@ -17,6 +17,7 @@ function createResourceRouter(queries, routerConfig: RouterConfig) {
     requestBodyInterceptor,
     responseBodyInterceptor,
     returnNullFields,
+    schemas,
   } = routerConfig
 
   const { handleGetResource } = createGetRoutes(
@@ -25,9 +26,31 @@ function createResourceRouter(queries, routerConfig: RouterConfig) {
     responseBodyInterceptor,
     returnNullFields,
   )
-  const { handlePost } = createPostRoutes(queries, requestBodyInterceptor, returnNullFields)
-  const { handlePut } = createPutRoutes(queries, requestBodyInterceptor, returnNullFields)
-  const { handlePatch } = createPatchRoutes(queries, requestBodyInterceptor, returnNullFields)
+
+  const { handlePost } = createPostRoutes(
+    queries,
+    requestBodyInterceptor,
+    returnNullFields,
+    // TODO Only pass POST schemas, per resource
+    schemas,
+  )
+
+  const { handlePut } = createPutRoutes(
+    queries,
+    requestBodyInterceptor,
+    returnNullFields,
+    // TODO Only pass PUT schemas, per resource
+    schemas,
+  )
+
+  const { handlePatch } = createPatchRoutes(
+    queries,
+    requestBodyInterceptor,
+    returnNullFields,
+    // TODO Only pass PATCH schemas, per resource
+    schemas,
+  )
+
   const { handleDelete } = createDeleteRoutes(queries)
 
   const validateResource = createValidateResourceMiddleware(validateResources, resourceNames)

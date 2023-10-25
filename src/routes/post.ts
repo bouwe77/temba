@@ -1,11 +1,18 @@
 import { format } from 'url'
 import { interceptRequestBody } from './interceptors'
 import { removeNullFields } from './utils'
+import validate from './schemaValidation'
 
-function createPostRoutes(queries, requestBodyInterceptor, returnNullFields) {
+function createPostRoutes(queries, requestBodyInterceptor, returnNullFields, schemas) {
   async function handlePost(req, res) {
     try {
       const { resourceName } = req.requestInfo
+
+      const schema = schemas[resourceName]?.post
+      const isValid = schema ? validate(req.body, schema) : true
+      if (!isValid) {
+        return res.status(400).json({ message: 'AJV zegt nee' })
+      }
 
       const requestBody = interceptRequestBody(requestBodyInterceptor.post, req)
 

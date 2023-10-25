@@ -15,6 +15,7 @@ export type Config = {
   returnNullFields: boolean
   isTesting: boolean
   port: number
+  schemas: unknown
 }
 
 export type RouterConfig = Pick<
@@ -26,6 +27,7 @@ export type RouterConfig = Pick<
   | 'requestBodyInterceptor'
   | 'responseBodyInterceptor'
   | 'returnNullFields'
+  | 'schemas'
 >
 
 export type UserConfig = {
@@ -41,6 +43,7 @@ export type UserConfig = {
   returnNullFields?: boolean
   isTesting?: boolean
   port?: number
+  schemas?: unknown
 }
 
 const defaultConfig: Config = {
@@ -69,6 +72,7 @@ const defaultConfig: Config = {
   returnNullFields: true,
   isTesting: false,
   port: 3000,
+  schemas: null,
 }
 
 export function initConfig(userConfig: UserConfig): Config {
@@ -136,11 +140,14 @@ export function initConfig(userConfig: UserConfig): Config {
     config.customRouter = userConfig.customRouter
   }
 
+  // TODO hier gebruik ik duplicate default values, dus if er omheen
   config.returnNullFields = userConfig.returnNullFields ?? true
-
   config.isTesting = userConfig.isTesting ?? false
-
   config.port = userConfig.port ?? 3000
+
+  if (userConfig.schemas) {
+    config.schemas = userConfig.schemas
+  }
 
   return config
 }

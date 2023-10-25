@@ -1,10 +1,17 @@
 import { interceptRequestBody } from './interceptors'
+import validate from './schemaValidation'
 import { removeNullFields } from './utils'
 
-function createPutRoutes(queries, requestBodyInterceptor, returnNullFields) {
+function createPutRoutes(queries, requestBodyInterceptor, returnNullFields, schemas) {
   async function handlePut(req, res) {
     try {
       const { resourceName, id } = req.requestInfo
+
+      const schema = schemas[resourceName]?.put
+      const isValid = schema ? validate(req.body, schema) : true
+      if (!isValid) {
+        return res.status(400).json({ message: 'AJV zegt nee' })
+      }
 
       const requestBody = interceptRequestBody(requestBodyInterceptor.put, req)
 
