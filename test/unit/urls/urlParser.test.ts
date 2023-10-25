@@ -1,8 +1,8 @@
 import { parseUrl } from '../../../src/urls/urlParser'
 
-const noResourceAndNoId = { resourceName: null, id: null }
-const resourceOnly = { resourceName: 'stuff', id: null }
-const resourceAndId = { resourceName: 'stuff', id: 'foo' }
+const noResourceAndNoId = { resource: null, id: null }
+const resourceOnly = { resource: 'stuff', id: null }
+const resourceAndId = { resource: 'stuff', id: 'foo' }
 
 test.each([
   ['stuff', resourceOnly],
@@ -11,7 +11,7 @@ test.each([
   ['/stuff/', resourceOnly],
   ['//stuff/', resourceOnly],
   ['/stuff//', resourceOnly],
-])("URL '%s' only has a resourceName: %o", (url, expected) => {
+])("URL '%s' only has a resource: %o", (url, expected) => {
   const actual = parseUrl(url)
   expect(actual).toEqual(expected)
 })

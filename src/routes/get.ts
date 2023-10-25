@@ -3,12 +3,12 @@ import { removeNullFields } from './utils'
 function createGetRoutes(queries, cacheControl, responseBodyInterceptor, returnNullFields) {
   async function handleGetResource(req, res) {
     try {
-      const { resourceName, id } = req.requestInfo
+      const { resource, id } = req.requestInfo
 
       res.set('Cache-control', cacheControl)
 
       if (id) {
-        const item = await queries.getById(resourceName, id)
+        const item = await queries.getById(resource, id)
 
         if (!item) {
           res.status(404)
@@ -18,7 +18,7 @@ function createGetRoutes(queries, cacheControl, responseBodyInterceptor, returnN
         let theItem = item
         if (responseBodyInterceptor) {
           try {
-            theItem = responseBodyInterceptor({ resourceName, responseBody: item, id })
+            theItem = responseBodyInterceptor({ resource, body: item, id })
             if (!theItem) theItem = item
           } catch (error) {
             return res.status(500).json({
@@ -32,12 +32,12 @@ function createGetRoutes(queries, cacheControl, responseBodyInterceptor, returnN
         return res.send()
       }
 
-      const items = await queries.getAll(resourceName)
+      const items = await queries.getAll(resource)
 
       let theItems = items
       if (responseBodyInterceptor) {
         try {
-          theItems = responseBodyInterceptor({ resourceName, responseBody: items })
+          theItems = responseBodyInterceptor({ resource, body: items })
           if (!theItems) theItems = items
         } catch (error) {
           return res.status(500).json({

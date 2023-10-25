@@ -6,15 +6,15 @@ import createServer from '../createServer'
 
 describe('requestBodyInterceptors that return a string to indicate a 400 Bad Request should be returned', () => {
   const requestBodyInterceptor = {
-    post: ({ resourceName, requestBody }) => {
-      expect(['movies', 'pokemons']).toContain(resourceName)
-      if (resourceName === 'movies') expect(requestBody).toEqual({})
-      if (resourceName === 'pokemons') expect(requestBody).toEqual({ name: 'Pikachu' })
-      if (resourceName === 'movies') return '400 Bad Request error from POST'
+    post: ({ resource, body }) => {
+      expect(['movies', 'pokemons']).toContain(resource)
+      if (resource === 'movies') expect(body).toEqual({})
+      if (resource === 'pokemons') expect(body).toEqual({ name: 'Pikachu' })
+      if (resource === 'movies') return '400 Bad Request error from POST'
     },
-    put: ({ resourceName, requestBody }) => {
-      expect(resourceName).toBe('pokemons')
-      expect(requestBody).toEqual({})
+    put: ({ resource, body }) => {
+      expect(resource).toBe('pokemons')
+      expect(body).toEqual({})
       return '400 Bad Request error from PUT'
     },
   }
@@ -22,8 +22,8 @@ describe('requestBodyInterceptors that return a string to indicate a 400 Bad Req
   const tembaServer = createServer({ requestBodyInterceptor } as unknown as Config)
 
   test('POST with a requestBodyInterceptor that returns an error string should result in 400 Bad Request', async () => {
-    const expectedResourceName = 'movies'
-    const resourceUrl = '/' + expectedResourceName
+    const expectedResource = 'movies'
+    const resourceUrl = '/' + expectedResource
 
     // Send a POST request.
     // The request body is empty because that's not important for this test.
@@ -34,8 +34,8 @@ describe('requestBodyInterceptors that return a string to indicate a 400 Bad Req
   })
 
   test('PUT with a requestBodyInterceptor that returns an error string should result in 400 Bad Request', async () => {
-    const expectedResourceName = 'pokemons'
-    const resourceUrl = '/' + expectedResourceName
+    const expectedResource = 'pokemons'
+    const resourceUrl = '/' + expectedResource
 
     // First create a resource, so we have an id to PUT to.
     const postResponse = await request(tembaServer)
