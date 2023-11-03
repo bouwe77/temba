@@ -1,13 +1,17 @@
+import { Queries } from './types'
+
 const data = {}
 
 function connectToDatabase() {
-  // do nothing
+  return new Promise<void>((resolve) => {
+    resolve()
+  })
 }
 
 function getAll(resource) {
   createResourceArrayIfNecessary(resource)
 
-  return new Promise((resolve) => {
+  return new Promise<unknown[]>((resolve) => {
     resolve(data[resource])
   })
 }
@@ -59,8 +63,8 @@ function deleteAll(resource) {
   createResourceArrayIfNecessary(resource)
 
   data[resource] = []
-  return new Promise((resolve) => {
-    resolve([])
+  return new Promise<void>((resolve) => {
+    resolve()
   })
 }
 

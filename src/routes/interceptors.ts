@@ -1,6 +1,9 @@
-import { RequestBodyInterceptorCallback } from './types'
+import { ExtendedRequest, RequestBodyInterceptorCallback } from './types'
 
-function interceptRequestBody(intercept: RequestBodyInterceptorCallback, req): string | object {
+function interceptRequestBody(
+  intercept: RequestBodyInterceptorCallback,
+  req: ExtendedRequest,
+): string | object {
   const { resource } = req.requestInfo
   let body = req.body
 

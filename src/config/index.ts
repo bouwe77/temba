@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import { RequestBodyInterceptor, ResponseBodyInterceptor } from '../routes/types'
+import { ConfiguredSchemas } from '../schema/types'
 
 export type Config = {
   validateResources: boolean
@@ -15,7 +16,7 @@ export type Config = {
   returnNullFields: boolean
   isTesting: boolean
   port: number
-  schemas: unknown
+  schemas: ConfiguredSchemas
 }
 
 export type RouterConfig = Pick<
@@ -27,7 +28,6 @@ export type RouterConfig = Pick<
   | 'requestBodyInterceptor'
   | 'responseBodyInterceptor'
   | 'returnNullFields'
-  | 'schemas'
 >
 
 export type UserConfig = {
@@ -43,7 +43,7 @@ export type UserConfig = {
   returnNullFields?: boolean
   isTesting?: boolean
   port?: number
-  schemas?: unknown
+  schemas?: ConfiguredSchemas
 }
 
 const defaultConfig: Config = {
