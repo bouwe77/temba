@@ -2,8 +2,6 @@ import { initConfig } from '../../../src/config'
 import type { Config, ConfigKey, UserConfig } from '../../../src/config'
 import express from 'express'
 
-//TODO Sort everything alphabetically
-
 const assertDefaultConfig = (config: Config, skip?: ConfigKey[]) => {
   if (!skip) skip = []
 
