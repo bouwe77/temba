@@ -109,6 +109,8 @@ The HTTP methods that are supported are `GET`, `POST`, `PATCH`, `PUT`, `DELETE`,
 
 On the root URI (e.g. http://localhost:8080/) only a `GET` request is supported, which shows you a message indicating the API is working. All other HTTP methods on the root URI return a `405 Method Not Allowed` response.
 
+The `OPTIONS` method also works, but because Temba uses Express' default implementation for that, the `Access-Control-Allow-Methods` response header might not always be correct.
+
 ### JSON
 
 Temba supports JSON only.
