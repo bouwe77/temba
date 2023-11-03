@@ -4,18 +4,20 @@ import { RequestBodyInterceptor, ResponseBodyInterceptor } from '../routes/types
 export type Config = {
   validateResources: boolean
   resources: string[]
-  apiPrefix: string
+  apiPrefix: string | null
   cacheControl: string
   requestBodyInterceptor: RequestBodyInterceptor
   responseBodyInterceptor: ResponseBodyInterceptor
-  staticFolder: string
-  connectionString: string
+  staticFolder: string | null
+  connectionString: string | null
   delay: number
-  customRouter: Router
+  customRouter: Router | null
   returnNullFields: boolean
   isTesting: boolean
   port: number
 }
+
+export type ConfigKey = keyof Config
 
 export type RouterConfig = Pick<
   Config,
@@ -47,7 +49,7 @@ const defaultConfig: Config = {
   resources: [],
   validateResources: false,
   staticFolder: null,
-  apiPrefix: '',
+  apiPrefix: null,
   connectionString: null,
   cacheControl: 'no-store',
   delay: 0,
@@ -71,7 +73,7 @@ const defaultConfig: Config = {
   port: 3000,
 }
 
-export function initConfig(userConfig: UserConfig): Config {
+export function initConfig(userConfig?: UserConfig): Config {
   if (!userConfig) return defaultConfig
 
   const config = { ...defaultConfig } as Config
@@ -102,7 +104,7 @@ export function initConfig(userConfig: UserConfig): Config {
     userConfig.delay !== 0 &&
     typeof Number(userConfig.delay) === 'number' &&
     Number(userConfig.delay) > 0 &&
-    Number(userConfig.delay) < 10000
+    Number(userConfig.delay) < 100000
   ) {
     config.delay = Number(userConfig.delay)
   }

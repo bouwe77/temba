@@ -35,7 +35,7 @@ function createServer(userConfig?: UserConfig) {
     app.use(express.static(config.staticFolder))
   }
 
-  // On the root URL (with apiPrefix if applicable) only a GET is allowed.
+  // On the root URL (with apiPrefix, if applicable) only a GET is allowed.
   const rootPath = config.apiPrefix ? `${config.apiPrefix}` : '/'
   app.use(rootPath, rootRouter)
 
@@ -43,18 +43,21 @@ function createServer(userConfig?: UserConfig) {
     app.use(config.customRouter)
   }
 
-  // For all other URLs, only GET, POST, PUT and DELETE are allowed and handled.
-  const resourceRouter = createResourceRouter(queries, config)
+  // Temba supports the GET, POST, PUT, PATCH, DELETE, and HEAD methods for resource URLs.
+  // HEAD is not implemented here, because Express supports it out of the box.
+
+  // Create a router on all other URLs, for all supported methods
   const resourcePath = config.apiPrefix ? `${config.apiPrefix}*` : '*'
+  const resourceRouter = createResourceRouter(queries, config)
   app.use(resourcePath, resourceRouter)
 
-  // In case of an API prefix, GET, POST, PUT and DELETE requests to all other URLs return a 404 Not Found.
-  //TODO Hier missen toch HTTP methods?
+  // In case of an API prefix, resource URLs outside of the API prefix return a 404 Not Found.
   if (config.apiPrefix) {
     app.get('*', handleNotFound)
     app.post('*', handleNotFound)
     app.put('*', handleNotFound)
     app.delete('*', handleNotFound)
+    app.patch('*', handleNotFound)
   }
 
   // All other methods to any URL are not allowed.

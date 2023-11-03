@@ -1,7 +1,7 @@
 import { removeNullFields } from './utils'
 
 function createGetRoutes(queries, cacheControl, responseBodyInterceptor, returnNullFields) {
-  async function handleGetResource(req, res) {
+  async function handleGet(req, res) {
     try {
       const { resource, id } = req.requestInfo
 
@@ -55,7 +55,7 @@ function createGetRoutes(queries, cacheControl, responseBodyInterceptor, returnN
   }
 
   return {
-    handleGetResource,
+    handleGet,
   }
 }
 
