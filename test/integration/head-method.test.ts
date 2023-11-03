@@ -2,7 +2,7 @@ import request from 'supertest'
 import createServer from './createServer'
 
 /*
-  Tests for HEAD requests
+  Tests for HEAD and OPTIONS requests
 */
 
 // This Temba server is created with the default configuration, i.e. no config object is supplied.
