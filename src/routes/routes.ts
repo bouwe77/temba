@@ -24,7 +24,7 @@ function createResourceRouter(
     returnNullFields,
   } = routerConfig
 
-  const { handleGetResource } = createGetRoutes(
+  const { handleGet } = createGetRoutes(
     queries,
     cacheControl,
     responseBodyInterceptor,
@@ -61,7 +61,7 @@ function createResourceRouter(
 
   resourceRouter
     // The router.get() function automatically handles HEAD requests as well, unless router.head is called first.
-    .get('*', getResourceAndId, validateResource, handleGetResource)
+    .get('*', getResourceAndId, validateResource, handleGet)
     .post('*', getResourceAndId, validateResource, handlePost)
     .put('*', getResourceAndId, validateResource, handlePut)
     .patch('*', getResourceAndId, validateResource, handlePatch)

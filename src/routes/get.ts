@@ -9,7 +9,7 @@ function createGetRoutes(
   responseBodyInterceptor: ResponseBodyInterceptor,
   returnNullFields: boolean,
 ) {
-  async function handleGetResource(req: ExtendedRequest, res: Response) {
+  async function handleGet(req: ExtendedRequest, res: Response) {
     try {
       const { resource, id } = req.requestInfo
 
@@ -75,7 +75,7 @@ function createGetRoutes(
   }
 
   return {
-    handleGetResource,
+    handleGet,
   }
 }
 
