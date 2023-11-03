@@ -9,7 +9,7 @@ const assertDefaultConfig = (config: Config, skip?: ConfigKey[]) => {
     resources: [],
     validateResources: false,
     staticFolder: null,
-    apiPrefix: '',
+    apiPrefix: null,
     connectionString: null,
     cacheControl: 'no-store',
     delay: 0,

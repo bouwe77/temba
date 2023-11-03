@@ -4,7 +4,7 @@ import { RequestBodyInterceptor, ResponseBodyInterceptor } from '../routes/types
 export type Config = {
   validateResources: boolean
   resources: string[]
-  apiPrefix: string
+  apiPrefix: string | null
   cacheControl: string
   requestBodyInterceptor: RequestBodyInterceptor
   responseBodyInterceptor: ResponseBodyInterceptor
@@ -49,7 +49,7 @@ const defaultConfig: Config = {
   resources: [],
   validateResources: false,
   staticFolder: null,
-  apiPrefix: '',
+  apiPrefix: null,
   connectionString: null,
   cacheControl: 'no-store',
   delay: 0,
