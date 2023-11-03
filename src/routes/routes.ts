@@ -9,10 +9,6 @@ import { RouterConfig } from '../config'
 import { CompiledSchemas } from '../schema/types'
 import { Queries } from '../queries/types'
 
-//TODO Separate issue: Support request bodies for DELETE and OPTIONS, as they also can have a request body according to the spec
-//TODO Separate issue: OPTIONS wordt ook ondersteund toch? Staat niet in de docs
-
-//TODO type for schemas argument
 function createResourceRouter(
   queries: Queries,
   schemas: CompiledSchemas,
