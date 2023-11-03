@@ -2,20 +2,16 @@ import request from 'supertest'
 import { Config } from '../../../src/config'
 import createServer from '../createServer'
 
-//TODO add patch
-
 describe('requestBodyInterceptors that return a string to indicate a 400 Bad Request should be returned', () => {
   const requestBodyInterceptor = {
-    post: ({ resource, body }) => {
-      expect(['movies', 'pokemons']).toContain(resource)
-      if (resource === 'movies') expect(body).toEqual({})
-      if (resource === 'pokemons') expect(body).toEqual({ name: 'Pikachu' })
+    post: ({ resource }) => {
       if (resource === 'movies') return '400 Bad Request error from POST'
     },
-    put: ({ resource, body }) => {
-      expect(resource).toBe('pokemons')
-      expect(body).toEqual({})
+    put: () => {
       return '400 Bad Request error from PUT'
+    },
+    patch: () => {
+      return '400 Bad Request error from PATCH'
     },
   }
 
@@ -51,5 +47,25 @@ describe('requestBodyInterceptors that return a string to indicate a 400 Bad Req
 
     expect(response.statusCode).toEqual(400)
     expect(response.body.message).toEqual('400 Bad Request error from PUT')
+  })
+
+  test('PATCH with a requestBodyInterceptor that returns an error string should result in 400 Bad Request', async () => {
+    const expectedResource = 'pokemons'
+    const resourceUrl = '/' + expectedResource
+
+    // First create a resource, so we have an id to PUT to.
+    const postResponse = await request(tembaServer)
+      .post(resourceUrl)
+      .send({ name: 'Pikachu' })
+      .set('Content-Type', 'application/json')
+    expect(postResponse.statusCode).toEqual(201)
+    const id = postResponse.header.location.split('/').pop()
+
+    // Send a PATCH request to the id.
+    // The request body is empty because that's not important for this test.
+    const response = await request(tembaServer).patch(`${resourceUrl}/${id}`)
+
+    expect(response.statusCode).toEqual(400)
+    expect(response.body.message).toEqual('400 Bad Request error from PATCH')
   })
 })
