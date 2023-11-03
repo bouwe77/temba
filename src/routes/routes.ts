@@ -1,14 +1,23 @@
+import express from 'express'
 import { createGetRoutes } from './get'
 import { createPostRoutes } from './post'
 import { createPutRoutes } from './put'
 import { createPatchRoutes } from './patch'
 import { createDeleteRoutes } from './delete'
 import { createValidateResourceMiddleware, createResourceAndIdParser } from '../urls/urlMiddleware'
-
-import express from 'express'
 import { RouterConfig } from '../config'
+import { CompiledSchemas } from '../schema/types'
+import { Queries } from '../queries/types'
 
-function createResourceRouter(queries, routerConfig: RouterConfig) {
+//TODO Separate issue: Support request bodies for DELETE and OPTIONS, as they also can have a request body according to the spec
+//TODO Separate issue: OPTIONS wordt ook ondersteund toch? Staat niet in de docs
+
+//TODO type for schemas argument
+function createResourceRouter(
+  queries: Queries,
+  schemas: CompiledSchemas,
+  routerConfig: RouterConfig,
+) {
   const {
     validateResources,
     resources,
@@ -17,7 +26,6 @@ function createResourceRouter(queries, routerConfig: RouterConfig) {
     requestBodyInterceptor,
     responseBodyInterceptor,
     returnNullFields,
-    schemas,
   } = routerConfig
 
   const { handleGetResource } = createGetRoutes(
@@ -31,24 +39,21 @@ function createResourceRouter(queries, routerConfig: RouterConfig) {
     queries,
     requestBodyInterceptor,
     returnNullFields,
-    // TODO Only pass POST schemas, per resource
-    schemas,
+    schemas.post,
   )
 
   const { handlePut } = createPutRoutes(
     queries,
     requestBodyInterceptor,
     returnNullFields,
-    // TODO Only pass PUT schemas, per resource
-    schemas,
+    schemas.put,
   )
 
   const { handlePatch } = createPatchRoutes(
     queries,
     requestBodyInterceptor,
     returnNullFields,
-    // TODO Only pass PATCH schemas, per resource
-    schemas,
+    schemas.patch,
   )
 
   const { handleDelete } = createDeleteRoutes(queries)

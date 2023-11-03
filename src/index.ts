@@ -10,6 +10,7 @@ import { createQueries } from './queries/queries'
 import { Config, UserConfig, initConfig } from './config'
 import cors from 'cors'
 import { createDelayMiddleware } from './delay/delayMiddleware'
+import { compileAndTransformSchemas } from './schema/compile'
 
 function createServer(userConfig?: UserConfig) {
   const config = initConfig(userConfig)
@@ -44,7 +45,8 @@ function createServer(userConfig?: UserConfig) {
   }
 
   // For all other URLs, only GET, POST, PUT and DELETE are allowed and handled.
-  const resourceRouter = createResourceRouter(queries, config)
+  const schemas = compileAndTransformSchemas(config.schemas)
+  const resourceRouter = createResourceRouter(queries, schemas, config)
   const resourcePath = config.apiPrefix ? `${config.apiPrefix}*` : '*'
   app.use(resourcePath, resourceRouter)
 
