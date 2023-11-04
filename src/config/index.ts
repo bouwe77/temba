@@ -16,7 +16,7 @@ export type Config = {
   returnNullFields: boolean
   isTesting: boolean
   port: number
-  schemas: ConfiguredSchemas
+  schemas: ConfiguredSchemas | null
 }
 
 export type ConfigKey = keyof Config
@@ -110,7 +110,7 @@ export function initConfig(userConfig?: UserConfig): Config {
     Number(userConfig.delay) > 0 &&
     Number(userConfig.delay) < 100000
   ) {
-    config.delay = Number(userConfig.delay)
+    config.delay = userConfig.delay
   }
 
   if (userConfig.requestBodyInterceptor) {
@@ -143,9 +143,18 @@ export function initConfig(userConfig?: UserConfig): Config {
   }
 
   // TODO hier gebruik ik duplicate default values, dus if er omheen
-  config.returnNullFields = userConfig.returnNullFields ?? true
-  config.isTesting = userConfig.isTesting ?? false
-  config.port = userConfig.port ?? 3000
+
+  if (!isUndefined(userConfig.returnNullFields)) {
+    config.returnNullFields = userConfig.returnNullFields
+  }
+
+  if (!isUndefined(userConfig.isTesting)) {
+    config.isTesting = userConfig.isTesting
+  }
+
+  if (!isUndefined(userConfig.port)) {
+    config.port = userConfig.port
+  }
 
   if (userConfig.schemas) {
     config.schemas = userConfig.schemas
@@ -153,3 +162,5 @@ export function initConfig(userConfig?: UserConfig): Config {
 
   return config
 }
+
+export const isUndefined = (value: unknown): value is undefined => typeof value === 'undefined'
