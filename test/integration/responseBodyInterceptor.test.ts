@@ -9,7 +9,7 @@ describe('responseBodyInterceptor unusual (but allowed) implementations', () => 
     async (returnValue) => {
       const tembaServer = createServer({
         responseBodyInterceptor: () => {
-          //do not return anyhting when returnValue is undefeind
+          //do not return anything when returnValue is undefined
           if (typeof returnValue !== 'undefined') return returnValue
         },
       } as unknown as Config)
