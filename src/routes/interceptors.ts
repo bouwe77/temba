@@ -1,24 +1,25 @@
 import { ExtendedRequest, RequestBodyInterceptorCallback } from './types'
 
-function interceptRequestBody(
-  intercept: RequestBodyInterceptorCallback,
-  req: ExtendedRequest,
-): string | unknown {
-  const { resource } = req.requestInfo
-  let body = req.body
+//TODO rename this file
 
-  const validationResult = intercept({ resource, body })
+function interceptRequestBody(intercept: RequestBodyInterceptorCallback, req: ExtendedRequest) {
+  const {
+    body,
+    requestInfo: { resource },
+  } = req
 
-  if (!validationResult && typeof body === 'object') return body
+  const intercepted = intercept({ resource, body })
 
-  if (typeof validationResult === 'string') return validationResult
+  if (!intercepted && typeof body === 'object') return body
 
-  // The request body was replaced by something else.
-  if (validationResult) body = validationResult
+  if (typeof intercepted === 'string') return intercepted
 
-  if (typeof body === 'object') {
-    return body
-  } else return req.body
+  // The request body was replaced by an object
+  if (intercepted && typeof body === 'object') return intercepted
+
+  // The request body was replaced by something else than an object or a string.
+  // This is not supported, so we return the original request body.
+  return body
 }
 
 export { interceptRequestBody }

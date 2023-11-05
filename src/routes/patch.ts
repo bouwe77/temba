@@ -33,8 +33,7 @@ function createPatchRoutes(
           message: `ID '${id}' not found`,
         })
 
-      const bodyWithId = typeof body === 'object' ? { ...body, id } : { data: body, id }
-      item = { ...item, ...bodyWithId, id }
+      item = { ...item, ...body, id }
 
       const updatedItem = await queries.update(resource, item)
 

@@ -33,7 +33,7 @@ function createPutRoutes(
           message: `ID '${id}' not found`,
         })
 
-      item = typeof body === 'object' ? { ...body, id } : { data: body, id }
+      item = { ...body, id }
 
       const replacedItem = await queries.replace(resource, item)
 
