@@ -1,5 +1,5 @@
 import { initConfig } from '../../../src/config'
-import type { Config, ConfigKey, UserConfig } from '../../../src/config'
+import type { Config, ConfigKey } from '../../../src/config'
 import express from 'express'
 
 const assertDefaultConfig = (config: Config, skip?: ConfigKey[]) => {

@@ -4,9 +4,9 @@ import createServer from '../createServer'
 
 describe('requestBodyInterceptors that return nothing (void) to indicate nothing should be done', () => {
   const requestBodyInterceptor = {
-    post: ({ resource, body }) => {},
-    put: ({ resource, body }) => {},
-    patch: ({ resource, body }) => {},
+    post: () => {},
+    put: () => {},
+    patch: () => {},
   }
 
   const tembaServer = createServer({ requestBodyInterceptor } as unknown as Config)

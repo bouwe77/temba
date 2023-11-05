@@ -1,5 +1,3 @@
-import { Queries } from './types'
-
 const data = {}
 
 function connectToDatabase() {
