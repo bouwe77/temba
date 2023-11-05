@@ -142,8 +142,6 @@ export function initConfig(userConfig?: UserConfig): Config {
     config.customRouter = userConfig.customRouter
   }
 
-  // TODO hier gebruik ik duplicate default values, dus if er omheen
-
   if (!isUndefined(userConfig.returnNullFields)) {
     config.returnNullFields = userConfig.returnNullFields
   }
