@@ -117,7 +117,7 @@ Temba supports JSON only.
 
 Request bodies sent with a `POST`, `PATCH`, and `PUT` requests are valid when the request body is either empty, or when it's valid formatted JSON. Adding a `Content-Type: application/json` header is required. If you send a request with invalid formatted JSON, a `400 Bad Request` response is returned.
 
-Any valid formatted JSON is accepted and stored. If you want to validate or even change the JSON in the request bodies, check out [...TODO ...TODO ...TODO]() and the [`requestBodyInterceptor`](#request-body-validation-or-mutation).
+Any valid formatted JSON is accepted and stored. If you want to validate or even change the JSON in the request bodies, check out [JSON Schema request body validation](#json-schema-request-body-validation) and the [`requestBodyInterceptor`](#request-body-validation-or-mutation).
 
 IDs are auto generated when creating resources. IDs in the JSON request body are always ignored.
 
@@ -207,7 +207,7 @@ POST /movies
 
 You can even omit a request body when doing a `POST`, `PATCH`, or `PUT`. While this might be fine or even convenient when using Temba for prototyping, at some some point you might want to validate the request body.
 
-With the `schema` setting, you can define a [JSON Schema](TODOTODOTODO), per resource, and per request method. Here we define that when creating or replacing a movie, the `title` is required, the `description` is optional, and we don't allow any other fields. Updating movies has the same schema, except there are no required fields:
+With the `schema` setting, you can define a [JSON Schema](https://json-schema.org/), per resource, and per request method. Here we define that when creating or replacing a movie, the `title` is required, the `description` is optional, and we don't allow any other fields. Updating movies has the same schema, except there are no required fields:
 
 ```js
 const schemaNewMovie = {
