@@ -16,7 +16,7 @@ function createPutRoutes(
     try {
       const { resource, id } = req.requestInfo
 
-      const validationResult = validate(req.body, schemas[resource])
+      const validationResult = validate(req.body, schemas?.[resource])
       if (validationResult.isValid === false) {
         return res.status(400).json({ message: validationResult.errorMessage })
       }
@@ -33,7 +33,7 @@ function createPutRoutes(
           message: `ID '${id}' not found`,
         })
 
-      item = { ...body, id }
+      item = typeof body === 'object' ? { ...body, id } : { data: body, id }
 
       const replacedItem = await queries.replace(resource, item)
 

@@ -17,7 +17,7 @@ function createPostRoutes(
     try {
       const { resource } = req.requestInfo
 
-      const validationResult = validate(req.body, schemas[resource])
+      const validationResult = validate(req.body, schemas?.[resource])
       if (validationResult.isValid === false) {
         return res.status(400).json({ message: validationResult.errorMessage })
       }

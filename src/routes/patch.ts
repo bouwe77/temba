@@ -16,7 +16,7 @@ function createPatchRoutes(
     try {
       const { resource, id } = req.requestInfo
 
-      const validationResult = validate(req.body, schemas[resource])
+      const validationResult = validate(req.body, schemas?.[resource])
       if (validationResult.isValid === false) {
         return res.status(400).json({ message: validationResult.errorMessage })
       }
@@ -33,7 +33,8 @@ function createPatchRoutes(
           message: `ID '${id}' not found`,
         })
 
-      item = { ...item, ...body, id }
+      const bodyWithId = typeof body === 'object' ? { ...body, id } : { data: body, id }
+      item = { ...item, ...bodyWithId, id }
 
       const updatedItem = await queries.update(resource, item)
 
