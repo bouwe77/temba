@@ -19,10 +19,10 @@ export type RequestBodyInterceptor = {
   put?: RequestBodyInterceptorCallback
 }
 
-type ResponseInfo = {
+export type ResponseInfo<T extends Item | Item[]> = {
   resource: string
-  body: Item | Item[]
+  body: T
   id?: string
 }
 
-export type ResponseBodyInterceptor = (info: ResponseInfo) => unknown
+export type ResponseBodyInterceptor = (info: ResponseInfo<Item | Item[]>) => unknown
