@@ -1,14 +1,14 @@
 {
   "compilerOptions": {
-    "allowJs": true,
-    "module": "commonjs",
+    "allowJs": false,
     "esModuleInterop": true,
-    "target": "es6",
-    "moduleResolution": "node",
-    "sourceMap": true,
+    "lib": ["es2022"],
     "outDir": "dist",
+    "strict": false,
+    "sourceMap": true,
     "declaration": true,
-    "lib": ["es2022"]
+    "rootDir": "src"
   },
-  "include": ["src"],
+  "include": ["src/**/*.ts"]
 }
+
