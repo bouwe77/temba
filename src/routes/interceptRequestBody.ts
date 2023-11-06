@@ -1,7 +1,5 @@
 import { ExtendedRequest, RequestBodyInterceptorCallback } from './types'
 
-//TODO rename this file
-
 function interceptRequestBody(intercept: RequestBodyInterceptorCallback, req: ExtendedRequest) {
   const {
     body,

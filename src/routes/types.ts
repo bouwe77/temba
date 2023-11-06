@@ -1,7 +1,7 @@
 import { Request } from 'express'
 import { Item } from '../queries/types'
 
-export interface ExtendedRequest extends Request {
+export type ExtendedRequest = Request & {
   requestInfo: RequestInfo
 }
 

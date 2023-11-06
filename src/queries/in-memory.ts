@@ -1,4 +1,6 @@
-const data = {}
+import { Item } from './types'
+
+const data: { [key: string]: Item[] } = {}
 
 function connectToDatabase() {
   return new Promise<void>((resolve) => {
@@ -6,7 +8,7 @@ function connectToDatabase() {
   })
 }
 
-function getAll(resource) {
+function getAll(resource: string) {
   createResourceArrayIfNecessary(resource)
 
   return new Promise<unknown[]>((resolve) => {
@@ -14,7 +16,7 @@ function getAll(resource) {
   })
 }
 
-function getById(resource, id) {
+function getById(resource: string, id: string) {
   createResourceArrayIfNecessary(resource)
 
   return new Promise((resolve) => {
@@ -22,7 +24,7 @@ function getById(resource, id) {
   })
 }
 
-function create(resource, item) {
+function create(resource: string, item: Item) {
   createResourceArrayIfNecessary(resource)
 
   const newItem = { ...item, id: String(new Date().getTime()) }
@@ -34,7 +36,7 @@ function create(resource, item) {
   })
 }
 
-function update(resource, item) {
+function update(resource: string, item: Item) {
   createResourceArrayIfNecessary(resource)
 
   const updatedItem = { ...item }
@@ -44,11 +46,11 @@ function update(resource, item) {
   })
 }
 
-function replace(resource, item) {
+function replace(resource: string, item: Item) {
   return update(resource, item)
 }
 
-function deleteById(resource, id) {
+function deleteById(resource: string, id: string) {
   createResourceArrayIfNecessary(resource)
 
   data[resource] = data[resource].filter((item) => item.id !== id)
@@ -57,7 +59,7 @@ function deleteById(resource, id) {
   })
 }
 
-function deleteAll(resource) {
+function deleteAll(resource: string) {
   createResourceArrayIfNecessary(resource)
 
   data[resource] = []
@@ -66,8 +68,8 @@ function deleteAll(resource) {
   })
 }
 
-function createResourceArrayIfNecessary(resource) {
-  if (!data.hasOwnProperty(resource)) data[resource] = []
+function createResourceArrayIfNecessary(resource: string) {
+  if (!Object.hasOwn(data, resource)) data[resource] = []
 }
 
 export default {

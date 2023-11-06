@@ -1,4 +1,4 @@
-import { interceptRequestBody } from './interceptors'
+import { interceptRequestBody } from './interceptRequestBody'
 import { validate } from '../schema/validate'
 import { removeNullFields } from './utils'
 import { ValidateFunctionPerResource } from '../schema/types'

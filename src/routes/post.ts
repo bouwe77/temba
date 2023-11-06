@@ -1,5 +1,5 @@
 import { format } from 'url'
-import { interceptRequestBody } from './interceptors'
+import { interceptRequestBody } from './interceptRequestBody'
 import { removeNullFields } from './utils'
 import { validate } from '../schema/validate'
 import { ValidateFunctionPerResource } from '../schema/types'
