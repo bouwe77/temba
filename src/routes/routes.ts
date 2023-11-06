@@ -6,7 +6,7 @@ import { createDeleteRoutes } from './delete'
 import { createValidateResourceMiddleware, createResourceAndIdParser } from '../urls/urlMiddleware'
 
 import express from 'express'
-import { RouterConfig } from '../config'
+import type { RouterConfig } from '../config'
 
 function createResourceRouter(queries, routerConfig: RouterConfig) {
   const {
