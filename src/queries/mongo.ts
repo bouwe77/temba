@@ -1,5 +1,4 @@
 import { connect } from '@rakered/mongo'
-import { Item } from './types'
 
 let uri
 let db
@@ -32,7 +31,7 @@ async function connectToDatabase() {
   }
 }
 
-async function getAll(resource: string) {
+async function getAll(resource) {
   await connectToDatabase()
 
   const items = await db[resource].find({})
@@ -42,7 +41,7 @@ async function getAll(resource: string) {
   return items.map((item) => removeUnderscoreFromId(item))
 }
 
-async function getById(resource: string, id: string) {
+async function getById(resource, id) {
   await connectToDatabase()
 
   const item = await db[resource].findOne({ _id: id })
@@ -52,7 +51,7 @@ async function getById(resource: string, id: string) {
   return removeUnderscoreFromId(item)
 }
 
-async function create(resource: string, item: Item) {
+async function create(resource, item) {
   await connectToDatabase()
 
   const createdItem = await db[resource].insertOne(item)
@@ -60,7 +59,7 @@ async function create(resource: string, item: Item) {
   return removeUnderscoreFromId(createdItem.ops[0])
 }
 
-async function update(resource: string, item: Item) {
+async function update(resource, item) {
   await connectToDatabase()
 
   const id = item.id
@@ -75,7 +74,7 @@ async function update(resource: string, item: Item) {
   return removeUnderscoreFromId(updatedItem.value)
 }
 
-async function replace(resource: string, item: Item) {
+async function replace(resource, item) {
   await connectToDatabase()
 
   const id = item.id
@@ -88,25 +87,20 @@ async function replace(resource: string, item: Item) {
   return removeUnderscoreFromId(replacedItem.value)
 }
 
-async function deleteById(resource: string, id: string) {
+async function deleteById(resource, id) {
   await connectToDatabase()
 
   await db[resource].deleteOne({ _id: id })
 }
 
-async function deleteAll(resource: string) {
+async function deleteAll(resource) {
   await connectToDatabase()
 
   await db[resource].deleteMany({})
 }
 
-type Piet = {
-  _id: string
-  id: string
-}
-
-function removeUnderscoreFromId(item: Piet) {
+function removeUnderscoreFromId(item) {
   const updatedItem = { ...item, id: item._id }
   delete updatedItem._id
-  return updatedItem as unknown
+  return updatedItem
 }
