@@ -26,3 +26,10 @@ export type ResponseInfo<T extends Item | Item[]> = {
 }
 
 export type ResponseBodyInterceptor = (info: ResponseInfo<Item | Item[]>) => unknown
+
+export type Request = {
+  requestInfo: RequestInfo
+  body: unknown
+  protocol: string
+  host: string
+}

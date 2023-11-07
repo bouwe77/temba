@@ -21,7 +21,7 @@ function createPutRoutes(
         return res.status(400).json({ message: validationResult.errorMessage })
       }
 
-      const body = interceptRequestBody(requestBodyInterceptor.put, req)
+      const body = interceptRequestBody(requestBodyInterceptor.put, resource, req.body)
 
       if (typeof body === 'string') return res.status(400).json({ message: body }).send()
 

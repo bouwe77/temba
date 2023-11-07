@@ -21,7 +21,7 @@ function createPatchRoutes(
         return res.status(400).json({ message: validationResult.errorMessage })
       }
 
-      const body = interceptRequestBody(requestBodyInterceptor.patch, req)
+      const body = interceptRequestBody(requestBodyInterceptor.patch, resource, req.body)
 
       if (typeof body === 'string') return res.status(400).json({ message: body }).send()
 

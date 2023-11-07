@@ -3,7 +3,7 @@ import { interceptRequestBody } from './interceptRequestBody'
 import { removeNullFields } from './utils'
 import { validate } from '../schema/validate'
 import { ValidateFunctionPerResource } from '../schema/types'
-import { ExtendedRequest, RequestBodyInterceptor } from './types'
+import { Request, RequestBodyInterceptor } from './types'
 import { Queries } from '../queries/types'
 import { Response } from 'express'
 
@@ -13,7 +13,7 @@ function createPostRoutes(
   returnNullFields: boolean,
   schemas: ValidateFunctionPerResource,
 ) {
-  async function handlePost(req: ExtendedRequest, res: Response) {
+  async function handlePost(req: Request, res: Response) {
     try {
       const { resource } = req.requestInfo
 
@@ -22,7 +22,7 @@ function createPostRoutes(
         return res.status(400).json({ message: validationResult.errorMessage })
       }
 
-      const body = interceptRequestBody(requestBodyInterceptor.post, req)
+      const body = interceptRequestBody(requestBodyInterceptor.post, resource, req.body)
 
       if (typeof body === 'string') return res.status(400).json({ message: body }).send()
 
@@ -32,7 +32,7 @@ function createPostRoutes(
         .set({
           Location: format({
             protocol: req.protocol,
-            host: req.get('host'),
+            host: req.host,
             pathname: `${resource}/${newItem.id}`,
           }),
         })

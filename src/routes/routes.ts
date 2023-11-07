@@ -8,6 +8,7 @@ import { createValidateResourceMiddleware, createResourceAndIdParser } from '../
 import { RouterConfig } from '../config'
 import { CompiledSchemas } from '../schema/types'
 import { Queries } from '../queries/types'
+import { ExtendedRequest } from './types'
 
 function createResourceRouter(
   queries: Queries,
@@ -62,7 +63,15 @@ function createResourceRouter(
   resourceRouter
     // The router.get() function automatically handles HEAD requests as well, unless router.head is called first.
     .get('*', getResourceAndId, validateResource, handleGet)
-    .post('*', getResourceAndId, validateResource, handlePost)
+    .post('*', getResourceAndId, validateResource, (req: ExtendedRequest, res) => {
+      const request = {
+        requestInfo: req.requestInfo,
+        body: req.body,
+        protocol: req.protocol,
+        host: req.get('host'),
+      }
+      handlePost(request, res)
+    })
     .put('*', getResourceAndId, validateResource, handlePut)
     .patch('*', getResourceAndId, validateResource, handlePatch)
     .delete('*', getResourceAndId, validateResource, handleDelete)
