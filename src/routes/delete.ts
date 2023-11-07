@@ -1,5 +1,9 @@
-function createDeleteRoutes(queries) {
-  async function handleDelete(req, res) {
+import { Response } from 'express'
+import { Queries } from '../queries/types'
+import { ExtendedRequest } from './types'
+
+function createDeleteRoutes(queries: Queries) {
+  async function handleDelete(req: ExtendedRequest, res: Response) {
     try {
       const { resource, id } = req.requestInfo
 

@@ -1,14 +1,19 @@
+import express from 'express'
 import { createGetRoutes } from './get'
 import { createPostRoutes } from './post'
 import { createPutRoutes } from './put'
 import { createPatchRoutes } from './patch'
 import { createDeleteRoutes } from './delete'
 import { createValidateResourceMiddleware, createResourceAndIdParser } from '../urls/urlMiddleware'
-
-import express from 'express'
 import { RouterConfig } from '../config'
+import { CompiledSchemas } from '../schema/types'
+import { Queries } from '../queries/types'
 
-function createResourceRouter(queries, routerConfig: RouterConfig) {
+function createResourceRouter(
+  queries: Queries,
+  schemas: CompiledSchemas,
+  routerConfig: RouterConfig,
+) {
   const {
     validateResources,
     resources,
@@ -25,9 +30,28 @@ function createResourceRouter(queries, routerConfig: RouterConfig) {
     responseBodyInterceptor,
     returnNullFields,
   )
-  const { handlePost } = createPostRoutes(queries, requestBodyInterceptor, returnNullFields)
-  const { handlePut } = createPutRoutes(queries, requestBodyInterceptor, returnNullFields)
-  const { handlePatch } = createPatchRoutes(queries, requestBodyInterceptor, returnNullFields)
+
+  const { handlePost } = createPostRoutes(
+    queries,
+    requestBodyInterceptor,
+    returnNullFields,
+    schemas.post,
+  )
+
+  const { handlePut } = createPutRoutes(
+    queries,
+    requestBodyInterceptor,
+    returnNullFields,
+    schemas.put,
+  )
+
+  const { handlePatch } = createPatchRoutes(
+    queries,
+    requestBodyInterceptor,
+    returnNullFields,
+    schemas.patch,
+  )
+
   const { handleDelete } = createDeleteRoutes(queries)
 
   const validateResource = createValidateResourceMiddleware(validateResources, resources)

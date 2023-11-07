@@ -1,11 +1,26 @@
 import { format } from 'url'
-import { interceptRequestBody } from './interceptors'
+import { interceptRequestBody } from './interceptRequestBody'
 import { removeNullFields } from './utils'
+import { validate } from '../schema/validate'
+import { ValidateFunctionPerResource } from '../schema/types'
+import { ExtendedRequest, RequestBodyInterceptor } from './types'
+import { Queries } from '../queries/types'
+import { Response } from 'express'
 
-function createPostRoutes(queries, requestBodyInterceptor, returnNullFields) {
-  async function handlePost(req, res) {
+function createPostRoutes(
+  queries: Queries,
+  requestBodyInterceptor: RequestBodyInterceptor,
+  returnNullFields: boolean,
+  schemas: ValidateFunctionPerResource,
+) {
+  async function handlePost(req: ExtendedRequest, res: Response) {
     try {
       const { resource } = req.requestInfo
+
+      const validationResult = validate(req.body, schemas?.[resource])
+      if (validationResult.isValid === false) {
+        return res.status(400).json({ message: validationResult.errorMessage })
+      }
 
       const body = interceptRequestBody(requestBodyInterceptor.post, req)
 

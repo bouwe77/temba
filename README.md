@@ -117,9 +117,9 @@ Temba supports JSON only.
 
 Request bodies sent with a `POST`, `PATCH`, and `PUT` requests are valid when the request body is either empty, or when it's valid formatted JSON. Adding a `Content-Type: application/json` header is required. If you send a request with invalid formatted JSON, a `400 Bad Request` response is returned.
 
-Any valid formatted JSON is accepted and stored. If you want to validate or even change the JSON in the request bodies, check out the [`requestBodyInterceptor`](#request-body-validation-or-mutation) callbacks.
+Any valid formatted JSON is accepted and stored. If you want to validate or even change the JSON in the request bodies, check out [JSON Schema request body validation](#json-schema-request-body-validation) and the [`requestBodyInterceptor`](#request-body-validation-or-mutation).
 
-IDs are auto generated when creating resources. IDs in the JSON request body are ignored for any request.
+IDs are auto generated when creating resources. IDs in the JSON request body are always ignored.
 
 ## Usage
 
@@ -151,7 +151,7 @@ Requests on these resources only give a `404 Not Found` if the ID does not exist
 
 ### Static assets
 
-If you want to host static assets, next to the API, configure the `staticFolder`:
+If you want to host static assets, for example next to the API, a web app consuming it, you can configure a `staticFolder`:
 
 ```js
 const config = {
@@ -161,8 +161,6 @@ const server = temba.create(config)
 ```
 
 With this setting, sending a `GET` request to the root URL, returns the content that is in the `'./build'` folder in your project.
-
-This way, you could create an API, and the web app consuming it, in one project.
 
 Without configuring a `staticFolder`, a `GET` to the root URL returns `"It works! ツ"`. When the `staticFolder` is configured, it returns whatever is in the `build` folder in your project, for example an HTML page.
 
@@ -187,9 +185,9 @@ After configuring the `apiPrefix`, requests to the root URL (e.g. http://localho
 
 However, if you configured both an `apiPrefix` and a `staticFolder`, a `GET` on the root URL will return the content in the `staticFolder`.
 
-### Request body validation or mutation
+### JSON Schema request body validation
 
-Temba does not validate request bodies.
+By default, Temba does not validate request bodies.
 
 This means you can store your resources in any format you like. So creating the following two (very different) _movies_ is perfectly fine:
 
@@ -207,7 +205,43 @@ POST /movies
 }
 ```
 
-You can even omit a request body when doing a `POST`, `PATCH`, or `PUT`. If you don't want that, and want to have proper validation, use the `requestBodyInterceptor` config setting:
+You can even omit a request body when doing a `POST`, `PATCH`, or `PUT`. While this might be fine or even convenient when using Temba for prototyping, at some some point you might want to validate the request body.
+
+With the `schema` setting, you can define a [JSON Schema](https://json-schema.org/), per resource, and per request method. Here we define that when creating or replacing a movie, the `title` is required, the `description` is optional, and we don't allow any other fields. Updating movies has the same schema, except there are no required fields:
+
+```js
+const schemaNewMovie = {
+  type: 'object',
+  properties: {
+    title: { type: 'string' },
+    description: { type: 'string' },
+  },
+  required: ['title'],
+  additionalProperties: false,
+}
+
+const schemaUpdateMovie = { ...schemaNewMovie, required: [] }
+
+const config = {
+  schema: {
+    movies: {
+      post: schemaNewMovie,
+      put: schemaNewMovie,
+      patch: schemaUpdateMovie,
+    },
+  },
+}
+
+const server = temba.create(config)
+```
+
+If a request is not valid according to the schema, a `400 Bad Request` response is returned, and a message in the response body indicating the validation error.
+
+### Intercepting requests
+
+In addition to (or instead of) validating the request using JSON Schema, you can also intercept the request body before it goes to the database, using the `requestBodyInterceptor` setting.
+
+It allows you to implement your own validation, or even change the request body.
 
 ```js
 const config = {

@@ -3,7 +3,7 @@ import { connect } from '@rakered/mongo'
 let uri
 let db
 
-export default function createMongoQueries(connectionString) {
+export default function createMongoQueries(connectionString: string) {
   uri = connectionString
 
   return {

@@ -1,10 +1,25 @@
-import { interceptRequestBody } from './interceptors'
+import { interceptRequestBody } from './interceptRequestBody'
+import { validate } from '../schema/validate'
 import { removeNullFields } from './utils'
+import { ValidateFunctionPerResource } from '../schema/types'
+import { ExtendedRequest, RequestBodyInterceptor } from './types'
+import { Queries } from '../queries/types'
+import { Response } from 'express'
 
-function createPatchRoutes(queries, requestBodyInterceptor, returnNullFields) {
-  async function handlePatch(req, res) {
+function createPatchRoutes(
+  queries: Queries,
+  requestBodyInterceptor: RequestBodyInterceptor,
+  returnNullFields: boolean,
+  schemas: ValidateFunctionPerResource,
+) {
+  async function handlePatch(req: ExtendedRequest, res: Response) {
     try {
       const { resource, id } = req.requestInfo
+
+      const validationResult = validate(req.body, schemas?.[resource])
+      if (validationResult.isValid === false) {
+        return res.status(400).json({ message: validationResult.errorMessage })
+      }
 
       const body = interceptRequestBody(requestBodyInterceptor.patch, req)
 

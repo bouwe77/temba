@@ -1,6 +1,14 @@
+import { Request } from 'express'
+import { Item } from '../queries/types'
+
+export type ExtendedRequest = Request & {
+  requestInfo: RequestInfo
+}
+
 type RequestInfo = {
   resource: string
   body: unknown
+  id?: string
 }
 
 export type RequestBodyInterceptorCallback = (info: RequestInfo) => void | string | object
@@ -11,10 +19,10 @@ export type RequestBodyInterceptor = {
   put?: RequestBodyInterceptorCallback
 }
 
-type ResponseInfo = {
+export type ResponseInfo<T extends Item | Item[]> = {
   resource: string
-  body: unknown
+  body: T
   id?: string
 }
 
-export type ResponseBodyInterceptor = (info: ResponseInfo) => unknown
+export type ResponseBodyInterceptor = (info: ResponseInfo<Item | Item[]>) => unknown

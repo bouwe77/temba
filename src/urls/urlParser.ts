@@ -1,4 +1,4 @@
-function parseUrl(url) {
+function parseUrl(url: string) {
   if (!url || (url && !url.trim())) return { resource: null, id: null }
 
   const urlSegments = url.split('/').filter((i) => i)
