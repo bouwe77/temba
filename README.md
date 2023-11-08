@@ -277,7 +277,7 @@ Example:
 const config = {
   requestBodyInterceptor: {
     post: ({ resource, body }) => {
-      // Do not allow Pokemons to be created: 400 Bad Req best
+      // Do not allow Pokemons to be created: 400 Bad Request
       if (resource === 'pokemons') return 'You are not allowed to create new Pokemons'
 
       // Add a genre to Star Trek films:
@@ -424,6 +424,17 @@ const config = {
     // Change the response body before it is sent to the client
   },
   returnNullFields: false,
+  schema: {
+    movies: {
+      post: {
+        type: 'object',
+        properties: {
+          title: { type: 'string' },
+        },
+        required: ['title'],
+      },
+    },
+  },
   staticFolder: 'build',
 }
 const server = temba.create(config)
@@ -443,6 +454,7 @@ These are all the possible settings:
 | `resources`               | See [Allowing specific resources only](#allowing-specific-resources-only)                  | `[]`          |
 | `responseBodyInterceptor` | See [Response body interception](#request-body-validation-or-mutation)                     | `noop`        |
 | `returnNullFields`        | Whether fields with a `null` value should be returned in responses.                        | `true`        |
+| `schema`                  | See [JSON Schema request body validation](#json-schema-request-body-validation)                                                                                         | `null`        |
 | `staticFolder`            | See [Static assets](#static-assets)                                                        | `null`        |
 
 ## Roadmap
