@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { Response } from 'express'
 import { createGetRoutes } from './get'
 import { createPostRoutes } from './post'
 import { createPutRoutes } from './put'
@@ -8,7 +8,7 @@ import { createValidateResourceMiddleware, createResourceAndIdParser } from '../
 import { RouterConfig } from '../config'
 import { CompiledSchemas } from '../schema/types'
 import { Queries } from '../queries/types'
-import { ExtendedRequest } from './types'
+import { ExtendedRequest, TembaResponse, TembaRequest } from './types'
 
 function createResourceRouter(
   queries: Queries,
@@ -60,18 +60,31 @@ function createResourceRouter(
 
   const resourceRouter = express.Router()
 
-  resourceRouter
-    // The router.get() function automatically handles HEAD requests as well, unless router.head is called first.
-    .get('*', getResourceAndId, validateResource, handleGet)
-    .post('*', getResourceAndId, validateResource, (req: ExtendedRequest, res) => {
+  const createRequestHandler = (handleRequest: (req: TembaRequest) => Promise<TembaResponse>) => {
+    return async (req: ExtendedRequest, res: Response) => {
       const request = {
         requestInfo: req.requestInfo,
         body: req.body,
         protocol: req.protocol,
         host: req.get('host'),
       }
-      handlePost(request, res)
-    })
+
+      const myResponse = await handleRequest(request)
+
+      res.status(myResponse.status)
+
+      for (const [key, value] of Object.entries(myResponse.headers)) {
+        res.set(key, value)
+      }
+
+      res.send(myResponse.body)
+    }
+  }
+
+  resourceRouter
+    // The router.get() function automatically handles HEAD requests as well, unless router.head is called first.
+    .get('*', getResourceAndId, validateResource, handleGet)
+    .post('*', getResourceAndId, validateResource, createRequestHandler(handlePost))
     .put('*', getResourceAndId, validateResource, handlePut)
     .patch('*', getResourceAndId, validateResource, handlePatch)
     .delete('*', getResourceAndId, validateResource, handleDelete)

@@ -1,7 +1,7 @@
-import { Request } from 'express'
+import { Request as ExpressRequest } from 'express'
 import { Item } from '../queries/types'
 
-export type ExtendedRequest = Request & {
+export type ExtendedRequest = ExpressRequest & {
   requestInfo: RequestInfo
 }
 
@@ -27,9 +27,15 @@ export type ResponseInfo<T extends Item | Item[]> = {
 
 export type ResponseBodyInterceptor = (info: ResponseInfo<Item | Item[]>) => unknown
 
-export type Request = {
+export type TembaRequest = {
   requestInfo: RequestInfo
   body: unknown
   protocol: string
   host: string
+}
+
+export type TembaResponse = {
+  status: number
+  body?: unknown
+  headers?: Record<string, string>
 }
