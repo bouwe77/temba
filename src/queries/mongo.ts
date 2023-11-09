@@ -1,4 +1,5 @@
 import { connect } from '@rakered/mongo'
+import { Item, ItemWithoutId, Queries } from './types'
 
 let uri
 let db
@@ -6,7 +7,7 @@ let db
 export default function createMongoQueries(connectionString: string) {
   uri = connectionString
 
-  return {
+  const mongoQueries: Queries = {
     connectToDatabase,
     getAll,
     getById,
@@ -16,6 +17,8 @@ export default function createMongoQueries(connectionString: string) {
     deleteById,
     deleteAll,
   }
+
+  return mongoQueries
 }
 
 async function connectToDatabase() {
@@ -31,7 +34,7 @@ async function connectToDatabase() {
   }
 }
 
-async function getAll(resource) {
+async function getAll(resource: string) {
   await connectToDatabase()
 
   const items = await db[resource].find({})
@@ -41,7 +44,7 @@ async function getAll(resource) {
   return items.map((item) => removeUnderscoreFromId(item))
 }
 
-async function getById(resource, id) {
+async function getById(resource: string, id: string) {
   await connectToDatabase()
 
   const item = await db[resource].findOne({ _id: id })
@@ -51,7 +54,7 @@ async function getById(resource, id) {
   return removeUnderscoreFromId(item)
 }
 
-async function create(resource, item) {
+async function create(resource: string, item: ItemWithoutId) {
   await connectToDatabase()
 
   const createdItem = await db[resource].insertOne(item)
@@ -59,7 +62,7 @@ async function create(resource, item) {
   return removeUnderscoreFromId(createdItem.ops[0])
 }
 
-async function update(resource, item) {
+async function update(resource: string, item: Item) {
   await connectToDatabase()
 
   const id = item.id
@@ -74,7 +77,7 @@ async function update(resource, item) {
   return removeUnderscoreFromId(updatedItem.value)
 }
 
-async function replace(resource, item) {
+async function replace(resource: string, item: Item) {
   await connectToDatabase()
 
   const id = item.id
@@ -87,20 +90,24 @@ async function replace(resource, item) {
   return removeUnderscoreFromId(replacedItem.value)
 }
 
-async function deleteById(resource, id) {
+async function deleteById(resource: string, id: string) {
   await connectToDatabase()
 
   await db[resource].deleteOne({ _id: id })
 }
 
-async function deleteAll(resource) {
+async function deleteAll(resource: string) {
   await connectToDatabase()
 
   await db[resource].deleteMany({})
 }
 
-function removeUnderscoreFromId(item) {
-  const updatedItem = { ...item, id: item._id }
-  delete updatedItem._id
-  return updatedItem
+type MongoItem = {
+  _id: string
+  [key: string]: unknown
+}
+
+function removeUnderscoreFromId(item: MongoItem) {
+  const { _id, ...updatedItem } = item
+  return updatedItem as Item
 }
