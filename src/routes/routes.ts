@@ -73,11 +73,15 @@ function createResourceRouter(
 
       res.status(tembaResponse.status)
 
-      for (const [key, value] of Object.entries(tembaResponse.headers)) {
-        res.set(key, value)
+      if (tembaResponse.headers) {
+        for (const [key, value] of Object.entries(tembaResponse.headers)) {
+          res.set(key, value)
+        }
       }
 
-      res.send(tembaResponse.body)
+      res.json(tembaResponse.body)
+
+      res.end()
     }
   }
 
@@ -85,9 +89,9 @@ function createResourceRouter(
     // The router.get() function automatically handles HEAD requests as well, unless router.head is called first.
     .get('*', getResourceAndId, validateResource, createRequestHandler(handleGet))
     .post('*', getResourceAndId, validateResource, createRequestHandler(handlePost))
-    .put('*', getResourceAndId, validateResource, handlePut)
-    .patch('*', getResourceAndId, validateResource, handlePatch)
-    .delete('*', getResourceAndId, validateResource, handleDelete)
+    .put('*', getResourceAndId, validateResource, createRequestHandler(handlePut))
+    .patch('*', getResourceAndId, validateResource, createRequestHandler(handlePatch))
+    .delete('*', getResourceAndId, validateResource, createRequestHandler(handleDelete))
 
   return resourceRouter
 }

@@ -1,9 +1,8 @@
-import { Response } from 'express'
 import { Queries } from '../queries/types'
-import { ExtendedRequest } from './types'
+import { TembaRequest } from './types'
 
 function createDeleteRoutes(queries: Queries) {
-  async function handleDelete(req: ExtendedRequest, res: Response) {
+  async function handleDelete(req: TembaRequest) {
     try {
       const { resource, id } = req.requestInfo
 
@@ -15,11 +14,11 @@ function createDeleteRoutes(queries: Queries) {
       } else {
         await queries.deleteAll(resource)
       }
-    } catch (error: unknown) {
-      return res.status(500).json({ message: (error as Error).message })
-    }
 
-    return res.status(204).send()
+      return { status: 204 }
+    } catch (error: unknown) {
+      return { status: 500, body: { message: (error as Error).message } }
+    }
   }
 
   return {
