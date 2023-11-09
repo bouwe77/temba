@@ -1,6 +1,5 @@
-import { Response } from 'express'
 import { Item, Queries } from '../queries/types'
-import { ExtendedRequest, ResponseBodyInterceptor, ResponseInfo } from './types'
+import { ResponseBodyInterceptor, ResponseInfo, TembaRequest } from './types'
 import { removeNullFields } from './utils'
 
 const intercept = (interceptor: ResponseBodyInterceptor, info: ResponseInfo<Item | Item[]>) => {
@@ -17,60 +16,53 @@ function createGetRoutes(
   responseBodyInterceptor: ResponseBodyInterceptor,
   returnNullFields: boolean,
 ) {
-  async function handleGet(req: ExtendedRequest, res: Response) {
+  async function handleGet(req: TembaRequest) {
     try {
       const { resource, id } = req.requestInfo
 
-      res.set('Cache-control', cacheControl)
+      const defaultResponse = { headers: { 'Cache-control': cacheControl } }
 
       if (id) {
         const item = await queries.getById(resource, id)
 
         if (!item) {
-          res.status(404)
-          return res.send()
+          return { ...defaultResponse, status: 404 }
         }
 
         const theItem = intercept(responseBodyInterceptor, { resource, body: item, id })
 
-        res.status(200)
-
-        if (returnNullFields) {
-          res.json(theItem)
-        } else {
+        let body = theItem
+        if (!returnNullFields) {
           if (Array.isArray(theItem)) {
-            res.json(theItem.map((item) => removeNullFields(item)))
+            body = theItem.map((item) => removeNullFields(item))
           } else if (typeof theItem === 'object') {
-            res.json(removeNullFields(theItem))
+            body = removeNullFields(theItem)
           } else {
-            res.json(theItem)
+            body = theItem
           }
         }
 
-        return res.send()
+        return { ...defaultResponse, status: 200, body }
       }
 
       const items = await queries.getAll(resource)
 
       const theItems = intercept(responseBodyInterceptor, { resource, body: items })
 
-      res.status(200)
-
-      if (returnNullFields) {
-        res.json(theItems)
-      } else {
+      let body = theItems
+      if (!returnNullFields) {
         if (Array.isArray(theItems)) {
-          res.json(theItems.map((item) => removeNullFields(item)))
+          body = theItems.map((item) => removeNullFields(item))
         } else if (typeof theItems === 'object') {
-          res.json(removeNullFields(theItems))
+          body = removeNullFields(theItems)
         } else {
-          res.json(theItems)
+          body = theItems
         }
       }
 
-      return res.send()
+      return { ...defaultResponse, status: 200, body }
     } catch (error: unknown) {
-      return res.status(500).json({ message: (error as Error).message })
+      return { status: 500, body: { message: (error as Error).message } }
     }
   }
 
