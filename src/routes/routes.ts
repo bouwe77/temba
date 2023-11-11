@@ -60,7 +60,9 @@ function createResourceRouter(
 
   const resourceRouter = express.Router()
 
-  const createRequestHandler = (handleRequest: (req: TembaRequest) => Promise<TembaResponse>) => {
+  const createRequestHandler = (
+    handleRequest: (tembaRequest: TembaRequest) => Promise<TembaResponse>,
+  ) => {
     return async (req: ExtendedRequest, res: Response) => {
       const request = {
         requestInfo: req.requestInfo,
