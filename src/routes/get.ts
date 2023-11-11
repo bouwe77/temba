@@ -1,14 +1,6 @@
-import { Item, Queries } from '../queries/types'
-import { ResponseBodyInterceptor, ResponseInfo, TembaRequest } from './types'
+import type { Item, Queries } from '../queries/types'
+import type { ResponseBodyInterceptor, ResponseInfo, TembaRequest } from './types'
 import { removeNullFields } from './utils'
-
-const intercept = (interceptor: ResponseBodyInterceptor, info: ResponseInfo<Item | Item[]>) => {
-  if (!interceptor) return info.body
-
-  const intercepted = interceptor(info)
-
-  return intercepted ? intercepted : info.body
-}
 
 function createGetRoutes(
   queries: Queries,
@@ -16,6 +8,14 @@ function createGetRoutes(
   responseBodyInterceptor: ResponseBodyInterceptor,
   returnNullFields: boolean,
 ) {
+  const intercept = (interceptor: ResponseBodyInterceptor, info: ResponseInfo<Item | Item[]>) => {
+    if (!interceptor) return info.body
+
+    const intercepted = interceptor(info)
+
+    return intercepted ? intercepted : info.body
+  }
+
   async function handleGet(req: TembaRequest) {
     try {
       const { resource, id } = req.requestInfo

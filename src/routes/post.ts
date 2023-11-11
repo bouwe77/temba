@@ -2,9 +2,9 @@ import { format } from 'url'
 import { interceptRequestBody } from './interceptRequestBody'
 import { removeNullFields } from './utils'
 import { validate } from '../schema/validate'
-import { ValidateFunctionPerResource } from '../schema/types'
-import { TembaRequest, RequestBodyInterceptor } from './types'
-import { ItemWithoutId, Queries } from '../queries/types'
+import type { ValidateFunctionPerResource } from '../schema/types'
+import type { TembaRequest, RequestBodyInterceptor } from './types'
+import type { ItemWithoutId, Queries } from '../queries/types'
 
 function createPostRoutes(
   queries: Queries,

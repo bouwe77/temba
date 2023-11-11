@@ -1,9 +1,9 @@
 import { interceptRequestBody } from './interceptRequestBody'
 import { validate } from '../schema/validate'
 import { removeNullFields } from './utils'
-import { ValidateFunctionPerResource } from '../schema/types'
-import { RequestBodyInterceptor, TembaRequest } from './types'
-import { Queries } from '../queries/types'
+import type { ValidateFunctionPerResource } from '../schema/types'
+import type { RequestBodyInterceptor, TembaRequest } from './types'
+import type { Queries } from '../queries/types'
 
 function createPatchRoutes(
   queries: Queries,

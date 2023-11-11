@@ -1,5 +1,5 @@
-import { Queries } from '../queries/types'
-import { TembaRequest } from './types'
+import type { Queries } from '../queries/types'
+import type { TembaRequest } from './types'
 
 function createDeleteRoutes(queries: Queries) {
   async function handleDelete(req: TembaRequest) {
