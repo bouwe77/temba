@@ -26,6 +26,7 @@ function createServer(userConfig?: UserConfig) {
   // Enable CORS for all requests.
   app.use(cors({ origin: true, credentials: true }))
 
+  // Add a delay to every request, if configured.
   if (config.delay > 0) {
     const delayMiddleware = createDelayMiddleware(config.delay)
     app.use(delayMiddleware)
@@ -40,6 +41,7 @@ function createServer(userConfig?: UserConfig) {
   const rootPath = config.apiPrefix ? `${config.apiPrefix}` : '/'
   app.use(rootPath, rootRouter)
 
+  // Use a custom router, if configured.
   if (config.customRouter) {
     app.use(config.customRouter)
   }
