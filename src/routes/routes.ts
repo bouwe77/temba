@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { Response } from 'express'
 import { createGetRoutes } from './get'
 import { createPostRoutes } from './post'
 import { createPutRoutes } from './put'
@@ -8,6 +8,7 @@ import { createValidateResourceMiddleware, createResourceAndIdParser } from '../
 import { RouterConfig } from '../config'
 import { CompiledSchemas } from '../schema/types'
 import { Queries } from '../queries/types'
+import { ExtendedRequest, TembaResponse, TembaRequest } from './types'
 
 function createResourceRouter(
   queries: Queries,
@@ -59,13 +60,40 @@ function createResourceRouter(
 
   const resourceRouter = express.Router()
 
+  const createRequestHandler = (
+    handleRequest: (tembaRequest: TembaRequest) => Promise<TembaResponse>,
+  ) => {
+    return async (req: ExtendedRequest, res: Response) => {
+      const request = {
+        requestInfo: req.requestInfo,
+        body: req.body,
+        protocol: req.protocol,
+        host: req.get('host'),
+      }
+
+      const tembaResponse = await handleRequest(request)
+
+      res.status(tembaResponse.status)
+
+      if (tembaResponse.headers) {
+        for (const [key, value] of Object.entries(tembaResponse.headers)) {
+          res.set(key, value)
+        }
+      }
+
+      res.json(tembaResponse.body)
+
+      res.end()
+    }
+  }
+
   resourceRouter
     // The router.get() function automatically handles HEAD requests as well, unless router.head is called first.
-    .get('*', getResourceAndId, validateResource, handleGet)
-    .post('*', getResourceAndId, validateResource, handlePost)
-    .put('*', getResourceAndId, validateResource, handlePut)
-    .patch('*', getResourceAndId, validateResource, handlePatch)
-    .delete('*', getResourceAndId, validateResource, handleDelete)
+    .get('*', getResourceAndId, validateResource, createRequestHandler(handleGet))
+    .post('*', getResourceAndId, validateResource, createRequestHandler(handlePost))
+    .put('*', getResourceAndId, validateResource, createRequestHandler(handlePut))
+    .patch('*', getResourceAndId, validateResource, createRequestHandler(handlePatch))
+    .delete('*', getResourceAndId, validateResource, createRequestHandler(handleDelete))
 
   return resourceRouter
 }

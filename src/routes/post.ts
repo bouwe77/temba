@@ -2,10 +2,9 @@ import { format } from 'url'
 import { interceptRequestBody } from './interceptRequestBody'
 import { removeNullFields } from './utils'
 import { validate } from '../schema/validate'
-import { ValidateFunctionPerResource } from '../schema/types'
-import { ExtendedRequest, RequestBodyInterceptor } from './types'
-import { Queries } from '../queries/types'
-import { Response } from 'express'
+import type { ValidateFunctionPerResource } from '../schema/types'
+import type { TembaRequest, RequestBodyInterceptor } from './types'
+import type { ItemWithoutId, Queries } from '../queries/types'
 
 function createPostRoutes(
   queries: Queries,
@@ -13,34 +12,34 @@ function createPostRoutes(
   returnNullFields: boolean,
   schemas: ValidateFunctionPerResource,
 ) {
-  async function handlePost(req: ExtendedRequest, res: Response) {
+  async function handlePost(req: TembaRequest) {
     try {
       const { resource } = req.requestInfo
 
       const validationResult = validate(req.body, schemas?.[resource])
       if (validationResult.isValid === false) {
-        return res.status(400).json({ message: validationResult.errorMessage })
+        return { status: 400, body: { message: validationResult.errorMessage } }
       }
 
-      const body = interceptRequestBody(requestBodyInterceptor.post, req)
+      const body = interceptRequestBody(requestBodyInterceptor.post, resource, req.body)
 
-      if (typeof body === 'string') return res.status(400).json({ message: body }).send()
+      if (typeof body === 'string') return { status: 400, body: { message: body } }
 
-      const newItem = await queries.create(resource, body)
+      const newItem = await queries.create(resource, body as ItemWithoutId)
 
-      return res
-        .set({
+      return {
+        headers: {
           Location: format({
             protocol: req.protocol,
-            host: req.get('host'),
+            host: req.host,
             pathname: `${resource}/${newItem.id}`,
           }),
-        })
-        .status(201)
-        .json(returnNullFields ? newItem : removeNullFields(newItem))
-        .send()
+        },
+        status: 201,
+        body: returnNullFields ? newItem : removeNullFields(newItem),
+      }
     } catch (error: unknown) {
-      return res.status(500).json({ message: (error as Error).message })
+      return { status: 500, body: { message: (error as Error).message } }
     }
   }
 

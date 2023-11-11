@@ -1,11 +1,10 @@
-import { ExtendedRequest, RequestBodyInterceptorCallback } from './types'
+import { RequestBodyInterceptorCallback } from './types'
 
-function interceptRequestBody(intercept: RequestBodyInterceptorCallback, req: ExtendedRequest) {
-  const {
-    body,
-    requestInfo: { resource },
-  } = req
-
+function interceptRequestBody(
+  intercept: RequestBodyInterceptorCallback,
+  resource: string,
+  body: unknown,
+) {
   const intercepted = intercept({ resource, body })
 
   if (!intercepted && typeof body === 'object') return body

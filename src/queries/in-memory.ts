@@ -1,4 +1,4 @@
-import { Item } from './types'
+import { Item, ItemWithoutId, Queries } from './types'
 
 const data: { [key: string]: Item[] } = {}
 
@@ -11,7 +11,7 @@ function connectToDatabase() {
 function getAll(resource: string) {
   createResourceArrayIfNecessary(resource)
 
-  return new Promise<unknown[]>((resolve) => {
+  return new Promise<Item[]>((resolve) => {
     resolve(data[resource])
   })
 }
@@ -19,19 +19,19 @@ function getAll(resource: string) {
 function getById(resource: string, id: string) {
   createResourceArrayIfNecessary(resource)
 
-  return new Promise((resolve) => {
+  return new Promise<Item>((resolve) => {
     resolve(data[resource].find((item) => item.id === id))
   })
 }
 
-function create(resource: string, item: Item) {
+function create(resource: string, item: ItemWithoutId) {
   createResourceArrayIfNecessary(resource)
 
   const newItem = { ...item, id: String(new Date().getTime()) }
 
   data[resource] = [...data[resource], newItem]
 
-  return new Promise((resolve) => {
+  return new Promise<Item>((resolve) => {
     resolve(newItem)
   })
 }
@@ -41,7 +41,7 @@ function update(resource: string, item: Item) {
 
   const updatedItem = { ...item }
   data[resource] = [...data[resource].filter((r) => r.id !== item.id), updatedItem]
-  return new Promise((resolve) => {
+  return new Promise<Item>((resolve) => {
     resolve(updatedItem)
   })
 }
@@ -72,7 +72,7 @@ function createResourceArrayIfNecessary(resource: string) {
   if (!Object.hasOwn(data, resource)) data[resource] = []
 }
 
-export default {
+const inMemoryQueries: Queries = {
   connectToDatabase,
   getAll,
   getById,
@@ -82,3 +82,5 @@ export default {
   deleteById,
   deleteAll,
 }
+
+export default inMemoryQueries
