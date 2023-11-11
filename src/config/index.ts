@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import { RequestBodyInterceptor, ResponseBodyInterceptor } from '../routes/types'
+import { ConfiguredSchemas } from '../schema/types'
 
 export type Config = {
   validateResources: boolean
@@ -15,6 +16,7 @@ export type Config = {
   returnNullFields: boolean
   isTesting: boolean
   port: number
+  schemas: ConfiguredSchemas | null
 }
 
 export type ConfigKey = keyof Config
@@ -43,6 +45,7 @@ export type UserConfig = {
   returnNullFields?: boolean
   isTesting?: boolean
   port?: number
+  schemas?: ConfiguredSchemas
 }
 
 const defaultConfig: Config = {
@@ -71,6 +74,7 @@ const defaultConfig: Config = {
   returnNullFields: true,
   isTesting: false,
   port: 3000,
+  schemas: null,
 }
 
 export function initConfig(userConfig?: UserConfig): Config {
@@ -106,7 +110,7 @@ export function initConfig(userConfig?: UserConfig): Config {
     Number(userConfig.delay) > 0 &&
     Number(userConfig.delay) < 100000
   ) {
-    config.delay = Number(userConfig.delay)
+    config.delay = userConfig.delay
   }
 
   if (userConfig.requestBodyInterceptor) {
@@ -138,11 +142,23 @@ export function initConfig(userConfig?: UserConfig): Config {
     config.customRouter = userConfig.customRouter
   }
 
-  config.returnNullFields = userConfig.returnNullFields ?? true
+  if (!isUndefined(userConfig.returnNullFields)) {
+    config.returnNullFields = userConfig.returnNullFields
+  }
 
-  config.isTesting = userConfig.isTesting ?? false
+  if (!isUndefined(userConfig.isTesting)) {
+    config.isTesting = userConfig.isTesting
+  }
 
-  config.port = userConfig.port ?? 3000
+  if (!isUndefined(userConfig.port)) {
+    config.port = userConfig.port
+  }
+
+  if (userConfig.schemas) {
+    config.schemas = userConfig.schemas
+  }
 
   return config
 }
+
+export const isUndefined = (value: unknown): value is undefined => typeof value === 'undefined'

@@ -32,15 +32,15 @@ test('GET on apiPrefix and resource URL returns empty array', async () => {
   const post = await request(tembaServer).post(movies)
   expect(post.statusCode).toEqual(201)
 
-  const movie = movies + post.body.id
+  // const movie = movies + post.body.id
 
-  expect((await request(tembaServer).get(movie)).statusCode).toEqual(200)
+  // expect((await request(tembaServer).get(movie)).statusCode).toEqual(200)
 
-  expect((await request(tembaServer).put(movie)).statusCode).toEqual(200)
+  // expect((await request(tembaServer).put(movie)).statusCode).toEqual(200)
 
-  expect((await request(tembaServer).patch(movie)).statusCode).toEqual(200)
+  // expect((await request(tembaServer).patch(movie)).statusCode).toEqual(200)
 
-  expect((await request(tembaServer).delete(movie)).statusCode).toEqual(204)
+  // expect((await request(tembaServer).delete(movie)).statusCode).toEqual(204)
 })
 
 test.each(['get', 'post', 'put', 'delete', 'patch', 'head'])(

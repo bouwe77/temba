@@ -10,6 +10,7 @@ import { createQueries } from './queries/queries'
 import { Config, UserConfig, initConfig } from './config'
 import cors from 'cors'
 import { createDelayMiddleware } from './delay/delayMiddleware'
+import { compileAndTransformSchemas } from './schema/compile'
 
 function createServer(userConfig?: UserConfig) {
   const config = initConfig(userConfig)
@@ -25,6 +26,7 @@ function createServer(userConfig?: UserConfig) {
   // Enable CORS for all requests.
   app.use(cors({ origin: true, credentials: true }))
 
+  // Add a delay to every request, if configured.
   if (config.delay > 0) {
     const delayMiddleware = createDelayMiddleware(config.delay)
     app.use(delayMiddleware)
@@ -39,6 +41,7 @@ function createServer(userConfig?: UserConfig) {
   const rootPath = config.apiPrefix ? `${config.apiPrefix}` : '/'
   app.use(rootPath, rootRouter)
 
+  // Use a custom router, if configured.
   if (config.customRouter) {
     app.use(config.customRouter)
   }
@@ -48,7 +51,8 @@ function createServer(userConfig?: UserConfig) {
 
   // Create a router on all other URLs, for all supported methods
   const resourcePath = config.apiPrefix ? `${config.apiPrefix}*` : '*'
-  const resourceRouter = createResourceRouter(queries, config)
+  const schemas = compileAndTransformSchemas(config.schemas)
+  const resourceRouter = createResourceRouter(queries, schemas, config)
   app.use(resourcePath, resourceRouter)
 
   // In case of an API prefix, resource URLs outside of the API prefix return a 404 Not Found.

@@ -1,5 +1,5 @@
 import { initConfig } from '../../../src/config'
-import type { Config, ConfigKey, UserConfig } from '../../../src/config'
+import type { Config, ConfigKey } from '../../../src/config'
 import express from 'express'
 
 const assertDefaultConfig = (config: Config, skip?: ConfigKey[]) => {
@@ -31,6 +31,7 @@ const assertDefaultConfig = (config: Config, skip?: ConfigKey[]) => {
     returnNullFields: true,
     isTesting: false,
     port: 3000,
+    schemas: null,
   }
 
   // Do not check keys that are just containers for other keys.
@@ -91,6 +92,19 @@ test('Full user config overrides all defaults', () => {
     returnNullFields: false,
     isTesting: true,
     port: 3001,
+    schemas: {
+      stuff: {
+        post: {
+          type: 'object',
+        },
+        put: {
+          type: 'object',
+        },
+        patch: {
+          type: 'object',
+        },
+      },
+    },
   })
 
   expect(config.resources).toEqual(['movies'])
@@ -108,6 +122,7 @@ test('Full user config overrides all defaults', () => {
   expect(config.returnNullFields).toBe(false)
   expect(config.isTesting).toBe(true)
   expect(config.port).toBe(3001)
+  expect(config.schemas).not.toBeNull()
 })
 
 test('Partial user config applies those, but leaves the rest at default', () => {

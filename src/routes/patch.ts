@@ -1,33 +1,47 @@
-import { interceptRequestBody } from './interceptors'
+import { interceptRequestBody } from './interceptRequestBody'
+import { validate } from '../schema/validate'
 import { removeNullFields } from './utils'
+import type { ValidateFunctionPerResource } from '../schema/types'
+import type { RequestBodyInterceptor, TembaRequest } from './types'
+import type { Queries } from '../queries/types'
 
-function createPatchRoutes(queries, requestBodyInterceptor, returnNullFields) {
-  async function handlePatch(req, res) {
+function createPatchRoutes(
+  queries: Queries,
+  requestBodyInterceptor: RequestBodyInterceptor,
+  returnNullFields: boolean,
+  schemas: ValidateFunctionPerResource,
+) {
+  async function handlePatch(req: TembaRequest) {
     try {
       const { resource, id } = req.requestInfo
 
-      const body = interceptRequestBody(requestBodyInterceptor.patch, req)
+      const validationResult = validate(req.body, schemas?.[resource])
+      if (validationResult.isValid === false) {
+        return { status: 400, body: { message: validationResult.errorMessage } }
+      }
 
-      if (typeof body === 'string') return res.status(400).json({ message: body }).send()
+      const body = interceptRequestBody(requestBodyInterceptor.patch, resource, req.body)
+
+      if (typeof body === 'string') return { status: 400, body: { message: body } }
 
       let item = null
       if (id) item = await queries.getById(resource, id)
 
       if (!item)
-        return res.status(404).json({
-          message: `ID '${id}' not found`,
-        })
+        return {
+          status: 404,
+          body: {
+            message: `ID '${id}' not found`,
+          },
+        }
 
-      item = { ...item, ...body, id }
+      item = { ...item, ...(body as object), id }
 
       const updatedItem = await queries.update(resource, item)
 
-      return res
-        .status(200)
-        .json(returnNullFields ? updatedItem : removeNullFields(updatedItem))
-        .send()
+      return { status: 200, body: returnNullFields ? updatedItem : removeNullFields(updatedItem) }
     } catch (error: unknown) {
-      return res.status(500).json({ message: (error as Error).message })
+      return { status: 500, body: { message: (error as Error).message } }
     }
   }
 

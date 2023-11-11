@@ -1,5 +1,8 @@
-function createDeleteRoutes(queries) {
-  async function handleDelete(req, res) {
+import type { Queries } from '../queries/types'
+import type { TembaRequest } from './types'
+
+function createDeleteRoutes(queries: Queries) {
+  async function handleDelete(req: TembaRequest) {
     try {
       const { resource, id } = req.requestInfo
 
@@ -11,11 +14,11 @@ function createDeleteRoutes(queries) {
       } else {
         await queries.deleteAll(resource)
       }
-    } catch (error: unknown) {
-      return res.status(500).json({ message: (error as Error).message })
-    }
 
-    return res.status(204).send()
+      return { status: 204 }
+    } catch (error: unknown) {
+      return { status: 500, body: { message: (error as Error).message } }
+    }
   }
 
   return {

@@ -9,7 +9,7 @@ describe('responseBodyInterceptor unusual (but allowed) implementations', () => 
     async (returnValue) => {
       const tembaServer = createServer({
         responseBodyInterceptor: () => {
-          //do not return anyhting when returnValue is undefeind
+          //do not return anything when returnValue is undefined
           if (typeof returnValue !== 'undefined') return returnValue
         },
       } as unknown as Config)
@@ -49,7 +49,7 @@ describe('responseBodyInterceptor unusual (but allowed) implementations', () => 
 
     const response = await request(tembaServer).get('/stuff')
     expect(response.statusCode).toEqual(500)
-    expect(response.body.message).toEqual(`Error in responseBodyInterceptor: Something went wrong`)
+    expect(response.body.message).toEqual(`Something went wrong`)
   })
 
   test('When responseBodyInterceptor does not return an object or array, still return the intercepted value', async () => {

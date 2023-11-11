@@ -1,3 +1,4 @@
+import express, { type Response } from 'express'
 import { createGetRoutes } from './get'
 import { createPostRoutes } from './post'
 import { createPutRoutes } from './put'
@@ -5,10 +6,16 @@ import { createPatchRoutes } from './patch'
 import { createDeleteRoutes } from './delete'
 import { createValidateResourceMiddleware, createResourceAndIdParser } from '../urls/urlMiddleware'
 
-import express from 'express'
 import type { RouterConfig } from '../config'
+import type { CompiledSchemas } from '../schema/types'
+import type { Queries } from '../queries/types'
+import type { ExtendedRequest, TembaResponse, TembaRequest } from './types'
 
-function createResourceRouter(queries, routerConfig: RouterConfig) {
+function createResourceRouter(
+  queries: Queries,
+  schemas: CompiledSchemas,
+  routerConfig: RouterConfig,
+) {
   const {
     validateResources,
     resources,
@@ -25,9 +32,28 @@ function createResourceRouter(queries, routerConfig: RouterConfig) {
     responseBodyInterceptor,
     returnNullFields,
   )
-  const { handlePost } = createPostRoutes(queries, requestBodyInterceptor, returnNullFields)
-  const { handlePut } = createPutRoutes(queries, requestBodyInterceptor, returnNullFields)
-  const { handlePatch } = createPatchRoutes(queries, requestBodyInterceptor, returnNullFields)
+
+  const { handlePost } = createPostRoutes(
+    queries,
+    requestBodyInterceptor,
+    returnNullFields,
+    schemas.post,
+  )
+
+  const { handlePut } = createPutRoutes(
+    queries,
+    requestBodyInterceptor,
+    returnNullFields,
+    schemas.put,
+  )
+
+  const { handlePatch } = createPatchRoutes(
+    queries,
+    requestBodyInterceptor,
+    returnNullFields,
+    schemas.patch,
+  )
+
   const { handleDelete } = createDeleteRoutes(queries)
 
   const validateResource = createValidateResourceMiddleware(validateResources, resources)
@@ -35,13 +61,40 @@ function createResourceRouter(queries, routerConfig: RouterConfig) {
 
   const resourceRouter = express.Router()
 
+  const createRequestHandler = (
+    handleRequest: (tembaRequest: TembaRequest) => Promise<TembaResponse>,
+  ) => {
+    return async (req: ExtendedRequest, res: Response) => {
+      const request = {
+        requestInfo: req.requestInfo,
+        body: req.body,
+        protocol: req.protocol,
+        host: req.get('host'),
+      }
+
+      const tembaResponse = await handleRequest(request)
+
+      res.status(tembaResponse.status)
+
+      if (tembaResponse.headers) {
+        for (const [key, value] of Object.entries(tembaResponse.headers)) {
+          res.set(key, value)
+        }
+      }
+
+      res.json(tembaResponse.body)
+
+      res.end()
+    }
+  }
+
   resourceRouter
     // The router.get() function automatically handles HEAD requests as well, unless router.head is called first.
-    .get('*', getResourceAndId, validateResource, handleGet)
-    .post('*', getResourceAndId, validateResource, handlePost)
-    .put('*', getResourceAndId, validateResource, handlePut)
-    .patch('*', getResourceAndId, validateResource, handlePatch)
-    .delete('*', getResourceAndId, validateResource, handleDelete)
+    .get('*', getResourceAndId, validateResource, createRequestHandler(handleGet))
+    .post('*', getResourceAndId, validateResource, createRequestHandler(handlePost))
+    .put('*', getResourceAndId, validateResource, createRequestHandler(handlePut))
+    .patch('*', getResourceAndId, validateResource, createRequestHandler(handlePatch))
+    .delete('*', getResourceAndId, validateResource, createRequestHandler(handleDelete))
 
   return resourceRouter
 }

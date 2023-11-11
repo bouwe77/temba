@@ -14,7 +14,7 @@ describe('CRUD', () => {
 
   beforeEach(async () => {
     // Delete all items.
-    const deleteAllResponse = await request(tembaServer).delete(resource)
+    await request(tembaServer).delete(resource)
   })
 
   test('Read, create, replace, update and delete resources', async () => {
