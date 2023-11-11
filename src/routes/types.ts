@@ -1,5 +1,5 @@
-import { Request as ExpressRequest } from 'express'
-import { Item } from '../queries/types'
+import type { Request as ExpressRequest } from 'express'
+import type { Item } from '../queries/types'
 
 export type ExtendedRequest = ExpressRequest & {
   requestInfo: RequestInfo

@@ -1,10 +1,10 @@
-import { Response } from 'express'
+import type { Response } from 'express'
 import { parseUrl } from './urlParser'
-import { ExtendedRequest } from '../routes/types'
+import type { ExtendedRequest } from '../routes/types'
 
-function createResourceAndIdParser(apiPrefix: string) {
+function createResourceAndIdParser(apiPrefix: string | null) {
   return function getResourceAndId(req: ExtendedRequest, res: Response, next: () => void) {
-    const url = req.baseUrl.replace(apiPrefix, '')
+    const url = apiPrefix ? req.baseUrl.replace(apiPrefix, '') : req.baseUrl
     const urlInfo = parseUrl(url)
 
     req.requestInfo = { ...req.requestInfo, ...urlInfo }

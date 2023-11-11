@@ -1,6 +1,6 @@
 import request from 'supertest'
 import express from 'express'
-import { Config } from '../../src/config'
+import type { Config } from '../../src/config'
 import createServer from './createServer'
 
 describe('Configuring only a customRouter', () => {

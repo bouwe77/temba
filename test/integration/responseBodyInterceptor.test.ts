@@ -1,5 +1,5 @@
 import request from 'supertest'
-import { Config } from '../../src/config'
+import type { Config } from '../../src/config'
 import createServer from './createServer'
 
 describe('responseBodyInterceptor unusual (but allowed) implementations', () => {

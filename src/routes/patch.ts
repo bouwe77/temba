@@ -20,7 +20,9 @@ function createPatchRoutes(
         return { status: 400, body: { message: validationResult.errorMessage } }
       }
 
-      const body = interceptRequestBody(requestBodyInterceptor.patch, resource, req.body)
+      const body = requestBodyInterceptor?.patch
+        ? interceptRequestBody(requestBodyInterceptor.patch, resource, req.body)
+        : req.body
 
       if (typeof body === 'string') return { status: 400, body: { message: body } }
 

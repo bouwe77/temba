@@ -13,20 +13,8 @@ const assertDefaultConfig = (config: Config, skip?: ConfigKey[]) => {
     connectionString: null,
     cacheControl: 'no-store',
     delay: 0,
-    requestBodyInterceptor: {
-      post: () => {
-        // do nothing
-      },
-      patch: () => {
-        // do nothing
-      },
-      put: () => {
-        // do nothing
-      },
-    },
-    responseBodyInterceptor: ({ body }) => {
-      return body
-    },
+    requestBodyInterceptor: null,
+    responseBodyInterceptor: null,
     customRouter: null,
     returnNullFields: true,
     isTesting: false,
@@ -46,10 +34,10 @@ const assertDefaultConfig = (config: Config, skip?: ConfigKey[]) => {
 
     // For callback functions we just wanna know they are functions,
     // because the actual implementation is tested elsewhere.
-    if (callbackKeys.includes(key)) {
-      expect(config[key]).toBeInstanceOf(Function)
-      continue
-    }
+    // if (callbackKeys.includes(key)) {
+    //   expect(config[key]).toBeInstanceOf(Function)
+    //   continue
+    // }
 
     // All other keys should be equal to the default config.
     expect(config[key]).toEqual(defaultConfig[key])

@@ -20,7 +20,9 @@ function createPutRoutes(
         return { status: 400, body: { message: validationResult.errorMessage } }
       }
 
-      const body = interceptRequestBody(requestBodyInterceptor.put, resource, req.body)
+      const body = requestBodyInterceptor?.put
+        ? interceptRequestBody(requestBodyInterceptor.put, resource, req.body)
+        : req.body
 
       if (typeof body === 'string') return { status: 400, body: { message: body } }
 

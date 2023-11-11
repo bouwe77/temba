@@ -1,4 +1,4 @@
-import { RequestBodyInterceptorCallback } from './types'
+import type { RequestBodyInterceptorCallback } from './types'
 
 function interceptRequestBody(
   intercept: RequestBodyInterceptorCallback,

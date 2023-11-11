@@ -7,7 +7,8 @@ import {
   handleNotFound,
 } from './routes/routes'
 import { createQueries } from './queries/queries'
-import { Config, UserConfig, initConfig } from './config'
+import { initConfig } from './config'
+import type { Config, UserConfig } from './config'
 import cors from 'cors'
 import { createDelayMiddleware } from './delay/delayMiddleware'
 import { compileAndTransformSchemas } from './schema/compile'

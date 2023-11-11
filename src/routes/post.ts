@@ -8,9 +8,9 @@ import type { ItemWithoutId, Queries } from '../queries/types'
 
 function createPostRoutes(
   queries: Queries,
-  requestBodyInterceptor: RequestBodyInterceptor,
+  requestBodyInterceptor: RequestBodyInterceptor | null,
   returnNullFields: boolean,
-  schemas: ValidateFunctionPerResource,
+  schemas: ValidateFunctionPerResource | null,
 ) {
   async function handlePost(req: TembaRequest) {
     try {
@@ -21,7 +21,9 @@ function createPostRoutes(
         return { status: 400, body: { message: validationResult.errorMessage } }
       }
 
-      const body = interceptRequestBody(requestBodyInterceptor.post, resource, req.body)
+      const body = requestBodyInterceptor?.post
+        ? interceptRequestBody(requestBodyInterceptor.post, resource, req.body)
+        : req.body
 
       if (typeof body === 'string') return { status: 400, body: { message: body } }
 

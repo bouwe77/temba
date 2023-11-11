@@ -1,6 +1,6 @@
 import request from 'supertest'
 import createServer from './createServer'
-import { Config } from '../../src/config'
+import type { Config } from '../../src/config'
 
 /*
   Tests for JSON Schema validation
