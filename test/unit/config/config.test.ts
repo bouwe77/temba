@@ -115,9 +115,9 @@ test('Full user config overrides all defaults', () => {
 
 test('Partial user config applies those, but leaves the rest at default', () => {
   const config = initConfig({
-    apiPrefix: 'api',
+    apiPrefix: 'foo',
   })
 
-  expect(config.apiPrefix).toBe('/api/')
+  expect(config.apiPrefix).toBe('/foo/')
   assertDefaultConfig(config, ['apiPrefix'])
 })
