@@ -25,9 +25,6 @@ const assertDefaultConfig = (config: Config, skip?: ConfigKey[]) => {
   // Do not check keys that are just containers for other keys.
   const alwaysSkip = ['requestBodyInterceptor']
 
-  // Some settings are callback functions
-  const callbackKeys = ['responseBodyInterceptor', 'post', 'patch', 'put']
-
   for (const key in defaultConfig) {
     if (alwaysSkip.includes(key)) continue
     if (skip.includes(key as ConfigKey)) continue
