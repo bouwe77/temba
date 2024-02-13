@@ -11,9 +11,10 @@
 
     /* Strictness */
     /*
-    "strict": true,
     "noUncheckedIndexedAccess": true,
-*/
+    */
+    "strict": true,
+    
     /* If transpiling with TypeScript: */
     "moduleResolution": "Bundler",
     "module": "es2022",
