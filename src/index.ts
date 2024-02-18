@@ -1,7 +1,3 @@
-Hier was ik gebleven:
-strictness in tsconfig toegevoegd, dus nu tsc uitvoeren
-en dan de errors oplossen
-
 import express, { json } from 'express'
 import morgan from 'morgan'
 import {
