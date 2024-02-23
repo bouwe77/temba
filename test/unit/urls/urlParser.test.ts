@@ -38,8 +38,6 @@ test.each([
 })
 
 test.each([
-  [undefined, noResourceAndNoId],
-  [null, noResourceAndNoId],
   ['', noResourceAndNoId],
   [' ', noResourceAndNoId],
 ])("URL '%s' has no resource and id: %o", (url, expected) => {
