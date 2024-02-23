@@ -1,5 +1,6 @@
 import request from 'supertest'
 import createServer from './createServer'
+import { test, expect } from 'vitest'
 
 /*
   Tests on the root URL: "/"
