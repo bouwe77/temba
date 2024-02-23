@@ -8,7 +8,6 @@ export default function createMongoQueries(connectionString: string) {
   uri = connectionString
 
   const mongoQueries: Queries = {
-    connectToDatabase,
     getAll,
     getById,
     create,
