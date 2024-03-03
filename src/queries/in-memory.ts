@@ -2,12 +2,6 @@ import { Item, ItemWithoutId, Queries } from './types'
 
 const data: { [key: string]: Item[] } = {}
 
-function connectToDatabase() {
-  return new Promise<void>((resolve) => {
-    resolve()
-  })
-}
-
 function getAll(resource: string) {
   createResourceArrayIfNecessary(resource)
 
@@ -19,7 +13,7 @@ function getAll(resource: string) {
 function getById(resource: string, id: string) {
   createResourceArrayIfNecessary(resource)
 
-  return new Promise<Item>((resolve) => {
+  return new Promise<Item | undefined>((resolve) => {
     resolve(data[resource].find((item) => item.id === id))
   })
 }
@@ -73,7 +67,6 @@ function createResourceArrayIfNecessary(resource: string) {
 }
 
 const inMemoryQueries: Queries = {
-  connectToDatabase,
   getAll,
   getById,
   create,

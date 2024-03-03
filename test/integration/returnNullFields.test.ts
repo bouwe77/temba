@@ -1,6 +1,7 @@
 import request from 'supertest'
 import { Config } from '../../src/config'
 import createServer from './createServer'
+import { test, expect } from 'vitest'
 
 /*
   Tests when configuring returnNullFields.

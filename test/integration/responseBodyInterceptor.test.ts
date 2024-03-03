@@ -1,6 +1,7 @@
 import request from 'supertest'
 import { Config } from '../../src/config'
 import createServer from './createServer'
+import { describe, beforeEach, test, expect } from 'vitest'
 
 describe('responseBodyInterceptor unusual (but allowed) implementations', () => {
   const noReturnValues = [undefined, null]
