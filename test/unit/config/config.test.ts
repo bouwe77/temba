@@ -1,6 +1,7 @@
 import { initConfig } from '../../../src/config'
 import type { Config, ConfigKey } from '../../../src/config'
 import express from 'express'
+import { test, expect } from 'vitest'
 
 const assertDefaultConfig = (config: Config, skip?: ConfigKey[]) => {
   if (!skip) skip = []

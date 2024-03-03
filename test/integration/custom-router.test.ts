@@ -2,6 +2,7 @@ import request from 'supertest'
 import express from 'express'
 import type { Config } from '../../src/config'
 import createServer from './createServer'
+import { describe, test, expect } from 'vitest'
 
 describe('Configuring only a customRouter', () => {
   const customRouter = express.Router()
