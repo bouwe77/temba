@@ -65,10 +65,6 @@ describe('CRUD', () => {
     // Now there is one item. Get all items.
     const getAllOneItemResponse = await request(tembaServer).get(resource)
     expect(getAllOneItemResponse.status).toBe(200)
-    console.log('🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨')
-    console.log(getAllOneItemResponse.body)
-    console.log('🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨')
-    return
     expect(getAllOneItemResponse.body.length).toBe(1)
     expect(getAllOneItemResponse.body[0].name).toBe('newItem')
     expect(getAllOneItemResponse.body[0].id).toBe(createdNewItem.id)
