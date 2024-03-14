@@ -65,7 +65,7 @@ const defaultConfig: Config = {
   schemas: null,
 }
 
-export function initConfig(userConfig?: UserConfig): Config {
+export const initConfig = (userConfig?: UserConfig): Config => {
   if (!userConfig) return defaultConfig
 
   const config = { ...defaultConfig } as Config

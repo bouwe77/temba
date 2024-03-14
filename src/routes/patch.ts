@@ -5,13 +5,13 @@ import type { ValidateFunctionPerResource } from '../schema/types'
 import type { RequestBodyInterceptor, TembaRequest } from './types'
 import type { Queries } from '../queries/types'
 
-function createPatchRoutes(
+export const createPatchRoutes = (
   queries: Queries,
   requestBodyInterceptor: RequestBodyInterceptor | null,
   returnNullFields: boolean,
   schemas: ValidateFunctionPerResource | null,
-) {
-  async function handlePatch(req: TembaRequest) {
+) => {
+  const handlePatch = async (req: TembaRequest) => {
     try {
       const {
         body,
@@ -60,5 +60,3 @@ function createPatchRoutes(
     handlePatch,
   }
 }
-
-export { createPatchRoutes }

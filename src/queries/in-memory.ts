@@ -2,7 +2,7 @@ import { Item, ItemWithoutId, Queries } from './types'
 
 const data: { [key: string]: Item[] } = {}
 
-function getAll(resource: string) {
+const getAll = (resource: string) => {
   createResourceArrayIfNecessary(resource)
 
   return new Promise<Item[]>((resolve) => {
@@ -10,7 +10,7 @@ function getAll(resource: string) {
   })
 }
 
-function getById(resource: string, id: string) {
+const getById = (resource: string, id: string) => {
   createResourceArrayIfNecessary(resource)
 
   const item = data[resource].find((item) => item.id === id) || null
@@ -19,7 +19,7 @@ function getById(resource: string, id: string) {
   })
 }
 
-function create(resource: string, item: ItemWithoutId) {
+const create = (resource: string, item: ItemWithoutId) => {
   createResourceArrayIfNecessary(resource)
 
   const newItem = { ...item, id: String(new Date().getTime()) }
@@ -31,7 +31,7 @@ function create(resource: string, item: ItemWithoutId) {
   })
 }
 
-function update(resource: string, item: Item) {
+const update = (resource: string, item: Item) => {
   createResourceArrayIfNecessary(resource)
 
   const updatedItem = { ...item }
@@ -41,11 +41,11 @@ function update(resource: string, item: Item) {
   })
 }
 
-function replace(resource: string, item: Item) {
+const replace = (resource: string, item: Item) => {
   return update(resource, item)
 }
 
-function deleteById(resource: string, id: string) {
+const deleteById = (resource: string, id: string) => {
   createResourceArrayIfNecessary(resource)
 
   data[resource] = data[resource].filter((item) => item.id !== id)
@@ -54,7 +54,7 @@ function deleteById(resource: string, id: string) {
   })
 }
 
-function deleteAll(resource: string) {
+const deleteAll = (resource: string) => {
   createResourceArrayIfNecessary(resource)
 
   data[resource] = []
@@ -63,7 +63,7 @@ function deleteAll(resource: string) {
   })
 }
 
-function createResourceArrayIfNecessary(resource: string) {
+const createResourceArrayIfNecessary = (resource: string) => {
   if (!Object.hasOwn(data, resource)) data[resource] = []
 }
 

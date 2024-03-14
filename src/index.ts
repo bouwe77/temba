@@ -13,7 +13,7 @@ import cors from 'cors'
 import { createDelayMiddleware } from './delay/delayMiddleware'
 import { compileSchemas } from './schema/compile'
 
-function createServer(userConfig?: UserConfig) {
+const createServer = (userConfig?: UserConfig) => {
   const config = initConfig(userConfig)
 
   const queries = createQueries(config.connectionString)
@@ -85,6 +85,4 @@ function createServer(userConfig?: UserConfig) {
   }
 }
 
-export function create(userConfig?: UserConfig) {
-  return createServer(userConfig)
-}
+export const create = (userConfig?: UserConfig) => createServer(userConfig)

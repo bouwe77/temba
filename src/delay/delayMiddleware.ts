@@ -1,17 +1,15 @@
 import type { NextFunction, Request, Response } from 'express'
 
-function pause(delay: number) {
-  return function (req: Request, res: Response, next: NextFunction) {
+const pause = (delay: number) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     setTimeout(next, delay)
   }
 }
 
-function createDelayMiddleware(delay: number) {
-  return function (req: Request, res: Response, next: NextFunction) {
+export const createDelayMiddleware = (delay: number) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     console.log('Start delay...')
     pause(delay)(req, res, next)
     console.log('Delay finished!')
   }
 }
-
-export { createDelayMiddleware }

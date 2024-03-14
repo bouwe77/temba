@@ -6,13 +6,13 @@ import type { ValidateFunctionPerResource } from '../schema/types'
 import type { TembaRequest, RequestBodyInterceptor } from './types'
 import type { ItemWithoutId, Queries } from '../queries/types'
 
-function createPostRoutes(
+export const createPostRoutes = (
   queries: Queries,
   requestBodyInterceptor: RequestBodyInterceptor | null,
   returnNullFields: boolean,
   schemas: ValidateFunctionPerResource,
-) {
-  async function handlePost(req: TembaRequest) {
+) => {
+  const handlePost = async (req: TembaRequest) => {
     try {
       const {
         body,
@@ -57,5 +57,3 @@ function createPostRoutes(
     handlePost,
   }
 }
-
-export { createPostRoutes }

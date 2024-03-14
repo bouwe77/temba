@@ -11,11 +11,11 @@ import type { CompiledSchemas } from '../schema/types'
 import type { Queries } from '../queries/types'
 import type { ExtendedRequest, TembaResponse, TembaRequest } from './types'
 
-function createResourceRouter(
+export const createResourceRouter = (
   queries: Queries,
   schemas: CompiledSchemas,
   routerConfig: RouterConfig,
-) {
+) => {
   const {
     validateResources,
     resources,
@@ -107,22 +107,20 @@ function createResourceRouter(
 }
 
 // A GET to the root URL shows a default message.
-const rootRouter = express.Router()
+export const rootRouter = express.Router()
 rootRouter.get('/', async (_, res) => {
   return res.send('It works! ツ')
 })
 
-// All other requests to the root URL are not allowed.
-rootRouter.all('/', handleMethodNotAllowed)
-
 // Route for handling not allowed methods.
-function handleMethodNotAllowed(_: Request, res: Response) {
+export const handleMethodNotAllowed = (_: Request, res: Response) => {
   res.status(405).json({ message: 'Method Not Allowed' })
 }
 
 // Route for handling not found.
-function handleNotFound(_: Request, res: Response) {
+export const handleNotFound = (_: Request, res: Response) => {
   res.status(404).json({ message: 'Not Found' })
 }
 
-export { createResourceRouter, rootRouter, handleMethodNotAllowed, handleNotFound }
+// All other requests to the root URL are not allowed.
+rootRouter.all('/', handleMethodNotAllowed)

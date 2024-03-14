@@ -1,10 +1,10 @@
 import type { RequestBodyInterceptorCallback } from './types'
 
-function interceptRequestBody(
+export const interceptRequestBody = (
   intercept: RequestBodyInterceptorCallback,
   resource: string,
   body: unknown,
-) {
+) => {
   const intercepted = intercept({ resource, body })
 
   if (!intercepted && typeof body === 'object') return body
@@ -19,5 +19,3 @@ function interceptRequestBody(
   // This is not supported, so we return the original request body.
   return body
 }
-
-export { interceptRequestBody }

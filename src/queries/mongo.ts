@@ -4,23 +4,7 @@ import { Item, ItemWithoutId, Queries } from './types'
 let uri: string
 let db: Db
 
-export function createMongoQueries(connectionString: string) {
-  uri = connectionString
-
-  const mongoQueries: Queries = {
-    getAll,
-    getById,
-    create,
-    update,
-    replace,
-    deleteById,
-    deleteAll,
-  }
-
-  return mongoQueries
-}
-
-async function connectToDatabase() {
+const connectToDatabase = async () => {
   if (!db) {
     console.log('Connecting to MongoDB...')
     try {
@@ -33,7 +17,7 @@ async function connectToDatabase() {
   }
 }
 
-async function getAll(resource: string) {
+const getAll = async (resource: string) => {
   await connectToDatabase()
 
   const items = (await db[resource].find({})) as MongoItem[]
@@ -43,7 +27,7 @@ async function getAll(resource: string) {
   return items.map((item) => removeUnderscoreFromId(item))
 }
 
-async function getById(resource: string, id: string) {
+const getById = async (resource: string, id: string) => {
   await connectToDatabase()
 
   const item = await db[resource].findOne({ _id: id })
@@ -53,7 +37,7 @@ async function getById(resource: string, id: string) {
   return removeUnderscoreFromId(item)
 }
 
-async function create(resource: string, item: ItemWithoutId) {
+const create = async (resource: string, item: ItemWithoutId) => {
   await connectToDatabase()
 
   const createdItem = await db[resource].insertOne(item)
@@ -61,7 +45,7 @@ async function create(resource: string, item: ItemWithoutId) {
   return removeUnderscoreFromId(createdItem.ops[0])
 }
 
-async function update(resource: string, item: Item) {
+const update = async (resource: string, item: Item) => {
   await connectToDatabase()
 
   const { id, ...itemWithoutId } = item
@@ -75,7 +59,7 @@ async function update(resource: string, item: Item) {
   return removeUnderscoreFromId(updatedItem.value)
 }
 
-async function replace(resource: string, item: Item) {
+const replace = async (resource: string, item: Item) => {
   await connectToDatabase()
 
   const { id, ...itemWithoutId } = item
@@ -87,13 +71,13 @@ async function replace(resource: string, item: Item) {
   return removeUnderscoreFromId(replacedItem.value)
 }
 
-async function deleteById(resource: string, id: string) {
+const deleteById = async (resource: string, id: string) => {
   await connectToDatabase()
 
   await db[resource].deleteOne({ _id: id })
 }
 
-async function deleteAll(resource: string) {
+const deleteAll = async (resource: string) => {
   await connectToDatabase()
 
   await db[resource].deleteMany({})
@@ -104,7 +88,23 @@ type MongoItem = {
   [key: string]: unknown
 }
 
-function removeUnderscoreFromId(item: MongoItem) {
+const removeUnderscoreFromId = (item: MongoItem) => {
   const { _id, ...updatedItem } = item
   return updatedItem as Item
+}
+
+export const createMongoQueries = (connectionString: string) => {
+  uri = connectionString
+
+  const mongoQueries: Queries = {
+    getAll,
+    getById,
+    create,
+    update,
+    replace,
+    deleteById,
+    deleteAll,
+  }
+
+  return mongoQueries
 }

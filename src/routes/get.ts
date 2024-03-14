@@ -2,12 +2,12 @@ import type { Item, Queries } from '../queries/types'
 import type { ResponseBodyInterceptor, ResponseInfo, TembaRequest } from './types'
 import { removeNullFields } from './utils'
 
-function createGetRoutes(
+export const createGetRoutes = (
   queries: Queries,
   cacheControl: string,
   responseBodyInterceptor: ResponseBodyInterceptor | null,
   returnNullFields: boolean,
-) {
+) => {
   const defaultResponse = { headers: { 'Cache-control': cacheControl } }
   const responseOk = (body: unknown) => ({ ...defaultResponse, status: 200, body })
 
@@ -19,7 +19,7 @@ function createGetRoutes(
     return intercepted ? intercepted : info.body
   }
 
-  async function handleGet(req: TembaRequest) {
+  const handleGet = async (req: TembaRequest) => {
     try {
       const {
         requestInfo: { resource, id },
@@ -78,5 +78,3 @@ function createGetRoutes(
     handleGet,
   }
 }
-
-export { createGetRoutes }
