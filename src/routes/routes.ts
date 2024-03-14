@@ -4,7 +4,7 @@ import { createPostRoutes } from './post'
 import { createPutRoutes } from './put'
 import { createPatchRoutes } from './patch'
 import { createDeleteRoutes } from './delete'
-import { createValidateResourceMiddleware, createResourceAndIdParser } from '../urls/urlMiddleware'
+import { createUrlMiddleware } from '../urls/urlMiddleware'
 
 import type { RouterConfig } from '../config'
 import type { CompiledSchemas } from '../schema/types'
@@ -56,8 +56,7 @@ export const createResourceRouter = (
 
   const { handleDelete } = createDeleteRoutes(queries)
 
-  const validateResource = createValidateResourceMiddleware(validateResources, resources)
-  const getResourceAndId = createResourceAndIdParser(apiPrefix)
+  const urlMiddleware = createUrlMiddleware(apiPrefix, validateResources, resources)
 
   const resourceRouter = express.Router()
 
@@ -93,15 +92,15 @@ export const createResourceRouter = (
   resourceRouter
     // The router.get() function automatically handles HEAD requests as well, unless router.head is called first.
     // @ts-ignore
-    .get('*', getResourceAndId, validateResource, createRequestHandler(handleGet))
+    .get('*', urlMiddleware, createRequestHandler(handleGet))
     // @ts-ignore
-    .post('*', getResourceAndId, validateResource, createRequestHandler(handlePost))
+    .post('*', urlMiddleware, createRequestHandler(handlePost))
     // @ts-ignore
-    .put('*', getResourceAndId, validateResource, createRequestHandler(handlePut))
+    .put('*', urlMiddleware, createRequestHandler(handlePut))
     // @ts-ignore
-    .patch('*', getResourceAndId, validateResource, createRequestHandler(handlePatch))
+    .patch('*', urlMiddleware, createRequestHandler(handlePatch))
     // @ts-ignore
-    .delete('*', getResourceAndId, validateResource, createRequestHandler(handleDelete))
+    .delete('*', urlMiddleware, createRequestHandler(handleDelete))
 
   return resourceRouter
 }

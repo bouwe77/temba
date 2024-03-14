@@ -25,9 +25,6 @@ export const createGetRoutes = (
         requestInfo: { resource, id },
       } = req
 
-      // This check is only to satisfy TypeScript.
-      if (!resource) return { ...defaultResponse, status: 404 }
-
       if (id) {
         const item = await queries.getById(resource, id)
 

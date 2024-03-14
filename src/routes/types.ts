@@ -6,14 +6,18 @@ export type ExtendedRequest = ExpressRequest & {
 }
 
 export type RequestInfo = {
-  resource: string | null
-  body: unknown
+  resource: string
   id: string | null
 }
 
 export type RequestInfoWithoutId = Omit<RequestInfo, 'id'>
 
-export type RequestBodyInterceptorCallback = (info: RequestInfoWithoutId) => void | string | object
+type InterceptedRequest = {
+  resource: string
+  body: unknown
+}
+
+export type RequestBodyInterceptorCallback = (info: InterceptedRequest) => void | string | object
 
 export type RequestBodyInterceptor = {
   post?: RequestBodyInterceptorCallback

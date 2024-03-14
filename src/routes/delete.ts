@@ -6,9 +6,6 @@ export const createDeleteRoutes = (queries: Queries) => {
     try {
       const { resource, id } = req.requestInfo
 
-      // This check is only to satisfy TypeScript.
-      if (!resource) return { status: 404 }
-
       if (id) {
         const item = await queries.getById(resource, id)
         if (item) {

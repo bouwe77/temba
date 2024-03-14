@@ -18,9 +18,6 @@ export const createPutRoutes = (
         requestInfo: { resource, id },
       } = req
 
-      // This check is only to satisfy TypeScript.
-      if (!resource) return { status: 404 }
-
       const validationResult = validate(body, schemas?.[resource])
       if (validationResult.isValid === false) {
         return { status: 400, body: { message: validationResult.errorMessage } }
