@@ -61,8 +61,8 @@ describe('requestBodyInterceptors that return a (new or changed) request body ob
 
     expect(response.statusCode).toEqual(200)
     expect(response.body.id).toEqual(id)
-    // expect(response.body.name).toEqual('Mew')
-    // expect(response.body.replaced).toEqual(true)
+    expect(response.body.name).toEqual('Mew')
+    expect(response.body.replaced).toEqual(true)
   })
 
   test('PATCH with a requestBodyInterceptor that returns a request body', async () => {
