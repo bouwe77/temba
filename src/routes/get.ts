@@ -1,5 +1,5 @@
 import type { Item, Queries } from '../queries/types'
-import type { ResponseBodyInterceptor, ResponseInfo, TembaRequest } from './types'
+import type { ResponseBodyInterceptor, InterceptedResponse, TembaRequest } from './types'
 import { removeNullFields } from './utils'
 
 export const createGetRoutes = (
@@ -11,7 +11,10 @@ export const createGetRoutes = (
   const defaultResponse = { headers: { 'Cache-control': cacheControl } }
   const responseOk = (body: unknown) => ({ ...defaultResponse, status: 200, body })
 
-  const intercept = (interceptor: ResponseBodyInterceptor, info: ResponseInfo<Item | Item[]>) => {
+  const intercept = (
+    interceptor: ResponseBodyInterceptor,
+    info: InterceptedResponse<Item | Item[]>,
+  ) => {
     if (!interceptor) return info.body
 
     const intercepted = interceptor(info)

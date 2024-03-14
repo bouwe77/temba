@@ -79,7 +79,7 @@ describe('responseBodyInterceptor returns an updated response', () => {
   const tembaServer = createServer({
     responseBodyInterceptor: ({ resource, body, id }) => {
       if (resource === 'stuff') {
-        if (id) {
+        if (typeof id === 'string') {
           return { ...body, extra: 'stuff' }
         } else {
           // This line is to satisfy TypeScript.
