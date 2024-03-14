@@ -29,6 +29,7 @@ describe('requestBodyInterceptors that return a (new or changed) request body ob
       .set('Content-Type', 'application/json')
 
     expect(response.statusCode).toEqual(201)
+    expect(response.body.title).toEqual('The Matrix')
 
     const id = response.header.location.split('/').pop()
 
