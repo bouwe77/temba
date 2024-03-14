@@ -55,9 +55,12 @@ describe('responseBodyInterceptor unusual (but allowed) implementations', () => 
 
   test('When responseBodyInterceptor does not return an object or array, still return the intercepted value', async () => {
     const tembaServer = createServer({
-      responseBodyInterceptor: ({ id }) => {
-        if (id) return 'A string, instead of an object'
-        else return 'A string, instead of an array'
+      responseBodyInterceptor: (info) => {
+        if ('id' in info) {
+          return 'A string, instead of an object'
+        } else {
+          return 'A string, instead of an array'
+        }
       },
     } satisfies UserConfig)
 
@@ -77,15 +80,12 @@ describe('responseBodyInterceptor unusual (but allowed) implementations', () => 
 
 describe('responseBodyInterceptor returns an updated response', () => {
   const tembaServer = createServer({
-    responseBodyInterceptor: ({ resource, body, id }) => {
-      if (resource === 'stuff') {
-        if (typeof id === 'string') {
-          return { ...body, extra: 'stuff' }
+    responseBodyInterceptor: (info) => {
+      if (info.resource === 'stuff') {
+        if ('id' in info) {
+          return { ...info.body, extra: 'stuff' }
         } else {
-          // This line is to satisfy TypeScript.
-          if (!Array.isArray(body)) return []
-
-          return body.map((item, index) => ({
+          return info.body.map((item, index) => ({
             ...item,
             extra: 'stuff ' + index,
           }))

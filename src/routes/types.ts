@@ -25,14 +25,18 @@ export type RequestBodyInterceptor = {
   put?: RequestBodyInterceptorCallback
 }
 
-//TODO: Fix type so that when body is an array, id is undefined
-export type InterceptedResponse<T extends Item | Item[]> = {
-  resource: string
-  body: T
-  id?: T extends Item ? string : undefined
-}
+export type InterceptedResponse =
+  | {
+      body: Item
+      resource: string
+      id: string
+    }
+  | {
+      body: Item[]
+      resource: string
+    }
 
-export type ResponseBodyInterceptor = (info: InterceptedResponse<Item | Item[]>) => unknown
+export type ResponseBodyInterceptor = (info: InterceptedResponse) => unknown
 
 export type TembaRequest = {
   requestInfo: RequestInfo
