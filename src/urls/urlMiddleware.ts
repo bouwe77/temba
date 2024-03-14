@@ -1,8 +1,8 @@
-import type { Response } from 'express'
+import { type Response } from 'express'
 import { parseUrl } from './urlParser'
-import type { ExtendedRequest } from '../routes/types'
+import { type ExtendedRequest } from '../routes/types'
 
-function createResourceAndIdParser(apiPrefix: string | null) {
+export function createResourceAndIdParser(apiPrefix: string | null) {
   return function getResourceAndId(req: ExtendedRequest, res: Response, next: () => void) {
     const url = apiPrefix ? req.baseUrl.replace(apiPrefix, '') : req.baseUrl
     const urlInfo = parseUrl(url)
@@ -13,7 +13,7 @@ function createResourceAndIdParser(apiPrefix: string | null) {
   }
 }
 
-function createValidateResourceMiddleware(validateResources: boolean, resources: string[]) {
+export function createValidateResourceMiddleware(validateResources: boolean, resources: string[]) {
   return function validateResource(req: ExtendedRequest, res: Response, next: () => void) {
     if (!validateResources) return next()
 
@@ -30,5 +30,3 @@ function createValidateResourceMiddleware(validateResources: boolean, resources:
     return next()
   }
 }
-
-export { createResourceAndIdParser, createValidateResourceMiddleware }

@@ -5,13 +5,15 @@ export type ExtendedRequest = ExpressRequest & {
   requestInfo: RequestInfo
 }
 
-type RequestInfo = {
-  resource: string
+export type RequestInfo = {
+  resource: string | null
   body: unknown
-  id?: string
+  id: string | null
 }
 
-export type RequestBodyInterceptorCallback = (info: RequestInfo) => void | string | object
+export type RequestInfoWithoutId = Omit<RequestInfo, 'id'>
+
+export type RequestBodyInterceptorCallback = (info: RequestInfoWithoutId) => void | string | object
 
 export type RequestBodyInterceptor = {
   post?: RequestBodyInterceptorCallback
@@ -19,6 +21,7 @@ export type RequestBodyInterceptor = {
   put?: RequestBodyInterceptorCallback
 }
 
+//TODO: Fix type so that when body is an array, id is undefined
 export type ResponseInfo<T extends Item | Item[]> = {
   resource: string
   body: T
@@ -30,8 +33,8 @@ export type ResponseBodyInterceptor = (info: ResponseInfo<Item | Item[]>) => unk
 export type TembaRequest = {
   requestInfo: RequestInfo
   body: unknown
-  protocol: string
-  host: string
+  protocol: string | null
+  host: string | null
 }
 
 export type TembaResponse = {

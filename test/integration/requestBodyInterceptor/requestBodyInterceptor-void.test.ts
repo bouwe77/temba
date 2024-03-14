@@ -1,5 +1,6 @@
+import { describe, test, expect } from 'vitest'
 import request from 'supertest'
-import { Config } from '../../../src/config'
+import { UserConfig } from '../../../src/config'
 import createServer from '../createServer'
 
 describe('requestBodyInterceptors that return nothing (void) to indicate nothing should be done', () => {
@@ -9,7 +10,7 @@ describe('requestBodyInterceptors that return nothing (void) to indicate nothing
     patch: () => {},
   }
 
-  const tembaServer = createServer({ requestBodyInterceptor } as unknown as Config)
+  const tembaServer = createServer({ requestBodyInterceptor } satisfies UserConfig)
 
   test('POST with a requestBodyInterceptor that returns void', async () => {
     const resourceUrl = '/movies'

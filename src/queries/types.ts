@@ -7,7 +7,7 @@ export type ItemWithoutId = Omit<Item, 'id'>
 
 export type Queries = {
   getAll: (resource: string) => Promise<Item[]>
-  getById: (resource: string, id: string) => Promise<Item | undefined>
+  getById: (resource: string, id: string) => Promise<Item | null>
   create: (resource: string, item: ItemWithoutId) => Promise<Item>
   update: (resource: string, item: Item) => Promise<Item>
   replace: (resource: string, item: Item) => Promise<Item>

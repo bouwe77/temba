@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express'
+import type { NextFunction, Request, Response } from 'express'
 
 function pause(delay: number) {
   return function (req: Request, res: Response, next: NextFunction) {

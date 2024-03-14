@@ -5,9 +5,12 @@ import { removeNullFields } from './utils'
 function createGetRoutes(
   queries: Queries,
   cacheControl: string,
-  responseBodyInterceptor: ResponseBodyInterceptor,
+  responseBodyInterceptor: ResponseBodyInterceptor | null,
   returnNullFields: boolean,
 ) {
+  const defaultResponse = { headers: { 'Cache-control': cacheControl } }
+  const responseOk = (body: unknown) => ({ ...defaultResponse, status: 200, body })
+
   const intercept = (interceptor: ResponseBodyInterceptor, info: ResponseInfo<Item | Item[]>) => {
     if (!interceptor) return info.body
 
@@ -18,9 +21,12 @@ function createGetRoutes(
 
   async function handleGet(req: TembaRequest) {
     try {
-      const { resource, id } = req.requestInfo
+      const {
+        requestInfo: { resource, id },
+      } = req
 
-      const defaultResponse = { headers: { 'Cache-control': cacheControl } }
+      // This check is only to satisfy TypeScript.
+      if (!resource) return { ...defaultResponse, status: 404 }
 
       if (id) {
         const item = await queries.getById(resource, id)
@@ -29,38 +35,40 @@ function createGetRoutes(
           return { ...defaultResponse, status: 404 }
         }
 
-        const theItem = intercept(responseBodyInterceptor, { resource, body: item, id })
+        const theItem = responseBodyInterceptor
+          ? intercept(responseBodyInterceptor, { resource, body: item, id })
+          : item
 
-        let body = theItem
         if (!returnNullFields) {
           if (Array.isArray(theItem)) {
-            body = theItem.map((item) => removeNullFields(item))
-          } else if (typeof theItem === 'object') {
-            body = removeNullFields(theItem)
-          } else {
-            body = theItem
+            return responseOk(theItem.map((item) => removeNullFields(item)))
+          }
+
+          if (typeof theItem === 'object') {
+            return responseOk(removeNullFields(theItem))
           }
         }
 
-        return { ...defaultResponse, status: 200, body }
+        return responseOk(theItem)
       }
 
       const items = await queries.getAll(resource)
 
-      const theItems = intercept(responseBodyInterceptor, { resource, body: items })
+      const theItems = responseBodyInterceptor
+        ? intercept(responseBodyInterceptor, { resource, body: items })
+        : items
 
-      let body = theItems
       if (!returnNullFields) {
         if (Array.isArray(theItems)) {
-          body = theItems.map((item) => removeNullFields(item))
-        } else if (typeof theItems === 'object') {
-          body = removeNullFields(theItems)
-        } else {
-          body = theItems
+          return responseOk(theItems.map((item) => removeNullFields(item)))
+        }
+
+        if (typeof theItems === 'object') {
+          return responseOk(removeNullFields(theItems))
         }
       }
 
-      return { ...defaultResponse, status: 200, body }
+      return responseOk(theItems)
     } catch (error: unknown) {
       return { status: 500, body: { message: (error as Error).message } }
     }

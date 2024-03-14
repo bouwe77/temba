@@ -1,7 +1,7 @@
-import request from 'supertest'
-import type { Config } from '../../src/config'
-import createServer from './createServer'
 import { test, expect } from 'vitest'
+import request from 'supertest'
+import type { UserConfig } from '../../src/config'
+import createServer from './createServer'
 
 /*
   Tests when configuring the apiPrefix.
@@ -9,7 +9,7 @@ import { test, expect } from 'vitest'
 
 // This Temba server is created with an apiPrefix configured
 const apiPrefix = 'api'
-const tembaServer = createServer({ apiPrefix } as unknown as Config)
+const tembaServer = createServer({ apiPrefix } satisfies UserConfig)
 
 test('GET on root URL returns 404 Not Found error', async () => {
   const response = await request(tembaServer).get('/')
@@ -46,17 +46,39 @@ test('GET on apiPrefix and resource URL returns empty array', async () => {
   expect((await request(tembaServer).delete(movie)).statusCode).toEqual(204)
 })
 
-test.each(['get', 'post', 'put', 'delete', 'patch', 'head'])(
-  '%s on resource URL without apiPrefix returns 404 Not Found error',
-  async (method) => {
-    const response = await request(tembaServer)[method]('/movies')
-    expect(response.statusCode).toEqual(404)
-  },
-)
+test('GET on resource URL without apiPrefix returns 404 Not Found', async () => {
+  const response = await request(tembaServer).get('/movies')
+  expect(response.statusCode).toEqual(404)
+})
+
+test('POST on resource URL without apiPrefix returns 404 Not Found', async () => {
+  const response = await request(tembaServer).post('/movies')
+  expect(response.statusCode).toEqual(404)
+})
+
+test('PUT on resource URL without apiPrefix returns 404 Not Found', async () => {
+  const response = await request(tembaServer).put('/movies')
+  expect(response.statusCode).toEqual(404)
+})
+
+test('DELETE on resource URL without apiPrefix returns 404 Not Found', async () => {
+  const response = await request(tembaServer).delete('/movies')
+  expect(response.statusCode).toEqual(404)
+})
+
+test('PATCH on resource URL without apiPrefix returns 404 Not Found', async () => {
+  const response = await request(tembaServer).patch('/movies')
+  expect(response.statusCode).toEqual(404)
+})
+
+test('HEAD on resource URL without apiPrefix returns 404 Not Found', async () => {
+  const response = await request(tembaServer).head('/movies')
+  expect(response.statusCode).toEqual(404)
+})
 
 test('apiPrefix is equal to resource name', async () => {
   const apiPrefix = 'movies'
-  const server = createServer({ apiPrefix } as unknown as Config)
+  const server = createServer({ apiPrefix } satisfies UserConfig)
   const moviesUrl = `/${apiPrefix}/movies/`
 
   // Create a movie

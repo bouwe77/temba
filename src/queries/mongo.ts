@@ -1,10 +1,10 @@
-import { connect } from '@rakered/mongo'
+import { Db, connect } from '@rakered/mongo'
 import { Item, ItemWithoutId, Queries } from './types'
 
-let uri
-let db
+let uri: string
+let db: Db
 
-export default function createMongoQueries(connectionString: string) {
+export function createMongoQueries(connectionString: string) {
   uri = connectionString
 
   const mongoQueries: Queries = {
@@ -36,7 +36,7 @@ async function connectToDatabase() {
 async function getAll(resource: string) {
   await connectToDatabase()
 
-  const items = await db[resource].find({})
+  const items = (await db[resource].find({})) as MongoItem[]
 
   if (!items) return []
 
@@ -64,12 +64,11 @@ async function create(resource: string, item: ItemWithoutId) {
 async function update(resource: string, item: Item) {
   await connectToDatabase()
 
-  const id = item.id
-  delete item.id
+  const { id, ...itemWithoutId } = item
 
   const updatedItem = await db[resource].findOneAndUpdate(
     { _id: id },
-    { $set: item },
+    { $set: itemWithoutId },
     { returnOriginal: false },
   )
 
@@ -79,10 +78,9 @@ async function update(resource: string, item: Item) {
 async function replace(resource: string, item: Item) {
   await connectToDatabase()
 
-  const id = item.id
-  delete item.id
+  const { id, ...itemWithoutId } = item
 
-  const replacedItem = await db[resource].findOneAndReplace({ _id: id }, item, {
+  const replacedItem = await db[resource].findOneAndReplace({ _id: id }, itemWithoutId, {
     returnOriginal: false,
   })
 

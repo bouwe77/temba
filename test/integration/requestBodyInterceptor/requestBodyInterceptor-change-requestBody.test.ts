@@ -1,21 +1,23 @@
+import { describe, test, expect } from 'vitest'
 import request from 'supertest'
-import { Config } from '../../../src/config'
+import { UserConfig } from '../../../src/config'
 import createServer from '../createServer'
+import { RequestBodyInterceptor } from '../../../src/routes/types'
 
 describe('requestBodyInterceptors that return a (new or changed) request body object', () => {
-  const requestBodyInterceptor = {
+  const requestBodyInterceptor: RequestBodyInterceptor = {
     post: ({ resource }) => {
       if (resource === 'movies') return { title: 'The Matrix' }
     },
     put: ({ body }) => {
-      return { ...body, replaced: true }
+      return { ...(body as object), replaced: true }
     },
     patch: ({ body }) => {
-      return { ...body, updated: true }
+      return { ...(body as object), updated: true }
     },
   }
 
-  const tembaServer = createServer({ requestBodyInterceptor } as unknown as Config)
+  const tembaServer = createServer({ requestBodyInterceptor } satisfies UserConfig)
 
   test('POST with a requestBodyInterceptor that returns a request body', async () => {
     const resourceUrl = '/movies'

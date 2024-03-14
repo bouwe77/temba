@@ -1,26 +1,30 @@
+import { describe, test, expect } from 'vitest'
 import request from 'supertest'
-import { Config } from '../../../src/config'
+import { UserConfig } from '../../../src/config'
 import createServer from '../createServer'
+import { RequestBodyInterceptor } from '../../../src/routes/types'
 
 describe('requestBodyInterceptors does not return an object', () => {
-  const stuff = {
-    'return-numbers': 1,
-    'return-arrays': [1, 2, 3],
-    'return-booleans': true,
+  const getResponse = (resource: string | null) => {
+    if (resource === 'return-number') return 1
+    if (resource === 'return-array') return [1, 2, 3]
+    if (resource === 'return-boolean') return true
+    return {}
   }
-  const requestBodyInterceptor = {
+
+  const requestBodyInterceptor: RequestBodyInterceptor = {
     post: ({ resource }) => {
-      return stuff[resource]
+      return getResponse(resource)
     },
     put: ({ resource }) => {
-      return stuff[resource]
+      return getResponse(resource)
     },
     patch: ({ resource }) => {
-      return stuff[resource]
+      return getResponse(resource)
     },
   }
 
-  const tembaServer = createServer({ requestBodyInterceptor } as unknown as Config)
+  const tembaServer = createServer({ requestBodyInterceptor } satisfies UserConfig)
 
   test('requestBodyInterceptor returns the original request body when something else than an object or string is returned', async () => {
     // Send POST requests.

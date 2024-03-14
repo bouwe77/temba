@@ -1,50 +1,50 @@
-import { initConfig } from '../../../src/config'
-import type { Config, ConfigKey } from '../../../src/config'
-import express from 'express'
 import { test, expect } from 'vitest'
+import { initConfig } from '../../../src/config'
+import type { Config } from '../../../src/config'
+import express from 'express'
 
-const assertDefaultConfig = (config: Config, skip?: ConfigKey[]) => {
-  if (!skip) skip = []
-
-  const defaultConfig: Config = {
-    resources: [],
-    validateResources: false,
-    staticFolder: null,
-    apiPrefix: null,
-    connectionString: null,
-    cacheControl: 'no-store',
-    delay: 0,
-    requestBodyInterceptor: null,
-    responseBodyInterceptor: null,
-    customRouter: null,
-    returnNullFields: true,
-    isTesting: false,
-    port: 3000,
-    schemas: null,
-  }
-
-  // Do not check keys that are just containers for other keys.
-  const alwaysSkip = ['requestBodyInterceptor']
-
-  for (const key in defaultConfig) {
-    if (alwaysSkip.includes(key)) continue
-    if (skip.includes(key as ConfigKey)) continue
-
-    // For callback functions we just wanna know they are functions,
-    // because the actual implementation is tested elsewhere.
-    // if (callbackKeys.includes(key)) {
-    //   expect(config[key]).toBeInstanceOf(Function)
-    //   continue
-    // }
-
-    // All other keys should be equal to the default config.
-    expect(config[key]).toEqual(defaultConfig[key])
-  }
+const defaultConfig: Config = {
+  resources: [],
+  validateResources: false,
+  staticFolder: null,
+  apiPrefix: null,
+  connectionString: null,
+  cacheControl: 'no-store',
+  delay: 0,
+  requestBodyInterceptor: null,
+  responseBodyInterceptor: null,
+  customRouter: null,
+  returnNullFields: true,
+  isTesting: false,
+  port: 3000,
+  schemas: null,
 }
 
 test('No config returns default config', () => {
-  const defaultConfig = initConfig()
-  assertDefaultConfig(defaultConfig)
+  const initializedConfig = initConfig()
+
+  expect(initializedConfig.resources).toEqual(defaultConfig.resources)
+  expect(initializedConfig.validateResources).toBe(defaultConfig.validateResources)
+  expect(initializedConfig.staticFolder).toBe(defaultConfig.staticFolder)
+  expect(initializedConfig.apiPrefix).toBe(defaultConfig.apiPrefix)
+  expect(initializedConfig.connectionString).toBe(defaultConfig.connectionString)
+  expect(initializedConfig.cacheControl).toBe(defaultConfig.cacheControl)
+  expect(initializedConfig.delay).toBe(defaultConfig.delay)
+  expect(initializedConfig.requestBodyInterceptor?.post).toBe(
+    defaultConfig.requestBodyInterceptor?.post,
+  )
+  expect(initializedConfig.requestBodyInterceptor?.patch).toBe(
+    defaultConfig.requestBodyInterceptor?.patch,
+  )
+  expect(initializedConfig.requestBodyInterceptor?.put).toBe(
+    defaultConfig.requestBodyInterceptor?.put,
+  )
+  expect(initializedConfig.responseBodyInterceptor).toBe(defaultConfig.responseBodyInterceptor)
+  expect(initializedConfig.customRouter).toBe(defaultConfig.customRouter)
+  expect(initializedConfig.returnNullFields).toBe(defaultConfig.returnNullFields)
+  expect(initializedConfig.isTesting).toBe(defaultConfig.isTesting)
+  expect(initializedConfig.port).toBe(defaultConfig.port)
+  expect(initializedConfig.schemas).toBe(defaultConfig.schemas)
 })
 
 test('Full user config overrides all defaults', () => {
@@ -100,9 +100,9 @@ test('Full user config overrides all defaults', () => {
   expect(config.connectionString).toBe('mongodb://localhost:27017')
   expect(config.cacheControl).toBe('no-cache')
   expect(config.delay).toBe(1000)
-  expect(config.requestBodyInterceptor.post).toBeInstanceOf(Function)
-  expect(config.requestBodyInterceptor.patch).toBeInstanceOf(Function)
-  expect(config.requestBodyInterceptor.put).toBeInstanceOf(Function)
+  expect(config.requestBodyInterceptor!.post).toBeInstanceOf(Function)
+  expect(config.requestBodyInterceptor!.patch).toBeInstanceOf(Function)
+  expect(config.requestBodyInterceptor!.put).toBeInstanceOf(Function)
   expect(config.responseBodyInterceptor).toBeInstanceOf(Function)
   expect(config.customRouter).not.toBeNull()
   expect(config.returnNullFields).toBe(false)
@@ -116,6 +116,20 @@ test('Partial user config applies those, but leaves the rest at default', () => 
     apiPrefix: 'api',
   })
 
+  expect(config.resources).toEqual(defaultConfig.resources)
+  expect(config.validateResources).toBe(defaultConfig.validateResources)
+  expect(config.staticFolder).toBe(defaultConfig.staticFolder)
   expect(config.apiPrefix).toBe('/api/')
-  assertDefaultConfig(config, ['apiPrefix'])
+  expect(config.connectionString).toBe(defaultConfig.connectionString)
+  expect(config.cacheControl).toBe(defaultConfig.cacheControl)
+  expect(config.delay).toBe(defaultConfig.delay)
+  expect(config.requestBodyInterceptor?.post).toBe(defaultConfig.requestBodyInterceptor?.post)
+  expect(config.requestBodyInterceptor?.patch).toBe(defaultConfig.requestBodyInterceptor?.patch)
+  expect(config.requestBodyInterceptor?.put).toBe(defaultConfig.requestBodyInterceptor?.put)
+  expect(config.responseBodyInterceptor).toBe(defaultConfig.responseBodyInterceptor)
+  expect(config.customRouter).toBe(defaultConfig.customRouter)
+  expect(config.returnNullFields).toBe(defaultConfig.returnNullFields)
+  expect(config.isTesting).toBe(defaultConfig.isTesting)
+  expect(config.port).toBe(defaultConfig.port)
+  expect(config.schemas).toBe(defaultConfig.schemas)
 })

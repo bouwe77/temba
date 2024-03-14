@@ -1,7 +1,7 @@
-import request from 'supertest'
-import type { Config } from '../../src/config'
-import createServer from './createServer'
 import { describe, beforeEach, test, expect } from 'vitest'
+import request from 'supertest'
+import type { UserConfig } from '../../src/config'
+import createServer from './createServer'
 
 describe('responseBodyInterceptor unusual (but allowed) implementations', () => {
   const noReturnValues = [undefined, null]
@@ -13,7 +13,7 @@ describe('responseBodyInterceptor unusual (but allowed) implementations', () => 
           //do not return anything when returnValue is undefined
           if (typeof returnValue !== 'undefined') return returnValue
         },
-      } as unknown as Config)
+      } satisfies UserConfig)
 
       // Delete all items.
       await request(tembaServer).delete('/stuff')
@@ -46,7 +46,7 @@ describe('responseBodyInterceptor unusual (but allowed) implementations', () => 
       responseBodyInterceptor: () => {
         throw new Error('Something went wrong')
       },
-    } as unknown as Config)
+    } satisfies UserConfig)
 
     const response = await request(tembaServer).get('/stuff')
     expect(response.statusCode).toEqual(500)
@@ -59,7 +59,7 @@ describe('responseBodyInterceptor unusual (but allowed) implementations', () => 
         if (id) return 'A string, instead of an object'
         else return 'A string, instead of an array'
       },
-    } as unknown as Config)
+    } satisfies UserConfig)
 
     const {
       body: { id },
@@ -82,6 +82,9 @@ describe('responseBodyInterceptor returns an updated response', () => {
         if (id) {
           return { ...body, extra: 'stuff' }
         } else {
+          // This line is to satisfy TypeScript.
+          if (!Array.isArray(body)) return []
+
           return body.map((item, index) => ({
             ...item,
             extra: 'stuff ' + index,
@@ -89,7 +92,7 @@ describe('responseBodyInterceptor returns an updated response', () => {
         }
       }
     },
-  } as unknown as Config)
+  } satisfies UserConfig)
 
   beforeEach(async () => {
     // Delete all items

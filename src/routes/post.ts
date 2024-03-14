@@ -10,30 +10,38 @@ function createPostRoutes(
   queries: Queries,
   requestBodyInterceptor: RequestBodyInterceptor | null,
   returnNullFields: boolean,
-  schemas: ValidateFunctionPerResource | null,
+  schemas: ValidateFunctionPerResource,
 ) {
   async function handlePost(req: TembaRequest) {
     try {
-      const { resource } = req.requestInfo
+      const {
+        body,
+        protocol,
+        host,
+        requestInfo: { resource },
+      } = req
 
-      const validationResult = validate(req.body, schemas?.[resource])
+      // This check is only to satisfy TypeScript.
+      if (!resource) return { status: 404 }
+
+      const validationResult = validate(body, schemas[resource])
       if (validationResult.isValid === false) {
         return { status: 400, body: { message: validationResult.errorMessage } }
       }
 
-      const body = requestBodyInterceptor?.post
-        ? interceptRequestBody(requestBodyInterceptor.post, resource, req.body)
-        : req.body
+      const body2 = requestBodyInterceptor?.post
+        ? interceptRequestBody(requestBodyInterceptor.post, resource, body)
+        : body
 
-      if (typeof body === 'string') return { status: 400, body: { message: body } }
+      if (typeof body2 === 'string') return { status: 400, body: { message: body2 } }
 
-      const newItem = await queries.create(resource, body as ItemWithoutId)
+      const newItem = await queries.create(resource, body2 as ItemWithoutId)
 
       return {
         headers: {
           Location: format({
-            protocol: req.protocol,
-            host: req.host,
+            protocol: protocol,
+            host: host,
             pathname: `${resource}/${newItem.id}`,
           }),
         },

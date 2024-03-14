@@ -1,4 +1,4 @@
-import express, { type Response } from 'express'
+import express, { type Response, type Request } from 'express'
 import { createGetRoutes } from './get'
 import { createPostRoutes } from './post'
 import { createPutRoutes } from './put'
@@ -65,11 +65,13 @@ function createResourceRouter(
     handleRequest: (tembaRequest: TembaRequest) => Promise<TembaResponse>,
   ) => {
     return async (req: ExtendedRequest, res: Response) => {
+      const host = req.get('host') || null
+      const protocol = host ? req.protocol : null
       const request = {
         requestInfo: req.requestInfo,
         body: req.body,
-        protocol: req.protocol,
-        host: req.get('host'),
+        protocol,
+        host,
       }
 
       const tembaResponse = await handleRequest(request)
@@ -90,10 +92,15 @@ function createResourceRouter(
 
   resourceRouter
     // The router.get() function automatically handles HEAD requests as well, unless router.head is called first.
+    // @ts-ignore
     .get('*', getResourceAndId, validateResource, createRequestHandler(handleGet))
+    // @ts-ignore
     .post('*', getResourceAndId, validateResource, createRequestHandler(handlePost))
+    // @ts-ignore
     .put('*', getResourceAndId, validateResource, createRequestHandler(handlePut))
+    // @ts-ignore
     .patch('*', getResourceAndId, validateResource, createRequestHandler(handlePatch))
+    // @ts-ignore
     .delete('*', getResourceAndId, validateResource, createRequestHandler(handleDelete))
 
   return resourceRouter
@@ -109,12 +116,12 @@ rootRouter.get('/', async (_, res) => {
 rootRouter.all('/', handleMethodNotAllowed)
 
 // Route for handling not allowed methods.
-function handleMethodNotAllowed(_, res) {
+function handleMethodNotAllowed(_: Request, res: Response) {
   res.status(405).json({ message: 'Method Not Allowed' })
 }
 
 // Route for handling not found.
-function handleNotFound(_, res) {
+function handleNotFound(_: Request, res: Response) {
   res.status(404).json({ message: 'Not Found' })
 }
 

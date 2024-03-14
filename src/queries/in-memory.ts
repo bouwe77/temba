@@ -13,8 +13,9 @@ function getAll(resource: string) {
 function getById(resource: string, id: string) {
   createResourceArrayIfNecessary(resource)
 
-  return new Promise<Item | undefined>((resolve) => {
-    resolve(data[resource].find((item) => item.id === id))
+  const item = data[resource].find((item) => item.id === id) || null
+  return new Promise<Item | null>((resolve) => {
+    resolve(item)
   })
 }
 
@@ -66,7 +67,7 @@ function createResourceArrayIfNecessary(resource: string) {
   if (!Object.hasOwn(data, resource)) data[resource] = []
 }
 
-const inMemoryQueries: Queries = {
+export const inMemoryQueries: Queries = {
   getAll,
   getById,
   create,
@@ -75,5 +76,3 @@ const inMemoryQueries: Queries = {
   deleteById,
   deleteAll,
 }
-
-export default inMemoryQueries

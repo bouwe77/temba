@@ -1,9 +1,11 @@
+import { describe, test, expect } from 'vitest'
 import request from 'supertest'
-import { Config } from '../../../src/config'
+import { UserConfig } from '../../../src/config'
 import createServer from '../createServer'
+import { RequestBodyInterceptor } from '../../../src/routes/types'
 
 describe('requestBodyInterceptors that return a string to indicate a 400 Bad Request should be returned', () => {
-  const requestBodyInterceptor = {
+  const requestBodyInterceptor: RequestBodyInterceptor = {
     post: ({ resource }) => {
       if (resource === 'movies') return '400 Bad Request error from POST'
     },
@@ -15,7 +17,7 @@ describe('requestBodyInterceptors that return a string to indicate a 400 Bad Req
     },
   }
 
-  const tembaServer = createServer({ requestBodyInterceptor } as unknown as Config)
+  const tembaServer = createServer({ requestBodyInterceptor } satisfies UserConfig)
 
   test('POST with a requestBodyInterceptor that returns an error string should result in 400 Bad Request', async () => {
     const expectedResource = 'movies'

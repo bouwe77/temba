@@ -1,7 +1,7 @@
-import inMemoryQueries from './in-memory'
-import createMongoQueries from './mongo'
+import { inMemoryQueries } from './in-memory'
+import { createMongoQueries } from './mongo'
 
-function createQueries(connectionString) {
+function createQueries(connectionString: string | null) {
   if (!connectionString) {
     return inMemoryQueries
   }

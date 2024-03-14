@@ -1,7 +1,3 @@
-Hier was ik gebleven:
-strictness in tsconfig toegevoegd, dus nu tsc uitvoeren
-en dan de errors oplossen
-
 import express, { json } from 'express'
 import morgan from 'morgan'
 import {
@@ -12,10 +8,10 @@ import {
 } from './routes/routes'
 import { createQueries } from './queries/queries'
 import { initConfig } from './config'
-import type { Config, UserConfig } from './config'
+import type { UserConfig } from './config'
 import cors from 'cors'
 import { createDelayMiddleware } from './delay/delayMiddleware'
-import { compileAndTransformSchemas } from './schema/compile'
+import { compileSchemas } from './schema/compile'
 
 function createServer(userConfig?: UserConfig) {
   const config = initConfig(userConfig)
@@ -56,7 +52,7 @@ function createServer(userConfig?: UserConfig) {
 
   // Create a router on all other URLs, for all supported methods
   const resourcePath = config.apiPrefix ? `${config.apiPrefix}*` : '*'
-  const schemas = compileAndTransformSchemas(config.schemas)
+  const schemas = compileSchemas(config.schemas)
   const resourceRouter = createResourceRouter(queries, schemas, config)
   app.use(resourcePath, resourceRouter)
 
@@ -89,6 +85,6 @@ function createServer(userConfig?: UserConfig) {
   }
 }
 
-export function create(userConfig?: Config) {
+export function create(userConfig?: UserConfig) {
   return createServer(userConfig)
 }

@@ -1,7 +1,7 @@
+import { test, expect } from 'vitest'
 import request from 'supertest'
 import createServer from './createServer'
-import type { Config } from '../../src/config'
-import { test, expect } from 'vitest'
+import type { UserConfig } from '../../src/config'
 
 /*
   Tests for JSON Schema validation
@@ -29,7 +29,7 @@ test('Schema validation POST/PUT/PATCH', async () => {
         patch: schemaUpdate,
       },
     },
-  } as unknown as Config)
+  } satisfies UserConfig)
 
   // POST only the required brand
   let response = await request(tembaServer)
@@ -160,7 +160,7 @@ test('Schema validation per resource', async () => {
         post: schema,
       },
     },
-  } as unknown as Config)
+  } satisfies UserConfig)
 
   // A car with a brand is valid
   let response = await request(tembaServer)

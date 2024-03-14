@@ -7,27 +7,35 @@ import type { Queries } from '../queries/types'
 
 function createPutRoutes(
   queries: Queries,
-  requestBodyInterceptor: RequestBodyInterceptor,
+  requestBodyInterceptor: RequestBodyInterceptor | null,
   returnNullFields: boolean,
-  schemas: ValidateFunctionPerResource,
+  schemas: ValidateFunctionPerResource | null,
 ) {
   async function handlePut(req: TembaRequest) {
     try {
-      const { resource, id } = req.requestInfo
+      const {
+        body,
+        requestInfo: { resource, id },
+      } = req
 
-      const validationResult = validate(req.body, schemas?.[resource])
+      // This check is only to satisfy TypeScript.
+      if (!resource) return { status: 404 }
+
+      const validationResult = validate(body, schemas?.[resource])
       if (validationResult.isValid === false) {
         return { status: 400, body: { message: validationResult.errorMessage } }
       }
 
-      const body = requestBodyInterceptor?.put
-        ? interceptRequestBody(requestBodyInterceptor.put, resource, req.body)
-        : req.body
+      const body2 = requestBodyInterceptor?.put
+        ? interceptRequestBody(requestBodyInterceptor.put, resource, body)
+        : body
 
-      if (typeof body === 'string') return { status: 400, body: { message: body } }
+      if (typeof body2 === 'string') return { status: 400, body: { message: body2 } }
 
-      let item = null
-      if (id) item = await queries.getById(resource, id)
+      // This check is only to satisfy TypeScript.
+      if (!id) return { status: 404 }
+
+      let item = await queries.getById(resource, id)
 
       if (!item)
         return {
@@ -37,8 +45,9 @@ function createPutRoutes(
           },
         }
 
-      item = { ...(body as object), id }
+      item = { ...(body2 as object), id }
 
+      // TODO Update types for req.requestInfo: id should be a string when PUT, PATCH, and DELETE
       const replacedItem = await queries.replace(resource, item)
 
       return { status: 200, body: returnNullFields ? replacedItem : removeNullFields(replacedItem) }

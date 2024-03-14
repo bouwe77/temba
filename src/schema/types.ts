@@ -10,26 +10,14 @@ type ConfiguredResourceSchema = {
   patch?: unknown
 }
 
-export type TransformedSchemas = {
-  post?: {
-    [resource: string]: unknown
-  }
-  put?: {
-    [resource: string]: unknown
-  }
-  patch?: {
-    [resource: string]: unknown
-  }
-}
-
 export type ValidateFunctionPerResource = {
   [resource: string]: ValidateFunction<unknown>
 }
 
 export type CompiledSchemas = {
-  post?: ValidateFunctionPerResource
-  put?: ValidateFunctionPerResource
-  patch?: ValidateFunctionPerResource
+  post: ValidateFunctionPerResource
+  put: ValidateFunctionPerResource
+  patch: ValidateFunctionPerResource
 }
 
 export type ValidationResult =
