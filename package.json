@@ -3,7 +3,7 @@
   "version": "0.20.0",
   "description": "Get a simple MongoDB REST API with zero coding in less than 30 seconds (seriously).",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "scripts": {
     "build": "rm -rf dist && tsc && cp package.json README.md ./dist",
     "test": "vitest",
