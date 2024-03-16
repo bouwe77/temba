@@ -31,7 +31,7 @@ describe('requestBodyInterceptors that return nothing (void) to indicate nothing
       .send({ name: 'Pikachu' })
       .set('Content-Type', 'application/json')
     expect(postResponse.statusCode).toEqual(201)
-    const id = postResponse.header.location.split('/').pop()
+    const id = postResponse.header.location?.split('/').pop()
 
     // Send a PUT request to the id.
     // The request body is empty because that's not important for this test.
@@ -49,7 +49,7 @@ describe('requestBodyInterceptors that return nothing (void) to indicate nothing
       .send({ name: 'Pikachu' })
       .set('Content-Type', 'application/json')
     expect(postResponse.statusCode).toEqual(201)
-    const id = postResponse.header.location.split('/').pop()
+    const id = postResponse.header.location?.split('/').pop()
 
     // Send a PATCH request to the id.
     // The request body is empty because that's not important for this test.

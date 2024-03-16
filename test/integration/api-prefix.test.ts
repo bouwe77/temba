@@ -85,7 +85,7 @@ test('apiPrefix is equal to resource name', async () => {
   const postResponse = await request(server).post(moviesUrl).send({ title: 'Inception' })
   expect(postResponse.statusCode).toEqual(201)
 
-  const id = postResponse.header.location.split('/').pop()
+  const id = postResponse.header.location?.split('/').pop()
 
   // Check if we can get the movie
   const getResponse = await request(server).get(moviesUrl + id)

@@ -10,9 +10,7 @@
     "moduleDetection": "force",
 
     /* Strictness */
-    /*
     "noUncheckedIndexedAccess": true,
-    */
     "strict": true,
     
     /* If transpiling with TypeScript: */
