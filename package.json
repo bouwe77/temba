@@ -1,6 +1,6 @@
 {
   "name": "temba",
-  "version": "0.18.0",
+  "version": "0.19.0",
   "description": "Get a simple MongoDB REST API with zero coding in less than 30 seconds (seriously).",
   "type": "module",
   "main": "dist/index.js",
