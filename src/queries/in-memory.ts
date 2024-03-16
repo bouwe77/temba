@@ -2,58 +2,59 @@ import { Item, ItemWithoutId, Queries } from './types'
 
 const data: { [key: string]: Item[] } = {}
 
-function getAll(resource: string) {
+const getAll = (resource: string) => {
   createResourceArrayIfNecessary(resource)
 
   return new Promise<Item[]>((resolve) => {
-    resolve(data[resource])
+    resolve(data[resource] || [])
   })
 }
 
-function getById(resource: string, id: string) {
+const getById = (resource: string, id: string) => {
   createResourceArrayIfNecessary(resource)
 
-  return new Promise<Item | undefined>((resolve) => {
-    resolve(data[resource].find((item) => item.id === id))
+  const item = (data[resource] || []).find((item) => item.id === id) || null
+  return new Promise<Item | null>((resolve) => {
+    resolve(item)
   })
 }
 
-function create(resource: string, item: ItemWithoutId) {
+const create = (resource: string, item: ItemWithoutId) => {
   createResourceArrayIfNecessary(resource)
 
   const newItem = { ...item, id: String(new Date().getTime()) }
 
-  data[resource] = [...data[resource], newItem]
+  data[resource] = [...(data[resource] || []), newItem]
 
   return new Promise<Item>((resolve) => {
     resolve(newItem)
   })
 }
 
-function update(resource: string, item: Item) {
+const update = (resource: string, item: Item) => {
   createResourceArrayIfNecessary(resource)
 
   const updatedItem = { ...item }
-  data[resource] = [...data[resource].filter((r) => r.id !== item.id), updatedItem]
+  data[resource] = [...(data[resource] || []).filter((r) => r.id !== item.id), updatedItem]
   return new Promise<Item>((resolve) => {
     resolve(updatedItem)
   })
 }
 
-function replace(resource: string, item: Item) {
+const replace = (resource: string, item: Item) => {
   return update(resource, item)
 }
 
-function deleteById(resource: string, id: string) {
+const deleteById = (resource: string, id: string) => {
   createResourceArrayIfNecessary(resource)
 
-  data[resource] = data[resource].filter((item) => item.id !== id)
+  data[resource] = (data[resource] || []).filter((item) => item.id !== id)
   return new Promise<void>((resolve) => {
     resolve()
   })
 }
 
-function deleteAll(resource: string) {
+const deleteAll = (resource: string) => {
   createResourceArrayIfNecessary(resource)
 
   data[resource] = []
@@ -62,11 +63,11 @@ function deleteAll(resource: string) {
   })
 }
 
-function createResourceArrayIfNecessary(resource: string) {
+const createResourceArrayIfNecessary = (resource: string) => {
   if (!Object.hasOwn(data, resource)) data[resource] = []
 }
 
-const inMemoryQueries: Queries = {
+export const inMemoryQueries: Queries = {
   getAll,
   getById,
   create,
@@ -75,5 +76,3 @@ const inMemoryQueries: Queries = {
   deleteById,
   deleteAll,
 }
-
-export default inMemoryQueries

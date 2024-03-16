@@ -1,10 +1,10 @@
-import { RequestBodyInterceptorCallback } from './types'
+import type { RequestBodyInterceptorCallback } from './types'
 
-function interceptRequestBody(
+export const interceptRequestBody = (
   intercept: RequestBodyInterceptorCallback,
   resource: string,
   body: unknown,
-) {
+) => {
   const intercepted = intercept({ resource, body })
 
   if (!intercepted && typeof body === 'object') return body
@@ -12,11 +12,10 @@ function interceptRequestBody(
   if (typeof intercepted === 'string') return intercepted
 
   // The request body was replaced by an object
-  if (intercepted && typeof body === 'object') return intercepted
+  if (intercepted && typeof intercepted === 'object' && !Array.isArray(intercepted))
+    return intercepted
 
   // The request body was replaced by something else than an object or a string.
   // This is not supported, so we return the original request body.
   return body
 }
-
-export { interceptRequestBody }

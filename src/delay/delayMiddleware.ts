@@ -1,11 +1,15 @@
-import pause from 'connect-pause'
+import type { NextFunction, Request, Response } from 'express'
 
-function createDelayMiddleware(delay) {
-  return function (req, res, next) {
+const pause = (delay: number) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    setTimeout(next, delay)
+  }
+}
+
+export const createDelayMiddleware = (delay: number) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     console.log('Start delay...')
     pause(delay)(req, res, next)
     console.log('Delay finished!')
   }
 }
-
-export { createDelayMiddleware }

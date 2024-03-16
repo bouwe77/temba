@@ -1,21 +1,23 @@
+import { describe, test, expect } from 'vitest'
 import request from 'supertest'
-import { Config } from '../../../src/config'
+import { UserConfig } from '../../../src/config'
 import createServer from '../createServer'
+import { RequestBodyInterceptor } from '../../../src/requestBodyInterceptor/types'
 
 describe('requestBodyInterceptors that return a (new or changed) request body object', () => {
-  const requestBodyInterceptor = {
+  const requestBodyInterceptor: RequestBodyInterceptor = {
     post: ({ resource }) => {
       if (resource === 'movies') return { title: 'The Matrix' }
     },
     put: ({ body }) => {
-      return { ...body, replaced: true }
+      return { ...(body as object), replaced: true }
     },
     patch: ({ body }) => {
-      return { ...body, updated: true }
+      return { ...(body as object), updated: true }
     },
   }
 
-  const tembaServer = createServer({ requestBodyInterceptor } as unknown as Config)
+  const tembaServer = createServer({ requestBodyInterceptor } satisfies UserConfig)
 
   test('POST with a requestBodyInterceptor that returns a request body', async () => {
     const resourceUrl = '/movies'
@@ -27,8 +29,9 @@ describe('requestBodyInterceptors that return a (new or changed) request body ob
       .set('Content-Type', 'application/json')
 
     expect(response.statusCode).toEqual(201)
+    expect(response.body.title).toEqual('The Matrix')
 
-    const id = response.header.location.split('/').pop()
+    const id = response.header.location?.split('/').pop()
 
     const getResponse = await request(tembaServer).get(`${resourceUrl}/${id}`)
     expect(getResponse.statusCode).toEqual(200)
@@ -48,7 +51,7 @@ describe('requestBodyInterceptors that return a (new or changed) request body ob
     expect(postResponse.body.name).toEqual('Pikachu')
     expect(postResponse.body.replaced).toBeUndefined()
 
-    const id = postResponse.header.location.split('/').pop()
+    const id = postResponse.header.location?.split('/').pop()
 
     // Send a PUT request to the id.
     const response = await request(tembaServer)
@@ -58,8 +61,8 @@ describe('requestBodyInterceptors that return a (new or changed) request body ob
 
     expect(response.statusCode).toEqual(200)
     expect(response.body.id).toEqual(id)
-    // expect(response.body.name).toEqual('Mew')
-    // expect(response.body.replaced).toEqual(true)
+    expect(response.body.name).toEqual('Mew')
+    expect(response.body.replaced).toEqual(true)
   })
 
   test('PATCH with a requestBodyInterceptor that returns a request body', async () => {
@@ -74,7 +77,7 @@ describe('requestBodyInterceptors that return a (new or changed) request body ob
     expect(postResponse.body.name).toEqual('Pikachu')
     expect(postResponse.body.updated).toBeUndefined()
 
-    const id = postResponse.header.location.split('/').pop()
+    const id = postResponse.header.location?.split('/').pop()
 
     // Send a PATCH request to the id.
     const response = await request(tembaServer)

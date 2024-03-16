@@ -1,7 +1,7 @@
-import request from 'supertest'
-import { Config } from '../../src/config'
-import createServer from './createServer'
 import { describe, beforeEach, test, expect } from 'vitest'
+import request from 'supertest'
+import type { UserConfig } from '../../src/config'
+import createServer from './createServer'
 
 describe('responseBodyInterceptor unusual (but allowed) implementations', () => {
   const noReturnValues = [undefined, null]
@@ -13,7 +13,7 @@ describe('responseBodyInterceptor unusual (but allowed) implementations', () => 
           //do not return anything when returnValue is undefined
           if (typeof returnValue !== 'undefined') return returnValue
         },
-      } as unknown as Config)
+      } satisfies UserConfig)
 
       // Delete all items.
       await request(tembaServer).delete('/stuff')
@@ -46,7 +46,7 @@ describe('responseBodyInterceptor unusual (but allowed) implementations', () => 
       responseBodyInterceptor: () => {
         throw new Error('Something went wrong')
       },
-    } as unknown as Config)
+    } satisfies UserConfig)
 
     const response = await request(tembaServer).get('/stuff')
     expect(response.statusCode).toEqual(500)
@@ -55,11 +55,14 @@ describe('responseBodyInterceptor unusual (but allowed) implementations', () => 
 
   test('When responseBodyInterceptor does not return an object or array, still return the intercepted value', async () => {
     const tembaServer = createServer({
-      responseBodyInterceptor: ({ id }) => {
-        if (id) return 'A string, instead of an object'
-        else return 'A string, instead of an array'
+      responseBodyInterceptor: (info) => {
+        if ('id' in info) {
+          return 'A string, instead of an object'
+        } else {
+          return 'A string, instead of an array'
+        }
       },
-    } as unknown as Config)
+    } satisfies UserConfig)
 
     const {
       body: { id },
@@ -77,19 +80,19 @@ describe('responseBodyInterceptor unusual (but allowed) implementations', () => 
 
 describe('responseBodyInterceptor returns an updated response', () => {
   const tembaServer = createServer({
-    responseBodyInterceptor: ({ resource, body, id }) => {
-      if (resource === 'stuff') {
-        if (id) {
-          return { ...body, extra: 'stuff' }
+    responseBodyInterceptor: (info) => {
+      if (info.resource === 'stuff') {
+        if ('id' in info) {
+          return { ...info.body, extra: 'stuff' }
         } else {
-          return body.map((item, index) => ({
+          return info.body.map((item, index) => ({
             ...item,
             extra: 'stuff ' + index,
           }))
         }
       }
     },
-  } as unknown as Config)
+  } satisfies UserConfig)
 
   beforeEach(async () => {
     // Delete all items

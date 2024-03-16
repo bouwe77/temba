@@ -1,7 +1,7 @@
-import inMemoryQueries from './in-memory'
-import createMongoQueries from './mongo'
+import { inMemoryQueries } from './in-memory'
+import { createMongoQueries } from './mongo'
 
-function createQueries(connectionString) {
+export const createQueries = (connectionString: string | null) => {
   if (!connectionString) {
     return inMemoryQueries
   }
@@ -9,5 +9,3 @@ function createQueries(connectionString) {
   const mongoQueries = createMongoQueries(connectionString)
   return mongoQueries
 }
-
-export { createQueries }

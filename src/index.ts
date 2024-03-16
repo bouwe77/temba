@@ -1,18 +1,14 @@
-import express, { json } from 'express'
+import express, { Response, Request, json } from 'express'
 import morgan from 'morgan'
-import {
-  createResourceRouter,
-  rootRouter,
-  handleMethodNotAllowed,
-  handleNotFound,
-} from './routes/routes'
 import { createQueries } from './queries/queries'
-import { Config, UserConfig, initConfig } from './config'
+import { initConfig } from './config'
+import type { UserConfig } from './config'
 import cors from 'cors'
 import { createDelayMiddleware } from './delay/delayMiddleware'
-import { compileAndTransformSchemas } from './schema/compile'
+import { compileSchemas } from './schema/compile'
+import { createResourceRouter } from './resourceRouter'
 
-function createServer(userConfig?: UserConfig) {
+const createServer = (userConfig?: UserConfig) => {
   const config = initConfig(userConfig)
 
   const queries = createQueries(config.connectionString)
@@ -38,6 +34,7 @@ function createServer(userConfig?: UserConfig) {
   }
 
   // On the root URL (with apiPrefix, if applicable) only a GET is allowed.
+  const rootRouter = express.Router()
   const rootPath = config.apiPrefix ? `${config.apiPrefix}` : '/'
   app.use(rootPath, rootRouter)
 
@@ -51,9 +48,27 @@ function createServer(userConfig?: UserConfig) {
 
   // Create a router on all other URLs, for all supported methods
   const resourcePath = config.apiPrefix ? `${config.apiPrefix}*` : '*'
-  const schemas = compileAndTransformSchemas(config.schemas)
+  const schemas = compileSchemas(config.schemas)
   const resourceRouter = createResourceRouter(queries, schemas, config)
   app.use(resourcePath, resourceRouter)
+
+  // A GET to the root URL shows a default message.
+  rootRouter.get('/', async (_, res) => {
+    return res.send('It works! ツ')
+  })
+
+  // Route for handling not allowed methods.
+  const handleMethodNotAllowed = (_: Request, res: Response) => {
+    res.status(405).json({ message: 'Method Not Allowed' })
+  }
+
+  // Route for handling not found.
+  const handleNotFound = (_: Request, res: Response) => {
+    res.status(404).json({ message: 'Not Found' })
+  }
+
+  // All other requests to the root URL are not allowed.
+  rootRouter.all('/', handleMethodNotAllowed)
 
   // In case of an API prefix, resource URLs outside of the API prefix return a 404 Not Found.
   if (config.apiPrefix) {
@@ -84,6 +99,4 @@ function createServer(userConfig?: UserConfig) {
   }
 }
 
-export function create(userConfig?: Config) {
-  return createServer(userConfig)
-}
+export const create = (userConfig?: UserConfig) => createServer(userConfig)

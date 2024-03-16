@@ -1,8 +1,8 @@
+import { describe, test, expect } from 'vitest'
 import request from 'supertest'
 import express from 'express'
-import { Config } from '../../src/config'
+import type { UserConfig } from '../../src/config'
 import createServer from './createServer'
-import { describe, test, expect } from 'vitest'
 
 describe('Configuring only a customRouter', () => {
   const customRouter = express.Router()
@@ -13,7 +13,7 @@ describe('Configuring only a customRouter', () => {
     return res.send('Hello, World!')
   })
 
-  const tembaServer = createServer({ customRouter } as unknown as Config)
+  const tembaServer = createServer({ customRouter } satisfies UserConfig)
 
   test("Temba's root URL takes presedence over a root URL in a customRouter", async () => {
     // The root URL is controlled by Temba, so the custom router's root URL is ignored.
@@ -43,7 +43,7 @@ describe('Configuring customRouter + resources', () => {
   const tembaServer = createServer({
     customRouter,
     resources: ['hello'],
-  } as unknown as Config)
+  } satisfies UserConfig)
 
   test('customRouter takes presedence over resources', async () => {
     // The /hello route is configured both through a custom Express router,
@@ -65,7 +65,7 @@ describe('Configuring customRouter + resources', () => {
     const tembaServer = createServer({
       apiPrefix: '/api',
       customRouter,
-    } as unknown as Config)
+    } satisfies UserConfig)
 
     test('customRouter takes presedence over apiPrefix routes', async () => {
       // As we did not configure resources, any resource route through the apiPrefix is handled by Temba and return an empty array.

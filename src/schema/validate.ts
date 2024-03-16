@@ -9,7 +9,7 @@ export const validate = (body: unknown, validate?: ValidateFunction<unknown>): V
   } else {
     return {
       isValid: false,
-      errorMessage: validate.errors?.[0].message ?? 'Unknown schema validation error',
+      errorMessage: validate.errors?.[0]?.message ?? 'Unknown schema validation error',
     }
   }
 }

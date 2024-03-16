@@ -1,14 +1,15 @@
 import { Router } from 'express'
-import { RequestBodyInterceptor, ResponseBodyInterceptor } from '../routes/types'
-import { ConfiguredSchemas } from '../schema/types'
+import type { ConfiguredSchemas } from '../schema/types'
+import { RequestBodyInterceptor } from '../requestBodyInterceptor/types'
+import { ResponseBodyInterceptor } from '../responseBodyInterceptor/types'
 
 export type Config = {
   validateResources: boolean
   resources: string[]
   apiPrefix: string | null
   cacheControl: string
-  requestBodyInterceptor: RequestBodyInterceptor
-  responseBodyInterceptor: ResponseBodyInterceptor
+  requestBodyInterceptor: RequestBodyInterceptor | null
+  responseBodyInterceptor: ResponseBodyInterceptor | null
   staticFolder: string | null
   connectionString: string | null
   delay: number
@@ -56,20 +57,8 @@ const defaultConfig: Config = {
   connectionString: null,
   cacheControl: 'no-store',
   delay: 0,
-  requestBodyInterceptor: {
-    post: () => {
-      // do nothing
-    },
-    patch: () => {
-      // do nothing
-    },
-    put: () => {
-      // do nothing
-    },
-  },
-  responseBodyInterceptor: ({ body }) => {
-    return body
-  },
+  requestBodyInterceptor: null,
+  responseBodyInterceptor: null,
   customRouter: null,
   returnNullFields: true,
   isTesting: false,
@@ -77,7 +66,7 @@ const defaultConfig: Config = {
   schemas: null,
 }
 
-export function initConfig(userConfig?: UserConfig): Config {
+export const initConfig = (userConfig?: UserConfig): Config => {
   if (!userConfig) return defaultConfig
 
   const config = { ...defaultConfig } as Config
@@ -114,6 +103,8 @@ export function initConfig(userConfig?: UserConfig): Config {
   }
 
   if (userConfig.requestBodyInterceptor) {
+    config.requestBodyInterceptor = config.requestBodyInterceptor || {}
+
     if (
       userConfig.requestBodyInterceptor.post &&
       typeof userConfig.requestBodyInterceptor.post === 'function'

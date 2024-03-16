@@ -1,10 +1,10 @@
 import type { Queries } from '../queries/types'
-import type { TembaRequest } from './types'
+import type { DeleteRequest } from './types'
 
-function createDeleteRoutes(queries: Queries) {
-  async function handleDelete(req: TembaRequest) {
+export const createDeleteRoutes = (queries: Queries) => {
+  const handleDelete = async (req: DeleteRequest) => {
     try {
-      const { resource, id } = req.requestInfo
+      const { resource, id } = req
 
       if (id) {
         const item = await queries.getById(resource, id)
@@ -21,9 +21,5 @@ function createDeleteRoutes(queries: Queries) {
     }
   }
 
-  return {
-    handleDelete,
-  }
+  return handleDelete
 }
-
-export { createDeleteRoutes }
