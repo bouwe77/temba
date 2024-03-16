@@ -2,7 +2,7 @@ import { describe, test, expect } from 'vitest'
 import request from 'supertest'
 import { UserConfig } from '../../../src/config'
 import createServer from '../createServer'
-import { RequestBodyInterceptor } from '../../../src/routes/types'
+import { RequestBodyInterceptor } from '../../../src/requestBodyInterceptor/types'
 
 describe('requestBodyInterceptors that return a (new or changed) request body object', () => {
   const requestBodyInterceptor: RequestBodyInterceptor = {

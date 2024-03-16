@@ -1,10 +1,11 @@
 import { format } from 'url'
-import { interceptRequestBody } from './interceptRequestBody'
+import { interceptRequestBody } from '../requestBodyInterceptor/interceptRequestBody'
 import { removeNullFields } from './utils'
 import { validate } from '../schema/validate'
 import type { ValidateFunctionPerResource } from '../schema/types'
-import type { TembaRequest, RequestBodyInterceptor } from './types'
+import type { PostRequest } from './types'
 import type { ItemWithoutId, Queries } from '../queries/types'
+import { RequestBodyInterceptor } from '../requestBodyInterceptor/types'
 
 export const createPostRoutes = (
   queries: Queries,
@@ -12,14 +13,9 @@ export const createPostRoutes = (
   returnNullFields: boolean,
   schemas: ValidateFunctionPerResource,
 ) => {
-  const handlePost = async (req: TembaRequest) => {
+  const handlePost = async (req: PostRequest) => {
     try {
-      const {
-        body,
-        protocol,
-        host,
-        requestInfo: { resource },
-      } = req
+      const { body, protocol, host, resource } = req
 
       const validationResult = validate(body, schemas[resource])
       if (validationResult.isValid === false) {
@@ -50,7 +46,5 @@ export const createPostRoutes = (
     }
   }
 
-  return {
-    handlePost,
-  }
+  return handlePost
 }

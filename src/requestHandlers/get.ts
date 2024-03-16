@@ -1,5 +1,7 @@
 import type { Queries } from '../queries/types'
-import type { ResponseBodyInterceptor, InterceptedResponse, TembaRequest } from './types'
+import { interceptResponseBody } from '../responseBodyInterceptor/interceptResponseBody'
+import type { ResponseBodyInterceptor } from '../responseBodyInterceptor/types'
+import type { GetRequest } from './types'
 import { removeNullFields } from './utils'
 
 export const createGetRoutes = (
@@ -11,19 +13,9 @@ export const createGetRoutes = (
   const defaultResponse = { headers: { 'Cache-control': cacheControl } }
   const responseOk = (body: unknown) => ({ ...defaultResponse, status: 200, body })
 
-  const intercept = (interceptor: ResponseBodyInterceptor, info: InterceptedResponse) => {
-    if (!interceptor) return info.body
-
-    const intercepted = interceptor(info)
-
-    return intercepted ? intercepted : info.body
-  }
-
-  const handleGet = async (req: TembaRequest) => {
+  const handleGet = async (req: GetRequest) => {
     try {
-      const {
-        requestInfo: { resource, id },
-      } = req
+      const { resource, id } = req
 
       if (id) {
         const item = await queries.getById(resource, id)
@@ -33,7 +25,7 @@ export const createGetRoutes = (
         }
 
         const theItem = responseBodyInterceptor
-          ? intercept(responseBodyInterceptor, { resource, body: item, id })
+          ? interceptResponseBody(responseBodyInterceptor, { resource, body: item, id })
           : item
 
         if (!returnNullFields) {
@@ -52,7 +44,7 @@ export const createGetRoutes = (
       const items = await queries.getAll(resource)
 
       const theItems = responseBodyInterceptor
-        ? intercept(responseBodyInterceptor, { resource, body: items })
+        ? interceptResponseBody(responseBodyInterceptor, { resource, body: items })
         : items
 
       if (!returnNullFields) {
@@ -71,7 +63,5 @@ export const createGetRoutes = (
     }
   }
 
-  return {
-    handleGet,
-  }
+  return handleGet
 }

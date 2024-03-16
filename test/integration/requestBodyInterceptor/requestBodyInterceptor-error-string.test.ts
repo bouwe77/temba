@@ -2,7 +2,7 @@ import { describe, test, expect } from 'vitest'
 import request from 'supertest'
 import { UserConfig } from '../../../src/config'
 import createServer from '../createServer'
-import { RequestBodyInterceptor } from '../../../src/routes/types'
+import { RequestBodyInterceptor } from '../../../src/requestBodyInterceptor/types'
 
 describe('requestBodyInterceptors that return a string to indicate a 400 Bad Request should be returned', () => {
   const requestBodyInterceptor: RequestBodyInterceptor = {

@@ -1,36 +1,31 @@
-import { interceptRequestBody } from './interceptRequestBody'
+import { interceptRequestBody } from '../requestBodyInterceptor/interceptRequestBody'
 import { validate } from '../schema/validate'
 import { removeNullFields } from './utils'
 import type { ValidateFunctionPerResource } from '../schema/types'
-import type { RequestBodyInterceptor, TembaRequest } from './types'
+import type { PutRequest } from './types'
 import type { Queries } from '../queries/types'
+import { RequestBodyInterceptor } from '../requestBodyInterceptor/types'
 
-export const createPatchRoutes = (
+export const createPutRoutes = (
   queries: Queries,
   requestBodyInterceptor: RequestBodyInterceptor | null,
   returnNullFields: boolean,
   schemas: ValidateFunctionPerResource | null,
 ) => {
-  const handlePatch = async (req: TembaRequest) => {
+  const handlePut = async (req: PutRequest) => {
     try {
-      const {
-        body,
-        requestInfo: { resource, id },
-      } = req
+      const { body, resource, id } = req
 
       const validationResult = validate(body, schemas?.[resource])
       if (validationResult.isValid === false) {
         return { status: 400, body: { message: validationResult.errorMessage } }
       }
 
-      const body2 = requestBodyInterceptor?.patch
-        ? interceptRequestBody(requestBodyInterceptor.patch, resource, body)
+      const body2 = requestBodyInterceptor?.put
+        ? interceptRequestBody(requestBodyInterceptor.put, resource, body)
         : body
 
       if (typeof body2 === 'string') return { status: 400, body: { message: body2 } }
-
-      // This check is only to satisfy TypeScript.
-      if (!id) return { status: 404 }
 
       let item = await queries.getById(resource, id)
 
@@ -42,18 +37,15 @@ export const createPatchRoutes = (
           },
         }
 
-      item = { ...item, ...(body2 as object), id }
+      item = { ...(body2 as object), id }
 
-      // TODO Update types for req.requestInfo: id should be a string when PUT, PATCH, and DELETE
-      const updatedItem = await queries.update(resource, item)
+      const replacedItem = await queries.replace(resource, item)
 
-      return { status: 200, body: returnNullFields ? updatedItem : removeNullFields(updatedItem) }
+      return { status: 200, body: returnNullFields ? replacedItem : removeNullFields(replacedItem) }
     } catch (error: unknown) {
       return { status: 500, body: { message: (error as Error).message } }
     }
   }
 
-  return {
-    handlePatch,
-  }
+  return handlePut
 }
