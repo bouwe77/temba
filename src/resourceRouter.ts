@@ -105,12 +105,6 @@ export const createResourceRouter = (
   const requestHandler = getRequestHandler(queries, schemas, routerConfig)
   const resourceRouter = express.Router()
 
-  // TODO TypeScript PR
-  // 4. Als tsc groen is, dan nog noUncheckedIndexedAccess aanzetten
-  // 5. Is Maybe misschien ook leuk om te gebruiken?
-  // 6. NPM link: https://chat.openai.com/c/204869d5-977f-4559-a1c3-9e9d58ffe591
-  // 7. TS support vanuit de smoketest checken: Zijn er nog dingen die missen of beter kunnen?
-
   resourceRouter.get('*', async (expressRequest, expressResponse) => {
     await handle(expressRequest, expressResponse, parseGetRequest, requestHandler.handleGet)
   })
