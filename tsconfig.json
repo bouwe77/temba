@@ -14,8 +14,7 @@
     "strict": true,
     
     /* If transpiling with TypeScript: */
-    "moduleResolution": "Bundler",
-    "module": "es2022",
+    "module": "CommonJS",
     "outDir": "dist",
     "sourceMap": true,
 
