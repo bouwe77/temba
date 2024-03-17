@@ -16,7 +16,7 @@ fi
 if [ -z "$(git status --porcelain)" ]; then 
     version=$(npm version $1)
     npm run build
-    npm publish ./dist
+    npm publish ./dist/src
 
     open "https://github.com/bouwe77/temba/releases/new?tag=$version&title=$version&prerelease=1"
 
