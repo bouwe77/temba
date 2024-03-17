@@ -448,7 +448,7 @@ These are all the possible settings:
 | `cacheControl`            | The `Cache-control` response header value for each GET request.                            | `'no-store'`  |
 | `connectionString`        | See [MongoDB](#mongodb)                                                                    | `null`        |
 | `customRouter`            | See [Custom router](#custom-router)                                                        | `null`        |
-| `delay`                   | After processing the request, the delay in milliseconds before the request should be sent. | `0`           |
+| `delay`                   | After processing the request, the delay in milliseconds before the response should be sent. | `0`           |
 | `port`                    | The port your Temba server listens on                                                      | `3000`        |
 | `requestBodyInterceptor`  | See [Request body validation or mutation](#request-body-validation-or-mutation)            | `noop`        |
 | `resources`               | See [Allowing specific resources only](#allowing-specific-resources-only)                  | `[]`          |
@@ -473,7 +473,7 @@ Although I won't promise if and when, these are some things to consider for the 
 
 ## Under the hood
 
-Temba is built with JavaScript, [Node](https://nodejs.org), [Express](https://expressjs.com/), [Vitest](https://vitest.dev/), [Supertest](https://www.npmjs.com/package/supertest), and [@rakered/mongo](https://www.npmjs.com/package/@rakered/mongo).
+Temba is built with TypeScript, [Node](https://nodejs.org), [Express](https://expressjs.com/), [Vitest](https://vitest.dev/), [Supertest](https://www.npmjs.com/package/supertest), and [@rakered/mongo](https://www.npmjs.com/package/@rakered/mongo).
 
 ## Contributors ✨
 
