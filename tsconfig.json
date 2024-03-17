@@ -14,7 +14,8 @@
     "strict": true,
     
     /* If transpiling with TypeScript: */
-    "module": "CommonJS",
+    "module": "ES2015",
+    "moduleResolution": "Bundler",
     "outDir": "dist",
     "sourceMap": true,
 
@@ -29,5 +30,9 @@
     "declarationMap": true
   },
   "include": ["src/**/*"],
+  "tsc-alias": {
+    "resolveFullPaths": true,
+    "verbose": false
+  }
 }
 
