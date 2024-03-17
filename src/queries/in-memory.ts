@@ -1,4 +1,4 @@
-import { Item, ItemWithoutId, Queries } from './types'
+import type { Item, ItemWithoutId, Queries } from './types'
 
 const data: { [key: string]: Item[] } = {}
 

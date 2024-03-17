@@ -1,5 +1,5 @@
-import { ValidateFunction } from 'ajv'
-import { ValidationResult } from './types'
+import type { ValidateFunction } from 'ajv'
+import type { ValidationResult } from './types'
 
 export const validate = (body: unknown, validate?: ValidateFunction<unknown>): ValidationResult => {
   if (!validate) return { isValid: true }

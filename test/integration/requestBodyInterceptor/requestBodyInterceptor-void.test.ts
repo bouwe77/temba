@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest'
 import request from 'supertest'
-import { UserConfig } from '../../../src/config'
+import type { UserConfig } from '../../../src/config'
 import createServer from '../createServer'
 
 describe('requestBodyInterceptors that return nothing (void) to indicate nothing should be done', () => {

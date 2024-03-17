@@ -4,7 +4,7 @@ import { removeNullFields } from './utils'
 import type { ValidateFunctionPerResource } from '../schema/types'
 import type { PutRequest } from './types'
 import type { Queries } from '../queries/types'
-import { RequestBodyInterceptor } from '../requestBodyInterceptor/types'
+import type { RequestBodyInterceptor } from '../requestBodyInterceptor/types'
 
 export const createPutRoutes = (
   queries: Queries,

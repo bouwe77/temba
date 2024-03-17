@@ -1,5 +1,3 @@
-import type { Item } from '../queries/types'
-
 export type UrlInfo = {
   resource: string | null
   id: string | null

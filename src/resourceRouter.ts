@@ -1,10 +1,11 @@
-import express, { Response, Request } from 'express'
+import express from 'express'
+import type { Response, Request } from 'express'
 import { getRequestHandler } from './requestHandlers'
 import { parseUrl } from './urls/urlParser'
-import { TembaRequest, TembaResponse } from './requestHandlers/types'
-import { Queries } from './queries/types'
-import { CompiledSchemas } from './schema/types'
-import { RouterConfig } from './config'
+import type { TembaRequest, TembaResponse } from './requestHandlers/types'
+import type { Queries } from './queries/types'
+import type { CompiledSchemas } from './schema/types'
+import type { RouterConfig } from './config'
 
 export const createResourceRouter = (
   queries: Queries,

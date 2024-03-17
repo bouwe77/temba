@@ -1,4 +1,4 @@
-import { InterceptedResponse, ResponseBodyInterceptor } from './types'
+import type { InterceptedResponse, ResponseBodyInterceptor } from './types'
 
 export const interceptResponseBody = (
   interceptor: ResponseBodyInterceptor,

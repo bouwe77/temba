@@ -1,5 +1,5 @@
-import Ajv, { AnySchema } from 'ajv'
-import { CompiledSchemas, ConfiguredSchemas } from './types'
+import Ajv, { type AnySchema } from 'ajv'
+import type { CompiledSchemas, ConfiguredSchemas } from './types'
 
 export const compileSchemas = (configuredSchemas: ConfiguredSchemas | null) => {
   // Turn the configured schemas into compiled schemas

@@ -1,4 +1,5 @@
-import express, { Response, Request, json } from 'express'
+import express, { json } from 'express'
+import type { Response, Request } from 'express'
 import morgan from 'morgan'
 import { createQueries } from './queries/queries'
 import { initConfig } from './config'
