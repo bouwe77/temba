@@ -1,4 +1,4 @@
-import { Item } from '../queries/types'
+import type { Item } from '../queries/types'
 
 export type InterceptedResponse =
   | {

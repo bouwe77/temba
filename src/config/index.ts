@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import type { ConfiguredSchemas } from '../schema/types'
-import { RequestBodyInterceptor } from '../requestBodyInterceptor/types'
-import { ResponseBodyInterceptor } from '../responseBodyInterceptor/types'
+import type { RequestBodyInterceptor } from '../requestBodyInterceptor/types'
+import type { ResponseBodyInterceptor } from '../responseBodyInterceptor/types'
 
 export type Config = {
   validateResources: boolean

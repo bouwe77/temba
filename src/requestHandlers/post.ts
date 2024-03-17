@@ -5,7 +5,7 @@ import { validate } from '../schema/validate'
 import type { ValidateFunctionPerResource } from '../schema/types'
 import type { PostRequest } from './types'
 import type { ItemWithoutId, Queries } from '../queries/types'
-import { RequestBodyInterceptor } from '../requestBodyInterceptor/types'
+import type { RequestBodyInterceptor } from '../requestBodyInterceptor/types'
 
 export const createPostRoutes = (
   queries: Queries,

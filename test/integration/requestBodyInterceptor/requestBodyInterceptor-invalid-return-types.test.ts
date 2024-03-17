@@ -1,8 +1,8 @@
 import { describe, test, expect } from 'vitest'
 import request from 'supertest'
-import { UserConfig } from '../../../src/config'
+import type { UserConfig } from '../../../src/config'
 import createServer from '../createServer'
-import { RequestBodyInterceptor } from '../../../src/requestBodyInterceptor/types'
+import type { RequestBodyInterceptor } from '../../../src/requestBodyInterceptor/types'
 
 describe('requestBodyInterceptors does not return an object', () => {
   const getResponse = (resource: string | null) => {
