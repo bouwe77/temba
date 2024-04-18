@@ -6,7 +6,7 @@ import { createDeleteRoutes } from './delete'
 
 import type { RouterConfig } from '../config'
 import type { CompiledSchemas } from '../schema/types'
-import type { Queries } from '../queries/types'
+import type { Queries } from '../data/types'
 
 export const getRequestHandler = (
   queries: Queries,

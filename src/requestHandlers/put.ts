@@ -3,7 +3,7 @@ import { validate } from '../schema/validate'
 import { removeNullFields } from './utils'
 import type { ValidateFunctionPerResource } from '../schema/types'
 import type { PutRequest } from './types'
-import type { Queries } from '../queries/types'
+import type { Queries } from '../data/types'
 import type { RequestBodyInterceptor } from '../requestBodyInterceptor/types'
 
 export const createPutRoutes = (
