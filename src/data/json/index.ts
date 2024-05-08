@@ -3,10 +3,6 @@ import { Low, type Adapter, Memory } from 'lowdb'
 import { JSONFile } from 'lowdb/node'
 import type { PathLike } from 'node:fs'
 
-//TODO
-// - [ ] Error handling for accessing the file
-// - [ ] JSON meuk async maken (zie https://github.com/typicode/lowdb/blob/main/src/presets/node.ts)
-
 const getInMemoryDb = <Data>(defaultData: Data): Promise<Low<Data>> => {
   return getJsonDb(new Memory<Data>(), defaultData)
 }
