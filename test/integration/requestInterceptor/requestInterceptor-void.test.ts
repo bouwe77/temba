@@ -26,10 +26,7 @@ describe('requestInterceptors that return nothing (void) to indicate nothing sho
     const resourceUrl = '/pokemons'
 
     // First create a resource, so we have an id to PUT to.
-    const postResponse = await request(tembaServer)
-      .post(resourceUrl)
-      .send({ name: 'Pikachu' })
-      .set('Content-Type', 'application/json')
+    const postResponse = await request(tembaServer).post(resourceUrl).send({ name: 'Pikachu' })
     expect(postResponse.statusCode).toEqual(201)
     const id = postResponse.header.location?.split('/').pop()
 
@@ -44,10 +41,7 @@ describe('requestInterceptors that return nothing (void) to indicate nothing sho
     const resourceUrl = '/pokemons'
 
     // First create a resource, so we have an id to PUT to.
-    const postResponse = await request(tembaServer)
-      .post(resourceUrl)
-      .send({ name: 'Pikachu' })
-      .set('Content-Type', 'application/json')
+    const postResponse = await request(tembaServer).post(resourceUrl).send({ name: 'Pikachu' })
     expect(postResponse.statusCode).toEqual(201)
     const id = postResponse.header.location?.split('/').pop()
 
