@@ -3,16 +3,16 @@ import request from 'supertest'
 import type { UserConfig } from '../../../src/config'
 import createServer from '../createServer'
 
-describe('requestBodyInterceptors that return nothing (void) to indicate nothing should be done', () => {
-  const requestBodyInterceptor = {
+describe('requestInterceptors that return nothing (void) to indicate nothing should be done', () => {
+  const requestInterceptor = {
     post: () => {},
     put: () => {},
     patch: () => {},
   }
 
-  const tembaServer = createServer({ requestBodyInterceptor } satisfies UserConfig)
+  const tembaServer = createServer({ requestInterceptor } satisfies UserConfig)
 
-  test('POST with a requestBodyInterceptor that returns void', async () => {
+  test('POST with a requestInterceptor that returns void', async () => {
     const resourceUrl = '/movies'
 
     // Send a POST request.
@@ -22,7 +22,7 @@ describe('requestBodyInterceptors that return nothing (void) to indicate nothing
     expect(response.statusCode).toEqual(201)
   })
 
-  test('PUT with a requestBodyInterceptor that returns void', async () => {
+  test('PUT with a requestInterceptor that returns void', async () => {
     const resourceUrl = '/pokemons'
 
     // First create a resource, so we have an id to PUT to.
@@ -40,7 +40,7 @@ describe('requestBodyInterceptors that return nothing (void) to indicate nothing
     expect(response.statusCode).toEqual(200)
   })
 
-  test('PATCH with a requestBodyInterceptor that returns void', async () => {
+  test('PATCH with a requestInterceptor that returns void', async () => {
     const resourceUrl = '/pokemons'
 
     // First create a resource, so we have an id to PUT to.

@@ -121,7 +121,7 @@ Temba supports JSON only.
 
 Request bodies sent with a `POST`, `PATCH`, and `PUT` requests are valid when the request body is either empty, or when it's valid formatted JSON. Adding a `Content-Type: application/json` header is required. If you send a request with invalid formatted JSON, a `400 Bad Request` response is returned.
 
-Any valid formatted JSON is accepted and stored. If you want to validate or even change the JSON in the request bodies, check out [JSON Schema request body validation](#json-schema-request-body-validation) and the [`requestBodyInterceptor`](#request-body-validation-or-mutation).
+Any valid formatted JSON is accepted and stored. If you want to validate or even change the JSON in the request bodies, check out [JSON Schema request body validation](#json-schema-request-body-validation) and the [`requestInterceptor`](#request-validation-or-mutation).
 
 IDs are auto generated when creating resources. IDs in the JSON request body are always ignored.
 
@@ -256,13 +256,13 @@ If a request is not valid according to the schema, a `400 Bad Request` response 
 
 ### Intercepting requests
 
-In addition to (or instead of) validating the request using JSON Schema, you can also intercept the request body before it is persisted, using the `requestBodyInterceptor` setting.
+In addition to (or instead of) validating the request using JSON Schema, you can also intercept the request before it is persisted, using the `requestInterceptor` setting.
 
 It allows you to implement your own validation, or even change the request body.
 
 ```js
 const config = {
-  requestBodyInterceptor: {
+  requestInterceptor: {
     post: ({ resource, body }) => {
       // Validate, or even change the request body
     },
@@ -278,7 +278,9 @@ const config = {
 const server = temba.create(config)
 ```
 
-The `requestBodyInterceptor` is an object with a `post`, and/or `patch`, and/or `put` field, which contains the callback function you want Temba to call before the JSON is persisted.
+> At the moment, only `POST`, `PATCH`, and `PUT` requests can be intercepted.
+
+The `requestInterceptor` is an object with a `post`, and/or `patch`, and/or `put` field, which contains the callback function you want Temba to call before the JSON is persisted.
 
 The callback function receives an object containing the `resource`, which for example is `movies` if you request `POST /movies`, and the `body`, which is the JSON object of the request body.
 
@@ -292,7 +294,7 @@ Example:
 
 ```js
 const config = {
-  requestBodyInterceptor: {
+  requestInterceptor: {
     post: ({ resource, body }) => {
       // Do not allow Pokemons to be created: 400 Bad Request
       if (resource === 'pokemons') return 'You are not allowed to create new Pokemons'
@@ -425,7 +427,7 @@ const config = {
   customRouter: router,
   delay: 500,
   port: 4321,
-  requestBodyInterceptor: {
+  requestInterceptor: {
     post: ({ resource, body }) => {
       // Validate, or even change the request body
     },
@@ -467,9 +469,9 @@ These are all the possible settings:
 | `customRouter`            | See [Custom router](#custom-router)                                                        | `null`        |
 | `delay`                   | The delay, in milliseconds, after processing the request before sending the response. | `0`           |
 | `port`                    | The port your Temba server listens on                                                      | `3000`        |
-| `requestBodyInterceptor`  | See [Request body validation or mutation](#request-body-validation-or-mutation)            | `noop`        |
+| `requestInterceptor`  | See [Request validation or mutation](#request-validation-or-mutation)            | `noop`        |
 | `resources`               | See [Allowing specific resources only](#allowing-specific-resources-only)                  | `[]`          |
-| `responseBodyInterceptor` | See [Response body interception](#request-body-validation-or-mutation)                     | `noop`        |
+| `responseBodyInterceptor` | See [Response body interception](#response-body-interception)                     | `noop`        |
 | `returnNullFields`        | Determines whether fields with a null value should be returned in responses.                        | `true`        |
 | `schema`                  | See [JSON Schema request body validation](#json-schema-request-body-validation)                                                                                         | `null`        |
 | `staticFolder`            | See [Static assets](#static-assets)                                                        | `null`        |

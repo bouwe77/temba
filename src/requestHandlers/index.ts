@@ -13,7 +13,7 @@ export const getRequestHandler = (
   schemas: CompiledSchemas,
   routerConfig: RouterConfig,
 ) => {
-  const { cacheControl, requestBodyInterceptor, responseBodyInterceptor, returnNullFields } =
+  const { cacheControl, requestInterceptor, responseBodyInterceptor, returnNullFields } =
     routerConfig
 
   const handleGet = createGetRoutes(
@@ -23,18 +23,13 @@ export const getRequestHandler = (
     returnNullFields,
   )
 
-  const handlePost = createPostRoutes(
-    queries,
-    requestBodyInterceptor,
-    returnNullFields,
-    schemas.post,
-  )
+  const handlePost = createPostRoutes(queries, requestInterceptor, returnNullFields, schemas.post)
 
-  const handlePut = createPutRoutes(queries, requestBodyInterceptor, returnNullFields, schemas.put)
+  const handlePut = createPutRoutes(queries, requestInterceptor, returnNullFields, schemas.put)
 
   const handlePatch = createPatchRoutes(
     queries,
-    requestBodyInterceptor,
+    requestInterceptor,
     returnNullFields,
     schemas.patch,
   )

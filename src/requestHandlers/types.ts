@@ -15,7 +15,7 @@ export type ErrorResponse = {
   status: number
 }
 
-export interface TembaRequest {
+export type TembaRequest = {
   resource: string
 }
 
