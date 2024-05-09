@@ -1,15 +1,15 @@
 import { format } from 'url'
-import { interceptRequestBody } from '../requestBodyInterceptor/interceptRequestBody'
+import { interceptRequest } from '../requestInterceptor/interceptRequest'
 import { removeNullFields } from './utils'
 import { validate } from '../schema/validate'
 import type { ValidateFunctionPerResource } from '../schema/types'
 import type { PostRequest } from './types'
 import type { ItemWithoutId, Queries } from '../data/types'
-import type { RequestBodyInterceptor } from '../requestBodyInterceptor/types'
+import type { RequestInterceptor } from '../requestInterceptor/types'
 
 export const createPostRoutes = (
   queries: Queries,
-  requestBodyInterceptor: RequestBodyInterceptor | null,
+  requestInterceptor: RequestInterceptor | null,
   returnNullFields: boolean,
   schemas: ValidateFunctionPerResource,
 ) => {
@@ -22,8 +22,8 @@ export const createPostRoutes = (
         return { status: 400, body: { message: validationResult.errorMessage } }
       }
 
-      const body2 = requestBodyInterceptor?.post
-        ? interceptRequestBody(requestBodyInterceptor.post, resource, body)
+      const body2 = requestInterceptor?.post
+        ? interceptRequest(requestInterceptor.post, resource, body)
         : body
 
       if (typeof body2 === 'string') return { status: 400, body: { message: body2 } }

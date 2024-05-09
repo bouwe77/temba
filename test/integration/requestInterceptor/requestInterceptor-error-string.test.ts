@@ -2,10 +2,10 @@ import { describe, test, expect } from 'vitest'
 import request from 'supertest'
 import type { UserConfig } from '../../../src/config'
 import createServer from '../createServer'
-import type { RequestBodyInterceptor } from '../../../src/requestBodyInterceptor/types'
+import type { RequestInterceptor } from '../../../src/requestInterceptor/types'
 
-describe('requestBodyInterceptors that return a string to indicate a 400 Bad Request should be returned', () => {
-  const requestBodyInterceptor: RequestBodyInterceptor = {
+describe('requestInterceptors that return a string to indicate a 400 Bad Request should be returned', () => {
+  const requestInterceptor: RequestInterceptor = {
     post: ({ resource }) => {
       if (resource === 'movies') return '400 Bad Request error from POST'
     },
@@ -17,9 +17,9 @@ describe('requestBodyInterceptors that return a string to indicate a 400 Bad Req
     },
   }
 
-  const tembaServer = createServer({ requestBodyInterceptor } satisfies UserConfig)
+  const tembaServer = createServer({ requestInterceptor } satisfies UserConfig)
 
-  test('POST with a requestBodyInterceptor that returns an error string should result in 400 Bad Request', async () => {
+  test('POST with a requestInterceptor that returns an error string should result in 400 Bad Request', async () => {
     const expectedResource = 'movies'
     const resourceUrl = '/' + expectedResource
 
@@ -31,7 +31,7 @@ describe('requestBodyInterceptors that return a string to indicate a 400 Bad Req
     expect(response.body.message).toEqual('400 Bad Request error from POST')
   })
 
-  test('PUT with a requestBodyInterceptor that returns an error string should result in 400 Bad Request', async () => {
+  test('PUT with a requestInterceptor that returns an error string should result in 400 Bad Request', async () => {
     const expectedResource = 'pokemons'
     const resourceUrl = '/' + expectedResource
 
@@ -51,7 +51,7 @@ describe('requestBodyInterceptors that return a string to indicate a 400 Bad Req
     expect(response.body.message).toEqual('400 Bad Request error from PUT')
   })
 
-  test('PATCH with a requestBodyInterceptor that returns an error string should result in 400 Bad Request', async () => {
+  test('PATCH with a requestInterceptor that returns an error string should result in 400 Bad Request', async () => {
     const expectedResource = 'pokemons'
     const resourceUrl = '/' + expectedResource
 

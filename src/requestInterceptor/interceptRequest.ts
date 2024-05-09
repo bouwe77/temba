@@ -1,7 +1,7 @@
-import type { RequestBodyInterceptorCallback } from './types'
+import type { RequestInterceptorCallback } from './types'
 
-export const interceptRequestBody = (
-  intercept: RequestBodyInterceptorCallback,
+export const interceptRequest = (
+  intercept: RequestInterceptorCallback,
   resource: string,
   body: unknown,
 ) => {

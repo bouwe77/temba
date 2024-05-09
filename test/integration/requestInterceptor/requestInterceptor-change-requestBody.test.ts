@@ -2,10 +2,10 @@ import { describe, test, expect } from 'vitest'
 import request from 'supertest'
 import type { UserConfig } from '../../../src/config'
 import createServer from '../createServer'
-import type { RequestBodyInterceptor } from '../../../src/requestBodyInterceptor/types'
+import type { RequestInterceptor } from '../../../src/requestInterceptor/types'
 
-describe('requestBodyInterceptors that return a (new or changed) request body object', () => {
-  const requestBodyInterceptor: RequestBodyInterceptor = {
+describe('requestInterceptors that return a (new or changed) request body object', () => {
+  const requestInterceptor: RequestInterceptor = {
     post: ({ resource }) => {
       if (resource === 'movies') return { title: 'The Matrix' }
     },
@@ -17,9 +17,9 @@ describe('requestBodyInterceptors that return a (new or changed) request body ob
     },
   }
 
-  const tembaServer = createServer({ requestBodyInterceptor } satisfies UserConfig)
+  const tembaServer = createServer({ requestInterceptor } satisfies UserConfig)
 
-  test('POST with a requestBodyInterceptor that returns a request body', async () => {
+  test('POST with a requestInterceptor that returns a request body', async () => {
     const resourceUrl = '/movies'
 
     // Send a POST request.
@@ -39,7 +39,7 @@ describe('requestBodyInterceptors that return a (new or changed) request body ob
     expect(getResponse.body.title).toEqual('The Matrix')
   })
 
-  test('PUT with a requestBodyInterceptor that returns a request body', async () => {
+  test('PUT with a requestInterceptor that returns a request body', async () => {
     const resourceUrl = '/pokemons'
 
     // First create a resource, so we have an id to PUT to.
@@ -65,7 +65,7 @@ describe('requestBodyInterceptors that return a (new or changed) request body ob
     expect(response.body.replaced).toEqual(true)
   })
 
-  test('PATCH with a requestBodyInterceptor that returns a request body', async () => {
+  test('PATCH with a requestInterceptor that returns a request body', async () => {
     const resourceUrl = '/pokemons'
 
     // First create a resource, so we have an id to PUT to.

@@ -2,9 +2,9 @@ import { describe, test, expect } from 'vitest'
 import request from 'supertest'
 import type { UserConfig } from '../../../src/config'
 import createServer from '../createServer'
-import type { RequestBodyInterceptor } from '../../../src/requestBodyInterceptor/types'
+import type { RequestInterceptor } from '../../../src/requestInterceptor/types'
 
-describe('requestBodyInterceptors does not return an object', () => {
+describe('requestInterceptors does not return an object', () => {
   const getResponse = (resource: string | null) => {
     if (resource === 'return-number') return 1
     if (resource === 'return-array') return [1, 2, 3]
@@ -12,7 +12,7 @@ describe('requestBodyInterceptors does not return an object', () => {
     return {}
   }
 
-  const requestBodyInterceptor: RequestBodyInterceptor = {
+  const requestInterceptor: RequestInterceptor = {
     post: ({ resource }) => {
       return getResponse(resource)
     },
@@ -24,9 +24,9 @@ describe('requestBodyInterceptors does not return an object', () => {
     },
   }
 
-  const tembaServer = createServer({ requestBodyInterceptor } satisfies UserConfig)
+  const tembaServer = createServer({ requestInterceptor } satisfies UserConfig)
 
-  test('requestBodyInterceptor returns the original request body when something else than an object or string is returned', async () => {
+  test('requestInterceptor returns the original request body when something else than an object or string is returned', async () => {
     // Send POST requests.
     let response = await request(tembaServer)
       .post('/return-number')

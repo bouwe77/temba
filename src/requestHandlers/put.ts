@@ -1,14 +1,14 @@
-import { interceptRequestBody } from '../requestBodyInterceptor/interceptRequestBody'
+import { interceptRequest } from '../requestInterceptor/interceptRequest'
 import { validate } from '../schema/validate'
 import { removeNullFields } from './utils'
 import type { ValidateFunctionPerResource } from '../schema/types'
 import type { PutRequest } from './types'
 import type { Queries } from '../data/types'
-import type { RequestBodyInterceptor } from '../requestBodyInterceptor/types'
+import type { RequestInterceptor } from '../requestInterceptor/types'
 
 export const createPutRoutes = (
   queries: Queries,
-  requestBodyInterceptor: RequestBodyInterceptor | null,
+  requestInterceptor: RequestInterceptor | null,
   returnNullFields: boolean,
   schemas: ValidateFunctionPerResource | null,
 ) => {
@@ -21,8 +21,8 @@ export const createPutRoutes = (
         return { status: 400, body: { message: validationResult.errorMessage } }
       }
 
-      const body2 = requestBodyInterceptor?.put
-        ? interceptRequestBody(requestBodyInterceptor.put, resource, body)
+      const body2 = requestInterceptor?.put
+        ? interceptRequest(requestInterceptor.put, resource, body)
         : body
 
       if (typeof body2 === 'string') return { status: 400, body: { message: body2 } }
