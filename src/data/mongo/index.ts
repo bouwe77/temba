@@ -88,10 +88,10 @@ type MongoItem = {
   [key: string]: unknown
 }
 
-const removeUnderscoreFromId = (item: MongoItem) => {
-  const { _id, ...updatedItem } = item
-  return updatedItem as Item
-}
+const removeUnderscoreFromId = ({ _id: id, ...updatedItem }: MongoItem): Item => ({
+  id,
+  ...updatedItem,
+})
 
 export const createMongoQueries = (connectionString: string) => {
   uri = connectionString
