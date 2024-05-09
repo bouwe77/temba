@@ -8,15 +8,13 @@
 
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-**Get a simple MongoDB REST API with zero coding in less than 30 seconds (seriously).**
+**Get a simple REST API with zero coding in less than 30 seconds (seriously).**
 
-For developers who need a quick backend for small projects.
-
-Powered by NodeJS, Express and MongoDB.
-
-This project is inspired by the fantastic [json-server](https://github.com/typicode/json-server) project, but instead of a JSON file Temba uses a real database. The goal, however, is the same: Get you started with a REST API very quickly.
+For developers that need a quick NodeJS backend for small projects.
 
 No need for any coding, unless you want to opt-out of the defaults, or want to do more customization.
+
+Data is kept in memory, but you can also store it in a JSON file or MongoDB database.
 
 ## Table of contents
 
@@ -42,10 +40,10 @@ In the fictional Tamarian language the word _"Temba"_ means something like _"gif
 
 Prerequisites you need to have:
 
-- Node, NPM
-- Optional: A MongoDB database, either locally or in the cloud
+* Node
+* NPM
 
-> Wthout a database, Temba also works. However, then data is kept in memory and flushed every time the server restarts.
+- Optional: A MongoDB database, either locally or in the cloud
 
 ### Use the starter with `npx`
 
@@ -125,7 +123,20 @@ IDs are auto generated when creating resources. IDs in the JSON request body are
 
 ### In-memory or MongoDB
 
-By default data is stored in memory. This means the data is flushed when the server restarts. To persist your data, provide the `connectionString` config setting for your MongoDB database:
+By default data is stored in memory. This means the data is flushed when the server restarts. To persist your data, provide the `connectionString` config setting for your JSON file or MongoDB database.
+
+#### JSON file
+
+```js
+const config = {
+  connectionString: 'data.json',
+}
+const server = temba.create(config)
+```
+
+All resources are saved in a single JSON file. The file is not created or updated unless you create, update, or delete resources.
+
+#### MongoDB
 
 ```js
 const config = {
@@ -134,7 +145,7 @@ const config = {
 const server = temba.create(config)
 ```
 
-For every resource you use in your requests, a collection is created in the database. However, not until you actually store (create) a resource with a `POST`.
+For every resource you use in your requests, a collection is created in the database. However, not until you actually create a resource with a `POST`.
 
 ### Allowing specific resources only
 
@@ -239,7 +250,7 @@ If a request is not valid according to the schema, a `400 Bad Request` response 
 
 ### Intercepting requests
 
-In addition to (or instead of) validating the request using JSON Schema, you can also intercept the request body before it goes to the database, using the `requestBodyInterceptor` setting.
+In addition to (or instead of) validating the request using JSON Schema, you can also intercept the request body before it is persisted, using the `requestBodyInterceptor` setting.
 
 It allows you to implement your own validation, or even change the request body.
 
@@ -261,7 +272,7 @@ const config = {
 const server = temba.create(config)
 ```
 
-The `requestBodyInterceptor` is an object with a `post`, and/or `patch`, and/or `put` field, which contains the callback function you want Temba to call before the JSON is saved to the database.
+The `requestBodyInterceptor` is an object with a `post`, and/or `patch`, and/or `put` field, which contains the callback function you want Temba to call before the JSON is persisted.
 
 The callback function receives an object containing the `resource`, which for example is `movies` if you request `POST /movies`, and the `body`, which is the JSON object of the request body.
 
@@ -473,7 +484,7 @@ Although I won't promise if and when, these are some things to consider for the 
 
 ## Under the hood
 
-Temba is built with TypeScript, [Node](https://nodejs.org), [Express](https://expressjs.com/), [Vitest](https://vitest.dev/), [Supertest](https://www.npmjs.com/package/supertest), and [@rakered/mongo](https://www.npmjs.com/package/@rakered/mongo).
+Temba is built with TypeScript, [Node](https://nodejs.org), [Express](https://expressjs.com/), [Vitest](https://vitest.dev/), [Supertest](https://www.npmjs.com/package/supertest), [@rakered/mongo](https://www.npmjs.com/package/@rakered/mongo), and [lowdb](https://www.npmjs.com/package/lowdb).
 
 ## Contributors ✨
 

@@ -1,7 +1,7 @@
 import express, { json } from 'express'
 import type { Response, Request } from 'express'
 import morgan from 'morgan'
-import { createQueries } from './queries/queries'
+import { createQueries } from './data/queries'
 import { initConfig } from './config'
 import type { UserConfig } from './config'
 import cors from 'cors'

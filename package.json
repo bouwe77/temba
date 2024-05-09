@@ -1,7 +1,7 @@
 {
   "name": "temba",
-  "version": "0.24.1",
-  "description": "Get a simple MongoDB REST API with zero coding in less than 30 seconds (seriously).",
+  "version": "0.25.0",
+  "description": "Get a simple REST API with zero coding in less than 30 seconds (seriously).",
   "type": "module",
   "main": "dist/src/index.js",
   "scripts": {
@@ -40,6 +40,7 @@
     "connect-pause": "^0.1.0",
     "cors": "^2.8.5",
     "express": "^4.18.3",
+    "lowdb": "^7.0.1",
     "morgan": "^1.10.0"
   }
 }
