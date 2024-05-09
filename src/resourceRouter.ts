@@ -3,7 +3,7 @@ import type { Response, Request } from 'express'
 import { getRequestHandler } from './requestHandlers'
 import { parseUrl } from './urls/urlParser'
 import type { TembaRequest, TembaResponse } from './requestHandlers/types'
-import type { Queries } from './queries/types'
+import type { Queries } from './data/types'
 import type { CompiledSchemas } from './schema/types'
 import type { RouterConfig } from './config'
 

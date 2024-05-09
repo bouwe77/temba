@@ -1,4 +1,4 @@
-import type { Queries } from '../queries/types'
+import type { Queries } from '../data/types'
 import type { DeleteRequest } from './types'
 
 export const createDeleteRoutes = (queries: Queries) => {

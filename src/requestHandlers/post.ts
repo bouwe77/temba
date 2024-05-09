@@ -4,7 +4,7 @@ import { removeNullFields } from './utils'
 import { validate } from '../schema/validate'
 import type { ValidateFunctionPerResource } from '../schema/types'
 import type { PostRequest } from './types'
-import type { ItemWithoutId, Queries } from '../queries/types'
+import type { ItemWithoutId, Queries } from '../data/types'
 import type { RequestBodyInterceptor } from '../requestBodyInterceptor/types'
 
 export const createPostRoutes = (

@@ -1,4 +1,4 @@
-import type { Queries } from '../queries/types'
+import type { Queries } from '../data/types'
 import { interceptResponseBody } from '../responseBodyInterceptor/interceptResponseBody'
 import type { ResponseBodyInterceptor } from '../responseBodyInterceptor/types'
 import type { GetRequest } from './types'
