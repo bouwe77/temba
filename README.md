@@ -57,7 +57,13 @@ npm start
 
 This command clones the [Temba-starter](https://github.com/bouwe77/temba-starter) repository, installs all dependencies, and starts the server.
 
-Once the server is running, you can issue any HTTP request, and it probably will just work, but [learn more here](#what-temba-does).
+In your console you'll see:
+
+```
+✅ Server listening on port 3000
+```
+
+Now you can issue any HTTP request, to any resource.
 
 ### Adding to an existing app
 
@@ -140,7 +146,7 @@ All resources are saved in a single JSON file. The file is not created or update
 
 ```js
 const config = {
-  connectionString: 'mongodb://localhost:27017',
+  connectionString: 'mongodb://localhost:27017/myDatabase',
 }
 const server = temba.create(config)
 ```
@@ -415,7 +421,7 @@ Here is an example of the config settings for Temba, and how you define them:
 const config = {
   apiPrefix: 'api',
   cacheControl: 'public, max-age=300',
-  connectionString: 'mongodb://localhost:27017',
+  connectionString: 'mongodb://localhost:27017/myDatabase',
   customRouter: router,
   delay: 500,
   port: 4321,
@@ -459,28 +465,14 @@ These are all the possible settings:
 | `cacheControl`            | The `Cache-control` response header value for each GET request.                            | `'no-store'`  |
 | `connectionString`        | See [Data persistency](#data-persistency)                                                                    | `null`        |
 | `customRouter`            | See [Custom router](#custom-router)                                                        | `null`        |
-| `delay`                   | After processing the request, the delay in milliseconds before the response should be sent. | `0`           |
+| `delay`                   | The delay, in milliseconds, after processing the request before sending the response. | `0`           |
 | `port`                    | The port your Temba server listens on                                                      | `3000`        |
 | `requestBodyInterceptor`  | See [Request body validation or mutation](#request-body-validation-or-mutation)            | `noop`        |
 | `resources`               | See [Allowing specific resources only](#allowing-specific-resources-only)                  | `[]`          |
 | `responseBodyInterceptor` | See [Response body interception](#request-body-validation-or-mutation)                     | `noop`        |
-| `returnNullFields`        | Whether fields with a `null` value should be returned in responses.                        | `true`        |
+| `returnNullFields`        | Determines whether fields with a null value should be returned in responses.                        | `true`        |
 | `schema`                  | See [JSON Schema request body validation](#json-schema-request-body-validation)                                                                                         | `null`        |
 | `staticFolder`            | See [Static assets](#static-assets)                                                        | `null`        |
-
-## Roadmap
-
-Although I won't promise if and when, these are some things to consider for the future:
-
-- **Authorization bearer tokens**, probably by providing a callback function so you can check the token however you want.
-
-- Better **security**, for example CORS, CSRF, etc.
-
-- Opt-in logging with debug-js events
-
-- Generic **filtering and sorting**, for example: `GET /api/movies?filter=releaseYear ge 1980 and releaseYear le 1989&sort=-releaseYear,title&page=2&limit=20&fields=title,releaseYear,genre`
-
-- Intial data seed when using in-memory.
 
 ## Under the hood
 
