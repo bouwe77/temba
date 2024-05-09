@@ -19,7 +19,7 @@ describe('Configuring only a customRouter', () => {
     // The root URL is controlled by Temba, so the custom router's root URL is ignored.
     const rootResponse = await request(tembaServer).get('/')
     expect(rootResponse.statusCode).toEqual(200)
-    expect(rootResponse.text).toEqual('It works! ツ')
+    expect(rootResponse.body.message).toEqual('It works! ツ')
 
     // As we did not configure resources, any resource route is handled by Temba and return an empty array.
     const getAllResponse = await request(tembaServer).get('/stuff')

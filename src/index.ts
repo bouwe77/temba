@@ -54,8 +54,16 @@ const createServer = (userConfig?: UserConfig) => {
   app.use(resourcePath, resourceRouter)
 
   // A GET to the root URL shows a default message.
-  rootRouter.get('/', async (_, res) => {
-    return res.send('It works! ツ')
+  rootRouter.get('/', async (req, res) => {
+    const acceptHeader = req.headers['accept']
+    if (acceptHeader) {
+      const responseType = ['text/plain', 'text/html'].find((type) => acceptHeader.includes(type))
+      if (responseType) {
+        return res.status(200).type(responseType).send('It works! ツ')
+      }
+    }
+
+    return res.status(200).json({ message: 'It works! ツ' })
   })
 
   // Route for handling not allowed methods.
