@@ -123,7 +123,7 @@ IDs are auto generated when creating resources. IDs in the JSON request body are
 
 ## Usage
 
-### In-memory or MongoDB
+### Data persistency
 
 By default data is stored in memory. This means the data is flushed when the server restarts. To persist your data, provide the `connectionString` config setting for your MongoDB database:
 
@@ -446,7 +446,7 @@ These are all the possible settings:
 | :------------------------ | :----------------------------------------------------------------------------------------- | :------------ |
 | `apiPrefix`               | See [API prefix](#api-prefix)                                                              | `null`        |
 | `cacheControl`            | The `Cache-control` response header value for each GET request.                            | `'no-store'`  |
-| `connectionString`        | See [MongoDB](#mongodb)                                                                    | `null`        |
+| `connectionString`        | See [Data persistency](#data-persistency)                                                                    | `null`        |
 | `customRouter`            | See [Custom router](#custom-router)                                                        | `null`        |
 | `delay`                   | After processing the request, the delay in milliseconds before the response should be sent. | `0`           |
 | `port`                    | The port your Temba server listens on                                                      | `3000`        |
