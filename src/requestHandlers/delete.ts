@@ -1,7 +1,7 @@
 import type { Queries } from '../data/types'
 import type { DeleteRequest } from './types'
 
-export const createDeleteRoutes = (queries: Queries) => {
+export const createDeleteRoutes = (queries: Queries, allowDeleteCollection: boolean) => {
   const handleDelete = async (req: DeleteRequest) => {
     try {
       const { resource, id } = req
@@ -12,6 +12,9 @@ export const createDeleteRoutes = (queries: Queries) => {
           await queries.deleteById(resource, id)
         }
       } else {
+        if (!allowDeleteCollection) {
+          return { status: 405 }
+        }
         await queries.deleteAll(resource)
       }
 
