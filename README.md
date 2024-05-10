@@ -287,21 +287,23 @@ The callback function receives an object containing the `resource`, which for ex
 Your callback function can return the following things:
 
 - `void`: Temba will just save the request body as-is. An example of this is when you have validated the request body and everything looks fine.
-- `string`: If you return a string Temba will return a `400 Bad Request` with the string as error message.
 - `object`: Return an object if you want to change the request body. Temba will save the returned object instead of the original request body.
+- Throw an `Error` if you want to stop processing the request any further. Provide an optional status code, otherwise the error will result in a `500 Internal Server Error` response.
 
 Example:
 
 ```js
 const config = {
   requestInterceptor: {
-    post: ({ resource, body }) => {
-      // Do not allow Pokemons to be created: 400 Bad Request
-      if (resource === 'pokemons') return 'You are not allowed to create new Pokemons'
-
+    post: ({ resource, body }) => {      
       // Add a genre to Star Trek films:
       if (resource === 'movies' && body.title.startsWith('Star Trek'))
         return { ...body, genre: 'Science Fiction' }
+
+      // Do not allow Pokemons to be created: 400 Bad Request
+      if (resource === 'pokemons') {
+        throw new Error('You are not allowed to create new Pokemons', 400)
+      }
 
       // If you end up here, void will be returned, so the request will just be saved.
     },
