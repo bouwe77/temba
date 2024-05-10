@@ -63,7 +63,13 @@ const createServer = (userConfig?: UserConfig) => {
       }
     }
 
-    return res.status(200).json({ message: 'It works! ツ' })
+    // The version is replaced by the build script.
+    const version = 'piethond'
+
+    return res.status(200).json({
+      message: 'It works! ツ',
+      version,
+    })
   })
 
   // Route for handling not allowed methods.

@@ -15,6 +15,7 @@ describe('GET on root URL', () => {
 
     expect(response.statusCode).toEqual(200)
     expect(response.body.message).toEqual('It works! ツ')
+    expect(response.body.version).toBeDefined()
     expect(response.headers['content-type']).toEqual('application/json; charset=utf-8')
   })
 
