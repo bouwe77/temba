@@ -23,10 +23,7 @@ describe('requestInterceptors that return a (new or changed) request body object
     const resourceUrl = '/movies'
 
     // Send a POST request.
-    const response = await request(tembaServer)
-      .post(resourceUrl)
-      .send({ title: 'Star Wars' })
-      .set('Content-Type', 'application/json')
+    const response = await request(tembaServer).post(resourceUrl).send({ title: 'Star Wars' })
 
     expect(response.statusCode).toEqual(201)
     expect(response.body.title).toEqual('The Matrix')
@@ -43,10 +40,7 @@ describe('requestInterceptors that return a (new or changed) request body object
     const resourceUrl = '/pokemons'
 
     // First create a resource, so we have an id to PUT to.
-    const postResponse = await request(tembaServer)
-      .post(resourceUrl)
-      .send({ name: 'Pikachu' })
-      .set('Content-Type', 'application/json')
+    const postResponse = await request(tembaServer).post(resourceUrl).send({ name: 'Pikachu' })
     expect(postResponse.statusCode).toEqual(201)
     expect(postResponse.body.name).toEqual('Pikachu')
     expect(postResponse.body.replaced).toBeUndefined()
@@ -54,10 +48,7 @@ describe('requestInterceptors that return a (new or changed) request body object
     const id = postResponse.header.location?.split('/').pop()
 
     // Send a PUT request to the id.
-    const response = await request(tembaServer)
-      .put(`${resourceUrl}/${id}`)
-      .send({ name: 'Mew' })
-      .set('Content-Type', 'application/json')
+    const response = await request(tembaServer).put(`${resourceUrl}/${id}`).send({ name: 'Mew' })
 
     expect(response.statusCode).toEqual(200)
     expect(response.body.id).toEqual(id)
@@ -69,10 +60,7 @@ describe('requestInterceptors that return a (new or changed) request body object
     const resourceUrl = '/pokemons'
 
     // First create a resource, so we have an id to PUT to.
-    const postResponse = await request(tembaServer)
-      .post(resourceUrl)
-      .send({ name: 'Pikachu' })
-      .set('Content-Type', 'application/json')
+    const postResponse = await request(tembaServer).post(resourceUrl).send({ name: 'Pikachu' })
     expect(postResponse.statusCode).toEqual(201)
     expect(postResponse.body.name).toEqual('Pikachu')
     expect(postResponse.body.updated).toBeUndefined()
@@ -80,10 +68,7 @@ describe('requestInterceptors that return a (new or changed) request body object
     const id = postResponse.header.location?.split('/').pop()
 
     // Send a PATCH request to the id.
-    const response = await request(tembaServer)
-      .patch(`${resourceUrl}/${id}`)
-      .send({ name: 'Mew' })
-      .set('Content-Type', 'application/json')
+    const response = await request(tembaServer).patch(`${resourceUrl}/${id}`).send({ name: 'Mew' })
 
     expect(response.statusCode).toEqual(200)
     expect(response.body.id).toEqual(id)

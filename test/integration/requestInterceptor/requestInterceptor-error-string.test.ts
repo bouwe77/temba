@@ -36,10 +36,7 @@ describe('requestInterceptors that return a string to indicate a 400 Bad Request
     const resourceUrl = '/' + expectedResource
 
     // First create a resource, so we have an id to PUT to.
-    const postResponse = await request(tembaServer)
-      .post(resourceUrl)
-      .send({ name: 'Pikachu' })
-      .set('Content-Type', 'application/json')
+    const postResponse = await request(tembaServer).post(resourceUrl).send({ name: 'Pikachu' })
     expect(postResponse.statusCode).toEqual(201)
     const id = postResponse.header.location?.split('/').pop()
 
@@ -56,10 +53,7 @@ describe('requestInterceptors that return a string to indicate a 400 Bad Request
     const resourceUrl = '/' + expectedResource
 
     // First create a resource, so we have an id to PUT to.
-    const postResponse = await request(tembaServer)
-      .post(resourceUrl)
-      .send({ name: 'Pikachu' })
-      .set('Content-Type', 'application/json')
+    const postResponse = await request(tembaServer).post(resourceUrl).send({ name: 'Pikachu' })
     expect(postResponse.statusCode).toEqual(201)
     const id = postResponse.header.location?.split('/').pop()
 

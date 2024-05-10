@@ -28,28 +28,19 @@ describe('requestInterceptors does not return an object', () => {
 
   test('requestInterceptor returns the original request body when something else than an object or string is returned', async () => {
     // Send POST requests.
-    let response = await request(tembaServer)
-      .post('/return-number')
-      .send({ name: 'Jane' })
-      .set('Content-Type', 'application/json')
+    let response = await request(tembaServer).post('/return-number').send({ name: 'Jane' })
     expect(response.statusCode).toEqual(201)
     expect(response.body.name).toEqual('Jane')
 
     const numberId = response.header.location?.split('/').pop()
 
-    response = await request(tembaServer)
-      .post('/return-array')
-      .send({ name: 'Jane' })
-      .set('Content-Type', 'application/json')
+    response = await request(tembaServer).post('/return-array').send({ name: 'Jane' })
     expect(response.statusCode).toEqual(201)
     expect(response.body.name).toEqual('Jane')
 
     const arrayId = response.header.location?.split('/').pop()
 
-    response = await request(tembaServer)
-      .post('/return-boolean')
-      .send({ name: 'Jane' })
-      .set('Content-Type', 'application/json')
+    response = await request(tembaServer).post('/return-boolean').send({ name: 'Jane' })
     expect(response.statusCode).toEqual(201)
     expect(response.body.name).toEqual('Jane')
 
@@ -59,21 +50,18 @@ describe('requestInterceptors does not return an object', () => {
     response = await request(tembaServer)
       .put('/return-number/' + numberId)
       .send({ name: 'Jane' })
-      .set('Content-Type', 'application/json')
     expect(response.statusCode).toEqual(200)
     expect(response.body.name).toEqual('Jane')
 
     response = await request(tembaServer)
       .put('/return-array/' + arrayId)
       .send({ name: 'Jane' })
-      .set('Content-Type', 'application/json')
     expect(response.statusCode).toEqual(200)
     expect(response.body.name).toEqual('Jane')
 
     response = await request(tembaServer)
       .put('/return-boolean/' + booleanId)
       .send({ name: 'Jane' })
-      .set('Content-Type', 'application/json')
     expect(response.statusCode).toEqual(200)
     expect(response.body.name).toEqual('Jane')
 
@@ -81,21 +69,18 @@ describe('requestInterceptors does not return an object', () => {
     response = await request(tembaServer)
       .patch('/return-number/' + numberId)
       .send({ name: 'Jane' })
-      .set('Content-Type', 'application/json')
     expect(response.statusCode).toEqual(200)
     expect(response.body.name).toEqual('Jane')
 
     response = await request(tembaServer)
       .patch('/return-array/' + arrayId)
       .send({ name: 'Jane' })
-      .set('Content-Type', 'application/json')
     expect(response.statusCode).toEqual(200)
     expect(response.body.name).toEqual('Jane')
 
     response = await request(tembaServer)
       .patch('/return-boolean/' + booleanId)
       .send({ name: 'Jane' })
-      .set('Content-Type', 'application/json')
     expect(response.statusCode).toEqual(200)
     expect(response.body.name).toEqual('Jane')
   })
