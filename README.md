@@ -102,7 +102,7 @@ For every resource (`movies` is just an example), Temba supports the following r
 - `POST /movies` - Create a new movie
 - `PATCH /movies/:id` - Partially update a movie by its ID
 - `PUT /movies/:id` - Fully replace a movie by its ID
-- `DELETE /movies` - Delete all movies
+- `DELETE /movies` - Delete all movies (if configured)
 - `DELETE /movies/:id` - Delete a movie by its ID
 - `HEAD /movies` - Get all movies, but without the response body
 - `HEAD /movies/:id` - Get a movie by its ID, but without the response body
@@ -421,6 +421,7 @@ Here is an example of the config settings for Temba, and how you define them:
 
 ```js
 const config = {
+  allowDeleteCollection: true,
   apiPrefix: 'api',
   cacheControl: 'public, max-age=300',
   connectionString: 'mongodb://localhost:27017/myDatabase',
@@ -463,6 +464,7 @@ These are all the possible settings:
 
 | Config setting            | Description                                                                                | Default value |
 | :------------------------ | :----------------------------------------------------------------------------------------- | :------------ |
+| `allowDeleteCollection`   | Whether a `DELETE` request on a collection is allowed to delete all items. | `false` |
 | `apiPrefix`               | See [API prefix](#api-prefix)                                                              | `null`        |
 | `cacheControl`            | The `Cache-control` response header value for each GET request.                            | `'no-store'`  |
 | `connectionString`        | See [Data persistency](#data-persistency)                                                                    | `null`        |
@@ -472,7 +474,7 @@ These are all the possible settings:
 | `requestInterceptor`  | See [Request validation or mutation](#request-validation-or-mutation)            | `noop`        |
 | `resources`               | See [Allowing specific resources only](#allowing-specific-resources-only)                  | `[]`          |
 | `responseBodyInterceptor` | See [Response body interception](#response-body-interception)                     | `noop`        |
-| `returnNullFields`        | Determines whether fields with a null value should be returned in responses.                        | `true`        |
+| `returnNullFields`        | Whether fields with a null value should be returned in responses.                        | `true`        |
 | `schema`                  | See [JSON Schema request body validation](#json-schema-request-body-validation)                                                                                         | `null`        |
 | `staticFolder`            | See [Static assets](#static-assets)                                                        | `null`        |
 

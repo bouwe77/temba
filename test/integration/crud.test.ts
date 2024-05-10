@@ -1,4 +1,4 @@
-import { describe, beforeEach, test, expect } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import request from 'supertest'
 import createServer from './createServer'
 
@@ -11,11 +11,6 @@ describe('CRUD', () => {
   const tembaServer = createServer()
 
   const resource = '/articles/'
-
-  beforeEach(async () => {
-    // Delete all items.
-    await request(tembaServer).delete(resource)
-  })
 
   test('Read, create, replace, update and delete resources', async () => {
     // Initially, there are no items so a get all returns an empty array.
@@ -179,30 +174,58 @@ describe('CRUD', () => {
     expect(getAllOneItemResponse.body[0].name).toBe('updatedItem')
     expect(getAllOneItemResponse.body[0].id).toBe(newCreatedItem.id)
   })
+})
 
-  test('DELETE on resource URL (without ID) deletes all resources', async () => {
+describe('DELETE collection', () => {
+  test('DELETE on resource URL (without ID) by default returns 405 Method Not Allowed and does not delete anything', async () => {
+    const tembaServer = createServer()
+    const resource = '/articles/'
+
+    // Get all items, there should be 0.
+    const getAllResponse = await request(tembaServer).get(resource)
+    expect(getAllResponse.body.length).toBe(0)
+
     // Create 2 new items.
-    const createNewResponse1 = await request(tembaServer).post(resource).send({ name: 'item 1' })
-    expect(createNewResponse1.status).toBe(201)
-    const item1Id = createNewResponse1.body.id
-    const createNewResponse2 = await request(tembaServer).post(resource).send({ name: 'item 2' })
-    expect(createNewResponse2.status).toBe(201)
-    const item2Id = createNewResponse2.body.id
+    await request(tembaServer).post(resource).send({ name: 'item 1' })
+    await request(tembaServer).post(resource).send({ name: 'item 2' })
 
     // Get all items, there should be 2.
+    const getAllResponse2 = await request(tembaServer).get(resource)
+    expect(getAllResponse2.body.length).toBe(2)
+
+    // Delete all items with a DELETE call on the resource URL instead of an ID.
+    const deleteResponse = await request(tembaServer).delete(resource)
+    expect(deleteResponse.status).toBe(405)
+
+    // Get all items, there should still be 2.
+    const getAllResponse3 = await request(tembaServer).get(resource)
+    expect(getAllResponse3.body.length).toBe(2)
+  })
+
+  test('DELETE on resource URL (without ID) deletes collection if allowDeleteCollection setting is set to true', async () => {
+    const tembaServer = createServer({
+      allowDeleteCollection: true,
+    })
+    const resource = '/articles/'
+
+    // Get all items, there should be 0.
     const getAllResponse = await request(tembaServer).get(resource)
-    expect(getAllResponse.status).toBe(200)
-    expect(getAllResponse.body.length).toBe(2)
-    expect(getAllResponse.body[0].id).toBe(item1Id)
-    expect(getAllResponse.body[1].id).toBe(item2Id)
+    expect(getAllResponse.body.length).toBe(0)
+
+    // Create 2 new items.
+    await request(tembaServer).post(resource).send({ name: 'item 1' })
+    await request(tembaServer).post(resource).send({ name: 'item 2' })
+
+    // Get all items, there should be 2.
+    const getAllResponse2 = await request(tembaServer).get(resource)
+    expect(getAllResponse2.body.length).toBe(2)
 
     // Delete all items with a DELETE call on the resource URL instead of an ID.
     const deleteResponse = await request(tembaServer).delete(resource)
     expect(deleteResponse.status).toBe(204)
 
-    // Get all items, there should be 0.
-    const getAllResponse2 = await request(tembaServer).get(resource)
-    expect(getAllResponse2.status).toBe(200)
-    expect(getAllResponse2.body.length).toBe(0)
+    // Get all items, there should be none left.
+    const getAllResponse3 = await request(tembaServer).get(resource)
+    expect(getAllResponse3.body.length).toBe(0)
   })
 })

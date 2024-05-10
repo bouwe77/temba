@@ -18,6 +18,7 @@ export type Config = {
   isTesting: boolean
   port: number
   schemas: ConfiguredSchemas | null
+  allowDeleteCollection: boolean
 }
 
 export type ConfigKey = keyof Config
@@ -31,6 +32,7 @@ export type RouterConfig = Pick<
   | 'requestInterceptor'
   | 'responseBodyInterceptor'
   | 'returnNullFields'
+  | 'allowDeleteCollection'
 >
 
 export type UserConfig = {
@@ -47,6 +49,7 @@ export type UserConfig = {
   isTesting?: boolean
   port?: number
   schemas?: ConfiguredSchemas
+  allowDeleteCollection?: boolean
 }
 
 const defaultConfig: Config = {
@@ -64,6 +67,7 @@ const defaultConfig: Config = {
   isTesting: false,
   port: 3000,
   schemas: null,
+  allowDeleteCollection: false,
 }
 
 export const initConfig = (userConfig?: UserConfig): Config => {
@@ -147,6 +151,10 @@ export const initConfig = (userConfig?: UserConfig): Config => {
 
   if (userConfig.schemas) {
     config.schemas = userConfig.schemas
+  }
+
+  if (!isUndefined(userConfig.allowDeleteCollection)) {
+    config.allowDeleteCollection = userConfig.allowDeleteCollection
   }
 
   return config

@@ -18,6 +18,7 @@ const defaultConfig: Config = {
   isTesting: false,
   port: 3000,
   schemas: null,
+  allowDeleteCollection: false,
 }
 
 test('No config returns default config', () => {
@@ -39,6 +40,7 @@ test('No config returns default config', () => {
   expect(initializedConfig.isTesting).toBe(defaultConfig.isTesting)
   expect(initializedConfig.port).toBe(defaultConfig.port)
   expect(initializedConfig.schemas).toBe(defaultConfig.schemas)
+  expect(initializedConfig.allowDeleteCollection).toBe(defaultConfig.allowDeleteCollection)
 })
 
 test('Full user config overrides all defaults', () => {
@@ -85,6 +87,7 @@ test('Full user config overrides all defaults', () => {
         },
       },
     },
+    allowDeleteCollection: true,
   })
 
   expect(config.resources).toEqual(['movies'])
@@ -103,6 +106,7 @@ test('Full user config overrides all defaults', () => {
   expect(config.isTesting).toBe(true)
   expect(config.port).toBe(3001)
   expect(config.schemas).not.toBeNull()
+  expect(config.allowDeleteCollection).toBe(true)
 })
 
 test('Partial user config applies those, but leaves the rest at default', () => {
@@ -126,4 +130,5 @@ test('Partial user config applies those, but leaves the rest at default', () => 
   expect(config.isTesting).toBe(defaultConfig.isTesting)
   expect(config.port).toBe(defaultConfig.port)
   expect(config.schemas).toBe(defaultConfig.schemas)
+  expect(config.allowDeleteCollection).toBe(defaultConfig.allowDeleteCollection)
 })
