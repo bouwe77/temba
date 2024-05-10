@@ -7,7 +7,7 @@ export const createQueries = (connectionString: string | null) => {
 
   if (connectionString.endsWith('.json')) return createJsonQueries({ filename: connectionString })
 
-  if (connectionString.startsWith('mongodb://')) return createMongoQueries(connectionString)
+  if (connectionString.startsWith('mongodb')) return createMongoQueries(connectionString)
 
   return createJsonQueries({ filename: null })
 }
