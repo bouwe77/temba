@@ -288,7 +288,7 @@ Your callback function can return the following things:
 
 - `void`: Temba will just save the request body as-is. An example of this is when you have validated the request body and everything looks fine.
 - `object`: Return an object if you want to change the request body. Temba will save the returned object instead of the original request body.
-- Throw an `Error` if you want to stop processing the request any further. Provide an optional status code, otherwise the error will result in a `500 Internal Server Error` response.
+- Throw an `Error` if you want to stop processing the request any further and return a `500 Internal Server Error` response. Or throw the custom `TembaError` to provide a status code.
 
 Example:
 
@@ -300,9 +300,14 @@ const config = {
       if (resource === 'movies' && body.title.startsWith('Star Trek'))
         return { ...body, genre: 'Science Fiction' }
 
-      // Do not allow Pokemons to be created: 400 Bad Request
+      // Throw a regular error for a 500 Internal Server Error status code
+      if (resource === 'foobar') {
+        throw new Error('Something went foobar')
+      }
+
+      // Throw a custom error to specify the status code
       if (resource === 'pokemons') {
-        throw new Error('You are not allowed to create new Pokemons', 400)
+        throw new TembaError('You are not allowed to create new Pokemons', 400)
       }
 
       // If you end up here, void will be returned, so the request will just be saved.
