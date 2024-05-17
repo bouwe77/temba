@@ -5,6 +5,7 @@ import type { ValidateFunctionPerResource } from '../schema/types'
 import type { PatchRequest } from './types'
 import type { Queries } from '../data/types'
 import type { RequestInterceptor } from '../requestInterceptor/types'
+import { TembaError } from '../requestInterceptor/TembaError'
 
 export const createPatchRoutes = (
   queries: Queries,
@@ -21,11 +22,17 @@ export const createPatchRoutes = (
         return { status: 400, body: { message: validationResult.errorMessage } }
       }
 
-      const body2 = requestInterceptor?.patch
-        ? interceptRequest(requestInterceptor.patch, resource, body)
-        : body
-
-      if (typeof body2 === 'string') return { status: 400, body: { message: body2 } }
+      let body2 = body
+      if (requestInterceptor?.patch) {
+        try {
+          body2 = interceptRequest(requestInterceptor.patch, resource, body)
+        } catch (error: unknown) {
+          return {
+            status: error instanceof TembaError ? error.statusCode : 500,
+            body: { message: (error as Error).message },
+          }
+        }
+      }
 
       let item = await queries.getById(resource, id)
 
