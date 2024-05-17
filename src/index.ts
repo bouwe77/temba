@@ -8,6 +8,7 @@ import cors from 'cors'
 import { createDelayMiddleware } from './delay/delayMiddleware'
 import { compileSchemas } from './schema/compile'
 import { createResourceRouter } from './resourceRouter'
+import { TembaError as TembaErrorInternal } from './requestInterceptor/TembaError'
 
 const createServer = (userConfig?: UserConfig) => {
   const config = initConfig(userConfig)
@@ -101,3 +102,5 @@ const createServer = (userConfig?: UserConfig) => {
 }
 
 export const create = (userConfig?: UserConfig) => createServer(userConfig)
+
+export const TembaError = TembaErrorInternal
