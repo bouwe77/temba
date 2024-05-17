@@ -310,7 +310,7 @@ const config = {
         throw new TembaError('You are not allowed to create new Pokemons', 400)
       }
 
-      // If you end up here, void will be returned, so the request will just be saved.
+      // If you don't return anything, the original request will just be used.
     },
   },
 }
