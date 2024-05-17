@@ -6,6 +6,7 @@ import type { ValidateFunctionPerResource } from '../schema/types'
 import type { PostRequest } from './types'
 import type { ItemWithoutId, Queries } from '../data/types'
 import type { RequestInterceptor } from '../requestInterceptor/types'
+import { TembaError } from '../requestInterceptor/TembaError'
 
 export const createPostRoutes = (
   queries: Queries,
@@ -22,11 +23,17 @@ export const createPostRoutes = (
         return { status: 400, body: { message: validationResult.errorMessage } }
       }
 
-      const body2 = requestInterceptor?.post
-        ? interceptRequest(requestInterceptor.post, resource, body)
-        : body
-
-      if (typeof body2 === 'string') return { status: 400, body: { message: body2 } }
+      let body2 = body
+      if (requestInterceptor?.post) {
+        try {
+          body2 = interceptRequest(requestInterceptor.post, resource, body)
+        } catch (error: unknown) {
+          return {
+            status: error instanceof TembaError ? error.statusCode : 500,
+            body: { message: (error as Error).message },
+          }
+        }
+      }
 
       const newItem = await queries.create(resource, body2 as ItemWithoutId)
 

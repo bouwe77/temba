@@ -9,13 +9,11 @@ export const interceptRequest = (
 
   if (!intercepted && typeof body === 'object') return body
 
-  if (typeof intercepted === 'string') return intercepted
-
   // The request body was replaced by an object
   if (intercepted && typeof intercepted === 'object' && !Array.isArray(intercepted))
     return intercepted
 
-  // The request body was replaced by something else than an object or a string.
+  // The request body was replaced by something else than an object.
   // This is not supported, so we return the original request body.
   return body
 }
