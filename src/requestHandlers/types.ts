@@ -3,13 +3,6 @@ export type UrlInfo = {
   id: string | null
 }
 
-export type RequestInfo = {
-  resource: string
-  id: string | null
-}
-
-export type RequestInfoWithoutId = Omit<RequestInfo, 'id'>
-
 export type ErrorResponse = {
   message: string
   status: number
