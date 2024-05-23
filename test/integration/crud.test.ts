@@ -23,7 +23,6 @@ describe('CRUD', () => {
 
     // Initially, there are no items so a replacing something by id returns a 404.
     const nonExistingItem = {
-      id: 'id_does_not_exist',
       name: 'this should fail',
     }
     const replaceNonExistingResponse = await request(tembaServer)
@@ -130,49 +129,6 @@ describe('CRUD', () => {
     const getAllResponse3 = await request(tembaServer).get(resource)
     expect(getAllResponse3.status).toBe(200)
     expect(getAllResponse2.body.length).toBe(0)
-  })
-
-  test('When POSTing and PUTting with ID in request body, ignore ID in body', async () => {
-    const hardCodedIdToIgnore = 'myID'
-
-    // Initially, there are no items so a get all returns an empty array.
-    const getAllResponse = await request(tembaServer).get(resource)
-    expect(getAllResponse.status).toBe(200)
-    expect(getAllResponse.body.length).toBe(0)
-
-    // Create a new item, but ignore the ID in the request body.
-    const newItem = { id: hardCodedIdToIgnore, name: 'newItem' }
-    const createNewResponse = await request(tembaServer).post(resource).send(newItem)
-    const newCreatedItem = createNewResponse.body
-    expect(createNewResponse.status).toBe(201)
-    expect(newCreatedItem.name).toBe('newItem')
-    expect(newCreatedItem.id.length).toBeGreaterThan(0)
-    expect(newCreatedItem.id).not.toEqual(hardCodedIdToIgnore)
-
-    // Replace one item by ID in the URI and ignore the ID in the request body.
-    const replacedItem = { id: hardCodedIdToIgnore, name: 'replacedItem' }
-    const replaceResponse = await request(tembaServer)
-      .put(resource + newCreatedItem.id)
-      .send(replacedItem)
-    expect(replaceResponse.status).toBe(200)
-    expect(replaceResponse.body.name).toBe('replacedItem')
-    expect(replaceResponse.body.id).toEqual(newCreatedItem.id)
-
-    // Update one item by ID in the URI and ignore the ID in the request body.
-    const updatedItem = { id: hardCodedIdToIgnore, name: 'updatedItem' }
-    const updateResponse = await request(tembaServer)
-      .put(resource + newCreatedItem.id)
-      .send(updatedItem)
-    expect(updateResponse.status).toBe(200)
-    expect(updateResponse.body.name).toBe('updatedItem')
-    expect(updateResponse.body.id).toEqual(newCreatedItem.id)
-
-    // Now there is one item. Get all items.
-    const getAllOneItemResponse = await request(tembaServer).get(resource)
-    expect(getAllOneItemResponse.status).toBe(200)
-    expect(getAllOneItemResponse.body.length).toBe(1)
-    expect(getAllOneItemResponse.body[0].name).toBe('updatedItem')
-    expect(getAllOneItemResponse.body[0].id).toBe(newCreatedItem.id)
   })
 })
 

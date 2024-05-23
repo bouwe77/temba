@@ -4,11 +4,12 @@ export type UrlInfo = {
 }
 
 export type RequestInfo = {
-  resource: string
   id: string | null
+  resource: string
+  body: unknown | null
+  host: string | null
+  protocol: string | null
 }
-
-export type RequestInfoWithoutId = Omit<RequestInfo, 'id'>
 
 export type ErrorResponse = {
   message: string
