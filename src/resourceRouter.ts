@@ -2,10 +2,82 @@ import express from 'express'
 import type { Response, Request } from 'express'
 import { getRequestHandler } from './requestHandlers'
 import { parseUrl } from './urls/urlParser'
-import type { TembaRequest, TembaResponse } from './requestHandlers/types'
+import type {
+  DeleteRequest,
+  GetRequest,
+  PostRequest,
+  PutRequest,
+  RequestInfo,
+  TembaRequest,
+  TembaResponse,
+} from './requestHandlers/types'
 import type { Queries } from './data/types'
 import type { CompiledSchemas } from './schema/types'
 import type { RouterConfig } from './config'
+
+type RequestValidationError = {
+  status: number
+  message: string
+}
+
+const isError = (
+  request: RequestInfo | RequestValidationError,
+): request is RequestValidationError => {
+  return 'status' in request
+}
+
+const createError = (status: number, message: string) => {
+  return { status, message } satisfies RequestValidationError
+}
+
+const validateIdInUrlRequired = (requestInfo: RequestInfo) => {
+  return !requestInfo.id ? createError(400, 'Please provide an id in the URL') : requestInfo
+}
+
+const validateIdInUrlNotAllowed = (requestInfo: RequestInfo) => {
+  return requestInfo.id ? createError(400, 'An id is not allowed in the URL') : requestInfo
+}
+
+const validateIdInRequestBodyNotAllowed = (requestInfo: RequestInfo) => {
+  return requestInfo.body && typeof requestInfo.body === 'object' && 'id' in requestInfo.body
+    ? createError(400, 'An id is not allowed in the request body')
+    : requestInfo
+}
+
+const convertToGetRequest = (requestInfo: RequestInfo) => {
+  return {
+    id: requestInfo.id,
+    resource: requestInfo.resource,
+  } satisfies GetRequest
+}
+
+const convertToPostRequest = (requestInfo: RequestInfo) => {
+  return {
+    resource: requestInfo.resource,
+    body: requestInfo.body ?? {},
+    protocol: requestInfo.protocol,
+    host: requestInfo.host,
+  } satisfies PostRequest
+}
+
+const convertToPutRequest = (requestInfo: RequestInfo) => {
+  return {
+    id: requestInfo.id!,
+    resource: requestInfo.resource,
+    body: requestInfo.body ?? {},
+  } satisfies PutRequest
+}
+
+const convertToPatchRequest = convertToPutRequest
+
+const convertToDeleteRequest = (requestInfo: RequestInfo) => {
+  return {
+    id: requestInfo.id,
+    resource: requestInfo.resource,
+  } satisfies DeleteRequest
+}
+
+type RequestValidator = (requestInfo: RequestInfo) => RequestInfo | RequestValidationError
 
 export const createResourceRouter = (
   queries: Queries,
@@ -17,19 +89,10 @@ export const createResourceRouter = (
     return parseUrl(url)
   }
 
-  const parseGetRequest = (req: express.Request) => {
+  const parseRequest = (req: express.Request) => {
     const urlInfo = getUrlInfo(req.baseUrl)
-    if (!urlInfo.resource) return null
-
-    return {
-      id: urlInfo.id,
-      resource: urlInfo.resource,
-    }
-  }
-
-  const parsePostRequest = (req: express.Request) => {
-    const urlInfo = getUrlInfo(req.baseUrl)
-    if (!urlInfo.resource) return null
+    if (!urlInfo.resource || urlInfo.resource.trim().length === 0)
+      return createError(400, 'Unknown resource')
 
     const host = req.get('host') || null
     const protocol = host ? req.protocol : null
@@ -40,31 +103,18 @@ export const createResourceRouter = (
       body: req.body,
       host,
       protocol,
-    }
+    } satisfies RequestInfo
   }
 
-  const parsePutRequest = (req: express.Request) => {
-    const urlInfo = getUrlInfo(req.baseUrl)
-    if (!urlInfo.resource) return null
-    if (!urlInfo.id) return null
-
-    return {
-      id: urlInfo.id,
-      resource: urlInfo.resource,
-      body: req.body,
+  const validateResource = (requestInfo: RequestInfo) => {
+    if (
+      routerConfig.validateResources &&
+      !routerConfig.resources.includes((requestInfo.resource ?? '').toLowerCase())
+    ) {
+      return createError(400, 'Invalid resource')
     }
-  }
 
-  const parsePatchRequest = parsePutRequest
-
-  const parseDeleteRequest = (req: express.Request) => {
-    const urlInfo = getUrlInfo(req.baseUrl)
-    if (!urlInfo.resource) return null
-
-    return {
-      id: urlInfo.id,
-      resource: urlInfo.resource,
-    }
+    return requestInfo
   }
 
   const sendResponse = (tembaResponse: TembaResponse, res: express.Response) => {
@@ -84,22 +134,30 @@ export const createResourceRouter = (
   const handle = async <T extends TembaRequest>(
     expressRequest: Request,
     expressResponse: Response,
-    parseRequest: (req: express.Request) => T | null,
+    validators: RequestValidator | RequestValidator[],
+    convert: (request: RequestInfo) => T,
     handleRequest: (request: T) => Promise<TembaResponse>,
   ) => {
     const requestInfo = parseRequest(expressRequest)
 
-    if (
-      !requestInfo ||
-      (routerConfig.validateResources &&
-        !routerConfig.resources.includes(requestInfo.resource.toLowerCase()))
-    ) {
-      return expressResponse.status(404).json({
-        message: 'Unknown resource',
+    if (isError(requestInfo)) {
+      return expressResponse.status(requestInfo.status).json({
+        message: requestInfo.message,
       })
     }
 
-    const response = await handleRequest(requestInfo)
+    for (const validator of [validators].flat()) {
+      const validationResult = validator(requestInfo)
+      if (isError(validationResult)) {
+        return expressResponse.status(validationResult.status).json({
+          message: validationResult.message,
+        })
+      }
+    }
+
+    const convertedRequest = convert(requestInfo)
+
+    const response = await handleRequest(convertedRequest)
     sendResponse(response, expressResponse)
   }
 
@@ -107,23 +165,53 @@ export const createResourceRouter = (
   const resourceRouter = express.Router()
 
   resourceRouter.get('*', async (expressRequest, expressResponse) => {
-    await handle(expressRequest, expressResponse, parseGetRequest, requestHandler.handleGet)
+    await handle(
+      expressRequest,
+      expressResponse,
+      validateResource,
+      convertToGetRequest,
+      requestHandler.handleGet,
+    )
   })
 
   resourceRouter.post('*', async (expressRequest, expressResponse) => {
-    await handle(expressRequest, expressResponse, parsePostRequest, requestHandler.handlePost)
+    await handle(
+      expressRequest,
+      expressResponse,
+      [validateResource, validateIdInUrlNotAllowed, validateIdInRequestBodyNotAllowed],
+      convertToPostRequest,
+      requestHandler.handlePost,
+    )
   })
 
   resourceRouter.put('*', async (expressRequest, expressResponse) => {
-    await handle(expressRequest, expressResponse, parsePutRequest, requestHandler.handlePut)
+    await handle(
+      expressRequest,
+      expressResponse,
+      [validateResource, validateIdInUrlRequired, validateIdInRequestBodyNotAllowed],
+      convertToPutRequest,
+      requestHandler.handlePut,
+    )
   })
 
   resourceRouter.patch('*', async (expressRequest, expressResponse) => {
-    await handle(expressRequest, expressResponse, parsePatchRequest, requestHandler.handlePatch)
+    await handle(
+      expressRequest,
+      expressResponse,
+      [validateResource, validateIdInUrlRequired, validateIdInRequestBodyNotAllowed],
+      convertToPatchRequest,
+      requestHandler.handlePatch,
+    )
   })
 
   resourceRouter.delete('*', async (expressRequest, expressResponse) => {
-    await handle(expressRequest, expressResponse, parseDeleteRequest, requestHandler.handleDelete)
+    await handle(
+      expressRequest,
+      expressResponse,
+      validateResource,
+      convertToDeleteRequest,
+      requestHandler.handleDelete,
+    )
   })
 
   return resourceRouter

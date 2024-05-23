@@ -3,6 +3,14 @@ export type UrlInfo = {
   id: string | null
 }
 
+export type RequestInfo = {
+  id: string | null
+  resource: string
+  body: unknown | null
+  host: string | null
+  protocol: string | null
+}
+
 export type ErrorResponse = {
   message: string
   status: number

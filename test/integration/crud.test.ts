@@ -23,7 +23,6 @@ describe('CRUD', () => {
 
     // Initially, there are no items so a replacing something by id returns a 404.
     const nonExistingItem = {
-      id: 'id_does_not_exist',
       name: 'this should fail',
     }
     const replaceNonExistingResponse = await request(tembaServer)
