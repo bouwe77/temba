@@ -1,5 +1,5 @@
 import { format } from 'url'
-import { interceptRequest } from '../requestInterceptor/interceptRequest'
+import { interceptPostRequest } from '../requestInterceptor/interceptRequest'
 import { removeNullFields } from './utils'
 import { validate } from '../schema/validate'
 import type { ValidateFunctionPerResource } from '../schema/types'
@@ -26,7 +26,7 @@ export const createPostRoutes = (
       let body2 = body
       if (requestInterceptor?.post) {
         try {
-          body2 = interceptRequest(requestInterceptor.post, resource, body)
+          body2 = interceptPostRequest(requestInterceptor.post, resource, body)
         } catch (error: unknown) {
           return {
             status: error instanceof TembaError ? error.statusCode : 500,

@@ -265,14 +265,23 @@ It allows you to implement your own validation, or even change the request body.
 ```js
 const config = {
   requestInterceptor: {
+    get: ({ resource, id }) => {
+      //...
+    },
     post: ({ resource, body }) => {
       // Validate, or even change the request body
     },
-    put: ({ resource, body }) => {
+    put: ({ resource, id, body }) => {
       // Validate, or even change the request body
     },
-    patch: ({ resource, body }) => {
+    patch: ({ resource, id, body }) => {
       // Validate, or even change the request body
+    },
+    delete: ({ resource, id }) => {
+      //...
+    },
+    head: ({ resource, id }) => {
+      //...
     },
   },
 }
@@ -280,11 +289,10 @@ const config = {
 const server = temba.create(config)
 ```
 
-> At the moment, only `POST`, `PATCH`, and `PUT` requests can be intercepted.
 
-The `requestInterceptor` is an object with a `post`, and/or `patch`, and/or `put` field, which contains the callback function you want Temba to call before the JSON is persisted.
+The `requestInterceptor` is an object with fields for each of the HTTP methods you might want to intercept, and the callback function you want Temba to call, before processing the request, i.e. going to the database.
 
-The callback function receives an object containing the `resource`, which for example is `movies` if you request `POST /movies`, and the `body`, which is the JSON object of the request body.
+Each callback function receives an object containing the `resource` (e.g. `"movies"`). Depending on the HTTP method, also the `id` from the URL, and the request `body` are provided. `body` is a JSON object of the request body.
 
 Your callback function can return the following things:
 
@@ -438,14 +446,23 @@ const config = {
   delay: 500,
   port: 4321,
   requestInterceptor: {
+    get: ({ resource, id }) => {
+      //...
+    },
     post: ({ resource, body }) => {
       // Validate, or even change the request body
     },
-    patch: ({ resource, body }) => {
+    put: ({ resource, id, body }) => {
       // Validate, or even change the request body
     },
-    put: ({ resource, body }) => {
+    patch: ({ resource, id, body }) => {
       // Validate, or even change the request body
+    },
+    delete: ({ resource, id }) => {
+      //...
+    },
+    head: ({ resource, id }) => {
+      //...
     },
   },
   resources: ['movies', 'actors'],
