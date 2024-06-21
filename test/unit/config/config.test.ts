@@ -31,9 +31,13 @@ test('No config returns default config', () => {
   expect(initializedConfig.connectionString).toBe(defaultConfig.connectionString)
   expect(initializedConfig.cacheControl).toBe(defaultConfig.cacheControl)
   expect(initializedConfig.delay).toBe(defaultConfig.delay)
+  expect(initializedConfig.requestInterceptor?.get).toBe(defaultConfig.requestInterceptor?.get)
   expect(initializedConfig.requestInterceptor?.post).toBe(defaultConfig.requestInterceptor?.post)
   expect(initializedConfig.requestInterceptor?.patch).toBe(defaultConfig.requestInterceptor?.patch)
   expect(initializedConfig.requestInterceptor?.put).toBe(defaultConfig.requestInterceptor?.put)
+  expect(initializedConfig.requestInterceptor?.delete).toBe(
+    defaultConfig.requestInterceptor?.delete,
+  )
   expect(initializedConfig.responseBodyInterceptor).toBe(defaultConfig.responseBodyInterceptor)
   expect(initializedConfig.customRouter).toBe(defaultConfig.customRouter)
   expect(initializedConfig.returnNullFields).toBe(defaultConfig.returnNullFields)
@@ -57,6 +61,9 @@ test('Full user config overrides all defaults', () => {
     cacheControl: 'no-cache',
     delay: 1000,
     requestInterceptor: {
+      get: () => {
+        // do nothing
+      },
       post: () => {
         // do nothing
       },
@@ -64,6 +71,9 @@ test('Full user config overrides all defaults', () => {
         // do nothing
       },
       put: () => {
+        // do nothing
+      },
+      delete: () => {
         // do nothing
       },
     },
@@ -97,9 +107,11 @@ test('Full user config overrides all defaults', () => {
   expect(config.connectionString).toBe('mongodb://localhost:27017')
   expect(config.cacheControl).toBe('no-cache')
   expect(config.delay).toBe(1000)
+  expect(config.requestInterceptor!.get).toBeInstanceOf(Function)
   expect(config.requestInterceptor!.post).toBeInstanceOf(Function)
   expect(config.requestInterceptor!.patch).toBeInstanceOf(Function)
   expect(config.requestInterceptor!.put).toBeInstanceOf(Function)
+  expect(config.requestInterceptor!.delete).toBeInstanceOf(Function)
   expect(config.responseBodyInterceptor).toBeInstanceOf(Function)
   expect(config.customRouter).not.toBeNull()
   expect(config.returnNullFields).toBe(false)
@@ -121,9 +133,11 @@ test('Partial user config applies those, but leaves the rest at default', () => 
   expect(config.connectionString).toBe(defaultConfig.connectionString)
   expect(config.cacheControl).toBe(defaultConfig.cacheControl)
   expect(config.delay).toBe(defaultConfig.delay)
+  expect(config.requestInterceptor?.get).toBe(defaultConfig.requestInterceptor?.get)
   expect(config.requestInterceptor?.post).toBe(defaultConfig.requestInterceptor?.post)
   expect(config.requestInterceptor?.patch).toBe(defaultConfig.requestInterceptor?.patch)
   expect(config.requestInterceptor?.put).toBe(defaultConfig.requestInterceptor?.put)
+  expect(config.requestInterceptor?.delete).toBe(defaultConfig.requestInterceptor?.delete)
   expect(config.responseBodyInterceptor).toBe(defaultConfig.responseBodyInterceptor)
   expect(config.customRouter).toBe(defaultConfig.customRouter)
   expect(config.returnNullFields).toBe(defaultConfig.returnNullFields)

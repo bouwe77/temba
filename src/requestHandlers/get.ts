@@ -1,4 +1,7 @@
 import type { Queries } from '../data/types'
+import { TembaError } from '../requestInterceptor/TembaError'
+import { interceptGetRequest } from '../requestInterceptor/interceptRequest'
+import type { RequestInterceptor } from '../requestInterceptor/types'
 import { interceptResponseBody } from '../responseBodyInterceptor/interceptResponseBody'
 import type { ResponseBodyInterceptor } from '../responseBodyInterceptor/types'
 import type { GetRequest } from './types'
@@ -7,6 +10,7 @@ import { removeNullFields } from './utils'
 export const createGetRoutes = (
   queries: Queries,
   cacheControl: string,
+  requestInterceptor: RequestInterceptor | null,
   responseBodyInterceptor: ResponseBodyInterceptor | null,
   returnNullFields: boolean,
 ) => {
@@ -16,6 +20,17 @@ export const createGetRoutes = (
   const handleGet = async (req: GetRequest) => {
     try {
       const { resource, id } = req
+
+      if (!req.isHeadRequest && requestInterceptor?.get) {
+        try {
+          interceptGetRequest(requestInterceptor.get, resource, id)
+        } catch (error: unknown) {
+          return {
+            status: error instanceof TembaError ? error.statusCode : 500,
+            body: { message: (error as Error).message },
+          }
+        }
+      }
 
       if (id) {
         const item = await queries.getById(resource, id)

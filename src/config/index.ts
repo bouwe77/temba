@@ -110,6 +110,12 @@ export const initConfig = (userConfig?: UserConfig): Config => {
     config.requestInterceptor = config.requestInterceptor || {}
 
     if (
+      userConfig.requestInterceptor.get &&
+      typeof userConfig.requestInterceptor.get === 'function'
+    ) {
+      config.requestInterceptor.get = userConfig.requestInterceptor.get
+    }
+    if (
       userConfig.requestInterceptor.post &&
       typeof userConfig.requestInterceptor.post === 'function'
     ) {
@@ -126,6 +132,12 @@ export const initConfig = (userConfig?: UserConfig): Config => {
       typeof userConfig.requestInterceptor.put === 'function'
     ) {
       config.requestInterceptor.put = userConfig.requestInterceptor.put
+    }
+    if (
+      userConfig.requestInterceptor.delete &&
+      typeof userConfig.requestInterceptor.delete === 'function'
+    ) {
+      config.requestInterceptor.delete = userConfig.requestInterceptor.delete
     }
   }
 

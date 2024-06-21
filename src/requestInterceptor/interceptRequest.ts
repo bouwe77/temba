@@ -1,4 +1,18 @@
-import type { InterceptedPostRequest, InterceptedPutRequest, InterceptedReturnValue } from './types'
+import type {
+  InterceptedDeleteRequest,
+  InterceptedGetRequest,
+  InterceptedPostRequest,
+  InterceptedPutRequest,
+  InterceptedReturnValue,
+} from './types'
+
+export const interceptGetRequest = (
+  intercept: InterceptedGetRequest,
+  resource: string,
+  id: string | null,
+) => {
+  intercept({ resource, id })
+}
 
 export const interceptPostRequest = (
   intercept: InterceptedPostRequest,
@@ -20,6 +34,14 @@ export const interceptPutRequest = (
 }
 
 export const interceptPatchRequest = interceptPutRequest
+
+export const interceptDeleteRequest = (
+  intercept: InterceptedDeleteRequest,
+  resource: string,
+  id: string | null,
+) => {
+  intercept({ resource, id })
+}
 
 const interceptRequest = (intercepted: InterceptedReturnValue, body: unknown) => {
   if (!intercepted && typeof body === 'object') return body

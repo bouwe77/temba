@@ -24,6 +24,7 @@ export const getRequestHandler = (
   const handleGet = createGetRoutes(
     queries,
     cacheControl,
+    requestInterceptor,
     responseBodyInterceptor,
     returnNullFields,
   )
@@ -39,7 +40,7 @@ export const getRequestHandler = (
     schemas.patch,
   )
 
-  const handleDelete = createDeleteRoutes(queries, allowDeleteCollection)
+  const handleDelete = createDeleteRoutes(queries, allowDeleteCollection, requestInterceptor)
 
   return {
     handleGet,
