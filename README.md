@@ -280,15 +280,11 @@ const config = {
     delete: ({ resource, id }) => {
       //...
     },
-    head: ({ resource, id }) => {
-      //...
-    },
   },
 }
 
 const server = temba.create(config)
 ```
-
 
 The `requestInterceptor` is an object with fields for each of the HTTP methods you might want to intercept, and the callback function you want Temba to call, before processing the request, i.e. going to the database.
 
@@ -459,9 +455,6 @@ const config = {
       // Validate, or even change the request body
     },
     delete: ({ resource, id }) => {
-      //...
-    },
-    head: ({ resource, id }) => {
       //...
     },
   },
