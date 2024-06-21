@@ -35,6 +35,13 @@ const createServer = (userConfig?: UserConfig) => {
   // Enable CORS for all requests.
   app.use(cors({ origin: true, credentials: true }))
 
+  // Serve a static folder, if configured.
+  // Because it is defined before the auth middleware, the static folder is served without authentication,
+  // because it is not convenient to add an auth header to a web page in the browser.
+  if (config.staticFolder) {
+    app.use(express.static(config.staticFolder))
+  }
+
   // If enabled, add auth middleware to all requests, and disable the tokens resource.
   if (isAuthEnabled()) {
     app.use(createAuthMiddleware(queries))
@@ -45,11 +52,6 @@ const createServer = (userConfig?: UserConfig) => {
   if (config.delay > 0) {
     const delayMiddleware = createDelayMiddleware(config.delay)
     app.use(delayMiddleware)
-  }
-
-  // Serve a static folder, if configured.
-  if (config.staticFolder) {
-    app.use(express.static(config.staticFolder))
   }
 
   // On the root URL (with apiPrefix, if applicable) only a GET is allowed.
