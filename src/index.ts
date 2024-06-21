@@ -9,6 +9,17 @@ import { createDelayMiddleware } from './delay/delayMiddleware'
 import { compileSchemas } from './schema/compile'
 import { createResourceRouter } from './resourceRouter'
 import { TembaError as TembaErrorInternal } from './requestInterceptor/TembaError'
+import { createAuthMiddleware, isAuthEnabled } from './auth/auth'
+
+// Route for handling not allowed methods.
+const handleMethodNotAllowed = (_: Request, res: Response) => {
+  res.status(405).json({ message: 'Method Not Allowed' })
+}
+
+// Route for handling not found.
+const handleNotFound = (_: Request, res: Response) => {
+  res.status(404).json({ message: 'Not Found' })
+}
 
 const createServer = (userConfig?: UserConfig) => {
   const config = initConfig(userConfig)
@@ -23,6 +34,12 @@ const createServer = (userConfig?: UserConfig) => {
 
   // Enable CORS for all requests.
   app.use(cors({ origin: true, credentials: true }))
+
+  // If enabled, add auth middleware to all requests, and disable the tokens resource.
+  if (isAuthEnabled()) {
+    app.use(createAuthMiddleware(queries))
+    app.all('/tokens', handleNotFound)
+  }
 
   // Add a delay to every request, if configured.
   if (config.delay > 0) {
@@ -58,16 +75,6 @@ const createServer = (userConfig?: UserConfig) => {
   rootRouter.get('/', async (_, res) => {
     return res.send('It works! ツ')
   })
-
-  // Route for handling not allowed methods.
-  const handleMethodNotAllowed = (_: Request, res: Response) => {
-    res.status(405).json({ message: 'Method Not Allowed' })
-  }
-
-  // Route for handling not found.
-  const handleNotFound = (_: Request, res: Response) => {
-    res.status(404).json({ message: 'Not Found' })
-  }
 
   // All other requests to the root URL are not allowed.
   rootRouter.all('/', handleMethodNotAllowed)
