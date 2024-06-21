@@ -48,6 +48,7 @@ const convertToGetRequest = (requestInfo: RequestInfo) => {
   return {
     id: requestInfo.id,
     resource: requestInfo.resource,
+    isHeadRequest: requestInfo.method.toUpperCase() === 'HEAD',
   } satisfies GetRequest
 }
 
@@ -103,6 +104,7 @@ export const createResourceRouter = (
       body: req.body,
       host,
       protocol,
+      method: req.method,
     } satisfies RequestInfo
   }
 

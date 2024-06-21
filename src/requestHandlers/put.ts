@@ -1,4 +1,4 @@
-import { interceptRequest } from '../requestInterceptor/interceptRequest'
+import { interceptPutRequest } from '../requestInterceptor/interceptRequest'
 import { validate } from '../schema/validate'
 import { removeNullFields } from './utils'
 import type { ValidateFunctionPerResource } from '../schema/types'
@@ -25,7 +25,7 @@ export const createPutRoutes = (
       let body2 = body
       if (requestInterceptor?.put) {
         try {
-          body2 = interceptRequest(requestInterceptor.put, resource, body)
+          body2 = interceptPutRequest(requestInterceptor.put, resource, id, body)
         } catch (error: unknown) {
           return {
             status: error instanceof TembaError ? error.statusCode : 500,

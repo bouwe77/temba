@@ -9,6 +9,7 @@ export type RequestInfo = {
   body: unknown | null
   host: string | null
   protocol: string | null
+  method: string
 }
 
 export type ErrorResponse = {
@@ -22,6 +23,7 @@ export type TembaRequest = {
 
 export type GetRequest = TembaRequest & {
   id: string | null
+  isHeadRequest: boolean
 }
 
 export type PostRequest = TembaRequest & {
