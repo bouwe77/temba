@@ -24,10 +24,11 @@ Also, once this feature is enabled, you can not use the `/tokens` resource anymo
 
 ```
 {
-  "id": "1@qW3$eR5TY6&uI8"
+  "id": "whatever",
+  "token": "1@qW3$eR5TY6&uI8"
 }
 ```
 
-> The `id` contains the token, no additional fields are necessary.
+> The `id` is not used, authorization is done by looking for `"token"` value.
 
 3. Send requests to Temba containing an `X-TOKEN` header with an existing token, or a `401 Unauthorized` response will be given.

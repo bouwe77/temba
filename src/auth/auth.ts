@@ -13,7 +13,9 @@ export const createAuthMiddleware = (queries: Queries) => {
       return
     }
 
-    const foundToken = await queries.getById('tokens', token)
+    const tokens = await queries.getAll('tokens')
+
+    const foundToken = tokens.find((t) => t.token === token)
 
     if (!foundToken) {
       res.status(401).json({ message: 'Unauthorized' })
