@@ -8,8 +8,6 @@ const pause = (delay: number) => {
 
 export const createDelayMiddleware = (delay: number) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    console.log('Start delay...')
     pause(delay)(req, res, next)
-    console.log('Delay finished!')
   }
 }

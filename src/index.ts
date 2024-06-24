@@ -10,6 +10,7 @@ import { compileSchemas } from './schema/compile'
 import { createResourceRouter } from './resourceRouter'
 import { TembaError as TembaErrorInternal } from './requestInterceptor/TembaError'
 import { createAuthMiddleware, isAuthEnabled } from './auth/auth'
+import { initLogger } from './log/logger'
 
 // Route for handling not allowed methods.
 const handleMethodNotAllowed = (_: Request, res: Response) => {
@@ -22,15 +23,17 @@ const handleNotFound = (_: Request, res: Response) => {
 }
 
 const createServer = (userConfig?: UserConfig) => {
+  const { logger, logLevel } = initLogger(process.env.LOG_LEVEL)
+
   const config = initConfig(userConfig)
 
-  const queries = createQueries(config.connectionString)
+  const queries = createQueries(config.connectionString, logger)
 
   const app = express()
   app.use(json())
 
   // Add HTTP request logging.
-  app.use(morgan('tiny'))
+  if (logLevel === 'debug') app.use(morgan('tiny'))
 
   // Enable CORS for all requests.
   app.use(cors({ origin: true, credentials: true }))
@@ -97,12 +100,12 @@ const createServer = (userConfig?: UserConfig) => {
   return {
     start: () => {
       if (config.isTesting) {
-        console.log('⛔️ Server not started. Remove or disable isTesting from your config.')
+        logger.info('⛔️ Server not started. Remove or disable isTesting from your config.')
         return
       }
 
       app.listen(config.port, () => {
-        console.log(`✅ Server listening on port ${config.port}`)
+        logger.info(`✅ Server listening on port ${config.port}`)
       })
     },
     // Expose Express for testing purposes only, e.g. usage with supertest.
