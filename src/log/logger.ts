@@ -11,7 +11,7 @@ export type Logger = Record<LogLevel, (...data: unknown[]) => void>
 const createLogger = (logLevel: LogLevel) => {
   const log = (level: LogLevel, ...data: unknown[]) => {
     // Only log when the level is at least as high as the configured log level
-    if (logLevels[level] < logLevels[logLevel]) {
+    if (logLevels[level] >= logLevels[logLevel]) {
       try {
         console[level](new Date(), level, '-', ...data)
       } catch {
