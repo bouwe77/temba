@@ -13,7 +13,7 @@ const createLogger = (logLevel: LogLevel) => {
     // Only log when the level is at least as high as the configured log level
     if (logLevels[level] >= logLevels[logLevel]) {
       try {
-        console[level](new Date(), level, '-', ...data)
+        console[level](level.toUpperCase(), '-', ...data)
       } catch {
         // swallow exceptions during logging
       }
