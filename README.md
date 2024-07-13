@@ -74,8 +74,8 @@ Alternatively, add Temba to your app manually:
 2. Example code to create a Temba server:
 
 ```js
-import temba from 'temba'
-const server = temba.create()
+import { create } from "temba"
+const server = create()
 server.start()
 ```
 
@@ -139,7 +139,7 @@ By default data is stored in memory. This means the data is flushed when the ser
 const config = {
   connectionString: 'data.json',
 }
-const server = temba.create(config)
+const server = create(config)
 ```
 
 All resources are saved in a single JSON file. The file is not created or updated unless you create, update, or delete resources.
@@ -150,7 +150,7 @@ All resources are saved in a single JSON file. The file is not created or update
 const config = {
   connectionString: 'mongodb://localhost:27017/myDatabase',
 }
-const server = temba.create(config)
+const server = create(config)
 ```
 
 For every resource you use in your requests, a collection is created in the database. However, not until you actually create a resource with a `POST`.
@@ -163,7 +163,7 @@ If you only want to allow specific resource names, configure them by providing a
 const config = {
   resources: ['movies', 'actors'],
 }
-const server = temba.create(config)
+const server = create(config)
 ```
 
 Requests on these resources only give a `404 Not Found` if the ID does not exist. Requests on any other resource will always return a `404 Not Found`.
@@ -176,7 +176,7 @@ If you want to host static assets, for example next to the API, a web app consum
 const config = {
   staticFolder: 'build',
 }
-const server = temba.create(config)
+const server = create(config)
 ```
 
 With this setting, sending a `GET` request to the root URL, returns the content that is in the `'./build'` folder in your project.
@@ -195,7 +195,7 @@ With the `apiPrefix` config setting, all resources get an extra path segment in 
 const config = {
   apiPrefix: 'api',
 }
-const server = temba.create(config)
+const server = create(config)
 ```
 
 A request to the `apiPrefix` (e.g. http://localhost:1234/api) will now return the `"It works! ツ"` response message.
@@ -251,7 +251,7 @@ const config = {
   },
 }
 
-const server = temba.create(config)
+const server = create(config)
 ```
 
 If a request is not valid according to the schema, a `400 Bad Request` response is returned, and a message in the response body indicating the validation error.
@@ -283,7 +283,7 @@ const config = {
   },
 }
 
-const server = temba.create(config)
+const server = create(config)
 ```
 
 The `requestInterceptor` is an object with fields for each of the HTTP methods you might want to intercept, and the callback function you want Temba to call, before processing the request, i.e. going to the database.
@@ -321,7 +321,7 @@ const config = {
   },
 }
 
-const server = temba.create(config)
+const server = create(config)
 ```
 
 ### Response body interception
@@ -351,7 +351,7 @@ const config = {
   },
 }
 
-const server = temba.create(config)
+const server = create(config)
 ```
 
 `responseBodyInterceptor` is a callback function that provides an object containing the `resource`, `body`, and the `id`. Depending on whether it's a collection or item request, the `body` is either an array or object, and the `id` can be `undefined`.
@@ -392,7 +392,7 @@ const config = {
   customRouter: router,
 }
 
-const server = temba.create(config)
+const server = create(config)
 ```
 
 > 💁 Don't overuse `customRouter`, as it defeats the purpose of Temba being a simple out-of-the-box solution.
@@ -418,7 +418,7 @@ const config = {
   resources: ['stuff'],
   staticFolder: 'build',
 }
-const server = temba.create(config)
+const server = create(config)
 ```
 
 - `/` will be handled by Temba, and will return the `staticFolder` (`build`) folder contents
@@ -476,7 +476,7 @@ const config = {
   },
   staticFolder: 'build',
 }
-const server = temba.create(config)
+const server = create(config)
 ```
 
 These are all the possible settings:
