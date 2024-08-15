@@ -13,17 +13,11 @@ export const getRequestHandler = (
   schemas: CompiledSchemas,
   routerConfig: RouterConfig,
 ) => {
-  const {
-    cacheControl,
-    requestInterceptor,
-    responseBodyInterceptor,
-    returnNullFields,
-    allowDeleteCollection,
-  } = routerConfig
+  const { requestInterceptor, responseBodyInterceptor, returnNullFields, allowDeleteCollection } =
+    routerConfig
 
   const handleGet = createGetRoutes(
     queries,
-    cacheControl,
     requestInterceptor,
     responseBodyInterceptor,
     returnNullFields,
