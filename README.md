@@ -375,9 +375,9 @@ const config = {
 const server = create(config)
 ```
 
-After enabling etags, every `GET` request will return an `etag` response header, which clients can send as a `If-None-Match` header with every subsequent `GET` request. Only if the resource changed in the meantime the server will return the new JSON, and otherwise it will return a `304 Not Modified` response with an empty response body.
+After enabling etags, every `GET` request will return an `etag` response header, which clients can (optionally) send as an `If-None-Match` header with every subsequent `GET` request. Only if the resource changed in the meantime the server will return the new JSON, and otherwise it will return a `304 Not Modified` response with an empty response body.
 
-For updating or deleting items with a `PUT`, `PATCH`, or `DELETE`, after enabling etags, these requests are required to provide a `If-Match` header with the etag. Only if the etag represents the latest version of the resource the update is made, otherwise the server responds with a `412 Precondition Failed` status code.
+For updating or deleting items with a `PUT`, `PATCH`, or `DELETE`, after enabling etags, these requests are _required_ to provide an `If-Match` header with the etag. Only if the etag represents the latest version of the resource the update is made, otherwise the server responds with a `412 Precondition Failed` status code.
 
 ### Custom router
 
@@ -503,7 +503,7 @@ These are all the possible settings:
 | `connectionString`        | See [Data persistency](#data-persistency)                                                                    | `null`        |
 | `customRouter`            | See [Custom router](#custom-router)                                                        | `null`        |
 | `delay`                   | The delay, in milliseconds, after processing the request before sending the response. | `0`           |
-| `etags`                   | See [Caching and consistency with Etags] | `false`           |
+| `etags`                   | See [Caching and consistency with Etags](#caching-and-consistency-with-etags) | `false`           |
 | `port`                    | The port your Temba server listens on                                                      | `3000`        |
 | `requestInterceptor`  | See [Request validation or mutation](#request-validation-or-mutation)            | `noop`        |
 | `resources`               | See [Allowing specific resources only](#allowing-specific-resources-only)                  | `[]`          |
