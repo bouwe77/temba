@@ -9,13 +9,11 @@ import { removeNullFields } from './utils'
 
 export const createGetRoutes = (
   queries: Queries,
-  cacheControl: string,
   requestInterceptor: RequestInterceptor | null,
   responseBodyInterceptor: ResponseBodyInterceptor | null,
   returnNullFields: boolean,
 ) => {
-  const defaultResponse = { headers: { 'Cache-control': cacheControl } }
-  const responseOk = (body: unknown) => ({ ...defaultResponse, status: 200, body })
+  const responseOk = (body: unknown) => ({ status: 200, body })
 
   const handleGet = async (req: GetRequest) => {
     try {
@@ -36,7 +34,7 @@ export const createGetRoutes = (
         const item = await queries.getById(resource, id)
 
         if (!item) {
-          return { ...defaultResponse, status: 404 }
+          return { status: 404 }
         }
 
         const theItem = responseBodyInterceptor

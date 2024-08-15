@@ -7,7 +7,6 @@ export type Config = {
   validateResources: boolean
   resources: string[]
   apiPrefix: string | null
-  cacheControl: string
   requestInterceptor: RequestInterceptor | null
   responseBodyInterceptor: ResponseBodyInterceptor | null
   staticFolder: string | null
@@ -28,7 +27,6 @@ export type RouterConfig = Pick<
   | 'validateResources'
   | 'resources'
   | 'apiPrefix'
-  | 'cacheControl'
   | 'requestInterceptor'
   | 'responseBodyInterceptor'
   | 'returnNullFields'
@@ -40,7 +38,6 @@ export type UserConfig = {
   staticFolder?: string
   apiPrefix?: string
   connectionString?: string
-  cacheControl?: string
   delay?: number
   requestInterceptor?: RequestInterceptor
   responseBodyInterceptor?: ResponseBodyInterceptor
@@ -58,7 +55,6 @@ const defaultConfig: Config = {
   staticFolder: null,
   apiPrefix: null,
   connectionString: null,
-  cacheControl: 'no-store',
   delay: 0,
   requestInterceptor: null,
   responseBodyInterceptor: null,
@@ -90,10 +86,6 @@ export const initConfig = (userConfig?: UserConfig): Config => {
 
   if (userConfig.connectionString && userConfig.connectionString.length > 0) {
     config.connectionString = userConfig.connectionString
-  }
-
-  if (userConfig.cacheControl && userConfig.cacheControl.length > 0) {
-    config.cacheControl = userConfig.cacheControl
   }
 
   if (
