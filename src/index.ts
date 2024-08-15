@@ -11,6 +11,8 @@ import { createResourceRouter } from './resourceRouter'
 import { TembaError as TembaErrorInternal } from './requestInterceptor/TembaError'
 import { createAuthMiddleware, isAuthEnabled } from './auth/auth'
 import { initLogger } from './log/logger'
+import { etag } from './etags/etags'
+import type { StatsLike } from 'etag'
 
 // Route for handling not allowed methods.
 const handleMethodNotAllowed = (_: Request, res: Response) => {
@@ -31,6 +33,8 @@ const createServer = (userConfig?: UserConfig) => {
 
   const app = express()
   app.use(json())
+
+  app.set('etag', config.etags ? (entity: string | Buffer | StatsLike) => etag(entity) : false)
 
   // Add HTTP request logging.
   if (logLevel === 'debug') app.use(morgan('tiny'))
