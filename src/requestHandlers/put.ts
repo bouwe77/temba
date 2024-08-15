@@ -6,12 +6,14 @@ import type { PutRequest } from './types'
 import type { Queries } from '../data/types'
 import type { RequestInterceptor } from '../requestInterceptor/types'
 import { TembaError } from '../requestInterceptor/TembaError'
+import { etag } from '../etags/etags'
 
 export const createPutRoutes = (
   queries: Queries,
   requestInterceptor: RequestInterceptor | null,
   returnNullFields: boolean,
   schemas: ValidateFunctionPerResource | null,
+  etags: boolean,
 ) => {
   const handlePut = async (req: PutRequest) => {
     try {
@@ -43,6 +45,18 @@ export const createPutRoutes = (
             message: `ID '${id}' not found`,
           },
         }
+
+      if (etags) {
+        const itemEtag = etag(JSON.stringify(item))
+        if (req.etag !== itemEtag) {
+          return {
+            status: 412,
+            body: {
+              message: 'Precondition failed',
+            },
+          }
+        }
+      }
 
       item = { ...(body2 as object), id }
 

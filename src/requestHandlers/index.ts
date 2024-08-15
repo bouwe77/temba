@@ -19,6 +19,7 @@ export const getRequestHandler = (
     responseBodyInterceptor,
     returnNullFields,
     allowDeleteCollection,
+    etags,
   } = routerConfig
 
   const handleGet = createGetRoutes(
@@ -31,16 +32,23 @@ export const getRequestHandler = (
 
   const handlePost = createPostRoutes(queries, requestInterceptor, returnNullFields, schemas.post)
 
-  const handlePut = createPutRoutes(queries, requestInterceptor, returnNullFields, schemas.put)
+  const handlePut = createPutRoutes(
+    queries,
+    requestInterceptor,
+    returnNullFields,
+    schemas.put,
+    etags,
+  )
 
   const handlePatch = createPatchRoutes(
     queries,
     requestInterceptor,
     returnNullFields,
     schemas.patch,
+    etags,
   )
 
-  const handleDelete = createDeleteRoutes(queries, allowDeleteCollection, requestInterceptor)
+  const handleDelete = createDeleteRoutes(queries, allowDeleteCollection, requestInterceptor, etags)
 
   return {
     handleGet,

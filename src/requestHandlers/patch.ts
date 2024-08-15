@@ -6,12 +6,14 @@ import type { PatchRequest } from './types'
 import type { Queries } from '../data/types'
 import type { RequestInterceptor } from '../requestInterceptor/types'
 import { TembaError } from '../requestInterceptor/TembaError'
+import { etag } from '../etags/etags'
 
 export const createPatchRoutes = (
   queries: Queries,
   requestInterceptor: RequestInterceptor | null,
   returnNullFields: boolean,
   schemas: ValidateFunctionPerResource | null,
+  etags: boolean,
 ) => {
   const handlePatch = async (req: PatchRequest) => {
     try {
@@ -43,6 +45,18 @@ export const createPatchRoutes = (
             message: `ID '${id}' not found`,
           },
         }
+
+      if (etags) {
+        const itemEtag = etag(JSON.stringify(item))
+        if (req.etag !== itemEtag) {
+          return {
+            status: 412,
+            body: {
+              message: 'Precondition failed',
+            },
+          }
+        }
+      }
 
       item = { ...item, ...(body2 as object), id }
 
