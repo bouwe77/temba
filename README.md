@@ -451,7 +451,6 @@ Here is an example of the config settings for Temba, and how you define them:
 const config = {
   allowDeleteCollection: true,
   apiPrefix: 'api',
-  cacheControl: 'public, max-age=300',
   connectionString: 'mongodb://localhost:27017/myDatabase',
   customRouter: router,
   delay: 500,
@@ -501,7 +500,6 @@ These are all the possible settings:
 | :------------------------ | :----------------------------------------------------------------------------------------- | :------------ |
 | `allowDeleteCollection`   | Whether a `DELETE` request on a collection is allowed to delete all items. | `false` |
 | `apiPrefix`               | See [API prefix](#api-prefix)                                                              | `null`        |
-| `cacheControl`            | The `Cache-control` response header value for each GET request.                            | `'no-store'`  |
 | `connectionString`        | See [Data persistency](#data-persistency)                                                                    | `null`        |
 | `customRouter`            | See [Custom router](#custom-router)                                                        | `null`        |
 | `delay`                   | The delay, in milliseconds, after processing the request before sending the response. | `0`           |

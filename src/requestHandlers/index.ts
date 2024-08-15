@@ -14,7 +14,6 @@ export const getRequestHandler = (
   routerConfig: RouterConfig,
 ) => {
   const {
-    cacheControl,
     requestInterceptor,
     responseBodyInterceptor,
     returnNullFields,
@@ -24,7 +23,6 @@ export const getRequestHandler = (
 
   const handleGet = createGetRoutes(
     queries,
-    cacheControl,
     requestInterceptor,
     responseBodyInterceptor,
     returnNullFields,
