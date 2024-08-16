@@ -15,7 +15,7 @@ export const createPatchRoutes = (
 ) => {
   const handlePatch = async (req: PatchRequest) => {
     try {
-      const { body, resource, id } = req
+      const { headers, body, resource, id } = req
 
       const validationResult = validate(body, schemas?.[resource])
       if (validationResult.isValid === false) {
@@ -25,7 +25,7 @@ export const createPatchRoutes = (
       let body2 = body
       if (requestInterceptor?.patch) {
         try {
-          body2 = interceptPatchRequest(requestInterceptor.patch, resource, id, body)
+          body2 = interceptPatchRequest(requestInterceptor.patch, headers, resource, id, body)
         } catch (error: unknown) {
           return {
             status: error instanceof TembaError ? error.statusCode : 500,

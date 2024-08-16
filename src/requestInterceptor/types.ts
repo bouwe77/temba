@@ -1,4 +1,7 @@
+import type { IncomingHttpHeaders } from 'http'
+
 type InterceptedResource = {
+  headers: IncomingHttpHeaders
   resource: string
 }
 

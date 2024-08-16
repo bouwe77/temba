@@ -11,11 +11,11 @@ export const createDeleteRoutes = (
 ) => {
   const handleDelete = async (req: DeleteRequest) => {
     try {
-      const { resource, id } = req
+      const { headers, resource, id } = req
 
       if (requestInterceptor?.delete) {
         try {
-          interceptDeleteRequest(requestInterceptor.delete, resource, id)
+          interceptDeleteRequest(requestInterceptor.delete, headers, resource, id)
         } catch (error: unknown) {
           return {
             status: error instanceof TembaError ? error.statusCode : 500,
