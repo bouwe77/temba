@@ -1,3 +1,5 @@
+import type { IncomingHttpHeaders } from 'http'
+
 import type {
   InterceptedDeleteRequest,
   InterceptedGetRequest,
@@ -8,28 +10,31 @@ import type {
 
 export const interceptGetRequest = (
   intercept: InterceptedGetRequest,
+  headers: IncomingHttpHeaders,
   resource: string,
   id: string | null,
 ) => {
-  intercept({ resource, id })
+  intercept({ headers, resource, id })
 }
 
 export const interceptPostRequest = (
   intercept: InterceptedPostRequest,
+  headers: IncomingHttpHeaders,
   resource: string,
   body: unknown,
 ) => {
-  const intercepted = intercept({ resource, body })
+  const intercepted = intercept({ headers, resource, body })
   return interceptRequest(intercepted, body)
 }
 
 export const interceptPutRequest = (
   intercept: InterceptedPutRequest,
+  headers: IncomingHttpHeaders,
   resource: string,
   id: string,
   body: unknown,
 ) => {
-  const intercepted = intercept({ resource, id, body })
+  const intercepted = intercept({ headers, resource, id, body })
   return interceptRequest(intercepted, body)
 }
 
@@ -37,10 +42,11 @@ export const interceptPatchRequest = interceptPutRequest
 
 export const interceptDeleteRequest = (
   intercept: InterceptedDeleteRequest,
+  headers: IncomingHttpHeaders,
   resource: string,
   id: string | null,
 ) => {
-  intercept({ resource, id })
+  intercept({ headers, resource, id })
 }
 
 const interceptRequest = (intercepted: InterceptedReturnValue, body: unknown) => {

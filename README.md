@@ -265,19 +265,19 @@ It allows you to implement your own validation, or even change the request body.
 ```js
 const config = {
   requestInterceptor: {
-    get: ({ resource, id }) => {
+    get: ({ headers, resource, id }) => {
       //...
     },
-    post: ({ resource, body }) => {
+    post: ({ headers, resource, body }) => {
       // Validate, or even change the request body
     },
-    put: ({ resource, id, body }) => {
+    put: ({ headers, resource, id, body }) => {
       // Validate, or even change the request body
     },
-    patch: ({ resource, id, body }) => {
+    patch: ({ headers, resource, id, body }) => {
       // Validate, or even change the request body
     },
-    delete: ({ resource, id }) => {
+    delete: ({ headers, resource, id }) => {
       //...
     },
   },
@@ -288,7 +288,9 @@ const server = create(config)
 
 The `requestInterceptor` is an object with fields for each of the HTTP methods you might want to intercept, and the callback function you want Temba to call, before processing the request, i.e. going to the database.
 
-Each callback function receives an object containing the `resource` (e.g. `"movies"`). Depending on the HTTP method, also the `id` from the URL, and the request `body` are provided. `body` is a JSON object of the request body.
+Each callback function receives an object containing the request headers and the `resource` (e.g. `"movies"`). Depending on the HTTP method, also the `id` from the URL, and the request `body` are provided. `body` is a JSON object of the request body.
+
+> Request headers are not used by Temba internally when processing requests, so they are only passed into the `requestInterceptor` callback so you can do your own custom header validation.
 
 Your callback function can return the following things:
 
@@ -301,7 +303,7 @@ Example:
 ```js
 const config = {
   requestInterceptor: {
-    post: ({ resource, body }) => {      
+    post: ({ headers, resource, body }) => {      
       // Add a genre to Star Trek films:
       if (resource === 'movies' && body.title.startsWith('Star Trek'))
         return { ...body, genre: 'Science Fiction' }
@@ -457,19 +459,19 @@ const config = {
   etags: true,
   port: 4321,
   requestInterceptor: {
-    get: ({ resource, id }) => {
+    get: ({ headers, resource, id }) => {
       //...
     },
-    post: ({ resource, body }) => {
+    post: ({ headers, resource, body }) => {
       // Validate, or even change the request body
     },
-    put: ({ resource, id, body }) => {
+    put: ({ headers, resource, id, body }) => {
       // Validate, or even change the request body
     },
-    patch: ({ resource, id, body }) => {
+    patch: ({ headers, resource, id, body }) => {
       // Validate, or even change the request body
     },
-    delete: ({ resource, id }) => {
+    delete: ({ headers, resource, id }) => {
       //...
     },
   },

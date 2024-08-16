@@ -17,7 +17,7 @@ export const createPutRoutes = (
 ) => {
   const handlePut = async (req: PutRequest) => {
     try {
-      const { body, resource, id } = req
+      const { headers, body, resource, id } = req
 
       const validationResult = validate(body, schemas?.[resource])
       if (validationResult.isValid === false) {
@@ -27,7 +27,7 @@ export const createPutRoutes = (
       let body2 = body
       if (requestInterceptor?.put) {
         try {
-          body2 = interceptPutRequest(requestInterceptor.put, resource, id, body)
+          body2 = interceptPutRequest(requestInterceptor.put, headers, resource, id, body)
         } catch (error: unknown) {
           return {
             status: error instanceof TembaError ? error.statusCode : 500,

@@ -1,3 +1,5 @@
+import type { IncomingHttpHeaders } from 'http'
+
 export type UrlInfo = {
   resource: string | null
   id: string | null
@@ -10,6 +12,7 @@ export type RequestInfo = {
   host: string | null
   protocol: string | null
   method: string
+  headers: IncomingHttpHeaders
   etag: string | null
 }
 
@@ -19,6 +22,7 @@ export type ErrorResponse = {
 }
 
 export type TembaRequest = {
+  headers: IncomingHttpHeaders
   resource: string
 }
 

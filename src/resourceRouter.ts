@@ -46,6 +46,7 @@ const validateIdInRequestBodyNotAllowed = (requestInfo: RequestInfo) => {
 
 const convertToGetRequest = (requestInfo: RequestInfo) => {
   return {
+    headers: requestInfo.headers,
     id: requestInfo.id,
     resource: requestInfo.resource,
     isHeadRequest: requestInfo.method.toUpperCase() === 'HEAD',
@@ -54,6 +55,7 @@ const convertToGetRequest = (requestInfo: RequestInfo) => {
 
 const convertToPostRequest = (requestInfo: RequestInfo) => {
   return {
+    headers: requestInfo.headers,
     resource: requestInfo.resource,
     body: requestInfo.body ?? {},
     protocol: requestInfo.protocol,
@@ -63,6 +65,7 @@ const convertToPostRequest = (requestInfo: RequestInfo) => {
 
 const convertToPutRequest = (requestInfo: RequestInfo) => {
   return {
+    headers: requestInfo.headers,
     id: requestInfo.id!,
     resource: requestInfo.resource,
     body: requestInfo.body ?? {},
@@ -74,6 +77,7 @@ const convertToPatchRequest = convertToPutRequest
 
 const convertToDeleteRequest = (requestInfo: RequestInfo) => {
   return {
+    headers: requestInfo.headers,
     id: requestInfo.id,
     resource: requestInfo.resource,
     etag: requestInfo.etag ?? null,
@@ -108,6 +112,7 @@ export const createResourceRouter = (
       host,
       protocol,
       method: req.method,
+      headers: req.headers,
       etag,
     } satisfies RequestInfo
   }

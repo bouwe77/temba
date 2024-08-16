@@ -17,11 +17,11 @@ export const createGetRoutes = (
 
   const handleGet = async (req: GetRequest) => {
     try {
-      const { resource, id } = req
+      const { headers, resource, id } = req
 
       if (!req.isHeadRequest && requestInterceptor?.get) {
         try {
-          interceptGetRequest(requestInterceptor.get, resource, id)
+          interceptGetRequest(requestInterceptor.get, headers, resource, id)
         } catch (error: unknown) {
           return {
             status: error instanceof TembaError ? error.statusCode : 500,

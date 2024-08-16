@@ -16,7 +16,7 @@ export const createPostRoutes = (
 ) => {
   const handlePost = async (req: PostRequest) => {
     try {
-      const { body, protocol, host, resource } = req
+      const { headers, body, protocol, host, resource } = req
 
       const validationResult = validate(body, schemas[resource])
       if (validationResult.isValid === false) {
@@ -26,7 +26,7 @@ export const createPostRoutes = (
       let body2 = body
       if (requestInterceptor?.post) {
         try {
-          body2 = interceptPostRequest(requestInterceptor.post, resource, body)
+          body2 = interceptPostRequest(requestInterceptor.post, headers, resource, body)
         } catch (error: unknown) {
           return {
             status: error instanceof TembaError ? error.statusCode : 500,
