@@ -69,6 +69,7 @@ const convertToPutRequest = (requestInfo: RequestInfo) => {
     id: requestInfo.id!,
     resource: requestInfo.resource,
     body: requestInfo.body ?? {},
+    etag: requestInfo.etag ?? null,
   } satisfies PutRequest
 }
 
@@ -79,6 +80,7 @@ const convertToDeleteRequest = (requestInfo: RequestInfo) => {
     headers: requestInfo.headers,
     id: requestInfo.id,
     resource: requestInfo.resource,
+    etag: requestInfo.etag ?? null,
   } satisfies DeleteRequest
 }
 
@@ -101,6 +103,7 @@ export const createResourceRouter = (
 
     const host = req.get('host') || null
     const protocol = host ? req.protocol : null
+    const etag = req.headers['if-match'] ?? null
 
     return {
       id: urlInfo.id,
@@ -110,6 +113,7 @@ export const createResourceRouter = (
       protocol,
       method: req.method,
       headers: req.headers,
+      etag,
     } satisfies RequestInfo
   }
 

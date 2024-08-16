@@ -13,6 +13,7 @@ export type RequestInfo = {
   protocol: string | null
   method: string
   headers: IncomingHttpHeaders
+  etag: string | null
 }
 
 export type ErrorResponse = {
@@ -39,12 +40,14 @@ export type PostRequest = TembaRequest & {
 export type PutRequest = TembaRequest & {
   id: string
   body: unknown
+  etag: string | null
 }
 
 export type PatchRequest = PutRequest
 
 export type DeleteRequest = TembaRequest & {
   id: string | null
+  etag: string | null
 }
 
 export type TembaResponse = {

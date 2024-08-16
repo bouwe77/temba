@@ -18,6 +18,7 @@ export type Config = {
   port: number
   schemas: ConfiguredSchemas | null
   allowDeleteCollection: boolean
+  etags: boolean
 }
 
 export type ConfigKey = keyof Config
@@ -31,6 +32,7 @@ export type RouterConfig = Pick<
   | 'responseBodyInterceptor'
   | 'returnNullFields'
   | 'allowDeleteCollection'
+  | 'etags'
 >
 
 export type UserConfig = {
@@ -47,6 +49,7 @@ export type UserConfig = {
   port?: number
   schemas?: ConfiguredSchemas
   allowDeleteCollection?: boolean
+  etags?: boolean
 }
 
 const defaultConfig: Config = {
@@ -64,6 +67,7 @@ const defaultConfig: Config = {
   port: 3000,
   schemas: null,
   allowDeleteCollection: false,
+  etags: false,
 }
 
 export const initConfig = (userConfig?: UserConfig): Config => {
@@ -159,6 +163,10 @@ export const initConfig = (userConfig?: UserConfig): Config => {
 
   if (!isUndefined(userConfig.allowDeleteCollection)) {
     config.allowDeleteCollection = userConfig.allowDeleteCollection
+  }
+
+  if (!isUndefined(userConfig.etags)) {
+    config.etags = userConfig.etags
   }
 
   return config

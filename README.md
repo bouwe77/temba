@@ -366,6 +366,21 @@ If you don't return anything, the response body will be sent as-is.
 
 The `responseBodyInterceptor` will only be called when the response was successful, i.e. a `200 OK` status code.
 
+### Caching and consistency with Etags
+
+To optimize `GET` requests, and only send JSON over the wire when it changed, you can configure to enable Etags. Etags also prevent so-called mid-air collisions, where a client tries to update en item that has been updated by another client in the meantime:
+
+```js
+const config = {
+  etags: true,
+}
+const server = create(config)
+```
+
+After enabling etags, every `GET` request will return an `etag` response header, which clients can (optionally) send as an `If-None-Match` header with every subsequent `GET` request. Only if the resource changed in the meantime the server will return the new JSON, and otherwise it will return a `304 Not Modified` response with an empty response body.
+
+For updating or deleting items with a `PUT`, `PATCH`, or `DELETE`, after enabling etags, these requests are _required_ to provide an `If-Match` header with the etag. Only if the etag represents the latest version of the resource the update is made, otherwise the server responds with a `412 Precondition Failed` status code.
+
 ### Custom router
 
 Because Temba uses Express under the hood, you can create an Express router, and configure it as a `customRouter`:
@@ -441,6 +456,7 @@ const config = {
   connectionString: 'mongodb://localhost:27017/myDatabase',
   customRouter: router,
   delay: 500,
+  etags: true,
   port: 4321,
   requestInterceptor: {
     get: ({ headers, resource, id }) => {
@@ -489,6 +505,7 @@ These are all the possible settings:
 | `connectionString`        | See [Data persistency](#data-persistency)                                                                    | `null`        |
 | `customRouter`            | See [Custom router](#custom-router)                                                        | `null`        |
 | `delay`                   | The delay, in milliseconds, after processing the request before sending the response. | `0`           |
+| `etags`                   | See [Caching and consistency with Etags](#caching-and-consistency-with-etags) | `false`           |
 | `port`                    | The port your Temba server listens on                                                      | `3000`        |
 | `requestInterceptor`  | See [Request validation or mutation](#request-validation-or-mutation)            | `noop`        |
 | `resources`               | See [Allowing specific resources only](#allowing-specific-resources-only)                  | `[]`          |
