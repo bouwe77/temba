@@ -290,6 +290,8 @@ The `requestInterceptor` is an object with fields for each of the HTTP methods y
 
 Each callback function receives an object containing the request headers and the `resource` (e.g. `"movies"`). Depending on the HTTP method, also the `id` from the URL, and the request `body` are provided. `body` is a JSON object of the request body.
 
+> Request headers are not used by Temba internally when processing requests, so they are only passed into the `requestInterceptor` callback so you can do your own custom header validation.
+
 Your callback function can return the following things:
 
 - `void`: Temba will just save the request body as-is. An example of this is when you have validated the request body and everything looks fine.
