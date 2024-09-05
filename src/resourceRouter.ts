@@ -98,8 +98,11 @@ export const createResourceRouter = (
 
   const parseRequest = (req: express.Request) => {
     const urlInfo = getUrlInfo(req.baseUrl)
+
+    // Due to how routing is setup this situation can not happen,
+    // so it's mainly to satisfy TypeScript.
     if (!urlInfo.resource || urlInfo.resource.trim().length === 0)
-      return createError(400, 'Unknown resource')
+      return createError(404, 'Resource could not be determined from req.baseUrl')
 
     const host = req.get('host') || null
     const protocol = host ? req.protocol : null
@@ -122,7 +125,7 @@ export const createResourceRouter = (
       routerConfig.validateResources &&
       !routerConfig.resources.includes((requestInfo.resource ?? '').toLowerCase())
     ) {
-      return createError(400, 'Invalid resource')
+      return createError(404, 'Invalid resource')
     }
 
     return requestInfo
