@@ -19,6 +19,7 @@ export type Config = {
   schemas: ConfiguredSchemas | null
   allowDeleteCollection: boolean
   etags: boolean
+  openapi: boolean
 }
 
 export type ConfigKey = keyof Config
@@ -50,6 +51,7 @@ export type UserConfig = {
   schemas?: ConfiguredSchemas
   allowDeleteCollection?: boolean
   etags?: boolean
+  openapi?: boolean
 }
 
 const defaultConfig: Config = {
@@ -68,6 +70,7 @@ const defaultConfig: Config = {
   schemas: null,
   allowDeleteCollection: false,
   etags: false,
+  openapi: false,
 }
 
 export const initConfig = (userConfig?: UserConfig): Config => {
@@ -167,6 +170,10 @@ export const initConfig = (userConfig?: UserConfig): Config => {
 
   if (!isUndefined(userConfig.etags)) {
     config.etags = userConfig.etags
+  }
+
+  if (!isUndefined(userConfig.openapi)) {
+    config.openapi = userConfig.openapi
   }
 
   return config
