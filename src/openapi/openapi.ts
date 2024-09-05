@@ -15,10 +15,13 @@ type OpenApiFormat = 'json' | 'yaml'
 export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
   const openapiRouter = express.Router()
 
-  openapiRouter.get('/', async (_, res) => {
+  openapiRouter.get('/', async (req, res) => {
     if (!config.openapi || config.resources.length === 0) {
       return res.status(404).json({ message: 'Not Found' })
     }
+
+    const port = req.get('host')?.split(':')[1]
+    const server = `${req.protocol}://${req.hostname}${port && !['80', '443'].includes(port) ? `:${port}` : ''}${config.apiPrefix ?? ''}`
 
     const resourceInfos = config.resources.map((resource) => {
       const pluralResourceLowerCase = resource.toLowerCase()
@@ -40,7 +43,7 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
       } satisfies ResourceInfo
     })
 
-    const spec = buildOpenApiSpec(format, resourceInfos)
+    const spec = buildOpenApiSpec(format, server, resourceInfos)
 
     // console.log(JSON.stringify(builder.getSpec().paths, null, 2))
 
@@ -51,7 +54,11 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
     }
   })
 
-  const buildOpenApiSpec = (format: OpenApiFormat, resourceInfos: ResourceInfo[]) => {
+  const buildOpenApiSpec = (
+    format: OpenApiFormat,
+    server: string,
+    resourceInfos: ResourceInfo[],
+  ) => {
     const builder = OpenApiBuilder.create()
       .addOpenApiVersion('3.1.0')
       .addInfo({
@@ -65,7 +72,7 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
       })
       // For convenience, we use a generic server URL, relative to where the docs are served from.
       .addServer({
-        url: config.apiPrefix || '/',
+        url: server,
       })
 
     resourceInfos.forEach((resourceInfo) => {
