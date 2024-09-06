@@ -151,3 +151,24 @@ test('Partial user config applies those, but leaves the rest at default', () => 
   expect(config.etags).toBe(defaultConfig.etags)
   expect(config.openapi).toBe(defaultConfig.openapi)
 })
+
+test('Configuring multiple resources, both strings and extended ones', () => {
+  const config = initConfig({
+    resources: [
+      'movies',
+      {
+        resourcePath: 'people',
+        singularName: 'person',
+        pluralName: 'people',
+      },
+    ],
+  })
+
+  expect(config.resources.length).toEqual(2)
+  expect(config.resources[0]).toEqual('movies')
+  expect(config.resources[1]).toEqual({
+    resourcePath: 'people',
+    singularName: 'person',
+    pluralName: 'people',
+  })
+})

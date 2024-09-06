@@ -5,9 +5,17 @@ import type { ResponseBodyInterceptor } from '../responseBodyInterceptor/types'
 
 type ResourcePath = string
 
+type ExtendedResource = {
+  resourcePath: ResourcePath; // Reuses the ResourcePath type
+  singularName: string;       // Name used in OpenAPI summaries/descriptions
+  pluralName: string;         // Name used in OpenAPI summaries/descriptions
+};
+
+type Resources = (ResourcePath | ExtendedResource)[]
+
 export type Config = {
   validateResources: boolean
-  resources: ResourcePath[]
+  resources: Resources
   apiPrefix: string | null
   requestInterceptor: RequestInterceptor | null
   responseBodyInterceptor: ResponseBodyInterceptor | null
@@ -39,7 +47,7 @@ export type RouterConfig = Pick<
 >
 
 export type UserConfig = {
-  resources?: ResourcePath[]
+  resources?: Resources
   staticFolder?: string
   apiPrefix?: string
   connectionString?: string
