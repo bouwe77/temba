@@ -19,6 +19,7 @@ const defaultConfig: Config = {
   schemas: null,
   allowDeleteCollection: false,
   etags: false,
+  openapi: false,
 }
 
 test('No config returns default config', () => {
@@ -45,6 +46,7 @@ test('No config returns default config', () => {
   expect(initializedConfig.schemas).toBe(defaultConfig.schemas)
   expect(initializedConfig.allowDeleteCollection).toBe(defaultConfig.allowDeleteCollection)
   expect(initializedConfig.etags).toBe(defaultConfig.etags)
+  expect(initializedConfig.openapi).toBe(defaultConfig.openapi)
 })
 
 test('Full user config overrides all defaults', () => {
@@ -98,6 +100,7 @@ test('Full user config overrides all defaults', () => {
     },
     allowDeleteCollection: true,
     etags: true,
+    openapi: true,
   })
 
   expect(config.resources).toEqual(['movies'])
@@ -119,6 +122,7 @@ test('Full user config overrides all defaults', () => {
   expect(config.schemas).not.toBeNull()
   expect(config.allowDeleteCollection).toBe(true)
   expect(config.etags).toBe(true)
+  expect(config.openapi).toBe(true)
 })
 
 test('Partial user config applies those, but leaves the rest at default', () => {
@@ -145,4 +149,5 @@ test('Partial user config applies those, but leaves the rest at default', () => 
   expect(config.schemas).toBe(defaultConfig.schemas)
   expect(config.allowDeleteCollection).toBe(defaultConfig.allowDeleteCollection)
   expect(config.etags).toBe(defaultConfig.etags)
+  expect(config.openapi).toBe(defaultConfig.openapi)
 })

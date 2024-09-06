@@ -31,7 +31,7 @@ const createError = (status: number, message: string) => {
 }
 
 const validateIdInUrlRequired = (requestInfo: RequestInfo) => {
-  return !requestInfo.id ? createError(400, 'Please provide an id in the URL') : requestInfo
+  return !requestInfo.id ? createError(400, 'An id is required in the URL') : requestInfo
 }
 
 const validateIdInUrlNotAllowed = (requestInfo: RequestInfo) => {

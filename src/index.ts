@@ -13,6 +13,7 @@ import { createAuthMiddleware, isAuthEnabled } from './auth/auth'
 import { initLogger } from './log/logger'
 import { etag } from './etags/etags'
 import type { StatsLike } from 'etag'
+import { createOpenApiRouter } from './openapi/openapi'
 
 // Route for handling not allowed methods.
 const handleMethodNotAllowed = (_: Request, res: Response) => {
@@ -70,6 +71,9 @@ const createServer = (userConfig?: UserConfig) => {
   if (config.customRouter) {
     app.use(config.customRouter)
   }
+
+  app.use('/openapi.json', createOpenApiRouter('json', config))
+  app.use('/openapi.yaml', createOpenApiRouter('yaml', config))
 
   // Temba supports the GET, POST, PUT, PATCH, DELETE, and HEAD methods for resource URLs.
   // HEAD is not implemented here, because Express supports it out of the box.
