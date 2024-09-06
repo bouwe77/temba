@@ -6,10 +6,10 @@ import type { ResponseBodyInterceptor } from '../responseBodyInterceptor/types'
 type ResourcePath = string
 
 type ExtendedResource = {
-  resourcePath: ResourcePath; // Reuses the ResourcePath type
-  singularName: string;       // Name used in OpenAPI summaries/descriptions
-  pluralName: string;         // Name used in OpenAPI summaries/descriptions
-};
+  resourcePath: ResourcePath
+  singularName: string
+  pluralName: string
+}
 
 type Resources = (ResourcePath | ExtendedResource)[]
 
