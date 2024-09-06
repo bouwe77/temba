@@ -1,6 +1,7 @@
 import express from 'express'
 import type { Config } from '../config'
 import { OpenApiBuilder, type ParameterObject } from 'openapi3-ts/oas31'
+import indefinite from 'indefinite'
 
 const getPathParameters = (resourceInfo: ResourceInfo, id = false) => {
   const { resource, singularResourceLowerCase } = resourceInfo
@@ -287,7 +288,7 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
       // GET, HEAD, PUT, PATCH, DELETE on an ID
       builder.addPath(`/${resource}/{${singularResourceLowerCase}Id}`, {
         get: {
-          summary: `Find a ${singularResourceLowerCase} by ID`,
+          summary: `Find ${indefinite(singularResourceLowerCase)} by ID`,
           operationId: `get${singularResourceUpperCase}ById`,
           parameters: getPathParameters(resourceInfo, true),
           responses: {
@@ -332,7 +333,7 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
           },
         },
         put: {
-          summary: `Replace a ${singularResourceLowerCase}.`,
+          summary: `Replace ${indefinite(singularResourceLowerCase)}.`,
           operationId: `replace${singularResourceUpperCase}`,
           parameters: getPathParameters(resourceInfo, true),
           requestBody: {
@@ -400,7 +401,7 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
           },
         },
         patch: {
-          summary: `Update a ${singularResourceLowerCase}.`,
+          summary: `Update ${indefinite(singularResourceLowerCase)}.`,
           operationId: `update${singularResourceUpperCase}`,
           parameters: getPathParameters(resourceInfo, true),
           requestBody: {
@@ -468,7 +469,7 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
           },
         },
         delete: {
-          summary: `Delete a ${singularResourceLowerCase}.`,
+          summary: `Delete ${indefinite(singularResourceLowerCase)}.`,
           operationId: `delete${singularResourceUpperCase}`,
           parameters: getPathParameters(resourceInfo, true),
           responses: {

@@ -29,7 +29,7 @@ describe.each(endpoints)('OpenAPI documentation', (path) => {
   })
 
   test(`When OpenAPI enabled '${path}' returns a 200 with the content-type header`, async () => {
-    const tembaServer = createServer({ openapi: true, resources: ['movies'] } satisfies UserConfig)
+    const tembaServer = createServer({ openapi: true, resources: ['actors'] } satisfies UserConfig)
     const response = await request(tembaServer).get(path)
 
     expect(response.statusCode).toEqual(200)
@@ -278,7 +278,7 @@ test('OpenAPI when no resources configured', async () => {
 test('OpenAPI when a single resource configured', async () => {
   const tembaServer = createServer({
     openapi: true,
-    resources: ['movies'],
+    resources: ['actors'],
   } satisfies UserConfig)
 
   const response = await request(tembaServer).get('/openapi.json')
@@ -298,7 +298,7 @@ test('OpenAPI when a single resource configured', async () => {
   expect(response.body.servers.length).toEqual(1)
   expect(response.body.servers[0].url.length).toBeGreaterThan(0)
 
-  // Paths object has 3 paths: "/", "/movies" and "/movies/{movieId}"
+  // Paths object has 3 paths: "/", "/actors" and "/actors/{actorId}"
   expect(Object.keys(response.body.paths).length).toEqual(3)
 
   // GET /
@@ -308,58 +308,58 @@ test('OpenAPI when a single resource configured', async () => {
   expect(root.responses['200'].description).toEqual('The API is working.')
   expect(root.responses['200'].content['text/html'].schema.type).toEqual('string')
 
-  // GET /movies
-  const get = response.body.paths['/movies']['get']
-  expect(get.summary).toEqual('List all movies.')
-  expect(get.operationId).toEqual('getAllMovies')
-  expect(get.responses['200'].description).toEqual('List of all movies.')
+  // GET /actors
+  const get = response.body.paths['/actors']['get']
+  expect(get.summary).toEqual('List all actors.')
+  expect(get.operationId).toEqual('getAllActors')
+  expect(get.responses['200'].description).toEqual('List of all actors.')
   expect(get.responses['200'].content['application/json'].schema.type).toEqual('array')
   expect(get.responses['200'].content['application/json'].schema.items.type).toEqual('object')
 
-  // GET /movies/{movieId}
-  const getById = response.body.paths['/movies/{movieId}']['get']
-  expect(getById.summary).toEqual('Find a movie by ID')
-  expect(getById.operationId).toEqual('getMovieById')
-  expect(getById.parameters[0].name).toEqual('movieId')
+  // GET /actors/{actorId}
+  const getById = response.body.paths['/actors/{actorId}']['get']
+  expect(getById.summary).toEqual('Find an actor by ID')
+  expect(getById.operationId).toEqual('getActorById')
+  expect(getById.parameters[0].name).toEqual('actorId')
   expect(getById.parameters[0].in).toEqual('path')
   expect(getById.parameters[0].required).toEqual(true)
   expect(getById.parameters[0].schema.type).toEqual('string')
-  expect(getById.parameters[0].description).toEqual('The ID of the movie.')
-  expect(getById.responses['200'].description).toEqual('The movie with the movieId.')
+  expect(getById.parameters[0].description).toEqual('The ID of the actor.')
+  expect(getById.responses['200'].description).toEqual('The actor with the actorId.')
   expect(getById.responses['200'].content['application/json'].schema.type).toEqual('object')
-  expect(getById.responses['404'].description).toEqual('The movieId was not found.')
+  expect(getById.responses['404'].description).toEqual('The actorId was not found.')
   expect(getById.responses['404'].content['application/json'].schema.type).toEqual('object')
   expect(
     getById.responses['404'].content['application/json'].schema.properties.message.type,
   ).toEqual('string')
 
-  // HEAD /movies
-  const head = response.body.paths['/movies']['head']
-  expect(head.summary).toEqual('Returns HTTP headers for the list of movies.')
-  expect(head.operationId).toEqual('getAllMoviesHeaders')
-  expect(head.responses['200'].description).toEqual('HTTP headers for the list of all movies.')
+  // HEAD /actors
+  const head = response.body.paths['/actors']['head']
+  expect(head.summary).toEqual('Returns HTTP headers for the list of actors.')
+  expect(head.operationId).toEqual('getAllActorsHeaders')
+  expect(head.responses['200'].description).toEqual('HTTP headers for the list of all actors.')
 
-  // HEAD /movies/{movieId}
-  const headById = response.body.paths['/movies/{movieId}']['head']
-  expect(headById.summary).toEqual('Returns HTTP headers for the movie by ID.')
-  expect(headById.operationId).toEqual('getMovieByIdHeaders')
-  expect(headById.parameters[0].name).toEqual('movieId')
+  // HEAD /actors/{actorId}
+  const headById = response.body.paths['/actors/{actorId}']['head']
+  expect(headById.summary).toEqual('Returns HTTP headers for the actor by ID.')
+  expect(headById.operationId).toEqual('getActorByIdHeaders')
+  expect(headById.parameters[0].name).toEqual('actorId')
   expect(headById.parameters[0].in).toEqual('path')
   expect(headById.parameters[0].required).toEqual(true)
   expect(headById.parameters[0].schema.type).toEqual('string')
-  expect(headById.parameters[0].description).toEqual('The ID of the movie.')
+  expect(headById.parameters[0].description).toEqual('The ID of the actor.')
   expect(headById.responses['200'].description).toEqual(
-    'HTTP headers for the movie with the movieId.',
+    'HTTP headers for the actor with the actorId.',
   )
-  expect(headById.responses['404'].description).toEqual('The movieId was not found.')
+  expect(headById.responses['404'].description).toEqual('The actorId was not found.')
 
-  // POST /movies
-  const post = response.body.paths['/movies']['post']
-  expect(post.summary).toEqual('Create a new movie.')
-  expect(post.operationId).toEqual('createMovie')
+  // POST /actors
+  const post = response.body.paths['/actors']['post']
+  expect(post.summary).toEqual('Create a new actor.')
+  expect(post.operationId).toEqual('createActor')
   expect(post.requestBody.content['application/json'].schema.type).toEqual('object')
   expect(post.responses['201'].description).toEqual(
-    'The movie was created. The created movie is returned in the response.',
+    'The actor was created. The created actor is returned in the response.',
   )
   expect(post.responses['201'].content['application/json'].schema.type).toEqual('object')
   expect(post.responses['400'].description).toEqual('The request was invalid.')
@@ -375,21 +375,21 @@ test('OpenAPI when a single resource configured', async () => {
       .message,
   ).toEqual('An id is not allowed in the request body')
 
-  // PUT /movies/{movieId}
-  const put = response.body.paths['/movies/{movieId}']['put']
-  expect(put.summary).toEqual('Replace a movie.')
-  expect(put.operationId).toEqual('replaceMovie')
-  expect(put.parameters[0].name).toEqual('movieId')
+  // PUT /actors/{actorId}
+  const put = response.body.paths['/actors/{actorId}']['put']
+  expect(put.summary).toEqual('Replace an actor.')
+  expect(put.operationId).toEqual('replaceActor')
+  expect(put.parameters[0].name).toEqual('actorId')
   expect(put.parameters[0].in).toEqual('path')
   expect(put.parameters[0].required).toEqual(true)
   expect(put.parameters[0].schema.type).toEqual('string')
-  expect(put.parameters[0].description).toEqual('The ID of the movie.')
+  expect(put.parameters[0].description).toEqual('The ID of the actor.')
   expect(put.requestBody.content['application/json'].schema.type).toEqual('object')
   expect(put.responses['200'].description).toEqual(
-    'The movie was replaced. The replaced movie is returned in the response.',
+    'The actor was replaced. The replaced actor is returned in the response.',
   )
   expect(put.responses['200'].content['application/json'].schema.type).toEqual('object')
-  expect(put.responses['404'].description).toEqual('The movieId was not found.')
+  expect(put.responses['404'].description).toEqual('The actorId was not found.')
   expect(put.responses['404'].content['application/json'].schema.type).toEqual('object')
   expect(put.responses['404'].content['application/json'].schema.properties.message.type).toEqual(
     'string',
@@ -407,21 +407,21 @@ test('OpenAPI when a single resource configured', async () => {
       .message,
   ).toEqual('An id is not allowed in the request body')
 
-  // PATCH /movies/{movieId}
-  const patch = response.body.paths['/movies/{movieId}']['patch']
-  expect(patch.summary).toEqual('Update a movie.')
-  expect(patch.operationId).toEqual('updateMovie')
-  expect(patch.parameters[0].name).toEqual('movieId')
+  // PATCH /actors/{actorId}
+  const patch = response.body.paths['/actors/{actorId}']['patch']
+  expect(patch.summary).toEqual('Update an actor.')
+  expect(patch.operationId).toEqual('updateActor')
+  expect(patch.parameters[0].name).toEqual('actorId')
   expect(patch.parameters[0].in).toEqual('path')
   expect(patch.parameters[0].required).toEqual(true)
   expect(patch.parameters[0].schema.type).toEqual('string')
-  expect(patch.parameters[0].description).toEqual('The ID of the movie.')
+  expect(patch.parameters[0].description).toEqual('The ID of the actor.')
   expect(patch.requestBody.content['application/json'].schema.type).toEqual('object')
   expect(patch.responses['200'].description).toEqual(
-    'The movie was updated. The updated movie is returned in the response.',
+    'The actor was updated. The updated actor is returned in the response.',
   )
   expect(patch.responses['200'].content['application/json'].schema.type).toEqual('object')
-  expect(patch.responses['404'].description).toEqual('The movieId was not found.')
+  expect(patch.responses['404'].description).toEqual('The actorId was not found.')
   expect(patch.responses['404'].content['application/json'].schema.type).toEqual('object')
   expect(patch.responses['404'].content['application/json'].schema.properties.message.type).toEqual(
     'string',
@@ -439,24 +439,24 @@ test('OpenAPI when a single resource configured', async () => {
       .message,
   ).toEqual('An id is not allowed in the request body')
 
-  // DELETE /movies is disabled, so not in the paths
-  const deleteAll = response.body.paths['/movies']['delete']
+  // DELETE /actors is disabled, so not in the paths
+  const deleteAll = response.body.paths['/actors']['delete']
   expect(deleteAll.summary).toEqual(
     'Deleting whole collections is disabled. Enable by setting `allowDeleteCollection` to `true`.',
   )
-  expect(deleteAll.operationId).toEqual('deleteAllMovies')
+  expect(deleteAll.operationId).toEqual('deleteAllActors')
   expect(deleteAll.responses['405'].description).toEqual('Method not allowed')
 
-  // DELETE /movies/{movieId}
-  const deleteById = response.body.paths['/movies/{movieId}']['delete']
-  expect(deleteById.summary).toEqual('Delete a movie.')
-  expect(deleteById.operationId).toEqual('deleteMovie')
-  expect(deleteById.parameters[0].name).toEqual('movieId')
+  // DELETE /actors/{actorId}
+  const deleteById = response.body.paths['/actors/{actorId}']['delete']
+  expect(deleteById.summary).toEqual('Delete an actor.')
+  expect(deleteById.operationId).toEqual('deleteActor')
+  expect(deleteById.parameters[0].name).toEqual('actorId')
   expect(deleteById.parameters[0].in).toEqual('path')
   expect(deleteById.parameters[0].required).toEqual(true)
   expect(deleteById.parameters[0].schema.type).toEqual('string')
-  expect(deleteById.parameters[0].description).toEqual('The ID of the movie.')
-  expect(deleteById.responses['204'].description).toEqual('The movie was deleted.')
+  expect(deleteById.parameters[0].description).toEqual('The ID of the actor.')
+  expect(deleteById.responses['204'].description).toEqual('The actor was deleted.')
 })
 
 // TODO: If no resources are configured, the resource name in the paths should be "{resource}", and become
@@ -486,7 +486,7 @@ test('OpenAPI when a single resource configured', async () => {
 test('Server URL contains the configured apiPrefix', async () => {
   const tembaServer = createServer({
     openapi: true,
-    resources: ['movies'],
+    resources: ['actors'],
     apiPrefix: '/api',
   } satisfies UserConfig)
 
@@ -499,23 +499,23 @@ test('Server URL contains the configured apiPrefix', async () => {
 test('OpenAPI paths contains deleting a collection when allowDeleteCollection is true', async () => {
   const tembaServer = createServer({
     openapi: true,
-    resources: ['movies'],
+    resources: ['actors'],
     allowDeleteCollection: true,
   } satisfies UserConfig)
 
   const response = await request(tembaServer).get('/openapi.json')
 
-  const deleteAll = response.body.paths['/movies']['delete']
-  expect(deleteAll.summary).toEqual('Delete all movies.')
-  expect(deleteAll.operationId).toEqual('deleteAllMovies')
-  expect(deleteAll.responses['204'].description).toEqual('All movies were deleted.')
+  const deleteAll = response.body.paths['/actors']['delete']
+  expect(deleteAll.summary).toEqual('Delete all actors.')
+  expect(deleteAll.operationId).toEqual('deleteAllActors')
+  expect(deleteAll.responses['204'].description).toEqual('All actors were deleted.')
 })
 
 test('OpenAPI when multiple resources configured', async () => {
   const tembaServer = createServer({
     openapi: true,
     resources: [
-      'movies',
+      'actors',
       {
         resourcePath: 'people',
         singularName: 'person',
@@ -526,10 +526,10 @@ test('OpenAPI when multiple resources configured', async () => {
 
   const response = await request(tembaServer).get('/openapi.json')
 
-  // Paths object has 5 paths: "/", "/movies", "/movies/{movieId}", "/people", "/people/{personId}"
+  // Paths object has 5 paths: "/", "/actors", "/actors/{actorId}", "/people", "/people/{personId}"
   expect(Object.keys(response.body.paths).length).toEqual(5)
-  expect(response.body.paths['/movies']).toBeDefined()
-  expect(response.body.paths['/movies/{movieId}']).toBeDefined()
+  expect(response.body.paths['/actors']).toBeDefined()
+  expect(response.body.paths['/actors/{actorId}']).toBeDefined()
   expect(response.body.paths['/people']).toBeDefined()
   expect(response.body.paths['/people/{personId}']).toBeDefined()
 
