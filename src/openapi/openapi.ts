@@ -45,8 +45,6 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
 
     const spec = buildOpenApiSpec(format, server, resourceInfos)
 
-    // console.log(JSON.stringify(builder.getSpec().paths, null, 2))
-
     if (format === 'json') {
       return res.status(200).set('Content-Type', 'application/json').json(spec)
     } else {

@@ -65,8 +65,6 @@ test('OpenAPI when a single resource configured', async () => {
   // OpenAPI version
   expect(response.body.openapi).toEqual('3.1.0')
 
-  // console.log(response.body)
-
   // Info object
   expect(response.body.info.title).toEqual('My API')
   expect(response.body.info.version).toEqual('1.0')
@@ -76,7 +74,6 @@ test('OpenAPI when a single resource configured', async () => {
   expect(response.body.info.license.name).toEqual('Apache 2.0')
   expect(response.body.info.license.url).toEqual('http://www.apache.org/licenses/LICENSE-2.0.html')
 
-  // Servers array, with a URL relative to where the OpenAPI spec is served
   expect(response.body.servers.length).toEqual(1)
   expect(response.body.servers[0].url.length).toBeGreaterThan(0)
 
@@ -274,7 +271,6 @@ test('Server URL contains the configured apiPrefix', async () => {
 
   const response = await request(tembaServer).get('/openapi.json')
 
-  // Servers array, with a URL relative to where the OpenAPI spec is served
   expect(response.body.servers.length).toEqual(1)
   expect(response.body.servers[0].url).toContain('/api/')
 })
