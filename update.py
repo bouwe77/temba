@@ -5,8 +5,11 @@ import subprocess
 import re
 
 overrides = {
-    # Copy from package.json what you don't want to update, for example:
+    # Copy from package.json what you don't want to update.
+    # Example:
     # "react": "17.0.0",
+
+    "eslint": "8.57.0",
 }
 
 
