@@ -2,6 +2,41 @@ import express from 'express'
 import type { Config } from '../config'
 import { OpenApiBuilder, type ParameterObject } from 'openapi3-ts/oas31'
 
+const getPathParameters = (resourceInfo: ResourceInfo, id = false) => {
+  const { resource, singularResourceLowerCase } = resourceInfo
+
+  const resourceParameter = {
+    name: 'resource',
+    in: 'path',
+    required: true,
+    schema: {
+      type: 'string',
+    },
+    description: 'The name of the resource.',
+  } satisfies ParameterObject
+
+  const idParameter = {
+    name: `${singularResourceLowerCase}Id`,
+    in: 'path',
+    required: true,
+    schema: {
+      type: 'string',
+    },
+    description: `The ID of the ${singularResourceLowerCase}.`,
+  } satisfies ParameterObject
+
+  let parameters: ParameterObject[] = []
+  if (resource === anyResource) {
+    parameters = [...parameters, resourceParameter]
+  }
+
+  if (id) {
+    parameters = [...parameters, idParameter]
+  }
+
+  return parameters
+}
+
 type ResourceInfo = {
   resource: string
   pluralResourceLowerCase: string
@@ -12,36 +47,50 @@ type ResourceInfo = {
 
 type OpenApiFormat = 'json' | 'yaml'
 
+const anyResource = '{resource}'
+
 export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
   const openapiRouter = express.Router()
 
   openapiRouter.get('/', async (req, res) => {
-    if (!config.openapi || config.resources.length === 0) {
+    if (!config.openapi) {
       return res.status(404).json({ message: 'Not Found' })
     }
 
     const port = req.get('host')?.split(':')[1]
     const server = `${req.protocol}://${req.hostname}${port && !['80', '443'].includes(port) ? `:${port}` : ''}${config.apiPrefix ?? ''}`
 
-    const resourceInfos = config.resources.map((resource) => {
-      const pluralResourceLowerCase = resource.toLowerCase()
-      const pluralResourceUpperCase =
-        pluralResourceLowerCase.charAt(0).toUpperCase() + pluralResourceLowerCase.slice(1)
-      let singularResourceLowerCase = pluralResourceLowerCase
-      if (singularResourceLowerCase.endsWith('s')) {
-        singularResourceLowerCase = singularResourceLowerCase.slice(0, -1)
-      }
-      const singularResourceUpperCase =
-        singularResourceLowerCase.charAt(0).toUpperCase() + singularResourceLowerCase.slice(1)
+    let resourceInfos = [
+      {
+        resource: anyResource,
+        pluralResourceLowerCase: 'resources',
+        pluralResourceUpperCase: 'Resources',
+        singularResourceLowerCase: 'resource',
+        singularResourceUpperCase: 'Resource',
+      } satisfies ResourceInfo,
+    ]
 
-      return {
-        resource,
-        pluralResourceLowerCase,
-        pluralResourceUpperCase,
-        singularResourceLowerCase,
-        singularResourceUpperCase,
-      } satisfies ResourceInfo
-    })
+    if (config.resources.length > 0) {
+      resourceInfos = config.resources.map((resource) => {
+        const pluralResourceLowerCase = resource.toLowerCase()
+        const pluralResourceUpperCase =
+          pluralResourceLowerCase.charAt(0).toUpperCase() + pluralResourceLowerCase.slice(1)
+        let singularResourceLowerCase = pluralResourceLowerCase
+        if (singularResourceLowerCase.endsWith('s')) {
+          singularResourceLowerCase = singularResourceLowerCase.slice(0, -1)
+        }
+        const singularResourceUpperCase =
+          singularResourceLowerCase.charAt(0).toUpperCase() + singularResourceLowerCase.slice(1)
+
+        return {
+          resource,
+          pluralResourceLowerCase,
+          pluralResourceUpperCase,
+          singularResourceLowerCase,
+          singularResourceUpperCase,
+        } satisfies ResourceInfo
+      })
+    }
 
     const spec = buildOpenApiSpec(format, server, resourceInfos)
 
@@ -107,6 +156,7 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
         get: {
           summary: `List all ${pluralResourceLowerCase}.`,
           operationId: `getAll${pluralResourceUpperCase}`,
+          parameters: getPathParameters(resourceInfo),
           responses: {
             '200': {
               description: `List of all ${pluralResourceLowerCase}.`,
@@ -126,6 +176,7 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
         head: {
           summary: `Returns HTTP headers for the list of ${pluralResourceLowerCase}.`,
           operationId: `getAll${pluralResourceUpperCase}Headers`,
+          parameters: getPathParameters(resourceInfo),
           responses: {
             '200': {
               description: `HTTP headers for the list of all ${pluralResourceLowerCase}.`,
@@ -135,6 +186,7 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
         post: {
           summary: `Create a new ${singularResourceLowerCase}.`,
           operationId: `create${singularResourceUpperCase}`,
+          parameters: getPathParameters(resourceInfo),
           requestBody: {
             content: {
               'application/json': {
@@ -192,6 +244,7 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
           delete: {
             summary: `Delete all ${pluralResourceLowerCase}.`,
             operationId: `deleteAll${pluralResourceUpperCase}`,
+            parameters: getPathParameters(resourceInfo),
             responses: {
               '204': {
                 description: `All ${pluralResourceLowerCase} were deleted.`,
@@ -205,6 +258,7 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
             summary:
               'Deleting whole collections is disabled. Enable by setting `allowDeleteCollection` to `true`.',
             operationId: `deleteAll${pluralResourceUpperCase}`,
+            parameters: getPathParameters(resourceInfo),
             responses: {
               '405': {
                 description: `Method not allowed`,
@@ -214,22 +268,12 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
         })
       }
 
-      const idPathParameter = {
-        name: `${singularResourceLowerCase}Id`,
-        in: 'path',
-        required: true,
-        schema: {
-          type: 'string',
-        },
-        description: `The ID of the ${singularResourceLowerCase}.`,
-      } satisfies ParameterObject
-
       // GET, HEAD, PUT, PATCH, DELETE on an ID
       builder.addPath(`/${resource}/{${singularResourceLowerCase}Id}`, {
         get: {
           summary: `Find a ${singularResourceLowerCase} by ID`,
           operationId: `get${singularResourceUpperCase}ById`,
-          parameters: [idPathParameter],
+          parameters: getPathParameters(resourceInfo, true),
           responses: {
             '200': {
               description: `The ${singularResourceLowerCase} with the ${singularResourceLowerCase}Id.`,
@@ -261,7 +305,7 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
         head: {
           summary: `Returns HTTP headers for the ${singularResourceLowerCase} by ID.`,
           operationId: `get${singularResourceUpperCase}ByIdHeaders`,
-          parameters: [idPathParameter],
+          parameters: getPathParameters(resourceInfo, true),
           responses: {
             '200': {
               description: `HTTP headers for the ${singularResourceLowerCase} with the ${singularResourceLowerCase}Id.`,
@@ -274,7 +318,7 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
         put: {
           summary: `Replace a ${singularResourceLowerCase}.`,
           operationId: `replace${singularResourceUpperCase}`,
-          parameters: [idPathParameter],
+          parameters: getPathParameters(resourceInfo, true),
           requestBody: {
             content: {
               'application/json': {
@@ -342,7 +386,7 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
         patch: {
           summary: `Update a ${singularResourceLowerCase}.`,
           operationId: `update${singularResourceUpperCase}`,
-          parameters: [idPathParameter],
+          parameters: getPathParameters(resourceInfo, true),
           requestBody: {
             content: {
               'application/json': {
@@ -410,7 +454,7 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
         delete: {
           summary: `Delete a ${singularResourceLowerCase}.`,
           operationId: `delete${singularResourceUpperCase}`,
-          parameters: [idPathParameter],
+          parameters: getPathParameters(resourceInfo, true),
           responses: {
             '204': {
               description: `The ${singularResourceLowerCase} was deleted.`,
