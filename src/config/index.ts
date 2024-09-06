@@ -3,9 +3,19 @@ import type { ConfiguredSchemas } from '../schema/types'
 import type { RequestInterceptor } from '../requestInterceptor/types'
 import type { ResponseBodyInterceptor } from '../responseBodyInterceptor/types'
 
+type ResourcePath = string
+
+type ExtendedResource = {
+  resourcePath: ResourcePath
+  singularName: string
+  pluralName: string
+}
+
+type Resources = (ResourcePath | ExtendedResource)[]
+
 export type Config = {
   validateResources: boolean
-  resources: string[]
+  resources: Resources
   apiPrefix: string | null
   requestInterceptor: RequestInterceptor | null
   responseBodyInterceptor: ResponseBodyInterceptor | null
@@ -37,7 +47,7 @@ export type RouterConfig = Pick<
 >
 
 export type UserConfig = {
-  resources?: string[]
+  resources?: Resources
   staticFolder?: string
   apiPrefix?: string
   connectionString?: string

@@ -39,18 +39,32 @@ describe('Configuring customRouter + resources', () => {
   customRouter.get('/hello', async (_, res) => {
     return res.send('Hello, World!')
   })
+  customRouter.get('/goodbye', async (_, res) => {
+    return res.send('Goodbye, World!')
+  })
 
   const tembaServer = createServer({
     customRouter,
-    resources: ['hello'],
+    resources: [
+      'hello',
+      {
+        resourcePath: 'goodbye',
+        singularName: 'n/a',
+        pluralName: 'n/a',
+      },
+    ],
   } satisfies UserConfig)
 
   test('customRouter takes presedence over resources', async () => {
-    // The /hello route is configured both through a custom Express router,
-    // and as resource, but the customRouter overrides the Temba route.
-    const response = await request(tembaServer).get('/hello')
-    expect(response.statusCode).toEqual(200)
-    expect(response.text).toEqual('Hello, World!')
+    // The /hello and /goodbye routes are configured both through a custom Express router,
+    // and as resources, but the customRouter overrides the Temba route.
+    const helloResponse = await request(tembaServer).get('/hello')
+    expect(helloResponse.statusCode).toEqual(200)
+    expect(helloResponse.text).toEqual('Hello, World!')
+
+    const goodbyeResponse = await request(tembaServer).get('/goodbye')
+    expect(goodbyeResponse.statusCode).toEqual(200)
+    expect(goodbyeResponse.text).toEqual('Goodbye, World!')
   })
 
   describe('Configuring customRouter + apiPrefix', () => {
@@ -73,7 +87,7 @@ describe('Configuring customRouter + resources', () => {
       expect(getAllResponse.status).toBe(200)
       expect(getAllResponse.body.length).toBe(0)
 
-      // The /hello route is is from customRouter, and outside the apiPrefix path, so still works with customRouter.
+      // The /hello route is from customRouter, and outside the apiPrefix path, so still works with customRouter.
       const response2 = await request(tembaServer).get('/hello')
       expect(response2.statusCode).toEqual(200)
       expect(response2.text).toEqual('Hello, World!')

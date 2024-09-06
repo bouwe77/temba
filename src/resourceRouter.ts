@@ -121,9 +121,13 @@ export const createResourceRouter = (
   }
 
   const validateResource = (requestInfo: RequestInfo) => {
+    const resourcePaths = routerConfig.resources.map((resource) => {
+      return typeof resource === 'string' ? resource : resource.resourcePath
+    })
+
     if (
       routerConfig.validateResources &&
-      !routerConfig.resources.includes((requestInfo.resource ?? '').toLowerCase())
+      !resourcePaths.includes((requestInfo.resource ?? '').toLowerCase())
     ) {
       return createError(404, 'Invalid resource')
     }

@@ -1,6 +1,7 @@
 import express from 'express'
 import type { Config } from '../config'
 import { OpenApiBuilder, type ParameterObject } from 'openapi3-ts/oas31'
+import indefinite from 'indefinite'
 
 const getPathParameters = (resourceInfo: ResourceInfo, id = false) => {
   const { resource, singularResourceLowerCase } = resourceInfo
@@ -72,23 +73,39 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
 
     if (config.resources.length > 0) {
       resourceInfos = config.resources.map((resource) => {
-        const pluralResourceLowerCase = resource.toLowerCase()
-        const pluralResourceUpperCase =
-          pluralResourceLowerCase.charAt(0).toUpperCase() + pluralResourceLowerCase.slice(1)
-        let singularResourceLowerCase = pluralResourceLowerCase
-        if (singularResourceLowerCase.endsWith('s')) {
-          singularResourceLowerCase = singularResourceLowerCase.slice(0, -1)
-        }
-        const singularResourceUpperCase =
-          singularResourceLowerCase.charAt(0).toUpperCase() + singularResourceLowerCase.slice(1)
+        if (typeof resource === 'string') {
+          const pluralResourceLowerCase = resource.toLowerCase()
+          const pluralResourceUpperCase =
+            pluralResourceLowerCase.charAt(0).toUpperCase() + pluralResourceLowerCase.slice(1)
+          let singularResourceLowerCase = pluralResourceLowerCase
+          if (singularResourceLowerCase.endsWith('s')) {
+            singularResourceLowerCase = singularResourceLowerCase.slice(0, -1)
+          }
+          const singularResourceUpperCase =
+            singularResourceLowerCase.charAt(0).toUpperCase() + singularResourceLowerCase.slice(1)
 
-        return {
-          resource,
-          pluralResourceLowerCase,
-          pluralResourceUpperCase,
-          singularResourceLowerCase,
-          singularResourceUpperCase,
-        } satisfies ResourceInfo
+          return {
+            resource,
+            pluralResourceLowerCase,
+            pluralResourceUpperCase,
+            singularResourceLowerCase,
+            singularResourceUpperCase,
+          } satisfies ResourceInfo
+        } else {
+          const pluralResourceLowerCase = resource.pluralName.toLowerCase()
+          const pluralResourceUpperCase =
+            pluralResourceLowerCase.charAt(0).toUpperCase() + pluralResourceLowerCase.slice(1)
+          const singularResourceLowerCase = resource.singularName.toLowerCase()
+          const singularResourceUpperCase =
+            singularResourceLowerCase.charAt(0).toUpperCase() + singularResourceLowerCase.slice(1)
+          return {
+            resource: resource.resourcePath,
+            pluralResourceLowerCase,
+            pluralResourceUpperCase,
+            singularResourceLowerCase,
+            singularResourceUpperCase,
+          } satisfies ResourceInfo
+        }
       })
     }
 
@@ -271,7 +288,7 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
       // GET, HEAD, PUT, PATCH, DELETE on an ID
       builder.addPath(`/${resource}/{${singularResourceLowerCase}Id}`, {
         get: {
-          summary: `Find a ${singularResourceLowerCase} by ID`,
+          summary: `Find ${indefinite(singularResourceLowerCase)} by ID`,
           operationId: `get${singularResourceUpperCase}ById`,
           parameters: getPathParameters(resourceInfo, true),
           responses: {
@@ -316,7 +333,7 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
           },
         },
         put: {
-          summary: `Replace a ${singularResourceLowerCase}.`,
+          summary: `Replace ${indefinite(singularResourceLowerCase)}.`,
           operationId: `replace${singularResourceUpperCase}`,
           parameters: getPathParameters(resourceInfo, true),
           requestBody: {
@@ -384,7 +401,7 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
           },
         },
         patch: {
-          summary: `Update a ${singularResourceLowerCase}.`,
+          summary: `Update ${indefinite(singularResourceLowerCase)}.`,
           operationId: `update${singularResourceUpperCase}`,
           parameters: getPathParameters(resourceInfo, true),
           requestBody: {
@@ -452,7 +469,7 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
           },
         },
         delete: {
-          summary: `Delete a ${singularResourceLowerCase}.`,
+          summary: `Delete ${indefinite(singularResourceLowerCase)}.`,
           operationId: `delete${singularResourceUpperCase}`,
           parameters: getPathParameters(resourceInfo, true),
           responses: {
