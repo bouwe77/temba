@@ -72,23 +72,39 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
 
     if (config.resources.length > 0) {
       resourceInfos = config.resources.map((resource) => {
-        const pluralResourceLowerCase = resource.toLowerCase()
-        const pluralResourceUpperCase =
-          pluralResourceLowerCase.charAt(0).toUpperCase() + pluralResourceLowerCase.slice(1)
-        let singularResourceLowerCase = pluralResourceLowerCase
-        if (singularResourceLowerCase.endsWith('s')) {
-          singularResourceLowerCase = singularResourceLowerCase.slice(0, -1)
-        }
-        const singularResourceUpperCase =
-          singularResourceLowerCase.charAt(0).toUpperCase() + singularResourceLowerCase.slice(1)
+        if (typeof resource === 'string') {
+          const pluralResourceLowerCase = resource.toLowerCase()
+          const pluralResourceUpperCase =
+            pluralResourceLowerCase.charAt(0).toUpperCase() + pluralResourceLowerCase.slice(1)
+          let singularResourceLowerCase = pluralResourceLowerCase
+          if (singularResourceLowerCase.endsWith('s')) {
+            singularResourceLowerCase = singularResourceLowerCase.slice(0, -1)
+          }
+          const singularResourceUpperCase =
+            singularResourceLowerCase.charAt(0).toUpperCase() + singularResourceLowerCase.slice(1)
 
-        return {
-          resource,
-          pluralResourceLowerCase,
-          pluralResourceUpperCase,
-          singularResourceLowerCase,
-          singularResourceUpperCase,
-        } satisfies ResourceInfo
+          return {
+            resource,
+            pluralResourceLowerCase,
+            pluralResourceUpperCase,
+            singularResourceLowerCase,
+            singularResourceUpperCase,
+          } satisfies ResourceInfo
+        } else {
+          const pluralResourceLowerCase = resource.pluralName.toLowerCase()
+          const pluralResourceUpperCase =
+            pluralResourceLowerCase.charAt(0).toUpperCase() + pluralResourceLowerCase.slice(1)
+          const singularResourceLowerCase = resource.singularName.toLowerCase()
+          const singularResourceUpperCase =
+            singularResourceLowerCase.charAt(0).toUpperCase() + singularResourceLowerCase.slice(1)
+          return {
+            resource: resource.resourcePath,
+            pluralResourceLowerCase,
+            pluralResourceUpperCase,
+            singularResourceLowerCase,
+            singularResourceUpperCase,
+          } satisfies ResourceInfo
+        }
       })
     }
 

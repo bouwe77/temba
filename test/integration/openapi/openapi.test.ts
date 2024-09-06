@@ -514,11 +514,33 @@ test('OpenAPI paths contains deleting a collection when allowDeleteCollection is
 test('OpenAPI when multiple resources configured', async () => {
   const tembaServer = createServer({
     openapi: true,
-    resources: ['movies', 'actors'],
+    resources: [
+      'movies',
+      {
+        resourcePath: 'people',
+        singularName: 'person',
+        pluralName: 'people',
+      },
+    ],
   } satisfies UserConfig)
 
   const response = await request(tembaServer).get('/openapi.json')
 
-  // Paths object has 5 paths: "/", "/movies", "/movies/{movieId}", "/actors", "/actors/{actorId}"
+  // Paths object has 5 paths: "/", "/movies", "/movies/{movieId}", "/people", "/people/{personId}"
   expect(Object.keys(response.body.paths).length).toEqual(5)
+  expect(response.body.paths['/movies']).toBeDefined()
+  expect(response.body.paths['/movies/{movieId}']).toBeDefined()
+  expect(response.body.paths['/people']).toBeDefined()
+  expect(response.body.paths['/people/{personId}']).toBeDefined()
+
+  // For the people resource some sanity checks for correct usage of the singular an plural resource names
+  const get = response.body.paths['/people']['get']
+  expect(get.summary).toEqual('List all people.')
+  expect(get.operationId).toEqual('getAllPeople')
+  expect(get.responses['200'].description).toEqual('List of all people.')
+
+  const getById = response.body.paths['/people/{personId}']['get']
+  expect(getById.summary).toEqual('Find a person by ID')
+  expect(getById.operationId).toEqual('getPersonById')
+  expect(getById.responses['200'].description).toEqual('The person with the personId.')
 })
