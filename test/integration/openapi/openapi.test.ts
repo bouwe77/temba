@@ -459,30 +459,6 @@ test('OpenAPI when a single resource configured', async () => {
   expect(deleteById.responses['204'].description).toEqual('The actor was deleted.')
 })
 
-// TODO: If no resources are configured, the resource name in the paths should be "{resource}", and become
-// an extra parameter in the parameters array, with a description that it should be replaced with the actual
-// resource name. Also, some extra description text explaining you can send whatever crap you want, and
-// that generating client code might not work as expected. See also: https://chatgpt.com/share/30a4f046-9422-4a66-8ee9-b1aeadd1f3ae
-
-// TODO The openapi setting is a boolean for now, but could also become an object to override/expand
-// the OpenAPI spec. In that case, the configured OpenAPI spec should be merged with the default spec
-
-// TODO From the resources string array resource names, also singular and plural names are determined.
-// As an alternative, when this does not give the desired result, the resources array could be a combi of
-// strings and objects, so you can specify the singular and plural names.
-
-// TODO staticFolder config should be its own path with a description and/or summary
-
-// TODO the customRouter setting could override resources, so either remove those resources from the paths,
-// or just display a summary saying it's custom. But at least for now, don't describe anything else, as we
-// can not really know what the router is doing...
-
-// TODO returnNullFields should be mentioned as a remark
-
-// TODO: The etags setting should be reflected
-
-// TODO: The schemas setting should be reflected: Although we can not know what the exact 400 Bad Request error message will be
-
 test('Server URL contains the configured apiPrefix', async () => {
   const tembaServer = createServer({
     openapi: true,
