@@ -35,10 +35,8 @@ const config: Config = {
       {
         docs: {
           sidebarPath: './sidebars.ts',
-          // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          // editUrl:
-          //   'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+          editUrl: 'https://github.com/bouwe77/temba/tree/master/docs/',
         },
         blog: {
           showReadingTime: true,
@@ -66,18 +64,14 @@ const config: Config = {
     // Replace with your project's social card
     // image: 'img/docusaurus-social-card.jpg',
     navbar: {
-      title: 'Temba',
+      title: '🎁 Temba',
       // logo: {
       //   alt: 'Temba Logo',
       //   src: 'img/logo.svg',
       // },
       items: [
-        {
-          type: 'docSidebar',
-          sidebarId: 'tutorialSidebar',
-          position: 'left',
-          label: 'Tutorial',
-        },
+        // { to: '/docs/getting-started', label: 'Getting Started', position: 'left' },
+        { to: '/docs/documentation', label: 'Documentation', position: 'left' },
         // { to: '/blog', label: 'Blog', position: 'left' },
         {
           href: 'https://github.com/bouwe77/temba',
@@ -90,11 +84,15 @@ const config: Config = {
       style: 'dark',
       links: [
         {
-          title: 'Docs',
+          title: 'On this site',
           items: [
+            // {
+            //   label: 'Getting Started',
+            //   to: '/docs/getting-started',
+            // },
             {
-              label: 'Tutorial',
-              to: '/docs/intro',
+              label: 'Documentation',
+              to: '/docs/documentation',
             },
           ],
         },
@@ -124,7 +122,7 @@ const config: Config = {
             },
             {
               label: 'GitHub',
-              href: 'https://github.com/facebook/docusaurus',
+              href: 'https://github.com/bouwe77/temba',
             },
           ],
         },
