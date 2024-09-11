@@ -1,40 +1,10 @@
-# Temba
+---
+id: documentation
+title: Documentation
+sidebar_position: 2
+---
 
-[![Temba on NPM](https://img.shields.io/npm/v/temba)](https://www.npmjs.com/package/temba)
-
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
-
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
-
-**Create a simple HTTP API with zero coding in less than 30 seconds (seriously)**
-
-For developers that need a quick NodeJS backend for small projects.
-
-No need for any coding, unless you want to opt-out of the defaults, or want to do more customization.
-
-Data is kept in memory, but you can also store it in a JSON file or MongoDB database.
-
-## Table of contents
-
-[Temba?](#temba-1)
-
-[Getting Started](#getting-started)
-
-[What Temba does](#what-temba-does)
-
-[Usage](#usage)
-
-[Config settings overview](#config-settings-overview)
-
-## Temba?
-
-> _"Temba, at REST"_
-
-A metaphor for the declining of a gift, from the [Star Trek - The Next Generation episode "Darmok"](https://memory-alpha.fandom.com/wiki/Temba).
-
-In the fictional Tamarian language the word _"Temba"_ means something like _"giving"_ or _"offering"_. So I am offering you this versatile library to help you build APIs with ease.
+# Documentation
 
 ## Getting Started
 
@@ -518,26 +488,3 @@ These are all the possible settings:
 
 Temba is built with TypeScript, [Node](https://nodejs.org), [Express](https://expressjs.com/), [Vitest](https://vitest.dev/), [Supertest](https://www.npmjs.com/package/supertest), [@rakered/mongo](https://www.npmjs.com/package/@rakered/mongo), and [lowdb](https://www.npmjs.com/package/lowdb).
 
-## Contributors ✨
-
-Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
-
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
-<table>
-  <tr>
-    <td align="center"><a href="https://bouwe.io"><img src="https://avatars.githubusercontent.com/u/4126793?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Bouwe K. Westerdijk</b></sub></a><br /><a href="https://github.com/bouwe77/temba/commits?author=bouwe77" title="Code">💻</a> <a href="https://github.com/bouwe77/temba/issues?q=author%3Abouwe77" title="Bug reports">🐛</a> <a href="https://github.com/bouwe77/temba/commits?author=bouwe77" title="Documentation">📖</a> <a href="#ideas-bouwe77" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/bouwe77/temba/commits?author=bouwe77" title="Tests">⚠️</a></td>
-  </tr>
-</table>
-
-<!-- markdownlint-restore -->
-<!-- prettier-ignore-end -->
-
-<!-- ALL-CONTRIBUTORS-LIST:END -->
-
-This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
-
-# License
-
-MIT, see [LICENSE](https://github.com/bouwe77/temba/blob/main/LICENSE).
