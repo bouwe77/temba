@@ -34,7 +34,7 @@ Data is kept in memory, but you can also store it in a JSON file or MongoDB data
 
 A metaphor for the declining of a gift, from the [Star Trek - The Next Generation episode "Darmok"](https://memory-alpha.fandom.com/wiki/Temba).
 
-In the fictional Tamarian language the word _"Temba"_ means something like _"gift"_.
+In the fictional Tamarian language the word _"Temba"_ means something like _"giving"_ or _"offering"_. So I am offering you this versatile library to help you build APIs with ease.
 
 ## Getting Started
 
