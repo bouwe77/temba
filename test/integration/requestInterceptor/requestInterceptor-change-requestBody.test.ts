@@ -28,7 +28,7 @@ describe('requestInterceptors that return a (new or changed) request body object
     expect(response.statusCode).toEqual(201)
     expect(response.body.title).toEqual('The Matrix')
 
-    const id = response.header.location?.split('/').pop()
+    const id = response.headers['location']?.split('/').pop()
 
     const getResponse = await request(tembaServer).get(`${resourceUrl}/${id}`)
     expect(getResponse.statusCode).toEqual(200)
@@ -45,7 +45,7 @@ describe('requestInterceptors that return a (new or changed) request body object
     expect(postResponse.body.name).toEqual('Pikachu')
     expect(postResponse.body.replaced).toBeUndefined()
 
-    const id = postResponse.header.location?.split('/').pop()
+    const id = postResponse.headers['location']?.split('/').pop()
 
     // Send a PUT request to the id.
     const response = await request(tembaServer).put(`${resourceUrl}/${id}`).send({ name: 'Mew' })
@@ -65,7 +65,7 @@ describe('requestInterceptors that return a (new or changed) request body object
     expect(postResponse.body.name).toEqual('Pikachu')
     expect(postResponse.body.updated).toBeUndefined()
 
-    const id = postResponse.header.location?.split('/').pop()
+    const id = postResponse.headers['location']?.split('/').pop()
 
     // Send a PATCH request to the id.
     const response = await request(tembaServer).patch(`${resourceUrl}/${id}`).send({ name: 'Mew' })

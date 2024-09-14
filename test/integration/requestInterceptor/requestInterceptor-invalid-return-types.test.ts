@@ -32,19 +32,19 @@ describe('requestInterceptors does not return an object', () => {
     expect(response.statusCode).toEqual(201)
     expect(response.body.name).toEqual('Jane')
 
-    const numberId = response.header.location?.split('/').pop()
+    const numberId = response.headers['location']?.split('/').pop()
 
     response = await request(tembaServer).post('/return-array').send({ name: 'Jane' })
     expect(response.statusCode).toEqual(201)
     expect(response.body.name).toEqual('Jane')
 
-    const arrayId = response.header.location?.split('/').pop()
+    const arrayId = response.headers['location']?.split('/').pop()
 
     response = await request(tembaServer).post('/return-boolean').send({ name: 'Jane' })
     expect(response.statusCode).toEqual(201)
     expect(response.body.name).toEqual('Jane')
 
-    const booleanId = response.header.location?.split('/').pop()
+    const booleanId = response.headers['location']?.split('/').pop()
 
     // Send PUT requests.
     response = await request(tembaServer)

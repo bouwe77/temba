@@ -1,6 +1,7 @@
 import { describe, test, expect } from 'vitest'
 import request from 'supertest'
 import createServer from './createServer'
+import { sendRequest } from '../sendRequest'
 
 /*
   Tests for a CRUD roundtrip along all supported HTTP methods.
@@ -12,7 +13,7 @@ describe('CRUD', () => {
 
   const resource = '/articles/'
 
-  test('Read, create, replace, update and delete resources', async () => {
+  test('hondenstront Read, create, replace, update and delete resources', async () => {
     // Initially, there are no items so a get all returns an empty array.
     const getAllResponse = await request(tembaServer).get(resource)
     expect(getAllResponse.status).toBe(200)
@@ -49,12 +50,16 @@ describe('CRUD', () => {
 
     // Create a new item.
     const newItem = { name: 'newItem', done: false }
-    const createNewResponse = await request(tembaServer).post(resource).send(newItem)
+    const createNewResponse = await sendRequest(tembaServer, 'post', resource, newItem)
     const createdNewItem = createNewResponse.body
-    expect(createNewResponse.status).toBe(201)
+    expect(createNewResponse.statusCode).toBe(201)
     expect(createdNewItem.name).toBe('newItem')
     expect(createdNewItem.done).toBe(false)
-    expect(createNewResponse.header.location?.endsWith(resource + createdNewItem.id)).toBe(true)
+
+    //hier was ik gebleven: headers heeft een location property, maar als ik die opvraag is die undefined...
+
+    console.log(createNewResponse.headers)
+    expect(createNewResponse.headers['location']?.endsWith(resource + createdNewItem.id)).toBe(true)
 
     // Now there is one item. Get all items.
     const getAllOneItemResponse = await request(tembaServer).get(resource)

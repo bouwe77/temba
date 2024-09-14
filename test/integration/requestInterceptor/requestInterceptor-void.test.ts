@@ -28,7 +28,7 @@ describe('requestInterceptors that return nothing (void) to indicate nothing sho
     // First create a resource, so we have an id to PUT to.
     const postResponse = await request(tembaServer).post(resourceUrl).send({ name: 'Pikachu' })
     expect(postResponse.statusCode).toEqual(201)
-    const id = postResponse.header.location?.split('/').pop()
+    const id = postResponse.headers['location']?.split('/').pop()
 
     // Send a PUT request to the id.
     // The request body is empty because that's not important for this test.
@@ -43,7 +43,7 @@ describe('requestInterceptors that return nothing (void) to indicate nothing sho
     // First create a resource, so we have an id to PUT to.
     const postResponse = await request(tembaServer).post(resourceUrl).send({ name: 'Pikachu' })
     expect(postResponse.statusCode).toEqual(201)
-    const id = postResponse.header.location?.split('/').pop()
+    const id = postResponse.headers['location']?.split('/').pop()
 
     // Send a PATCH request to the id.
     // The request body is empty because that's not important for this test.
