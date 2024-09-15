@@ -172,3 +172,19 @@ test('Configuring multiple resources, both strings and extended ones', () => {
     pluralName: 'people',
   })
 })
+
+test('Configuring openapi as an object', () => {
+  const config = initConfig({
+    openapi: {
+      info: {
+        title: 'My custom API title',
+      },
+    },
+  })
+
+  expect(config.openapi).toEqual({
+    info: {
+      title: 'My custom API title',
+    },
+  })
+})

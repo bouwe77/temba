@@ -2,6 +2,7 @@ import express from 'express'
 import type { Config } from '../config'
 import { OpenApiBuilder, type ParameterObject } from 'openapi3-ts/oas31'
 import indefinite from 'indefinite'
+import deepmerge from 'deepmerge'
 
 const getPathParameters = (resourceInfo: ResourceInfo, id = false) => {
   const { resource, singularResourceLowerCase } = resourceInfo
@@ -111,10 +112,14 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
 
     const spec = buildOpenApiSpec(format, server, resourceInfos)
 
+    const builder = new OpenApiBuilder(
+      typeof config.openapi === 'object' ? deepmerge(spec, config.openapi) : spec,
+    )
+
     if (format === 'json') {
-      return res.status(200).set('Content-Type', 'application/json').json(spec)
+      return res.status(200).set('Content-Type', 'application/json').send(builder.getSpecAsJson())
     } else {
-      return res.status(200).set('Content-Type', 'application/yaml').send(spec)
+      return res.status(200).set('Content-Type', 'application/yaml').send(builder.getSpecAsYaml())
     }
   })
 
@@ -481,11 +486,7 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
       })
     })
 
-    if (format === 'json') {
-      return builder.getSpec()
-    } else {
-      return builder.getSpecAsYaml()
-    }
+    return builder.getSpec()
   }
   return openapiRouter
 }
