@@ -520,3 +520,27 @@ test('OpenAPI when multiple resources configured', async () => {
   expect(getById.operationId).toEqual('getPersonById')
   expect(getById.responses['200'].description).toEqual('The person with the personId.')
 })
+
+test('OpenAPI when a custom OpenAPI object is configured', async () => {
+  const tembaServer = createServer({
+    openapi: {
+      info: {
+        title: 'My custom API title',
+      },
+      paths: {
+        '/actors/{actorId}': {
+          get: {
+            summary: 'My custom summary',
+          },
+        },
+      },
+    },
+    resources: ['actors'],
+  } satisfies UserConfig)
+
+  const response = await request(tembaServer).get('/openapi.json')
+
+  expect(response.body.openapi).toEqual('3.1.0')
+  expect(response.body.info.title).toEqual('My custom API title')
+  expect(response.body.paths['/actors/{actorId}']['get'].summary).toEqual('My custom summary')
+})

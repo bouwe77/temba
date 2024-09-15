@@ -13,6 +13,8 @@ type ExtendedResource = {
 
 type Resources = (ResourcePath | ExtendedResource)[]
 
+type OpenApiConfig = boolean | Record<string, unknown>
+
 export type Config = {
   validateResources: boolean
   resources: Resources
@@ -29,7 +31,7 @@ export type Config = {
   schemas: ConfiguredSchemas | null
   allowDeleteCollection: boolean
   etags: boolean
-  openapi: boolean
+  openapi: OpenApiConfig
 }
 
 export type ConfigKey = keyof Config
@@ -61,7 +63,7 @@ export type UserConfig = {
   schemas?: ConfiguredSchemas
   allowDeleteCollection?: boolean
   etags?: boolean
-  openapi?: boolean
+  openapi?: OpenApiConfig
 }
 
 const defaultConfig: Config = {
