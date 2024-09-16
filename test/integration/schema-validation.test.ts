@@ -2,6 +2,7 @@ import { test, expect } from 'vitest'
 import request from 'supertest'
 import createServer from './createServer'
 import type { UserConfig } from '../../src/config'
+import { expectSuccess } from './helpers'
 
 /*
   Tests for JSON Schema validation
@@ -154,4 +155,43 @@ test('Schema validation per resource', async () => {
   // You can even POST nonsense to the bikes resource
   response = await request(tembaServer).post('/bikes/').send({ foo: 'bar' })
   expect(response.statusCode).toEqual(201)
+})
+
+test('Schema allows nulls, but the response will omit them with the returnNullFields setting.', async () => {
+  const schema = {
+    type: 'object',
+    properties: {
+      brand: { type: 'string' },
+      // When defining a price, it can either be an integer, or null
+      // Price can also be undefined, as it's not a required property
+      price: { type: ['integer', 'null'] },
+    },
+    required: ['brand'],
+  }
+
+  const tembaServer = createServer({
+    schemas: {
+      cars: {
+        post: schema,
+      },
+    },
+    returnNullFields: false,
+  } satisfies UserConfig)
+
+  let createResponse = await request(tembaServer).post(resourceUrl).send({
+    brand: 'Mercedes-Benz',
+    price: null,
+  })
+  expectSuccess(createResponse)
+  expect(createResponse.body.brand).toEqual('Mercedes-Benz')
+  // No price because of the returnNullFields setting
+  expect(createResponse.body.price).toBeUndefined()
+
+  const id = createResponse.body.id
+
+  const getResponse = await request(tembaServer).get(resourceUrl + id)
+  expectSuccess(getResponse)
+  expect(getResponse.body.brand).toEqual('Mercedes-Benz')
+  // No price because of the returnNullFields setting
+  expect(getResponse.body.price).toBeUndefined()
 })
