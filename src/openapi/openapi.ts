@@ -1,8 +1,49 @@
 import express from 'express'
 import type { Config } from '../config'
-import { OpenApiBuilder, type ParameterObject } from 'openapi3-ts/oas31'
+import {
+  OpenApiBuilder,
+  type ParameterObject,
+  type RequestBodyObject,
+  type SchemaObject,
+} from 'openapi3-ts/oas31'
 import indefinite from 'indefinite'
 import deepmerge from 'deepmerge'
+
+const getRequestBodySchema = (schema: SchemaObject = { type: 'object' }) =>
+  ({
+    content: {
+      'application/json': {
+        schema,
+      },
+    },
+  }) satisfies RequestBodyObject
+
+const getResponseBodySchema = (requestSchema?: SchemaObject) => {
+  const defaultSchema = {
+    type: 'object',
+    properties: {
+      id: {
+        type: 'string',
+      },
+    },
+    required: ['id'],
+  }
+
+  if (!requestSchema) return defaultSchema
+
+  return deepmerge(defaultSchema, requestSchema)
+}
+
+//TODO Kan ik garanderen dat een error altijd een message heeft? ---> In alle tests checken/toevoegen
+const defaultErrorResponseBodySchema = {
+  type: 'object',
+  properties: {
+    message: {
+      type: 'string',
+    },
+  },
+  required: ['message'],
+}
 
 const getPathParameters = (resourceInfo: ResourceInfo, id = false) => {
   const { resource, singularResourceLowerCase } = resourceInfo
@@ -110,7 +151,7 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
       })
     }
 
-    const spec = buildOpenApiSpec(format, server, resourceInfos)
+    const spec = buildOpenApiSpec(server, resourceInfos)
 
     const builder = new OpenApiBuilder(
       typeof config.openapi === 'object' ? deepmerge(spec, config.openapi) : spec,
@@ -123,17 +164,19 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
     }
   })
 
-  const buildOpenApiSpec = (
-    format: OpenApiFormat,
-    server: string,
-    resourceInfos: ResourceInfo[],
-  ) => {
+  const buildOpenApiSpec = (server: string, resourceInfos: ResourceInfo[]) => {
+    let apiDescription =
+      'This API has been generated using [Temba](https://github.com/bouwe77/temba).'
+    if (!config.returnNullFields) {
+      apiDescription += 'Any fields with `null` values are omitted in all API responses.'
+    }
+
     const builder = OpenApiBuilder.create()
       .addOpenApiVersion('3.1.0')
       .addInfo({
         title: 'My API',
         version: '1.0',
-        description: 'This API has been generated using [Temba](https://github.com/bouwe77/temba).',
+        description: apiDescription,
       })
       .addLicense({
         name: 'Apache 2.0',
@@ -173,6 +216,13 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
         },
       })
 
+      const postRequestSchema = config.schemas?.[resource as keyof typeof config.schemas]
+        ?.post as SchemaObject
+
+      const responseSchema = getResponseBodySchema(postRequestSchema)
+
+      console.log(responseSchema)
+
       // GET, HEAD, POST on a collection
       builder.addPath(`/${resource}`, {
         get: {
@@ -186,9 +236,7 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
                 'application/json': {
                   schema: {
                     type: 'array',
-                    items: {
-                      type: 'object',
-                    },
+                    items: responseSchema,
                   },
                 },
               },
@@ -209,23 +257,13 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
           summary: `Create a new ${singularResourceLowerCase}.`,
           operationId: `create${singularResourceUpperCase}`,
           parameters: getPathParameters(resourceInfo),
-          requestBody: {
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                },
-              },
-            },
-          },
+          requestBody: getRequestBodySchema(postRequestSchema),
           responses: {
             '201': {
               description: `The ${singularResourceLowerCase} was created. The created ${singularResourceLowerCase} is returned in the response.`,
               content: {
                 'application/json': {
-                  schema: {
-                    type: 'object',
-                  },
+                  schema: responseSchema,
                 },
               },
             },
@@ -233,14 +271,7 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
               description: 'The request was invalid.',
               content: {
                 'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: {
-                      message: {
-                        type: 'string',
-                      },
-                    },
-                  },
+                  schema: defaultErrorResponseBodySchema,
                   examples: {
                     IdNotAllowedInUrl: {
                       value: {
@@ -301,9 +332,7 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
               description: `The ${singularResourceLowerCase} with the ${singularResourceLowerCase}Id.`,
               content: {
                 'application/json': {
-                  schema: {
-                    type: 'object',
-                  },
+                  schema: responseSchema,
                 },
               },
             },
@@ -311,14 +340,7 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
               description: `The ${singularResourceLowerCase}Id was not found.`,
               content: {
                 'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: {
-                      message: {
-                        type: 'string',
-                      },
-                    },
-                  },
+                  schema: defaultErrorResponseBodySchema,
                 },
               },
             },
@@ -341,23 +363,15 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
           summary: `Replace ${indefinite(singularResourceLowerCase)}.`,
           operationId: `replace${singularResourceUpperCase}`,
           parameters: getPathParameters(resourceInfo, true),
-          requestBody: {
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                },
-              },
-            },
-          },
+          requestBody: getRequestBodySchema(
+            config.schemas?.[resource as keyof typeof config.schemas]?.put as SchemaObject,
+          ),
           responses: {
             '200': {
               description: `The ${singularResourceLowerCase} was replaced. The replaced ${singularResourceLowerCase} is returned in the response.`,
               content: {
                 'application/json': {
-                  schema: {
-                    type: 'object',
-                  },
+                  schema: responseSchema,
                 },
               },
             },
@@ -365,14 +379,7 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
               description: `The ${singularResourceLowerCase}Id was not found.`,
               content: {
                 'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: {
-                      message: {
-                        type: 'string',
-                      },
-                    },
-                  },
+                  schema: defaultErrorResponseBodySchema,
                 },
               },
             },
@@ -380,14 +387,7 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
               description: 'The request was invalid.',
               content: {
                 'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: {
-                      message: {
-                        type: 'string',
-                      },
-                    },
-                  },
+                  schema: defaultErrorResponseBodySchema,
                   examples: {
                     MissingIdInUrl: {
                       value: {
@@ -409,23 +409,15 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
           summary: `Update ${indefinite(singularResourceLowerCase)}.`,
           operationId: `update${singularResourceUpperCase}`,
           parameters: getPathParameters(resourceInfo, true),
-          requestBody: {
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                },
-              },
-            },
-          },
+          requestBody: getRequestBodySchema(
+            config.schemas?.[resource as keyof typeof config.schemas]?.patch as SchemaObject,
+          ),
           responses: {
             '200': {
               description: `The ${singularResourceLowerCase} was updated. The updated ${singularResourceLowerCase} is returned in the response.`,
               content: {
                 'application/json': {
-                  schema: {
-                    type: 'object',
-                  },
+                  schema: responseSchema,
                 },
               },
             },
@@ -433,14 +425,7 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
               description: `The ${singularResourceLowerCase}Id was not found.`,
               content: {
                 'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: {
-                      message: {
-                        type: 'string',
-                      },
-                    },
-                  },
+                  schema: defaultErrorResponseBodySchema,
                 },
               },
             },
@@ -448,14 +433,7 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
               description: 'The request was invalid.',
               content: {
                 'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: {
-                      message: {
-                        type: 'string',
-                      },
-                    },
-                  },
+                  schema: defaultErrorResponseBodySchema,
                   examples: {
                     MissingIdInUrl: {
                       value: {
