@@ -9,7 +9,6 @@ import { createDelayMiddleware } from './delay/delayMiddleware'
 import { compileSchemas } from './schema/compile'
 import { createResourceRouter } from './resourceRouter'
 import { TembaError as TembaErrorInternal } from './requestInterceptor/TembaError'
-import { createAuthMiddleware, isAuthEnabled } from './auth/auth'
 import { initLogger } from './log/logger'
 import { etag } from './etags/etags'
 import type { StatsLike } from 'etag'
@@ -44,16 +43,8 @@ const createServer = (userConfig?: UserConfig) => {
   app.use(cors({ origin: true, credentials: true }))
 
   // Serve a static folder, if configured.
-  // Because it is defined before the auth middleware, the static folder is served without authentication,
-  // because it is not convenient to add an auth header to a web page in the browser.
   if (config.staticFolder) {
     app.use(express.static(config.staticFolder))
-  }
-
-  // If enabled, add auth middleware to all requests, and disable the tokens resource.
-  if (isAuthEnabled()) {
-    app.use(createAuthMiddleware(queries))
-    app.all('/tokens', handleNotFound)
   }
 
   // Add a delay to every request, if configured.
