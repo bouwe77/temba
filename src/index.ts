@@ -58,11 +58,6 @@ const createServer = (userConfig?: UserConfig) => {
   const rootPath = config.apiPrefix ? `${config.apiPrefix}` : '/'
   app.use(rootPath, rootRouter)
 
-  // Use a custom router, if configured.
-  if (config.customRouter) {
-    app.use(config.customRouter)
-  }
-
   app.use('/openapi.json', createOpenApiRouter('json', config))
   app.use('/openapi.yaml', createOpenApiRouter('yaml', config))
 
