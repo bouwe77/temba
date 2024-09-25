@@ -1,9 +1,9 @@
 import { test, expect, describe } from 'vitest'
-import request from 'supertest'
 import type { UserConfig } from '../../../src/config'
 import createServer from '../createServer'
 import { RequestInterceptor } from '../../../src/requestInterceptor/types'
 import { TembaError } from '../../../src'
+import { sendRequest } from '../../sendRequest'
 
 // Tests if the request is correctly passed on to the requestInterceptor callback
 
@@ -55,49 +55,72 @@ const tembaServer = createServer({ requestInterceptor } satisfies UserConfig)
 
 describe('Request is correctly passed through to the requestInterceptor callback functions', () => {
   test('GET - requestInterceptor callback function', async () => {
-    const getResponse = await request(tembaServer).get('/get-stuff/get-id').set('x-foo', 'GET')
-    expect(getResponse.status).toBe(200)
+    const getResponse = await sendRequest(tembaServer, 'get', '/get-stuff/get-id', null, {
+      'x-foo': 'GET',
+    })
+    expect(getResponse.statusCode).toBe(200)
     expect(getResponse.body).toEqual({ message: 'GET is OK' })
   })
 
   test('HEAD requests have no specific implementation, so will not go through a requestInterceptor', async () => {
-    const headResponse = await request(tembaServer).head('/head-stuff')
-    expect(headResponse.status).toBe(200)
+    const headResponse = await sendRequest(tembaServer, 'head', '/head-stuff')
+    expect(headResponse.statusCode).toBe(200)
     expect(headResponse.body).toEqual({})
   })
 
   test('POST - requestInterceptor callback function', async () => {
-    const postResponse = await request(tembaServer)
-      .post('/post-stuff')
-      .send({ name: 'post-name' })
-      .set('x-foo', 'POST')
-    expect(postResponse.status).toBe(200)
+    const postResponse = await sendRequest(
+      tembaServer,
+      'post',
+      '/post-stuff',
+      {
+        name: 'post-name',
+      },
+      { 'x-foo': 'POST' },
+    )
+    expect(postResponse.statusCode).toBe(200)
     expect(postResponse.body).toEqual({ message: 'POST is OK' })
   })
 
   test('PUT - requestInterceptor callback function', async () => {
-    const putResponse = await request(tembaServer)
-      .put('/put-stuff/put-id')
-      .send({ name: 'put-name' })
-      .set('x-foo', 'PUT')
-    expect(putResponse.status).toBe(200)
+    const putResponse = await sendRequest(
+      tembaServer,
+      'put',
+      '/put-stuff/put-id',
+      {
+        name: 'put-name',
+      },
+      { 'x-foo': 'PUT' },
+    )
+    expect(putResponse.statusCode).toBe(200)
     expect(putResponse.body).toEqual({ message: 'PUT is OK' })
   })
 
   test('PATCH - requestInterceptor callback function', async () => {
-    const patchResponse = await request(tembaServer)
-      .patch('/patch-stuff/patch-id')
-      .send({ name: 'patch-name' })
-      .set('x-foo', 'PATCH')
-    expect(patchResponse.status).toBe(200)
+    const patchResponse = await sendRequest(
+      tembaServer,
+      'patch',
+      '/patch-stuff/patch-id',
+      {
+        name: 'patch-name',
+      },
+      { 'x-foo': 'PATCH' },
+    )
+    expect(patchResponse.statusCode).toBe(200)
     expect(patchResponse.body).toEqual({ message: 'PATCH is OK' })
   })
 
   test('DELETE - requestInterceptor callback function', async () => {
-    const deleteResponse = await request(tembaServer)
-      .delete('/delete-stuff/delete-id')
-      .set('x-foo', 'DELETE')
-    expect(deleteResponse.status).toBe(200)
+    const deleteResponse = await sendRequest(
+      tembaServer,
+      'delete',
+      '/delete-stuff/delete-id',
+      null,
+      {
+        'x-foo': 'DELETE',
+      },
+    )
+    expect(deleteResponse.statusCode).toBe(200)
     expect(deleteResponse.body).toEqual({ message: 'DELETE is OK' })
   })
 })

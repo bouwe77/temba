@@ -1,7 +1,7 @@
 import { describe, test, expect } from 'vitest'
-import request from 'supertest'
 import type { UserConfig } from '../../../src/config'
 import createServer from '../createServer'
+import { sendRequest } from '../../sendRequest'
 
 /*
   Tests OpenAPI documentation.
@@ -16,21 +16,21 @@ const endpoints = ['/openapi.json', '/openapi.yaml']
 describe.each(endpoints)('OpenAPI documentation', (path) => {
   test(`When OpenAPI not configured '${path}' returns a 404`, async () => {
     const tembaServer = createServer()
-    const response = await request(tembaServer).get(path)
+    const response = await sendRequest(tembaServer, 'get', path)
 
     expect(response.statusCode).toEqual(404)
   })
 
   test(`When OpenAPI disabled '${path}' returns a 404`, async () => {
     const tembaServer = createServer({ openapi: false } satisfies UserConfig)
-    const response = await request(tembaServer).get(path)
+    const response = await sendRequest(tembaServer, 'get', path)
 
     expect(response.statusCode).toEqual(404)
   })
 
   test(`When OpenAPI enabled '${path}' returns a 200 with the content-type header`, async () => {
     const tembaServer = createServer({ openapi: true, resources: ['actors'] } satisfies UserConfig)
-    const response = await request(tembaServer).get(path)
+    const response = await sendRequest(tembaServer, 'get', path)
 
     expect(response.statusCode).toEqual(200)
 
@@ -52,7 +52,7 @@ test('OpenAPI when no resources configured', async () => {
     openapi: true,
   } satisfies UserConfig)
 
-  const response = await request(tembaServer).get('/openapi.json')
+  const response = await sendRequest(tembaServer, 'get', '/openapi.json')
   expect(response.statusCode).toEqual(200)
   // OpenAPI version
   expect(response.body.openapi).toEqual('3.1.0')
@@ -281,7 +281,7 @@ test('OpenAPI when a single resource configured', async () => {
     resources: ['actors'],
   } satisfies UserConfig)
 
-  const response = await request(tembaServer).get('/openapi.json')
+  const response = await sendRequest(tembaServer, 'get', '/openapi.json')
 
   // OpenAPI version
   expect(response.body.openapi).toEqual('3.1.0')
@@ -466,7 +466,7 @@ test('Server URL contains the configured apiPrefix', async () => {
     apiPrefix: '/api',
   } satisfies UserConfig)
 
-  const response = await request(tembaServer).get('/openapi.json')
+  const response = await sendRequest(tembaServer, 'get', '/openapi.json')
 
   expect(response.body.servers.length).toEqual(1)
   expect(response.body.servers[0].url).toContain('/api/')
@@ -479,7 +479,7 @@ test('OpenAPI paths contains deleting a collection when allowDeleteCollection is
     allowDeleteCollection: true,
   } satisfies UserConfig)
 
-  const response = await request(tembaServer).get('/openapi.json')
+  const response = await sendRequest(tembaServer, 'get', '/openapi.json')
 
   const deleteAll = response.body.paths['/actors']['delete']
   expect(deleteAll.summary).toEqual('Delete all actors.')
@@ -500,7 +500,7 @@ test('OpenAPI when multiple resources configured', async () => {
     ],
   } satisfies UserConfig)
 
-  const response = await request(tembaServer).get('/openapi.json')
+  const response = await sendRequest(tembaServer, 'get', '/openapi.json')
 
   // Paths object has 5 paths: "/", "/actors", "/actors/{actorId}", "/people", "/people/{personId}"
   expect(Object.keys(response.body.paths).length).toEqual(5)
