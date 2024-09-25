@@ -1,7 +1,7 @@
-import { TembaError } from '..'
 import type { Queries } from '../data/types'
 import { etag } from '../etags/etags'
 import { interceptDeleteRequest } from '../requestInterceptor/interceptRequest'
+import { TembaError } from '../requestInterceptor/TembaError'
 import type { RequestInterceptor } from '../requestInterceptor/types'
 import type { DeleteRequest } from './types'
 

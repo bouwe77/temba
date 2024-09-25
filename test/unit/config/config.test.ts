@@ -1,7 +1,6 @@
 import { test, expect } from 'vitest'
 import { initConfig } from '../../../src/config'
 import type { Config } from '../../../src/config'
-import express from 'express'
 
 const defaultConfig: Config = {
   resources: [],

@@ -1,8 +1,8 @@
 import type { UserConfig } from '../../src/config'
-import { create } from '../../src/index'
+import { create as createHttp } from '../../src/http-server'
 
-const createServer = (config?: UserConfig) => {
-  const server = create({ ...(config || ({} as UserConfig)), isTesting: true })
-  return server.Express!
+export const createHttpServer = (config?: UserConfig) => {
+  const server = createHttp(config)
+  const startedServer = server.start()
+  return startedServer
 }
-export default createServer
