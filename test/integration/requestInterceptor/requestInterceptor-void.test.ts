@@ -1,7 +1,7 @@
 import { describe, test, expect } from 'vitest'
-import request from 'supertest'
 import type { UserConfig } from '../../../src/config'
 import createServer from '../createServer'
+import { sendRequest } from '../../sendRequest'
 
 describe('requestInterceptors that return nothing (void) to indicate nothing should be done', () => {
   const requestInterceptor = {
@@ -17,7 +17,7 @@ describe('requestInterceptors that return nothing (void) to indicate nothing sho
 
     // Send a POST request.
     // The request body is empty because that's not important for this test.
-    const response = await request(tembaServer).post(resourceUrl)
+    const response = await sendRequest(tembaServer, 'post', resourceUrl)
 
     expect(response.statusCode).toEqual(201)
   })
@@ -26,13 +26,13 @@ describe('requestInterceptors that return nothing (void) to indicate nothing sho
     const resourceUrl = '/pokemons'
 
     // First create a resource, so we have an id to PUT to.
-    const postResponse = await request(tembaServer).post(resourceUrl).send({ name: 'Pikachu' })
+    const postResponse = await sendRequest(tembaServer, 'post', resourceUrl, { name: 'Pikachu' })
     expect(postResponse.statusCode).toEqual(201)
     const id = postResponse.headers['location']?.split('/').pop()
 
     // Send a PUT request to the id.
     // The request body is empty because that's not important for this test.
-    const response = await request(tembaServer).put(`${resourceUrl}/${id}`)
+    const response = await sendRequest(tembaServer, 'put', `${resourceUrl}/${id}`)
 
     expect(response.statusCode).toEqual(200)
   })
@@ -41,13 +41,13 @@ describe('requestInterceptors that return nothing (void) to indicate nothing sho
     const resourceUrl = '/pokemons'
 
     // First create a resource, so we have an id to PUT to.
-    const postResponse = await request(tembaServer).post(resourceUrl).send({ name: 'Pikachu' })
+    const postResponse = await sendRequest(tembaServer, 'post', resourceUrl, { name: 'Pikachu' })
     expect(postResponse.statusCode).toEqual(201)
     const id = postResponse.headers['location']?.split('/').pop()
 
     // Send a PATCH request to the id.
     // The request body is empty because that's not important for this test.
-    const response = await request(tembaServer).patch(`${resourceUrl}/${id}`)
+    const response = await sendRequest(tembaServer, 'patch', `${resourceUrl}/${id}`)
 
     expect(response.statusCode).toEqual(200)
   })

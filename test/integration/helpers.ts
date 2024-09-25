@@ -1,7 +1,6 @@
 import { expect } from 'vitest'
-import { Response } from 'supertest'
 
-export const expectSuccess = (response: Response) => {
+export const expectSuccess = (response: { statusCode: number }) => {
   expect(response.statusCode).toBeGreaterThanOrEqual(200)
   expect(response.statusCode).toBeLessThan(300)
 }

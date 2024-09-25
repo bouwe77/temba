@@ -1,8 +1,8 @@
 import { describe, test, expect } from 'vitest'
-import request from 'supertest'
 import type { UserConfig } from '../../../src/config'
 import createServer from '../createServer'
 import type { RequestInterceptor } from '../../../src/requestInterceptor/types'
+import { sendRequest } from '../../sendRequest'
 
 describe('requestInterceptors that return a (new or changed) request body object', () => {
   const requestInterceptor: RequestInterceptor = {
@@ -23,14 +23,14 @@ describe('requestInterceptors that return a (new or changed) request body object
     const resourceUrl = '/movies'
 
     // Send a POST request.
-    const response = await request(tembaServer).post(resourceUrl).send({ title: 'Star Wars' })
+    const response = await sendRequest(tembaServer, 'post', resourceUrl, { title: 'Star Wars' })
 
     expect(response.statusCode).toEqual(201)
     expect(response.body.title).toEqual('The Matrix')
 
     const id = response.headers['location']?.split('/').pop()
 
-    const getResponse = await request(tembaServer).get(`${resourceUrl}/${id}`)
+    const getResponse = await sendRequest(tembaServer, 'get', `${resourceUrl}/${id}`)
     expect(getResponse.statusCode).toEqual(200)
     expect(getResponse.body.id).toEqual(id)
     expect(getResponse.body.title).toEqual('The Matrix')
@@ -40,7 +40,7 @@ describe('requestInterceptors that return a (new or changed) request body object
     const resourceUrl = '/pokemons'
 
     // First create a resource, so we have an id to PUT to.
-    const postResponse = await request(tembaServer).post(resourceUrl).send({ name: 'Pikachu' })
+    const postResponse = await sendRequest(tembaServer, 'post', resourceUrl, { name: 'Pikachu' })
     expect(postResponse.statusCode).toEqual(201)
     expect(postResponse.body.name).toEqual('Pikachu')
     expect(postResponse.body.replaced).toBeUndefined()
@@ -48,7 +48,7 @@ describe('requestInterceptors that return a (new or changed) request body object
     const id = postResponse.headers['location']?.split('/').pop()
 
     // Send a PUT request to the id.
-    const response = await request(tembaServer).put(`${resourceUrl}/${id}`).send({ name: 'Mew' })
+    const response = await sendRequest(tembaServer, 'put', `${resourceUrl}/${id}`, { name: 'Mew' })
 
     expect(response.statusCode).toEqual(200)
     expect(response.body.id).toEqual(id)
@@ -60,7 +60,7 @@ describe('requestInterceptors that return a (new or changed) request body object
     const resourceUrl = '/pokemons'
 
     // First create a resource, so we have an id to PUT to.
-    const postResponse = await request(tembaServer).post(resourceUrl).send({ name: 'Pikachu' })
+    const postResponse = await sendRequest(tembaServer, 'post', resourceUrl, { name: 'Pikachu' })
     expect(postResponse.statusCode).toEqual(201)
     expect(postResponse.body.name).toEqual('Pikachu')
     expect(postResponse.body.updated).toBeUndefined()
@@ -68,7 +68,9 @@ describe('requestInterceptors that return a (new or changed) request body object
     const id = postResponse.headers['location']?.split('/').pop()
 
     // Send a PATCH request to the id.
-    const response = await request(tembaServer).patch(`${resourceUrl}/${id}`).send({ name: 'Mew' })
+    const response = await sendRequest(tembaServer, 'patch', `${resourceUrl}/${id}`, {
+      name: 'Mew',
+    })
 
     expect(response.statusCode).toEqual(200)
     expect(response.body.id).toEqual(id)
