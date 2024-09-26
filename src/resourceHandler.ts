@@ -1,5 +1,6 @@
-import express from 'express'
-import type { Response, Request } from 'express'
+//TODO rename this file
+
+import type { IncomingMessage, ServerResponse } from 'http'
 import { getRequestHandler } from './requestHandlers'
 import { parseUrl } from './urls/urlParser'
 import type {
@@ -14,6 +15,40 @@ import type {
 import type { Queries } from './data/types'
 import type { CompiledSchemas } from './schema/types'
 import type { RouterConfig } from './config'
+
+export const noopHandler = (
+  _: IncomingMessage,
+  __: ServerResponse<IncomingMessage>,
+  next: (err?: unknown) => void,
+) => next()
+
+export const sendErrorResponse = (
+  res: {
+    statusCode: number
+    setHeader: (arg0: string, arg1: string) => void
+    end: (arg0: string) => void
+  },
+  statusCode: number = 500,
+  message: string = 'Internal Server Error',
+) => {
+  res.statusCode = statusCode
+  res.setHeader('Content-Type', 'application/json')
+  res.end(JSON.stringify({ message }))
+}
+
+export const handleMethodNotAllowed = (
+  _: IncomingMessage,
+  res: ServerResponse<IncomingMessage>,
+) => {
+  sendErrorResponse(res, 405, 'Method Not Allowed')
+}
+
+export const handleNotFound = (
+  _: IncomingMessage,
+  res: ServerResponse<IncomingMessage> & { req: IncomingMessage },
+) => {
+  sendErrorResponse(res, 404, 'Not Found')
+}
 
 type RequestValidationError = {
   status: number
@@ -86,7 +121,7 @@ const convertToDeleteRequest = (requestInfo: RequestInfo) => {
 
 type RequestValidator = (requestInfo: RequestInfo) => RequestInfo | RequestValidationError
 
-export const createResourceRouter = (
+export const createResourceHandler = (
   queries: Queries,
   schemas: CompiledSchemas,
   routerConfig: RouterConfig,
@@ -96,25 +131,46 @@ export const createResourceRouter = (
     return parseUrl(url)
   }
 
-  const parseRequest = (req: express.Request) => {
-    const urlInfo = getUrlInfo(req.baseUrl)
+  const getBody = (request: IncomingMessage) => {
+    return new Promise<string>((resolve) => {
+      const bodyParts: Buffer[] = []
+      let body: string
+
+      request
+        .on('data', (chunk: Buffer) => {
+          bodyParts.push(chunk)
+        })
+        .on('end', () => {
+          body = Buffer.concat(bodyParts).toString()
+          resolve(body)
+        })
+    })
+  }
+
+  const parseRequest = async (req: IncomingMessage) => {
+    const urlInfo = getUrlInfo(req.url ?? '')
 
     // Due to how routing is setup this situation can not happen,
     // so it's mainly to satisfy TypeScript.
     if (!urlInfo.resource || urlInfo.resource.trim().length === 0)
       return createError(404, 'Resource could not be determined from req.baseUrl')
 
-    const host = req.get('host') || null
-    const protocol = host ? req.protocol : null
+    console.log('req.headers', req.headers)
+
+    const host = req.headers.host ?? null
+    //TODO Don't know yet how to determine the protocol from the request...
+    const protocol = host?.includes('localhost') ? 'http' : 'https'
     const etag = req.headers['if-match'] ?? null
+
+    const body = await getBody(req)
 
     return {
       id: urlInfo.id,
       resource: urlInfo.resource,
-      body: req.body,
+      body,
       host,
       protocol,
-      method: req.method,
+      method: req.method ?? '',
       headers: req.headers,
       etag,
     } satisfies RequestInfo
@@ -135,102 +191,132 @@ export const createResourceRouter = (
     return requestInfo
   }
 
-  const sendResponse = (tembaResponse: TembaResponse, res: express.Response) => {
-    res.status(tembaResponse.status)
+  const sendResponse = (tembaResponse: TembaResponse, res: ServerResponse<IncomingMessage>) => {
+    res.statusCode = tembaResponse.status
 
     if (tembaResponse.headers) {
       for (const [key, value] of Object.entries(tembaResponse.headers)) {
-        res.set(key, value)
+        res.setHeader(key, value)
       }
     }
 
-    res.json(tembaResponse.body)
+    res.setHeader('Content-Type', 'application/json')
+    res.write(JSON.stringify(tembaResponse.body))
 
     res.end()
   }
 
   const handle = async <T extends TembaRequest>(
-    expressRequest: Request,
-    expressResponse: Response,
+    httpRequest: IncomingMessage,
+    httpResponse: ServerResponse<IncomingMessage>,
     validators: RequestValidator | RequestValidator[],
     convert: (request: RequestInfo) => T,
     handleRequest: (request: T) => Promise<TembaResponse>,
   ) => {
-    const requestInfo = parseRequest(expressRequest)
+    const requestInfo = await parseRequest(httpRequest)
 
     if (isError(requestInfo)) {
-      return expressResponse.status(requestInfo.status).json({
-        message: requestInfo.message,
-      })
+      // return httpResponse.status(requestInfo.status).json({
+      //   message: requestInfo.message,
+      // })
+      return sendErrorResponse(httpResponse, requestInfo.status, requestInfo.message)
     }
 
     for (const validator of [validators].flat()) {
       const validationResult = validator(requestInfo)
       if (isError(validationResult)) {
-        return expressResponse.status(validationResult.status).json({
-          message: validationResult.message,
-        })
+        return sendErrorResponse(httpResponse, validationResult.status, validationResult.message)
       }
     }
 
     const convertedRequest = convert(requestInfo)
 
     const response = await handleRequest(convertedRequest)
-    sendResponse(response, expressResponse)
+    sendResponse(response, httpResponse)
   }
 
   const requestHandler = getRequestHandler(queries, schemas, routerConfig)
-  const resourceRouter = express.Router()
 
-  resourceRouter.get('*', async (expressRequest, expressResponse) => {
+  const getHandler = async (
+    httpRequest: IncomingMessage,
+    httpResponse: ServerResponse<IncomingMessage>,
+  ) => {
     await handle(
-      expressRequest,
-      expressResponse,
+      httpRequest,
+      httpResponse,
       validateResource,
       convertToGetRequest,
       requestHandler.handleGet,
     )
-  })
+  }
 
-  resourceRouter.post('*', async (expressRequest, expressResponse) => {
+  const postHandler = async (
+    httpRequest: IncomingMessage,
+    httpResponse: ServerResponse<IncomingMessage>,
+  ) => {
     await handle(
-      expressRequest,
-      expressResponse,
+      httpRequest,
+      httpResponse,
       [validateResource, validateIdInUrlNotAllowed, validateIdInRequestBodyNotAllowed],
       convertToPostRequest,
       requestHandler.handlePost,
     )
-  })
+  }
 
-  resourceRouter.put('*', async (expressRequest, expressResponse) => {
+  const putHandler = async (
+    httpRequest: IncomingMessage,
+    httpResponse: ServerResponse<IncomingMessage>,
+  ) => {
     await handle(
-      expressRequest,
-      expressResponse,
+      httpRequest,
+      httpResponse,
       [validateResource, validateIdInUrlRequired, validateIdInRequestBodyNotAllowed],
       convertToPutRequest,
       requestHandler.handlePut,
     )
-  })
+  }
 
-  resourceRouter.patch('*', async (expressRequest, expressResponse) => {
+  const patchHandler = async (
+    httpRequest: IncomingMessage,
+    httpResponse: ServerResponse<IncomingMessage>,
+  ) => {
     await handle(
-      expressRequest,
-      expressResponse,
+      httpRequest,
+      httpResponse,
       [validateResource, validateIdInUrlRequired, validateIdInRequestBodyNotAllowed],
       convertToPatchRequest,
       requestHandler.handlePatch,
     )
-  })
+  }
 
-  resourceRouter.delete('*', async (expressRequest, expressResponse) => {
+  const deleteHandler = async (
+    httpRequest: IncomingMessage,
+    httpResponse: ServerResponse<IncomingMessage>,
+  ) => {
     await handle(
-      expressRequest,
-      expressResponse,
+      httpRequest,
+      httpResponse,
       validateResource,
       convertToDeleteRequest,
       requestHandler.handleDelete,
     )
-  })
+  }
 
-  return resourceRouter
+  return (req: IncomingMessage, res: ServerResponse<IncomingMessage>) => {
+    if (req.method === 'GET') {
+      return getHandler(req, res)
+    }
+    if (req.method === 'POST') {
+      return postHandler(req, res)
+    }
+    if (req.method === 'PUT') {
+      return putHandler(req, res)
+    }
+    if (req.method === 'PATCH') {
+      return patchHandler(req, res)
+    }
+    if (req.method === 'DELETE') {
+      return deleteHandler(req, res)
+    }
+  }
 }
