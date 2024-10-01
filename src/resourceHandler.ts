@@ -155,8 +155,6 @@ export const createResourceHandler = (
     if (!urlInfo.resource || urlInfo.resource.trim().length === 0)
       return createError(404, 'Resource could not be determined from req.baseUrl')
 
-    console.log('req.headers', req.headers)
-
     const host = req.headers.host ?? null
     //TODO Don't know yet how to determine the protocol from the request...
     const protocol = host?.includes('localhost') ? 'http' : 'https'
@@ -200,8 +198,10 @@ export const createResourceHandler = (
       }
     }
 
-    res.setHeader('Content-Type', 'application/json')
-    res.write(JSON.stringify(tembaResponse.body))
+    if (tembaResponse.body) {
+      res.setHeader('Content-Type', 'application/json')
+      res.write(JSON.stringify(tembaResponse.body))
+    }
 
     res.end()
   }
