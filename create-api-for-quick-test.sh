@@ -11,7 +11,13 @@ mkdir api-for-quick-testing
 cd api-for-quick-testing
 
 # Create index.js that imports Temba from the dist folder and starts the server
-echo -e "import { create } from '../dist/src/index.js'\ncreate({ port: 4321 }).start()" > index.js
+echo "import { create } from '../dist/src/index.js'
+
+create({
+  port: 4321,
+  // add more settings here...
+}).start()
+" > index.js
 
 # Create package.json to start the server with `npm run dev`
 echo '{
@@ -22,7 +28,10 @@ echo '{
 }' > package.json
 
 # Create a readme to explain what this is
-echo -e "# API for quick testing\n\nThis API is created on the fly to quickly test the Temba API against the local build in the dist folder." > README.md
+echo "# API for quick testing
+
+This API is created on the fly to quickly test the Temba API against the local build in the \`dist\` folder.
+" > README.md
 
 # Start the just created API
 npm run dev
