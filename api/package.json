@@ -1,0 +1,12 @@
+{
+    "name": "api",
+    "version": "1.0.0",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+      "dev": "node --watch index.js"
+    },
+    "author": "Bouwe",
+    "license": "ISC",
+    "description": "A Node app to run a Temba API. It imports temba from the dist folder (instead of from NPM), so it is typically used to test code changes, before publishing to NPM."
+  }
