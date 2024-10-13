@@ -1,4 +1,3 @@
-import { Router } from 'express'
 import type { ConfiguredSchemas } from '../schema/types'
 import type { RequestInterceptor } from '../requestInterceptor/types'
 import type { ResponseBodyInterceptor } from '../responseBodyInterceptor/types'
@@ -24,7 +23,6 @@ export type Config = {
   staticFolder: string | null
   connectionString: string | null
   delay: number
-  customRouter: Router | null
   returnNullFields: boolean
   isTesting: boolean
   port: number
@@ -56,7 +54,6 @@ export type UserConfig = {
   delay?: number
   requestInterceptor?: RequestInterceptor
   responseBodyInterceptor?: ResponseBodyInterceptor
-  customRouter?: Router
   returnNullFields?: boolean
   isTesting?: boolean
   port?: number
@@ -75,7 +72,6 @@ const defaultConfig: Config = {
   delay: 0,
   requestInterceptor: null,
   responseBodyInterceptor: null,
-  customRouter: null,
   returnNullFields: true,
   isTesting: false,
   port: 3000,
@@ -154,10 +150,6 @@ export const initConfig = (userConfig?: UserConfig): Config => {
 
   if (userConfig.responseBodyInterceptor) {
     config.responseBodyInterceptor = userConfig.responseBodyInterceptor
-  }
-
-  if (userConfig.customRouter) {
-    config.customRouter = userConfig.customRouter
   }
 
   if (!isUndefined(userConfig.returnNullFields)) {
