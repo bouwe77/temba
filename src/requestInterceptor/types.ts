@@ -18,10 +18,14 @@ type WithIdAndBody = InterceptedResource & {
   body: unknown
 }
 
+type WithBodyAndMaybeId = WithBody & {
+  id: string | null
+}
+
 export type InterceptedReturnValue = void | object
 
 export type InterceptedGetRequest = (request: WithMaybeId) => InterceptedReturnValue
-export type InterceptedPostRequest = (request: WithBody) => InterceptedReturnValue
+export type InterceptedPostRequest = (request: WithBodyAndMaybeId) => InterceptedReturnValue
 export type InterceptedPatchRequest = (request: WithIdAndBody) => InterceptedReturnValue
 export type InterceptedPutRequest = (request: WithIdAndBody) => InterceptedReturnValue
 export type InterceptedDeleteRequest = (request: WithMaybeId) => InterceptedReturnValue

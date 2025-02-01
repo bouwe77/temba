@@ -21,9 +21,10 @@ export const interceptPostRequest = (
   intercept: InterceptedPostRequest,
   headers: IncomingHttpHeaders,
   resource: string,
+  id: string | null,
   body: unknown,
 ) => {
-  const intercepted = intercept({ headers, resource, body })
+  const intercepted = intercept({ headers, resource, body, id })
   return interceptRequest(intercepted, body)
 }
 

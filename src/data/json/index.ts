@@ -41,9 +41,12 @@ export default function createJsonQueries({ filename }: JsonConfig) {
     return (data || []).find((x) => x.id === id) || null
   }
 
-  async function create(resource: string, item: ItemWithoutId) {
+  async function create(resource: string, id: string | null, item: ItemWithoutId) {
     const db = await getDb()
-    const itemWithId = { ...item, id: String(new Date().getTime()) } satisfies Item
+    const itemWithId = {
+      ...item,
+      id: id || String(new Date().getTime()),
+    } satisfies Item
     await db.update((data) => {
       data[resource] = [...(data[resource] || []), itemWithId]
     })

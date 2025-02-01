@@ -51,10 +51,10 @@ export const createMongoQueries = (connectionString: string, logger: Logger) => 
     return removeUnderscoreFromId(item)
   }
 
-  const create = async (resource: string, item: ItemWithoutId) => {
+  const create = async (resource: string, id: string | null, item: ItemWithoutId) => {
     await connectToDatabase()
 
-    const createdItem = await db[resource].insertOne(item)
+    const createdItem = await db[resource].insertOne(id ? { ...item, _id: id } : item)
 
     return removeUnderscoreFromId(createdItem.ops[0])
   }

@@ -242,11 +242,6 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
                     },
                   },
                   examples: {
-                    IdNotAllowedInUrl: {
-                      value: {
-                        message: 'An id is not allowed in the URL',
-                      },
-                    },
                     IdNotAllowedInRequestBody: {
                       value: {
                         message: 'An id is not allowed in the request body',
@@ -290,7 +285,7 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
         })
       }
 
-      // GET, HEAD, PUT, PATCH, DELETE on an ID
+      // GET, HEAD, POST, PUT, PATCH, DELETE on an ID
       builder.addPath(`/${resource}/{${singularResourceLowerCase}Id}`, {
         get: {
           summary: `Find ${indefinite(singularResourceLowerCase)} by ID`,
@@ -334,6 +329,76 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
             },
             '404': {
               description: `The ${singularResourceLowerCase}Id was not found.`,
+            },
+          },
+        },
+        post: {
+          summary: `Create a new ${singularResourceLowerCase}, specifying your own id.`,
+          operationId: `create${singularResourceUpperCase}WithId`,
+          parameters: getPathParameters(resourceInfo, true),
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                },
+              },
+            },
+          },
+          responses: {
+            '201': {
+              description: `The ${singularResourceLowerCase} was created. The created ${singularResourceLowerCase} is returned in the response.`,
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                  },
+                },
+              },
+            },
+            '400': {
+              description: 'The request was invalid.',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      message: {
+                        type: 'string',
+                      },
+                    },
+                  },
+                  examples: {
+                    IdNotAllowedInRequestBody: {
+                      value: {
+                        message: 'An id is not allowed in the request body',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            '409': {
+              description: 'The id already exists.',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      message: {
+                        type: 'string',
+                      },
+                    },
+                  },
+                  examples: {
+                    IdAlreadyExists: {
+                      value: {
+                        message: "ID '{resourceId}' already exists",
+                      },
+                    },
+                  },
+                },
+              },
             },
           },
         },
