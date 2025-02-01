@@ -54,9 +54,7 @@ export const createMongoQueries = (connectionString: string, logger: Logger) => 
   const create = async (resource: string, id: string | null, item: ItemWithoutId) => {
     await connectToDatabase()
 
-    //TODO Can I specify my own id when inserting in Mongo?
-
-    const createdItem = await db[resource].insertOne(item)
+    const createdItem = await db[resource].insertOne(id ? { ...item, _id: id } : item)
 
     return removeUnderscoreFromId(createdItem.ops[0])
   }
