@@ -16,7 +16,7 @@ export const createPostRoutes = (
 ) => {
   const handlePost = async (req: PostRequest) => {
     try {
-      const { headers, body, protocol, host, resource } = req
+      const { headers, body, protocol, host, resource, id } = req
 
       const validationResult = validate(body, schemas[resource])
       if (validationResult.isValid === false) {
@@ -26,7 +26,7 @@ export const createPostRoutes = (
       let body2 = body
       if (requestInterceptor?.post) {
         try {
-          body2 = interceptPostRequest(requestInterceptor.post, headers, resource, body)
+          body2 = interceptPostRequest(requestInterceptor.post, headers, resource, id, body)
         } catch (error: unknown) {
           return {
             status: error instanceof TembaError ? error.statusCode : 500,
@@ -35,7 +35,19 @@ export const createPostRoutes = (
         }
       }
 
-      const newItem = await queries.create(resource, body2 as ItemWithoutId)
+      if (id) {
+        let item = await queries.getById(resource, id)
+
+        if (item)
+          return {
+            status: 409,
+            body: {
+              message: `ID '${id}' already exists`,
+            },
+          }
+      }
+
+      const newItem = await queries.create(resource, id, body2 as ItemWithoutId)
 
       return {
         headers: {

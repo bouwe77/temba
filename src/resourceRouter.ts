@@ -56,6 +56,7 @@ const convertToGetRequest = (requestInfo: RequestInfo) => {
 const convertToPostRequest = (requestInfo: RequestInfo) => {
   return {
     headers: requestInfo.headers,
+    id: requestInfo.id ?? null,
     resource: requestInfo.resource,
     body: requestInfo.body ?? {},
     protocol: requestInfo.protocol,
@@ -196,7 +197,7 @@ export const createResourceRouter = (
     await handle(
       expressRequest,
       expressResponse,
-      [validateResource, validateIdInUrlNotAllowed, validateIdInRequestBodyNotAllowed],
+      [validateResource, validateIdInRequestBodyNotAllowed],
       convertToPostRequest,
       requestHandler.handlePost,
     )
