@@ -124,7 +124,7 @@ Request bodies sent with a `POST`, `PATCH`, and `PUT` requests are valid when th
 
 Any valid formatted JSON is accepted and stored. If you want to validate or even change the JSON in the request bodies, check out [JSON Schema request body validation](#json-schema-request-body-validation) and the [`requestInterceptor`](#request-validation-or-mutation).
 
-IDs are auto generated when creating resources.
+IDs are auto generated when creating resources, unless you specify an ID in the `POST` request URL.
 
 Providing IDs in the request body of `POST`, `PUT`, or `PATCH` requests is not allowed and will return a `400 Bad Request` response. Instead, provide the ID in the request URL. However, omitting an ID in a `PUT` or `PATCH` request URL also returns a `400 Bad Request` response.
 
