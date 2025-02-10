@@ -1,14 +1,14 @@
 import { test, expect } from 'vitest'
 import request from 'supertest'
 import type { UserConfig } from '../../src/config'
-import { createHttpServer } from './createServer'
+import { createServer } from './createServer'
 
 /*
   Tests when configuring returnNullFields.
 */
 
 test.skip.each([true, false])('returnNullFields setting is %s', async (returnNullFields) => {
-  const tembaServer = createHttpServer({ returnNullFields } satisfies UserConfig)
+  const tembaServer = createServer({ returnNullFields } satisfies UserConfig)
 
   // Create a car
   const createResponse = await request(tembaServer)

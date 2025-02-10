@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
 import request from 'supertest'
-import { createHttpServer } from './createServer'
+import { createServer } from './createServer'
 import type { UserConfig } from '../../src/config'
 
 /*
@@ -21,7 +21,7 @@ test.skip('Schema validation POST/PUT/PATCH', async () => {
   }
   const schemaUpdate = { ...schemaCreateReplace, required: [] }
 
-  const tembaServer = createHttpServer({
+  const tembaServer = createServer({
     schemas: {
       cars: {
         post: schemaCreateReplace,
@@ -130,7 +130,7 @@ test.skip('Schema validation per resource', async () => {
     required: ['brand'],
   }
 
-  const tembaServer = createHttpServer({
+  const tembaServer = createServer({
     schemas: {
       cars: {
         post: schema,

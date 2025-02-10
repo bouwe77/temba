@@ -1,7 +1,7 @@
 import { describe, test, expect } from 'vitest'
 import request from 'supertest'
 import type { UserConfig } from '../../../src/config'
-import { createHttpServer } from '../createServer'
+import { createServer } from '../createServer'
 import type { RequestInterceptor } from '../../../src/requestInterceptor/types'
 
 describe('requestInterceptors that return a (new or changed) request body object', () => {
@@ -17,7 +17,7 @@ describe('requestInterceptors that return a (new or changed) request body object
     },
   }
 
-  const tembaServer = createHttpServer({ requestInterceptor } satisfies UserConfig)
+  const tembaServer = createServer({ requestInterceptor } satisfies UserConfig)
 
   test.skip('POST with a requestInterceptor that returns a request body', async () => {
     const resourceUrl = '/movies'

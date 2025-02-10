@@ -1,13 +1,13 @@
 import { test, expect } from 'vitest'
 import request from 'supertest'
-import { createHttpServer } from './createServer'
+import { createServer } from './createServer'
 
 /*
   Tests for HEAD requests
 */
 
 // This Temba server is created with the default configuration, i.e. no config object is supplied.
-const tembaServer = createHttpServer()
+const tembaServer = createServer()
 
 const resource = '/cars/'
 

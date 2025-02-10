@@ -1,7 +1,7 @@
 import { describe, test, expect } from 'vitest'
 import request from 'supertest'
 import type { UserConfig } from '../../../src/config'
-import { createHttpServer } from '../createServer'
+import { createServer } from '../createServer'
 
 describe('requestInterceptors that return nothing (void) to indicate nothing should be done', () => {
   const requestInterceptor = {
@@ -10,7 +10,7 @@ describe('requestInterceptors that return nothing (void) to indicate nothing sho
     patch: () => {},
   }
 
-  const tembaServer = createHttpServer({ requestInterceptor } satisfies UserConfig)
+  const tembaServer = createServer({ requestInterceptor } satisfies UserConfig)
 
   test.skip('POST with a requestInterceptor that returns void', async () => {
     const resourceUrl = '/movies'

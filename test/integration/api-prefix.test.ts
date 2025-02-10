@@ -1,7 +1,7 @@
 import { test, expect } from 'vitest'
 import request from 'supertest'
 import type { UserConfig } from '../../src/config'
-import { createHttpServer } from './createServer'
+import { createServer } from './createServer'
 
 /*
   Tests when configuring the apiPrefix.
@@ -9,7 +9,7 @@ import { createHttpServer } from './createServer'
 
 // This Temba server is created with an apiPrefix configured
 const apiPrefix = 'api'
-const tembaServer = createHttpServer({ apiPrefix } satisfies UserConfig)
+const tembaServer = createServer({ apiPrefix } satisfies UserConfig)
 
 test.skip('GET on root URL returns 404 Not Found error', async () => {
   const response = await request(tembaServer).get('/')
@@ -78,7 +78,7 @@ test.skip('HEAD on resource URL without apiPrefix returns 404 Not Found', async 
 
 test.skip('apiPrefix is equal to resource name', async () => {
   const apiPrefix = 'movies'
-  const server = createHttpServer({ apiPrefix } satisfies UserConfig)
+  const server = createServer({ apiPrefix } satisfies UserConfig)
   const moviesUrl = `/${apiPrefix}/movies/`
 
   // Create a movie

@@ -1,13 +1,13 @@
 import { test, expect } from 'vitest'
 import request from 'supertest'
-import { createHttpServer } from './createServer'
+import { createServer } from './createServer'
 
 /*
   Tests on the root URL: "/"
 */
 
 // This Temba server is created with the default configuration, i.e. no config object is supplied.
-const tembaServer = createHttpServer()
+const tembaServer = createServer()
 
 test('GET on root URL returns welcome text', async () => {
   const response = await request(tembaServer).get('/')

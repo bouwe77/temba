@@ -1,13 +1,13 @@
 import { test, expect } from 'vitest'
 import request from 'supertest'
-import { createHttpServer } from './createServer'
+import { createServer } from './createServer'
 
 /*
   Tests configured resources.
 */
 
 test.skip('Only configured resources can be found, others return a 404', async () => {
-  const tembaServer = createHttpServer({
+  const tembaServer = createServer({
     resources: [
       'movies',
       {

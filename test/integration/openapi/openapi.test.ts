@@ -1,7 +1,7 @@
 import { describe, test, expect } from 'vitest'
 import request from 'supertest'
 import type { UserConfig } from '../../../src/config'
-import { createHttpServer } from '../createServer'
+import { createServer } from '../createServer'
 
 /*
   Tests OpenAPI documentation.
@@ -15,21 +15,21 @@ const endpoints = ['/openapi.json', '/openapi.yaml']
 
 describe.each(endpoints)('OpenAPI documentation', (path) => {
   test.skip(`When OpenAPI not configured '${path}' returns a 404`, async () => {
-    const tembaServer = createHttpServer()
+    const tembaServer = createServer()
     const response = await request(tembaServer).get(path)
 
     expect(response.statusCode).toEqual(404)
   })
 
   test.skip(`When OpenAPI disabled '${path}' returns a 404`, async () => {
-    const tembaServer = createHttpServer({ openapi: false } satisfies UserConfig)
+    const tembaServer = createServer({ openapi: false } satisfies UserConfig)
     const response = await request(tembaServer).get(path)
 
     expect(response.statusCode).toEqual(404)
   })
 
   test.skip(`When OpenAPI enabled '${path}' returns a 200 with the content-type header`, async () => {
-    const tembaServer = createHttpServer({
+    const tembaServer = createServer({
       openapi: true,
       resources: ['actors'],
     } satisfies UserConfig)
@@ -51,7 +51,7 @@ describe.each(endpoints)('OpenAPI documentation', (path) => {
 */
 
 test.skip('OpenAPI when no resources configured', async () => {
-  const tembaServer = createHttpServer({
+  const tembaServer = createServer({
     openapi: true,
   } satisfies UserConfig)
 
@@ -308,7 +308,7 @@ test.skip('OpenAPI when no resources configured', async () => {
 })
 
 test.skip('OpenAPI when a single resource configured', async () => {
-  const tembaServer = createHttpServer({
+  const tembaServer = createServer({
     openapi: true,
     resources: ['actors'],
   } satisfies UserConfig)
@@ -489,7 +489,7 @@ test.skip('OpenAPI when a single resource configured', async () => {
 })
 
 test.skip('Server URL contains the configured apiPrefix', async () => {
-  const tembaServer = createHttpServer({
+  const tembaServer = createServer({
     openapi: true,
     resources: ['actors'],
     apiPrefix: '/api',
@@ -502,7 +502,7 @@ test.skip('Server URL contains the configured apiPrefix', async () => {
 })
 
 test.skip('OpenAPI paths contains deleting a collection when allowDeleteCollection is true', async () => {
-  const tembaServer = createHttpServer({
+  const tembaServer = createServer({
     openapi: true,
     resources: ['actors'],
     allowDeleteCollection: true,
@@ -517,7 +517,7 @@ test.skip('OpenAPI paths contains deleting a collection when allowDeleteCollecti
 })
 
 test.skip('OpenAPI when multiple resources configured', async () => {
-  const tembaServer = createHttpServer({
+  const tembaServer = createServer({
     openapi: true,
     resources: [
       'actors',
@@ -551,7 +551,7 @@ test.skip('OpenAPI when multiple resources configured', async () => {
 })
 
 test.skip('OpenAPI when a custom OpenAPI object is configured', async () => {
-  const tembaServer = createHttpServer({
+  const tembaServer = createServer({
     openapi: {
       info: {
         title: 'My custom API title',

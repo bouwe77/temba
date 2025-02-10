@@ -1,11 +1,11 @@
 import { test, expect } from 'vitest'
 import request from 'supertest'
-import { createHttpServer } from './createServer'
+import { createServer } from './createServer'
 
 // The id is either expected or not allowed in URLs.
 // The id is never allowed in request bodies.
 
-const tembaServer = createHttpServer()
+const tembaServer = createServer()
 const resource = '/articles/'
 
 test.skip('When POSTing and PUTting with ID in request body, return bad request', async () => {

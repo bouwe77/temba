@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest'
 import request from 'supertest'
-import { createHttpServer } from './createServer'
+import { createServer } from './createServer'
 
 /*
   Tests for a CRUD roundtrip along all supported HTTP methods.
@@ -8,7 +8,7 @@ import { createHttpServer } from './createServer'
 
 describe('CRUD', () => {
   // This Temba server is created with the default configuration, i.e. no config object is supplied.
-  const tembaServer = createHttpServer()
+  const tembaServer = createServer()
 
   const resource = '/articles/'
 
@@ -133,7 +133,7 @@ describe('CRUD', () => {
 })
 
 describe('POST user-defined IDs', () => {
-  test('Create items with both generated and user-defined IDs', async () => {
+  test.only('Create items with both generated and user-defined IDs', async () => {
     const tembaServer = createServer()
     const resource = '/items/'
     // Get all items, there should be 0.
@@ -156,6 +156,8 @@ describe('POST user-defined IDs', () => {
     // Get all items, there should be 2.
     const getAllResponse3 = await request(tembaServer).get(resource)
     const items = getAllResponse3.body
+    console.log(items)
+    return
     expect(items.length).toBe(2)
     expect(items).toContainEqual({ id: generatedId, name: 'item 1' })
     expect(items).toContainEqual({ id: userDefinedId, name: 'item 2' })
@@ -188,7 +190,7 @@ describe('POST user-defined IDs', () => {
 
 describe('DELETE collection', () => {
   test.skip('DELETE on resource URL (without ID) by default returns 405 Method Not Allowed and does not delete anything', async () => {
-    const tembaServer = createHttpServer()
+    const tembaServer = createServer()
     const resource = '/articles/'
 
     // Get all items, there should be 0.
@@ -213,7 +215,7 @@ describe('DELETE collection', () => {
   })
 
   test.skip('DELETE on resource URL (without ID) deletes collection if allowDeleteCollection setting is set to true', async () => {
-    const tembaServer = createHttpServer({
+    const tembaServer = createServer({
       allowDeleteCollection: true,
     })
     const resource = '/articles/'

@@ -1,7 +1,7 @@
 import { describe, test, expect } from 'vitest'
 import request from 'supertest'
 import type { UserConfig } from '../../../src/config'
-import { createHttpServer } from '../createServer'
+import { createServer } from '../createServer'
 import type { RequestInterceptor } from '../../../src/requestInterceptor/types'
 
 describe('requestInterceptors does not return an object', () => {
@@ -24,7 +24,7 @@ describe('requestInterceptors does not return an object', () => {
     },
   }
 
-  const tembaServer = createHttpServer({ requestInterceptor } satisfies UserConfig)
+  const tembaServer = createServer({ requestInterceptor } satisfies UserConfig)
 
   test.skip('requestInterceptor returns the original request body when something else than an object or string is returned', async () => {
     // Send POST requests.
