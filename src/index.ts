@@ -72,6 +72,8 @@ const createServer = (userConfig?: UserConfig) => {
       })
       return server
     },
+    //TODO hier maar ff de server teruggeven zodat ik een ongestarte server kan gebruiken in de tests...
+    server,
   }
 }
 
