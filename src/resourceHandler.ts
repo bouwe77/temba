@@ -69,10 +69,6 @@ const validateIdInUrlRequired = (requestInfo: RequestInfo) => {
   return !requestInfo.id ? createError(400, 'An id is required in the URL') : requestInfo
 }
 
-const validateIdInUrlNotAllowed = (requestInfo: RequestInfo) => {
-  return requestInfo.id ? createError(400, 'An id is not allowed in the URL') : requestInfo
-}
-
 const validateIdInRequestBodyNotAllowed = (requestInfo: RequestInfo) => {
   return requestInfo.body && typeof requestInfo.body === 'object' && 'id' in requestInfo.body
     ? createError(400, 'An id is not allowed in the request body')
