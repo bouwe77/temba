@@ -67,13 +67,18 @@ const createServer = (userConfig?: UserConfig) => {
 
   return {
     start: () => {
+      if (config.isTesting) {
+        logger.info('⛔️ Server not started. Remove or disable isTesting from your config.')
+        return
+      }
+
       server.listen(config.port, () => {
         console.log(`✅ Server listening on port ${config.port}`)
       })
       return server
     },
-    //TODO hier maar ff de server teruggeven zodat ik een ongestarte server kan gebruiken in de tests...
-    server,
+    // Expose the http server    for testing purposes only, e.g. usage with supertest.
+    server: config.isTesting ? server : undefined,
   }
 }
 
