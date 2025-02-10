@@ -1,5 +1,3 @@
-//TODO rename this file
-
 import type { IncomingMessage, ServerResponse } from 'http'
 import { getRequestHandler } from './requestHandlers'
 import { parseUrl } from './urls/urlParser'
