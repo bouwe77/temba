@@ -129,18 +129,23 @@ export const createResourceHandler = (
   }
 
   const getBody = (request: IncomingMessage) => {
-    return new Promise<string>((resolve) => {
+    return new Promise((resolve, reject) => {
       const bodyParts: Buffer[] = []
-      let body: string
 
       request
         .on('data', (chunk: Buffer) => {
           bodyParts.push(chunk)
         })
         .on('end', () => {
-          body = Buffer.concat(bodyParts).toString()
-          resolve(body)
+          try {
+            const body = Buffer.concat(bodyParts).toString()
+            if (!body) return resolve(null)
+            resolve(JSON.parse(body) as unknown)
+          } catch {
+            reject(new Error('Invalid JSON'))
+          }
         })
+        .on('error', (err) => reject(err))
     })
   }
 
