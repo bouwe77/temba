@@ -8,7 +8,7 @@ import { expectSuccess } from './helpers'
   Tests etag behavior when configured.
 */
 
-test.skip('GET does not return an etag header by default', async () => {
+test('GET does not return an etag header by default', async () => {
   const tembaServer = createServer()
   const response = await request(tembaServer).get('/')
 
@@ -16,7 +16,7 @@ test.skip('GET does not return an etag header by default', async () => {
   expect(response.statusCode).toEqual(200)
 })
 
-test.skip('GET returns an etag header when configured', async () => {
+test('GET returns an etag header when configured', async () => {
   const tembaServer = createServer({ etags: true } satisfies UserConfig)
   const response = await request(tembaServer).get('/')
 
@@ -24,7 +24,7 @@ test.skip('GET returns an etag header when configured', async () => {
   expect(response.statusCode).toEqual(200)
 })
 
-test.skip('GET only returns a different etag if the resource changed', async () => {
+test('GET only returns a different etag if the resource changed', async () => {
   const tembaServer = createServer({ etags: true } satisfies UserConfig)
 
   // Create a resource
@@ -61,7 +61,7 @@ test.skip('GET only returns a different etag if the resource changed', async () 
   expect(etag1).not.toEqual(etag3)
 })
 
-test.skip('GET with If-None-Match returns 304 Not Modified if etag is the same', async () => {
+test('GET with If-None-Match returns 304 Not Modified if etag is the same', async () => {
   const tembaServer = createServer({ etags: true } satisfies UserConfig)
 
   // Create a resource
@@ -96,7 +96,7 @@ test.skip('GET with If-None-Match returns 304 Not Modified if etag is the same',
   expect(getResponse3.body.name).toEqual('item 2')
 })
 
-test.skip('PUT requires an If-Match header with an up to date etag', async () => {
+test('PUT requires an If-Match header with an up to date etag', async () => {
   const tembaServer = createServer({ etags: true } satisfies UserConfig)
 
   // Create a resource
@@ -136,7 +136,7 @@ test.skip('PUT requires an If-Match header with an up to date etag', async () =>
   expect(etag).not.toEqual(etag2)
 })
 
-test.skip('PATCH requires an If-Match header with an up to date etag', async () => {
+test('PATCH requires an If-Match header with an up to date etag', async () => {
   const tembaServer = createServer({ etags: true } satisfies UserConfig)
 
   // Create a resource
@@ -176,7 +176,7 @@ test.skip('PATCH requires an If-Match header with an up to date etag', async () 
   expect(etag).not.toEqual(etag2)
 })
 
-test.skip('DELETE an item requires an If-Match header with an up to date etag', async () => {
+test('DELETE an item requires an If-Match header with an up to date etag', async () => {
   const tembaServer = createServer({ etags: true } satisfies UserConfig)
 
   // Create a resource
@@ -206,7 +206,7 @@ test.skip('DELETE an item requires an If-Match header with an up to date etag', 
   expect(deleteResponse3.statusCode).toEqual(204)
 })
 
-test.skip('DELETE a collection requires an If-Match header with an up to date etag', async () => {
+test('DELETE a collection requires an If-Match header with an up to date etag', async () => {
   const tembaServer = createServer({
     etags: true,
     allowDeleteCollection: true,

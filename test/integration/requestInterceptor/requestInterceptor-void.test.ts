@@ -12,7 +12,7 @@ describe('requestInterceptors that return nothing (void) to indicate nothing sho
 
   const tembaServer = createServer({ requestInterceptor } satisfies UserConfig)
 
-  test.skip('POST with a requestInterceptor that returns void', async () => {
+  test('POST with a requestInterceptor that returns void', async () => {
     const resourceUrl = '/movies'
 
     // Send a POST request.
@@ -22,7 +22,7 @@ describe('requestInterceptors that return nothing (void) to indicate nothing sho
     expect(response.statusCode).toEqual(201)
   })
 
-  test.skip('PUT with a requestInterceptor that returns void', async () => {
+  test('PUT with a requestInterceptor that returns void', async () => {
     const resourceUrl = '/pokemons'
 
     // First create a resource, so we have an id to PUT to.
@@ -37,7 +37,7 @@ describe('requestInterceptors that return nothing (void) to indicate nothing sho
     expect(response.statusCode).toEqual(200)
   })
 
-  test.skip('PATCH with a requestInterceptor that returns void', async () => {
+  test('PATCH with a requestInterceptor that returns void', async () => {
     const resourceUrl = '/pokemons'
 
     // First create a resource, so we have an id to PUT to.

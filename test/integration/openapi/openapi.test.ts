@@ -14,21 +14,21 @@ Status codes and headers for both JSON and YAML, when openapi is either disabled
 const endpoints = ['/openapi.json', '/openapi.yaml']
 
 describe.each(endpoints)('OpenAPI documentation', (path) => {
-  test.skip(`When OpenAPI not configured '${path}' returns a 404`, async () => {
+  test(`When OpenAPI not configured '${path}' returns a 404`, async () => {
     const tembaServer = createServer()
     const response = await request(tembaServer).get(path)
 
     expect(response.statusCode).toEqual(404)
   })
 
-  test.skip(`When OpenAPI disabled '${path}' returns a 404`, async () => {
+  test(`When OpenAPI disabled '${path}' returns a 404`, async () => {
     const tembaServer = createServer({ openapi: false } satisfies UserConfig)
     const response = await request(tembaServer).get(path)
 
     expect(response.statusCode).toEqual(404)
   })
 
-  test.skip(`When OpenAPI enabled '${path}' returns a 200 with the content-type header`, async () => {
+  test(`When OpenAPI enabled '${path}' returns a 200 with the content-type header`, async () => {
     const tembaServer = createServer({
       openapi: true,
       resources: ['actors'],
@@ -50,7 +50,7 @@ describe.each(endpoints)('OpenAPI documentation', (path) => {
   The body of the OpenAPI documentation is only tested for JSON, as we may assume that the YAML is correct if the JSON is correct.
 */
 
-test.skip('OpenAPI when no resources configured', async () => {
+test('OpenAPI when no resources configured', async () => {
   const tembaServer = createServer({
     openapi: true,
   } satisfies UserConfig)
@@ -307,7 +307,7 @@ test.skip('OpenAPI when no resources configured', async () => {
   expect(deleteById.responses['204'].description).toEqual('The resource was deleted.')
 })
 
-test.skip('OpenAPI when a single resource configured', async () => {
+test('OpenAPI when a single resource configured', async () => {
   const tembaServer = createServer({
     openapi: true,
     resources: ['actors'],
@@ -488,7 +488,7 @@ test.skip('OpenAPI when a single resource configured', async () => {
   expect(deleteById.responses['204'].description).toEqual('The actor was deleted.')
 })
 
-test.skip('Server URL contains the configured apiPrefix', async () => {
+test('Server URL contains the configured apiPrefix', async () => {
   const tembaServer = createServer({
     openapi: true,
     resources: ['actors'],
@@ -501,7 +501,7 @@ test.skip('Server URL contains the configured apiPrefix', async () => {
   expect(response.body.servers[0].url).toContain('/api/')
 })
 
-test.skip('OpenAPI paths contains deleting a collection when allowDeleteCollection is true', async () => {
+test('OpenAPI paths contains deleting a collection when allowDeleteCollection is true', async () => {
   const tembaServer = createServer({
     openapi: true,
     resources: ['actors'],
@@ -516,7 +516,7 @@ test.skip('OpenAPI paths contains deleting a collection when allowDeleteCollecti
   expect(deleteAll.responses['204'].description).toEqual('All actors were deleted.')
 })
 
-test.skip('OpenAPI when multiple resources configured', async () => {
+test('OpenAPI when multiple resources configured', async () => {
   const tembaServer = createServer({
     openapi: true,
     resources: [
@@ -550,7 +550,7 @@ test.skip('OpenAPI when multiple resources configured', async () => {
   expect(getById.responses['200'].description).toEqual('The person with the personId.')
 })
 
-test.skip('OpenAPI when a custom OpenAPI object is configured', async () => {
+test('OpenAPI when a custom OpenAPI object is configured', async () => {
   const tembaServer = createServer({
     openapi: {
       info: {

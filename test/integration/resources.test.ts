@@ -6,7 +6,7 @@ import { createServer } from './createServer'
   Tests configured resources.
 */
 
-test.skip('Only configured resources can be found, others return a 404', async () => {
+test('Only configured resources can be found, others return a 404', async () => {
   const tembaServer = createServer({
     resources: [
       'movies',

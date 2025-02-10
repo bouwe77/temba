@@ -12,7 +12,7 @@ describe('CRUD', () => {
 
   const resource = '/articles/'
 
-  test.skip('Read, create, replace, update and delete resources', async () => {
+  test('Read, create, replace, update and delete resources', async () => {
     // Initially, there are no items so a get all returns an empty array.
     const getAllResponse = await request(tembaServer).get(resource)
     expect(getAllResponse.status).toBe(200)
@@ -133,7 +133,7 @@ describe('CRUD', () => {
 })
 
 describe('POST user-defined IDs', () => {
-  test.only('Create items with both generated and user-defined IDs', async () => {
+  test('Create items with both generated and user-defined IDs', async () => {
     const tembaServer = createServer()
     const resource = '/items/'
     // Get all items, there should be 0.
@@ -189,7 +189,7 @@ describe('POST user-defined IDs', () => {
 })
 
 describe('DELETE collection', () => {
-  test.skip('DELETE on resource URL (without ID) by default returns 405 Method Not Allowed and does not delete anything', async () => {
+  test('DELETE on resource URL (without ID) by default returns 405 Method Not Allowed and does not delete anything', async () => {
     const tembaServer = createServer()
     const resource = '/articles/'
 
@@ -214,7 +214,7 @@ describe('DELETE collection', () => {
     expect(getAllResponse3.body.length).toBe(2)
   })
 
-  test.skip('DELETE on resource URL (without ID) deletes collection if allowDeleteCollection setting is set to true', async () => {
+  test('DELETE on resource URL (without ID) deletes collection if allowDeleteCollection setting is set to true', async () => {
     const tembaServer = createServer({
       allowDeleteCollection: true,
     })

@@ -20,7 +20,7 @@ const defaultConfig: Config = {
   openapi: false,
 }
 
-test.skip('No config returns default config', () => {
+test('No config returns default config', () => {
   const initializedConfig = initConfig()
 
   expect(initializedConfig.resources).toEqual(defaultConfig.resources)
@@ -46,7 +46,7 @@ test.skip('No config returns default config', () => {
   expect(initializedConfig.openapi).toBe(defaultConfig.openapi)
 })
 
-test.skip('Full user config overrides all defaults', () => {
+test('Full user config overrides all defaults', () => {
   const config = initConfig({
     resources: ['movies'],
     staticFolder: 'build',
@@ -115,7 +115,7 @@ test.skip('Full user config overrides all defaults', () => {
   expect(config.openapi).toBe(true)
 })
 
-test.skip('Partial user config applies those, but leaves the rest at default', () => {
+test('Partial user config applies those, but leaves the rest at default', () => {
   const config = initConfig({
     apiPrefix: 'api',
   })
@@ -141,7 +141,7 @@ test.skip('Partial user config applies those, but leaves the rest at default', (
   expect(config.openapi).toBe(defaultConfig.openapi)
 })
 
-test.skip('Configuring multiple resources, both strings and extended ones', () => {
+test('Configuring multiple resources, both strings and extended ones', () => {
   const config = initConfig({
     resources: [
       'movies',
@@ -162,7 +162,7 @@ test.skip('Configuring multiple resources, both strings and extended ones', () =
   })
 })
 
-test.skip('Configuring openapi as an object', () => {
+test('Configuring openapi as an object', () => {
   const config = initConfig({
     openapi: {
       info: {

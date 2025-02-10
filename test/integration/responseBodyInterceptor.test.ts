@@ -41,7 +41,7 @@ describe('responseBodyInterceptor unusual (but allowed) implementations', () => 
     },
   )
 
-  test.skip('When responseBodyInterceptor throws an exception, return a 500 status with error details', async () => {
+  test('When responseBodyInterceptor throws an exception, return a 500 status with error details', async () => {
     const tembaServer = createServer({
       responseBodyInterceptor: () => {
         throw new Error('Something went wrong')
@@ -53,7 +53,7 @@ describe('responseBodyInterceptor unusual (but allowed) implementations', () => 
     expect(response.body.message).toEqual(`Something went wrong`)
   })
 
-  test.skip('When responseBodyInterceptor does not return an object or array, still return the intercepted value', async () => {
+  test('When responseBodyInterceptor does not return an object or array, still return the intercepted value', async () => {
     const tembaServer = createServer({
       responseBodyInterceptor: (info) => {
         if ('id' in info) {
@@ -99,7 +99,7 @@ describe('responseBodyInterceptor returns an updated response', () => {
     await request(tembaServer).delete('/stuff')
   })
 
-  test.skip('GET a collection just returns the same collection', async () => {
+  test('GET a collection just returns the same collection', async () => {
     // Create 2 items
     await request(tembaServer).post('/stuff').send({ name: 'newItem1' })
     await request(tembaServer).post('/stuff').send({ name: 'newItem2' })
@@ -114,7 +114,7 @@ describe('responseBodyInterceptor returns an updated response', () => {
     expect(getAllResponse.body[1].extra).toBe('stuff 1')
   })
 
-  test.skip('GET an item just returns the same item', async () => {
+  test('GET an item just returns the same item', async () => {
     // Create an item
     const newItem = { name: 'newItem' }
     const {

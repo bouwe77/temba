@@ -54,19 +54,19 @@ const requestInterceptor = {
 const tembaServer = createServer({ requestInterceptor } satisfies UserConfig)
 
 describe('Request is correctly passed through to the requestInterceptor callback functions', () => {
-  test.skip('GET - requestInterceptor callback function', async () => {
+  test('GET - requestInterceptor callback function', async () => {
     const getResponse = await request(tembaServer).get('/get-stuff/get-id').set('x-foo', 'GET')
     expect(getResponse.status).toBe(200)
     expect(getResponse.body).toEqual({ message: 'GET is OK' })
   })
 
-  test.skip('HEAD requests have no specific implementation, so will not go through a requestInterceptor', async () => {
+  test('HEAD requests have no specific implementation, so will not go through a requestInterceptor', async () => {
     const headResponse = await request(tembaServer).head('/head-stuff')
     expect(headResponse.status).toBe(200)
     expect(headResponse.body).toEqual({})
   })
 
-  test.skip('POST - requestInterceptor callback function', async () => {
+  test('POST - requestInterceptor callback function', async () => {
     const postResponse = await request(tembaServer)
       .post('/post-stuff')
       .send({ name: 'post-name' })
@@ -75,7 +75,7 @@ describe('Request is correctly passed through to the requestInterceptor callback
     expect(postResponse.body).toEqual({ message: 'POST is OK' })
   })
 
-  test.skip('PUT - requestInterceptor callback function', async () => {
+  test('PUT - requestInterceptor callback function', async () => {
     const putResponse = await request(tembaServer)
       .put('/put-stuff/put-id')
       .send({ name: 'put-name' })
@@ -84,7 +84,7 @@ describe('Request is correctly passed through to the requestInterceptor callback
     expect(putResponse.body).toEqual({ message: 'PUT is OK' })
   })
 
-  test.skip('PATCH - requestInterceptor callback function', async () => {
+  test('PATCH - requestInterceptor callback function', async () => {
     const patchResponse = await request(tembaServer)
       .patch('/patch-stuff/patch-id')
       .send({ name: 'patch-name' })
@@ -93,7 +93,7 @@ describe('Request is correctly passed through to the requestInterceptor callback
     expect(patchResponse.body).toEqual({ message: 'PATCH is OK' })
   })
 
-  test.skip('DELETE - requestInterceptor callback function', async () => {
+  test('DELETE - requestInterceptor callback function', async () => {
     const deleteResponse = await request(tembaServer)
       .delete('/delete-stuff/delete-id')
       .set('x-foo', 'DELETE')

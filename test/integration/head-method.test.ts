@@ -11,7 +11,7 @@ const tembaServer = createServer()
 
 const resource = '/cars/'
 
-test.skip('HEAD returns the same response as a GET, except the response body', async () => {
+test('HEAD returns the same response as a GET, except the response body', async () => {
   // A GET on a non existing resource yields a 404.
   const getResponse = await request(tembaServer).get(resource + 'id_does_not_exist')
   expect(getResponse.status).toBe(404)

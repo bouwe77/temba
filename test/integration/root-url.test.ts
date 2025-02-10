@@ -16,21 +16,21 @@ test('GET on root URL returns welcome text', async () => {
   expect(response.text).toEqual('It works! ツ')
 })
 
-test.skip('POST on root URL returns Method Not Allowed error', async () => {
+test('POST on root URL returns Method Not Allowed error', async () => {
   const response = await request(tembaServer).post('/')
 
   expect(response.statusCode).toEqual(405)
   expect(response.body.message).toEqual('Method Not Allowed')
 })
 
-test.skip('PUT on root URL returns Method Not Allowed error', async () => {
+test('PUT on root URL returns Method Not Allowed error', async () => {
   const response = await request(tembaServer).put('/')
 
   expect(response.statusCode).toEqual(405)
   expect(response.body.message).toEqual('Method Not Allowed')
 })
 
-test.skip('DELETE on root URL returns Method Not Allowed error', async () => {
+test('DELETE on root URL returns Method Not Allowed error', async () => {
   const response = await request(tembaServer).delete('/')
 
   expect(response.statusCode).toEqual(405)

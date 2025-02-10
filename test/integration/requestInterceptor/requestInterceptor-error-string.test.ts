@@ -20,7 +20,7 @@ describe('requestInterceptors that throw a TembaError should return the message 
 
   const tembaServer = createServer({ requestInterceptor } satisfies UserConfig)
 
-  test.skip('POST with a requestInterceptor that returns an error should result in 400 Bad Request', async () => {
+  test('POST with a requestInterceptor that returns an error should result in 400 Bad Request', async () => {
     // Send a POST request.
     // The request body is empty because that's not important for this test.
     const response = await request(tembaServer).post('/movies')
@@ -29,7 +29,7 @@ describe('requestInterceptors that throw a TembaError should return the message 
     expect(response.body.message).toEqual('400 Bad Request error from POST')
   })
 
-  test.skip('PUT with a requestInterceptor that returns an error should result in 500 Internal Server Error', async () => {
+  test('PUT with a requestInterceptor that returns an error should result in 500 Internal Server Error', async () => {
     // Send a PUT request to the id.
     // The request body is empty because that's not important for this test.
     const response = await request(tembaServer).put('/pokemons/pikachu')
@@ -38,7 +38,7 @@ describe('requestInterceptors that throw a TembaError should return the message 
     expect(response.body.message).toEqual('500 Internal Server Error from PUT')
   })
 
-  test.skip('PATCH with a requestInterceptor that returns an error should result in 200 OK', async () => {
+  test('PATCH with a requestInterceptor that returns an error should result in 200 OK', async () => {
     // Send a PATCH request to the id.
     // The request body is empty because that's not important for this test.
     const response = await request(tembaServer).patch('/pokemons/pikachu')
@@ -60,7 +60,7 @@ describe('requestInterceptors that throw a regular Error should return a 500 Int
 
   const tembaServer = createServer({ requestInterceptor } satisfies UserConfig)
 
-  test.skip('POST and PUT return 500 status code', async () => {
+  test('POST and PUT return 500 status code', async () => {
     // Send a POST request.
     // The request body is empty because that's not important for this test.
     const response = await request(tembaServer).post('/movies')

@@ -26,7 +26,7 @@ describe('requestInterceptors does not return an object', () => {
 
   const tembaServer = createServer({ requestInterceptor } satisfies UserConfig)
 
-  test.skip('requestInterceptor returns the original request body when something else than an object or string is returned', async () => {
+  test('requestInterceptor returns the original request body when something else than an object or string is returned', async () => {
     // Send POST requests.
     let response = await request(tembaServer).post('/return-number').send({ name: 'Jane' })
     expect(response.statusCode).toEqual(201)

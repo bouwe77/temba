@@ -7,7 +7,7 @@ import { createServer } from './createServer'
   Tests when configuring returnNullFields.
 */
 
-test.skip.each([true, false])('returnNullFields setting is %s', async (returnNullFields) => {
+test.each([true, false])('returnNullFields setting is %s', async (returnNullFields) => {
   const tembaServer = createServer({ returnNullFields } satisfies UserConfig)
 
   // Create a car

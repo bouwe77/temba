@@ -8,7 +8,7 @@ import { createServer } from './createServer'
 const tembaServer = createServer()
 const resource = '/articles/'
 
-test.skip('When POSTing and PUTting with ID in request body, return bad request', async () => {
+test('When POSTing and PUTting with ID in request body, return bad request', async () => {
   // Initially, there are no items
   const getAllResponse = await request(tembaServer).get(resource)
   expect(getAllResponse.status).toBe(200)
@@ -42,13 +42,13 @@ test.skip('When POSTing and PUTting with ID in request body, return bad request'
   expect(getAllResponse2.body.length).toBe(0)
 })
 
-test.skip('PUT without ID in URL returns 400 Bad Request because not enough info is provided', async () => {
+test('PUT without ID in URL returns 400 Bad Request because not enough info is provided', async () => {
   const response = await request(tembaServer).put(resource).send({ name: 'newItem' })
   expect(response.status).toBe(400)
   expect(response.body).toEqual({ message: 'An id is required in the URL' })
 })
 
-test.skip('PATCH without ID in URL returns 400 Bad Request because not enough info is provided', async () => {
+test('PATCH without ID in URL returns 400 Bad Request because not enough info is provided', async () => {
   const response = await request(tembaServer).patch(resource).send({ name: 'newItem' })
   expect(response.status).toBe(400)
   expect(response.body).toEqual({ message: 'An id is required in the URL' })

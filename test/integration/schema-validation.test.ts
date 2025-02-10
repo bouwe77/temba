@@ -9,7 +9,7 @@ import type { UserConfig } from '../../src/config'
 
 const resourceUrl = `/cars/`
 
-test.skip('Schema validation POST/PUT/PATCH', async () => {
+test('Schema validation POST/PUT/PATCH', async () => {
   const schemaCreateReplace = {
     type: 'object',
     properties: {
@@ -121,7 +121,7 @@ test.skip('Schema validation POST/PUT/PATCH', async () => {
   expect(response.body.message.length).toBeGreaterThan(0)
 })
 
-test.skip('Schema validation per resource', async () => {
+test('Schema validation per resource', async () => {
   const schema = {
     type: 'object',
     properties: {

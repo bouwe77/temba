@@ -19,7 +19,7 @@ describe('requestInterceptors that return a (new or changed) request body object
 
   const tembaServer = createServer({ requestInterceptor } satisfies UserConfig)
 
-  test.skip('POST with a requestInterceptor that returns a request body', async () => {
+  test('POST with a requestInterceptor that returns a request body', async () => {
     const resourceUrl = '/movies'
 
     // Send a POST request.
@@ -36,7 +36,7 @@ describe('requestInterceptors that return a (new or changed) request body object
     expect(getResponse.body.title).toEqual('The Matrix')
   })
 
-  test.skip('PUT with a requestInterceptor that returns a request body', async () => {
+  test('PUT with a requestInterceptor that returns a request body', async () => {
     const resourceUrl = '/pokemons'
 
     // First create a resource, so we have an id to PUT to.
@@ -56,7 +56,7 @@ describe('requestInterceptors that return a (new or changed) request body object
     expect(response.body.replaced).toEqual(true)
   })
 
-  test.skip('PATCH with a requestInterceptor that returns a request body', async () => {
+  test('PATCH with a requestInterceptor that returns a request body', async () => {
     const resourceUrl = '/pokemons'
 
     // First create a resource, so we have an id to PUT to.
