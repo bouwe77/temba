@@ -157,9 +157,10 @@ export const createResourceHandler = (
     if (!urlInfo.resource || urlInfo.resource.trim().length === 0)
       return createError(404, 'Resource could not be determined from req.baseUrl')
 
-    const host = req.headers.host ?? null
-    //TODO Don't know yet how to determine the protocol from the request...
-    const protocol = host?.includes('localhost') ? 'http' : 'https'
+    const host = req.headers.host || null
+    let protoHeader = req.headers['x-forwarded-proto']
+    const protocol = (Array.isArray(protoHeader) ? protoHeader[0] : protoHeader) ?? 'http'
+
     const etag = req.headers['if-match'] ?? null
 
     const body = await getBody(req)
