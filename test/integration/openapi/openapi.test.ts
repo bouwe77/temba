@@ -167,12 +167,41 @@ test.skip('OpenAPI when no resources configured', async () => {
     'string',
   )
   expect(
-    post.responses['400'].content['application/json'].examples['IdNotAllowedInUrl'].value.message,
-  ).toEqual('An id is not allowed in the URL')
-  expect(
     post.responses['400'].content['application/json'].examples['IdNotAllowedInRequestBody'].value
       .message,
   ).toEqual('An id is not allowed in the request body')
+
+  // POST /{resource}/{resourceId}
+  const postId = response.body.paths['/{resource}/{resourceId}']['post']
+  expect(postId.summary).toEqual('Create a new resource, specifying your own id.')
+  expect(postId.operationId).toEqual('createResourceWithId')
+  expect(postId.parameters[0].name).toEqual('resource')
+  expect(postId.parameters[0].in).toEqual('path')
+  expect(postId.parameters[0].required).toEqual(true)
+  expect(postId.parameters[0].schema.type).toEqual('string')
+  expect(postId.parameters[0].description).toEqual('The name of the resource.')
+  expect(postId.parameters[1].name).toEqual('resourceId')
+  expect(postId.parameters[1].in).toEqual('path')
+  expect(postId.parameters[1].required).toEqual(true)
+  expect(postId.parameters[1].schema.type).toEqual('string')
+  expect(postId.parameters[1].description).toEqual('The ID of the resource.')
+  expect(postId.requestBody.content['application/json'].schema.type).toEqual('object')
+  expect(postId.responses['201'].description).toEqual(
+    'The resource was created. The created resource is returned in the response.',
+  )
+  expect(postId.responses['201'].content['application/json'].schema.type).toEqual('object')
+  expect(postId.responses['400'].description).toEqual('The request was invalid.')
+  expect(postId.responses['400'].content['application/json'].schema.type).toEqual('object')
+  expect(
+    postId.responses['400'].content['application/json'].schema.properties.message.type,
+  ).toEqual('string')
+  expect(
+    postId.responses['400'].content['application/json'].examples['IdNotAllowedInRequestBody'].value
+      .message,
+  ).toEqual('An id is not allowed in the request body')
+  expect(
+    postId.responses['409'].content['application/json'].examples['IdAlreadyExists'].value.message,
+  ).toEqual("ID '{resourceId}' already exists")
 
   // PUT /{resource}/{resourceId}
   const put = response.body.paths['/{resource}/{resourceId}']['put']
@@ -370,9 +399,6 @@ test.skip('OpenAPI when a single resource configured', async () => {
   expect(post.responses['400'].content['application/json'].schema.properties.message.type).toEqual(
     'string',
   )
-  expect(
-    post.responses['400'].content['application/json'].examples['IdNotAllowedInUrl'].value.message,
-  ).toEqual('An id is not allowed in the URL')
   expect(
     post.responses['400'].content['application/json'].examples['IdNotAllowedInRequestBody'].value
       .message,

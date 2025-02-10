@@ -53,12 +53,3 @@ test.skip('PATCH without ID in URL returns 400 Bad Request because not enough in
   expect(response.status).toBe(400)
   expect(response.body).toEqual({ message: 'An id is required in the URL' })
 })
-
-test.skip('Supplying an id in the URL for POST is a bad request because a client can not determine the id', async () => {
-  const response = await request(tembaServer)
-    .post(resource + 'id_does_not_exist')
-    .send({ name: 'newItem' })
-
-  expect(response.status).toBe(400)
-  expect(response.body).toEqual({ message: 'An id is not allowed in the URL' })
-})

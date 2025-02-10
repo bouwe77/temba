@@ -100,6 +100,7 @@ For every resource (`movies` is just an example), Temba supports the following r
 - `GET /movies` - Get all movies
 - `GET /movies/:id` - Get a movie by its ID
 - `POST /movies` - Create a new movie
+- `POST /movies:/id` - Create a new movie specifying the ID yourself
 - `PATCH /movies/:id` - Partially update a movie by its ID
 - `PUT /movies/:id` - Fully replace a movie by its ID
 - `DELETE /movies` - Delete all movies (if configured)
@@ -121,9 +122,9 @@ Request bodies sent with a `POST`, `PATCH`, and `PUT` requests are valid when th
 
 Any valid formatted JSON is accepted and stored. If you want to validate or even change the JSON in the request bodies, check out [JSON Schema request body validation](#json-schema-request-body-validation) and the [`requestInterceptor`](#request-validation-or-mutation).
 
-IDs are auto generated when creating resources.
+IDs are auto generated when creating resources, unless you specify an ID in the `POST` request URL.
 
-Providing IDs in the request body of `POST`, `PUT`, or `PATCH` requests is not allowed and will return a `400 Bad Request` response. The same applies to adding an ID in a `POST` request URL, or omitting an ID in a `PUT` or `PATCH` request URL.
+Providing IDs in the request body of `POST`, `PUT`, or `PATCH` requests is not allowed and will return a `400 Bad Request` response. Instead, provide the ID in the request URL. However, omitting an ID in a `PUT` or `PATCH` request URL also returns a `400 Bad Request` response.
 
 ## Usage
 
@@ -266,7 +267,7 @@ const config = {
     get: ({ headers, resource, id }) => {
       //...
     },
-    post: ({ headers, resource, body }) => {
+    post: ({ headers, resource, id, body }) => {
       // Validate, or even change the request body
     },
     put: ({ headers, resource, id, body }) => {
@@ -301,7 +302,7 @@ Example:
 ```js
 const config = {
   requestInterceptor: {
-    post: ({ headers, resource, body }) => {      
+    post: ({ headers, resource, id, body }) => {      
       // Add a genre to Star Trek films:
       if (resource === 'movies' && body.title.startsWith('Star Trek'))
         return { ...body, genre: 'Science Fiction' }
@@ -397,7 +398,7 @@ const config = {
     get: ({ headers, resource, id }) => {
       //...
     },
-    post: ({ headers, resource, body }) => {
+    post: ({ headers, resource, id, body }) => {
       // Validate, or even change the request body
     },
     put: ({ headers, resource, id, body }) => {

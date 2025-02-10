@@ -35,6 +35,7 @@ export type PostRequest = TembaRequest & {
   body: unknown
   protocol: string | null
   host: string | null
+  id: string | null
 }
 
 export type PutRequest = TembaRequest & {
