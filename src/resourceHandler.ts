@@ -156,7 +156,7 @@ export const createResourceHandler = (
       return createError(404, 'Resource could not be determined from req.baseUrl')
 
     const host = req.headers.host || null
-    let protoHeader = req.headers['x-forwarded-proto']
+    const protoHeader = req.headers['x-forwarded-proto']
     const protocol = (Array.isArray(protoHeader) ? protoHeader[0] : protoHeader) ?? 'http'
 
     const etag = req.headers['if-match'] ?? null
