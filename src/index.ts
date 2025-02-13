@@ -25,32 +25,32 @@ const handleRootUrl = (
   res.end('It works! ツ')
 }
 
+const removePendingAndTrailingSlashes = (url?: string) => (url ? url.replace(/^\/+|\/+$/g, '') : '')
+
 const createServer = (userConfig?: UserConfig) => {
   const config = initConfig(userConfig)
 
-  const rootPath = config.apiPrefix ? `${config.apiPrefix}` : '/'
+  const rootPath = config.apiPrefix ? removePendingAndTrailingSlashes(config.apiPrefix) : ''
+  const openapiPaths = [`${rootPath}/openapi.json`, `${rootPath}/openapi.yaml`]
 
   const { logger, logLevel } = initLogger(process.env.LOG_LEVEL)
   const queries = createQueries(config.connectionString, logger)
-  const resourcePath = config.apiPrefix ? `/${config.apiPrefix}/` : '/'
   const schemas = compileSchemas(config.schemas)
   const handleResource = createResourceHandler(queries, schemas, config)
   const httpLogger = logLevel === 'debug' ? morgan('tiny') : noopHandler
 
   const server = httpCreateServer((req, res) => {
     httpLogger(req, res, (err) => {
-      if (err) {
-        return sendErrorResponse(res)
-      }
+      if (err) return sendErrorResponse(res)
+
+      const requestUrl = removePendingAndTrailingSlashes(req.url)
 
       const handleRequest = () => {
-        if (!req.url || req.url === rootPath) {
+        if (requestUrl === rootPath) {
           handleRootUrl(req, res)
-        } else if (req.url === '/openapi.json' || req.url === '/openapi.yaml') {
-          const format = req.url.endsWith('.json') ? 'json' : 'yaml'
-          const handleOpenApi = createOpenApiHandler(format, config)
-          handleOpenApi(req, res)
-        } else if (req.url.startsWith(resourcePath)) {
+        } else if (openapiPaths.includes(requestUrl)) {
+          createOpenApiHandler(requestUrl.endsWith('.json') ? 'json' : 'yaml', config)(req, res)
+        } else if (requestUrl.startsWith(rootPath)) {
           handleResource(req, res)
         } else {
           handleNotFound(req, res)
