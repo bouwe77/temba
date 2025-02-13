@@ -14,6 +14,7 @@ export type RequestInfo = {
   method: string
   headers: IncomingHttpHeaders
   etag: string | null
+  ifNoneMatchEtag: string | null
 }
 
 export type ErrorResponse = {
@@ -28,7 +29,8 @@ export type TembaRequest = {
 
 export type GetRequest = TembaRequest & {
   id: string | null
-  isHeadRequest: boolean
+  method: 'get' | 'head'
+  ifNoneMatchEtag: string | null
 }
 
 export type PostRequest = TembaRequest & {

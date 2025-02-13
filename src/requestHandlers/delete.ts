@@ -9,7 +9,7 @@ export const createDeleteRoutes = (
   queries: Queries,
   allowDeleteCollection: boolean,
   requestInterceptor: RequestInterceptor | null,
-  etags: boolean,
+  etagsEnabled: boolean,
 ) => {
   const handleDelete = async (req: DeleteRequest) => {
     try {
@@ -29,7 +29,7 @@ export const createDeleteRoutes = (
       if (id) {
         const item = await queries.getById(resource, id)
         if (item) {
-          if (etags) {
+          if (etagsEnabled) {
             const itemEtag = etag(JSON.stringify(item))
             if (req.etag !== itemEtag) {
               return {
@@ -45,7 +45,7 @@ export const createDeleteRoutes = (
         } else {
           // Even when deleting a non existing item, we still need an etag.
           // The client needs to do a GET to determine it, after which it finds out the item is gone.
-          if (etags && !req.etag) {
+          if (etagsEnabled && !req.etag) {
             return {
               status: 412,
               body: {
@@ -59,7 +59,7 @@ export const createDeleteRoutes = (
           return { status: 405 }
         }
 
-        if (etags) {
+        if (etagsEnabled) {
           const items = await queries.getAll(resource)
           const etagValue = etag(JSON.stringify(items))
           if (req.etag !== etagValue) {

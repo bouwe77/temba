@@ -13,7 +13,7 @@ export const createPatchRoutes = (
   requestInterceptor: RequestInterceptor | null,
   returnNullFields: boolean,
   schemas: ValidateFunctionPerResource | null,
-  etags: boolean,
+  etagsEnabled: boolean,
 ) => {
   const handlePatch = async (req: PatchRequest) => {
     try {
@@ -46,7 +46,7 @@ export const createPatchRoutes = (
           },
         }
 
-      if (etags) {
+      if (etagsEnabled) {
         const itemEtag = etag(JSON.stringify(item))
         if (req.etag !== itemEtag) {
           return {

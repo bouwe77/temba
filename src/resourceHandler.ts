@@ -78,7 +78,8 @@ const convertToGetRequest = (requestInfo: RequestInfo) => {
     headers: requestInfo.headers,
     id: requestInfo.id,
     resource: requestInfo.resource,
-    isHeadRequest: requestInfo.method.toUpperCase() === 'HEAD',
+    method: requestInfo.method.toUpperCase() === 'HEAD' ? 'head' : 'get',
+    ifNoneMatchEtag: requestInfo.ifNoneMatchEtag,
   } satisfies GetRequest
 }
 
@@ -159,8 +160,6 @@ export const createResourceHandler = (
     const protoHeader = req.headers['x-forwarded-proto']
     const protocol = (Array.isArray(protoHeader) ? protoHeader[0] : protoHeader) ?? 'http'
 
-    const etag = req.headers['if-match'] ?? null
-
     const body = await getBody(req)
 
     return {
@@ -171,7 +170,8 @@ export const createResourceHandler = (
       protocol,
       method: req.method ?? '',
       headers: req.headers,
-      etag,
+      etag: req.headers['if-match'] ?? null,
+      ifNoneMatchEtag: req.headers['if-none-match'] ?? null,
     } satisfies RequestInfo
   }
 
@@ -304,7 +304,7 @@ export const createResourceHandler = (
   }
 
   return (req: IncomingMessage, res: ServerResponse<IncomingMessage>) => {
-    if (req.method === 'GET') {
+    if (['GET', 'HEAD'].includes(req.method ?? '')) {
       return getHandler(req, res)
     }
     if (req.method === 'POST') {

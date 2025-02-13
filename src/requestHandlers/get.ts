@@ -1,4 +1,5 @@
 import type { Queries } from '../data/types'
+import { generateEtag } from '../etags/etags'
 import { TembaError } from '../requestInterceptor/TembaError'
 import { interceptGetRequest } from '../requestInterceptor/interceptRequest'
 import type { RequestInterceptor } from '../requestInterceptor/types'
@@ -12,14 +13,22 @@ export const createGetRoutes = (
   requestInterceptor: RequestInterceptor | null,
   responseBodyInterceptor: ResponseBodyInterceptor | null,
   returnNullFields: boolean,
+  etagsEnabled: boolean,
 ) => {
-  const responseOk = (body: unknown) => ({ status: 200, body })
-
   const handleGet = async (req: GetRequest) => {
-    try {
-      const { headers, resource, id } = req
+    const { headers, resource, id, ifNoneMatchEtag } = req
 
-      if (!req.isHeadRequest && requestInterceptor?.get) {
+    const responseOk = (body: unknown) => {
+      if (!etagsEnabled) return { status: 200, body }
+
+      const etag = generateEtag(body)
+      return ifNoneMatchEtag === etag
+        ? { status: 304, headers: { etag } }
+        : { status: 200, body, headers: { etag } }
+    }
+
+    try {
+      if (req.method === 'get' && requestInterceptor?.get) {
         try {
           interceptGetRequest(requestInterceptor.get, headers, resource, id)
         } catch (error: unknown) {

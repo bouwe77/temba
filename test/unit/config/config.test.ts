@@ -16,7 +16,7 @@ const defaultConfig: Config = {
   port: 3000,
   schemas: null,
   allowDeleteCollection: false,
-  etags: false,
+  etagsEnabled: false,
   openapi: false,
 }
 
@@ -42,7 +42,7 @@ test('No config returns default config', () => {
   expect(initializedConfig.port).toBe(defaultConfig.port)
   expect(initializedConfig.schemas).toBe(defaultConfig.schemas)
   expect(initializedConfig.allowDeleteCollection).toBe(defaultConfig.allowDeleteCollection)
-  expect(initializedConfig.etags).toBe(defaultConfig.etags)
+  expect(initializedConfig.etagsEnabled).toBe(defaultConfig.etagsEnabled)
   expect(initializedConfig.openapi).toBe(defaultConfig.openapi)
 })
 
@@ -111,7 +111,7 @@ test('Full user config overrides all defaults', () => {
   expect(config.port).toBe(3001)
   expect(config.schemas).not.toBeNull()
   expect(config.allowDeleteCollection).toBe(true)
-  expect(config.etags).toBe(true)
+  expect(config.etagsEnabled).toBe(true)
   expect(config.openapi).toBe(true)
 })
 
@@ -137,7 +137,7 @@ test('Partial user config applies those, but leaves the rest at default', () => 
   expect(config.port).toBe(defaultConfig.port)
   expect(config.schemas).toBe(defaultConfig.schemas)
   expect(config.allowDeleteCollection).toBe(defaultConfig.allowDeleteCollection)
-  expect(config.etags).toBe(defaultConfig.etags)
+  expect(config.etagsEnabled).toBe(defaultConfig.etagsEnabled)
   expect(config.openapi).toBe(defaultConfig.openapi)
 })
 

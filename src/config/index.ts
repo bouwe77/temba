@@ -28,7 +28,7 @@ export type Config = {
   port: number
   schemas: ConfiguredSchemas | null
   allowDeleteCollection: boolean
-  etags: boolean
+  etagsEnabled: boolean
   openapi: OpenApiConfig
 }
 
@@ -43,7 +43,7 @@ export type RouterConfig = Pick<
   | 'responseBodyInterceptor'
   | 'returnNullFields'
   | 'allowDeleteCollection'
-  | 'etags'
+  | 'etagsEnabled'
 >
 
 export type UserConfig = {
@@ -77,7 +77,7 @@ const defaultConfig: Config = {
   port: 3000,
   schemas: null,
   allowDeleteCollection: false,
-  etags: false,
+  etagsEnabled: false,
   openapi: false,
 }
 
@@ -173,7 +173,7 @@ export const initConfig = (userConfig?: UserConfig): Config => {
   }
 
   if (!isUndefined(userConfig.etags)) {
-    config.etags = userConfig.etags
+    config.etagsEnabled = userConfig.etags
   }
 
   if (!isUndefined(userConfig.openapi)) {
