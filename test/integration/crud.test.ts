@@ -156,8 +156,6 @@ describe('POST user-defined IDs', () => {
     // Get all items, there should be 2.
     const getAllResponse3 = await request(tembaServer).get(resource)
     const items = getAllResponse3.body
-    console.log(items)
-    return
     expect(items.length).toBe(2)
     expect(items).toContainEqual({ id: generatedId, name: 'item 1' })
     expect(items).toContainEqual({ id: userDefinedId, name: 'item 2' })
