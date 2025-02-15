@@ -3,7 +3,7 @@ import request from 'supertest'
 import type { UserConfig } from '../../../src/config'
 import { createServer } from '../createServer'
 import { RequestInterceptor } from '../../../src/requestInterceptor/types'
-import { TembaError } from '../../../src'
+import { TembaError } from '../../../src/requestInterceptor/TembaError'
 
 // Tests if the request is correctly passed on to the requestInterceptor callback
 
