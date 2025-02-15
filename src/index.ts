@@ -31,8 +31,10 @@ const createServer = (userConfig?: UserConfig) => {
   const config = initConfig(userConfig)
 
   const rootPath = config.apiPrefix ? removePendingAndTrailingSlashes(config.apiPrefix) : ''
-  const openapiPaths = [`${rootPath}/openapi.json`, `${rootPath}/openapi.yaml`]
-
+  const openapiPaths = [
+    `${rootPath ? `${rootPath}/` : ''}openapi.json`,
+    `${rootPath ? `${rootPath}/` : ''}openapi.yaml`,
+  ]
   const { logger, logLevel } = initLogger(process.env.LOG_LEVEL)
   const queries = createQueries(config.connectionString, logger)
   const schemas = compileSchemas(config.schemas)

@@ -58,11 +58,13 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
       return handleNotFound(req, res)
     }
 
-    const server =
+    let server =
       req.headers.host?.split(':')[1] &&
       !['80', '443'].includes(req.headers.host.split(':')[1] || '')
         ? req.headers.host
         : 'default'
+
+    if (config.apiPrefix) server += config.apiPrefix
 
     let resourceInfos = [
       {

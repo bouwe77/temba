@@ -495,8 +495,7 @@ test('Server URL contains the configured apiPrefix', async () => {
     apiPrefix: '/api',
   } satisfies UserConfig)
 
-  const response = await request(tembaServer).get('/openapi.json')
-
+  const response = await request(tembaServer).get('/api/openapi.json')
   expect(response.body.servers.length).toEqual(1)
   expect(response.body.servers[0].url).toContain('/api/')
 })
