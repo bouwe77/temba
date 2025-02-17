@@ -13,6 +13,7 @@ import {
 import { initLogger } from './log/logger'
 import { createOpenApiHandler } from './openapi/openapi'
 import morgan from 'morgan'
+import { TembaError as TembaErrorInternal } from './requestInterceptor/TembaError'
 
 const handleRootUrl = (
   req: IncomingMessage,
@@ -85,3 +86,5 @@ const createServer = (userConfig?: UserConfig) => {
 }
 
 export const create = (userConfig?: UserConfig) => createServer(userConfig)
+
+export const TembaError = TembaErrorInternal
