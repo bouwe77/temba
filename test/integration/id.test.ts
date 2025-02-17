@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
 import request from 'supertest'
-import createServer from './createServer'
+import { createServer } from './createServer'
 
 // The id is either expected or not allowed in URLs.
 // The id is never allowed in request bodies.
@@ -9,9 +9,6 @@ const tembaServer = createServer()
 const resource = '/articles/'
 
 test('When POSTing and PUTting with ID in request body, return bad request', async () => {
-  // TODO De implementatie is een defalt JSON Schema die geen ID toestaat.
-  // Indien er al een JSON Schema is geconfigureerd, dan ID erin mergen?
-
   // Initially, there are no items
   const getAllResponse = await request(tembaServer).get(resource)
   expect(getAllResponse.status).toBe(200)

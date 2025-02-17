@@ -13,7 +13,7 @@ export const createPutRoutes = (
   requestInterceptor: RequestInterceptor | null,
   returnNullFields: boolean,
   schemas: ValidateFunctionPerResource | null,
-  etags: boolean,
+  etagsEnabled: boolean,
 ) => {
   const handlePut = async (req: PutRequest) => {
     try {
@@ -46,7 +46,7 @@ export const createPutRoutes = (
           },
         }
 
-      if (etags) {
+      if (etagsEnabled) {
         const itemEtag = etag(JSON.stringify(item))
         if (req.etag !== itemEtag) {
           return {

@@ -1,7 +1,6 @@
 import { test, expect } from 'vitest'
 import { initConfig } from '../../../src/config'
 import type { Config } from '../../../src/config'
-import express from 'express'
 
 const defaultConfig: Config = {
   resources: [],
@@ -12,13 +11,12 @@ const defaultConfig: Config = {
   delay: 0,
   requestInterceptor: null,
   responseBodyInterceptor: null,
-  customRouter: null,
   returnNullFields: true,
   isTesting: false,
   port: 3000,
   schemas: null,
   allowDeleteCollection: false,
-  etags: false,
+  etagsEnabled: false,
   openapi: false,
 }
 
@@ -39,22 +37,16 @@ test('No config returns default config', () => {
     defaultConfig.requestInterceptor?.delete,
   )
   expect(initializedConfig.responseBodyInterceptor).toBe(defaultConfig.responseBodyInterceptor)
-  expect(initializedConfig.customRouter).toBe(defaultConfig.customRouter)
   expect(initializedConfig.returnNullFields).toBe(defaultConfig.returnNullFields)
   expect(initializedConfig.isTesting).toBe(defaultConfig.isTesting)
   expect(initializedConfig.port).toBe(defaultConfig.port)
   expect(initializedConfig.schemas).toBe(defaultConfig.schemas)
   expect(initializedConfig.allowDeleteCollection).toBe(defaultConfig.allowDeleteCollection)
-  expect(initializedConfig.etags).toBe(defaultConfig.etags)
+  expect(initializedConfig.etagsEnabled).toBe(defaultConfig.etagsEnabled)
   expect(initializedConfig.openapi).toBe(defaultConfig.openapi)
 })
 
 test('Full user config overrides all defaults', () => {
-  const customRouter = express.Router()
-  customRouter.get('/hello', async (_, res) => {
-    return res.send('Hello, World!')
-  })
-
   const config = initConfig({
     resources: ['movies'],
     staticFolder: 'build',
@@ -81,7 +73,6 @@ test('Full user config overrides all defaults', () => {
     responseBodyInterceptor: ({ body }) => {
       return body
     },
-    customRouter,
     returnNullFields: false,
     isTesting: true,
     port: 3001,
@@ -115,13 +106,12 @@ test('Full user config overrides all defaults', () => {
   expect(config.requestInterceptor!.put).toBeInstanceOf(Function)
   expect(config.requestInterceptor!.delete).toBeInstanceOf(Function)
   expect(config.responseBodyInterceptor).toBeInstanceOf(Function)
-  expect(config.customRouter).not.toBeNull()
   expect(config.returnNullFields).toBe(false)
   expect(config.isTesting).toBe(true)
   expect(config.port).toBe(3001)
   expect(config.schemas).not.toBeNull()
   expect(config.allowDeleteCollection).toBe(true)
-  expect(config.etags).toBe(true)
+  expect(config.etagsEnabled).toBe(true)
   expect(config.openapi).toBe(true)
 })
 
@@ -142,13 +132,12 @@ test('Partial user config applies those, but leaves the rest at default', () => 
   expect(config.requestInterceptor?.put).toBe(defaultConfig.requestInterceptor?.put)
   expect(config.requestInterceptor?.delete).toBe(defaultConfig.requestInterceptor?.delete)
   expect(config.responseBodyInterceptor).toBe(defaultConfig.responseBodyInterceptor)
-  expect(config.customRouter).toBe(defaultConfig.customRouter)
   expect(config.returnNullFields).toBe(defaultConfig.returnNullFields)
   expect(config.isTesting).toBe(defaultConfig.isTesting)
   expect(config.port).toBe(defaultConfig.port)
   expect(config.schemas).toBe(defaultConfig.schemas)
   expect(config.allowDeleteCollection).toBe(defaultConfig.allowDeleteCollection)
-  expect(config.etags).toBe(defaultConfig.etags)
+  expect(config.etagsEnabled).toBe(defaultConfig.etagsEnabled)
   expect(config.openapi).toBe(defaultConfig.openapi)
 })
 

@@ -1,7 +1,7 @@
 import { describe, test, expect } from 'vitest'
 import request from 'supertest'
 import type { UserConfig } from '../../../src/config'
-import createServer from '../createServer'
+import { createServer } from '../createServer'
 
 /*
   Tests OpenAPI documentation.
@@ -29,7 +29,10 @@ describe.each(endpoints)('OpenAPI documentation', (path) => {
   })
 
   test(`When OpenAPI enabled '${path}' returns a 200 with the content-type header`, async () => {
-    const tembaServer = createServer({ openapi: true, resources: ['actors'] } satisfies UserConfig)
+    const tembaServer = createServer({
+      openapi: true,
+      resources: ['actors'],
+    } satisfies UserConfig)
     const response = await request(tembaServer).get(path)
 
     expect(response.statusCode).toEqual(200)
@@ -492,8 +495,7 @@ test('Server URL contains the configured apiPrefix', async () => {
     apiPrefix: '/api',
   } satisfies UserConfig)
 
-  const response = await request(tembaServer).get('/openapi.json')
-
+  const response = await request(tembaServer).get('/api/openapi.json')
   expect(response.body.servers.length).toEqual(1)
   expect(response.body.servers[0].url).toContain('/api/')
 })

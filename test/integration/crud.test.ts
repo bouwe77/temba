@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest'
 import request from 'supertest'
-import createServer from './createServer'
+import { createServer } from './createServer'
 
 /*
   Tests for a CRUD roundtrip along all supported HTTP methods.

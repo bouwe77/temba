@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
 import request from 'supertest'
-import createServer from './createServer'
+import { createServer } from './createServer'
 import type { UserConfig } from '../../src/config'
 
 /*

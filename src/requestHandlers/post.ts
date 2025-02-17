@@ -36,7 +36,7 @@ export const createPostRoutes = (
       }
 
       if (id) {
-        let item = await queries.getById(resource, id)
+        const item = await queries.getById(resource, id)
 
         if (item)
           return {

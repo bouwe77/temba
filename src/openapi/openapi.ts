@@ -1,8 +1,9 @@
-import express from 'express'
 import type { Config } from '../config'
 import { OpenApiBuilder, type ParameterObject } from 'openapi3-ts/oas31'
 import indefinite from 'indefinite'
 import deepmerge from 'deepmerge'
+import type { IncomingMessage, ServerResponse } from 'http'
+import { handleNotFound } from '../resourceHandler'
 
 const getPathParameters = (resourceInfo: ResourceInfo, id = false) => {
   const { resource, singularResourceLowerCase } = resourceInfo
@@ -51,16 +52,19 @@ type OpenApiFormat = 'json' | 'yaml'
 
 const anyResource = '{resource}'
 
-export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
-  const openapiRouter = express.Router()
-
-  openapiRouter.get('/', async (req, res) => {
+export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
+  const openApiHandler = async (req: IncomingMessage, res: ServerResponse<IncomingMessage>) => {
     if (!config.openapi) {
-      return res.status(404).json({ message: 'Not Found' })
+      return handleNotFound(req, res)
     }
 
-    const port = req.get('host')?.split(':')[1]
-    const server = `${req.protocol}://${req.hostname}${port && !['80', '443'].includes(port) ? `:${port}` : ''}${config.apiPrefix ?? ''}`
+    let server =
+      req.headers.host?.split(':')[1] &&
+      !['80', '443'].includes(req.headers.host.split(':')[1] || '')
+        ? req.headers.host
+        : 'default'
+
+    if (config.apiPrefix) server += config.apiPrefix
 
     let resourceInfos = [
       {
@@ -110,24 +114,18 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
       })
     }
 
-    const spec = buildOpenApiSpec(format, server, resourceInfos)
+    const spec = buildOpenApiSpec(server, resourceInfos)
 
     const builder = new OpenApiBuilder(
       typeof config.openapi === 'object' ? deepmerge(spec, config.openapi) : spec,
     )
 
-    if (format === 'json') {
-      return res.status(200).set('Content-Type', 'application/json').send(builder.getSpecAsJson())
-    } else {
-      return res.status(200).set('Content-Type', 'application/yaml').send(builder.getSpecAsYaml())
-    }
-  })
+    res.statusCode = 200
+    res.setHeader('Content-Type', format === 'json' ? 'application/json' : 'application/yaml')
+    res.end(format === 'json' ? builder.getSpecAsJson() : builder.getSpecAsYaml())
+  }
 
-  const buildOpenApiSpec = (
-    format: OpenApiFormat,
-    server: string,
-    resourceInfos: ResourceInfo[],
-  ) => {
+  const buildOpenApiSpec = (server: string, resourceInfos: ResourceInfo[]) => {
     const builder = OpenApiBuilder.create()
       .addOpenApiVersion('3.1.0')
       .addInfo({
@@ -553,5 +551,6 @@ export const createOpenApiRouter = (format: OpenApiFormat, config: Config) => {
 
     return builder.getSpec()
   }
-  return openapiRouter
+
+  return openApiHandler
 }

@@ -1,7 +1,7 @@
 import { describe, test, expect } from 'vitest'
 import request from 'supertest'
 import type { UserConfig } from '../../../src/config'
-import createServer from '../createServer'
+import { createServer } from '../createServer'
 
 describe('requestInterceptors that return nothing (void) to indicate nothing should be done', () => {
   const requestInterceptor = {

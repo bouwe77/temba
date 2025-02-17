@@ -114,8 +114,6 @@ The HTTP methods that are supported are `GET`, `POST`, `PATCH`, `PUT`, `DELETE`,
 
 On the root URI (e.g. http://localhost:8080/) only a `GET` request is supported, which shows you a message indicating the API is working. All other HTTP methods on the root URI return a `405 Method Not Allowed` response.
 
-The `OPTIONS` method also works, but because Temba uses Express' default implementation for that, the `Access-Control-Allow-Methods` response header might not always be correct.
-
 ### JSON
 
 Temba supports JSON only.
@@ -382,68 +380,6 @@ After enabling etags, every `GET` request will return an `etag` response header,
 
 For updating or deleting items with a `PUT`, `PATCH`, or `DELETE`, after enabling etags, these requests are _required_ to provide an `If-Match` header with the etag. Only if the etag represents the latest version of the resource the update is made, otherwise the server responds with a `412 Precondition Failed` status code.
 
-### Custom router
-
-Because Temba uses Express under the hood, you can create an Express router, and configure it as a `customRouter`:
-
-```js
-// Example code of how to create an Express router, from the official Express docs at https://expressjs.com/en/guide/routing.html:
-const express = require('express')
-const router = express.Router()
-
-// middleware that is specific to this router
-router.use((req, res, next) => {
-  console.log('Time: ', Date.now())
-  next()
-})
-// define the home page route
-router.get('/', (req, res) => {
-  res.send('Birds home page')
-})
-// define the about route
-router.get('/about', (req, res) => {
-  res.send('About birds')
-})
-
-// Add the custom router to Temba config
-const config = {
-  customRouter: router,
-}
-
-const server = create(config)
-```
-
-> 💁 Don't overuse `customRouter`, as it defeats the purpose of Temba being a simple out-of-the-box solution.
-
-A `customRouter` can only overrule resource routes. The root URL (with or without `staticFolder`) will always be handled by Temba.
-
-So for the following router and config:
-
-```
-router.get('/', (req, res) => {
-  res.send('Birds home page')
-})
-router.get('/stuff', (req, res) => {
-  res.send('Some stuff')
-})
-router.get('api/stuff', (req, res) => {
-  res.send('Some API stuff')
-})
-
-const config = {
-  apiPrefix: 'api',
-  customRouter: router,
-  resources: ['stuff'],
-  staticFolder: 'build',
-}
-const server = create(config)
-```
-
-- `/` will be handled by Temba, and will return the `staticFolder` (`build`) folder contents
-- `/stuff` and `/api/stuff` will be handled by the custom router
-- `/movies` will return a `404 Not Found`, because of `apiPrefix`
-- `/api/movies` will return movies, handled by Temba
-
 ## Config settings overview
 
 Configuring Temba is optional, it already works out of the box.
@@ -455,7 +391,6 @@ const config = {
   allowDeleteCollection: true,
   apiPrefix: 'api',
   connectionString: 'mongodb://localhost:27017/myDatabase',
-  customRouter: router,
   delay: 500,
   etags: true,
   port: 4321,
@@ -504,7 +439,6 @@ These are all the possible settings:
 | `allowDeleteCollection`   | Whether a `DELETE` request on a collection is allowed to delete all items. | `false` |
 | `apiPrefix`               | See [API prefix](#api-prefix)                                                              | `null`        |
 | `connectionString`        | See [Data persistency](#data-persistency)                                                                    | `null`        |
-| `customRouter`            | See [Custom router](#custom-router)                                                        | `null`        |
 | `delay`                   | The delay, in milliseconds, after processing the request before sending the response. | `0`           |
 | `etags`                   | See [Caching and consistency with Etags](#caching-and-consistency-with-etags) | `false`           |
 | `port`                    | The port your Temba server listens on                                                      | `3000`        |
@@ -517,7 +451,7 @@ These are all the possible settings:
 
 ## Under the hood
 
-Temba is built with TypeScript, [Node](https://nodejs.org), [Express](https://expressjs.com/), [Vitest](https://vitest.dev/), [Supertest](https://www.npmjs.com/package/supertest), [@rakered/mongo](https://www.npmjs.com/package/@rakered/mongo), and [lowdb](https://www.npmjs.com/package/lowdb).
+Temba is built with TypeScript, [Node](https://nodejs.org), [Vitest](https://vitest.dev/), [Supertest](https://www.npmjs.com/package/supertest), [@rakered/mongo](https://www.npmjs.com/package/@rakered/mongo), and [lowdb](https://www.npmjs.com/package/lowdb).
 
 ## Contributors ✨
 

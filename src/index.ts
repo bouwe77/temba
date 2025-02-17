@@ -1,109 +1,71 @@
-import express, { json } from 'express'
-import type { Response, Request } from 'express'
-import morgan from 'morgan'
+import { createServer as httpCreateServer } from 'node:http'
+import { initConfig, type UserConfig } from './config'
+import type { IncomingMessage, ServerResponse } from 'http'
 import { createQueries } from './data/queries'
-import { initConfig } from './config'
-import type { UserConfig } from './config'
-import cors from 'cors'
-import { createDelayMiddleware } from './delay/delayMiddleware'
 import { compileSchemas } from './schema/compile'
-import { createResourceRouter } from './resourceRouter'
-import { TembaError as TembaErrorInternal } from './requestInterceptor/TembaError'
-import { createAuthMiddleware, isAuthEnabled } from './auth/auth'
+import {
+  createResourceHandler,
+  handleMethodNotAllowed,
+  handleNotFound,
+  noopHandler,
+  sendErrorResponse,
+} from './resourceHandler'
 import { initLogger } from './log/logger'
-import { etag } from './etags/etags'
-import type { StatsLike } from 'etag'
-import { createOpenApiRouter } from './openapi/openapi'
+import { createOpenApiHandler } from './openapi/openapi'
+import morgan from 'morgan'
 
-// Route for handling not allowed methods.
-const handleMethodNotAllowed = (_: Request, res: Response) => {
-  res.status(405).json({ message: 'Method Not Allowed' })
+const handleRootUrl = (
+  req: IncomingMessage,
+  res: ServerResponse<IncomingMessage> & { req: IncomingMessage },
+) => {
+  if (req.method !== 'GET') return handleMethodNotAllowed(req, res)
+
+  res.statusCode = 200
+  res.setHeader('Content-Type', 'text/plain')
+  res.end('It works! ツ')
 }
 
-// Route for handling not found.
-const handleNotFound = (_: Request, res: Response) => {
-  res.status(404).json({ message: 'Not Found' })
-}
+const removePendingAndTrailingSlashes = (url?: string) => (url ? url.replace(/^\/+|\/+$/g, '') : '')
 
 const createServer = (userConfig?: UserConfig) => {
-  const { logger, logLevel } = initLogger(process.env.LOG_LEVEL)
-
   const config = initConfig(userConfig)
 
+  const rootPath = config.apiPrefix ? removePendingAndTrailingSlashes(config.apiPrefix) : ''
+  const openapiPaths = [
+    `${rootPath ? `${rootPath}/` : ''}openapi.json`,
+    `${rootPath ? `${rootPath}/` : ''}openapi.yaml`,
+  ]
+  const { logger, logLevel } = initLogger(process.env.LOG_LEVEL)
   const queries = createQueries(config.connectionString, logger)
-
-  const app = express()
-  app.use(json())
-
-  app.set('etag', config.etags ? (entity: string | Buffer | StatsLike) => etag(entity) : false)
-
-  // Add HTTP request logging.
-  if (logLevel === 'debug') app.use(morgan('tiny'))
-
-  // Enable CORS for all requests.
-  app.use(cors({ origin: true, credentials: true }))
-
-  // Serve a static folder, if configured.
-  // Because it is defined before the auth middleware, the static folder is served without authentication,
-  // because it is not convenient to add an auth header to a web page in the browser.
-  if (config.staticFolder) {
-    app.use(express.static(config.staticFolder))
-  }
-
-  // If enabled, add auth middleware to all requests, and disable the tokens resource.
-  if (isAuthEnabled()) {
-    app.use(createAuthMiddleware(queries))
-    app.all('/tokens', handleNotFound)
-  }
-
-  // Add a delay to every request, if configured.
-  if (config.delay > 0) {
-    const delayMiddleware = createDelayMiddleware(config.delay)
-    app.use(delayMiddleware)
-  }
-
-  // On the root URL (with apiPrefix, if applicable) only a GET is allowed.
-  const rootRouter = express.Router()
-  const rootPath = config.apiPrefix ? `${config.apiPrefix}` : '/'
-  app.use(rootPath, rootRouter)
-
-  // Use a custom router, if configured.
-  if (config.customRouter) {
-    app.use(config.customRouter)
-  }
-
-  app.use('/openapi.json', createOpenApiRouter('json', config))
-  app.use('/openapi.yaml', createOpenApiRouter('yaml', config))
-
-  // Temba supports the GET, POST, PUT, PATCH, DELETE, and HEAD methods for resource URLs.
-  // HEAD is not implemented here, because Express supports it out of the box.
-
-  // Create a router on all other URLs, for all supported methods
-  const resourcePath = config.apiPrefix ? `${config.apiPrefix}*` : '*'
   const schemas = compileSchemas(config.schemas)
-  const resourceRouter = createResourceRouter(queries, schemas, config)
-  app.use(resourcePath, resourceRouter)
+  const handleResource = createResourceHandler(queries, schemas, config)
+  const httpLogger = logLevel === 'debug' ? morgan('tiny') : noopHandler
 
-  // A GET to the root URL shows a default message.
-  rootRouter.get('/', async (_, res) => {
-    return res.send('It works! ツ')
+  const server = httpCreateServer((req, res) => {
+    httpLogger(req, res, (err) => {
+      if (err) return sendErrorResponse(res)
+
+      const requestUrl = removePendingAndTrailingSlashes(req.url)
+
+      const handleRequest = () => {
+        if (requestUrl === rootPath) {
+          handleRootUrl(req, res)
+        } else if (openapiPaths.includes(requestUrl)) {
+          createOpenApiHandler(requestUrl.endsWith('.json') ? 'json' : 'yaml', config)(req, res)
+        } else if (requestUrl.startsWith(rootPath)) {
+          handleResource(req, res)
+        } else {
+          handleNotFound(req, res)
+        }
+      }
+
+      if (config.delay > 0) {
+        setTimeout(handleRequest, config.delay)
+      } else {
+        handleRequest()
+      }
+    })
   })
-
-  // All other requests to the root URL are not allowed.
-  rootRouter.all('/', handleMethodNotAllowed)
-
-  // In case of an API prefix, resource URLs outside of the API prefix return a 404 Not Found.
-  if (config.apiPrefix) {
-    app.get('*', handleNotFound)
-    app.post('*', handleNotFound)
-    app.put('*', handleNotFound)
-    app.delete('*', handleNotFound)
-    app.patch('*', handleNotFound)
-  }
-
-  // All other methods to any URL are not allowed.
-  app.all('*', handleMethodNotAllowed)
-  if (config.apiPrefix) app.all(`${config.apiPrefix}*`, handleMethodNotAllowed)
 
   return {
     start: () => {
@@ -112,15 +74,14 @@ const createServer = (userConfig?: UserConfig) => {
         return
       }
 
-      app.listen(config.port, () => {
-        logger.info(`✅ Server listening on port ${config.port}`)
+      server.listen(config.port, () => {
+        console.log(`✅ Server listening on port ${config.port}`)
       })
+      return server
     },
-    // Expose Express for testing purposes only, e.g. usage with supertest.
-    Express: config.isTesting ? app : undefined,
+    // Expose the http server    for testing purposes only, e.g. usage with supertest.
+    server: config.isTesting ? server : undefined,
   }
 }
 
 export const create = (userConfig?: UserConfig) => createServer(userConfig)
-
-export const TembaError = TembaErrorInternal

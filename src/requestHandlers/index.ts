@@ -18,7 +18,7 @@ export const getRequestHandler = (
     responseBodyInterceptor,
     returnNullFields,
     allowDeleteCollection,
-    etags,
+    etagsEnabled,
   } = routerConfig
 
   const handleGet = createGetRoutes(
@@ -26,6 +26,7 @@ export const getRequestHandler = (
     requestInterceptor,
     responseBodyInterceptor,
     returnNullFields,
+    etagsEnabled,
   )
 
   const handlePost = createPostRoutes(queries, requestInterceptor, returnNullFields, schemas.post)
@@ -35,7 +36,7 @@ export const getRequestHandler = (
     requestInterceptor,
     returnNullFields,
     schemas.put,
-    etags,
+    etagsEnabled,
   )
 
   const handlePatch = createPatchRoutes(
@@ -43,10 +44,15 @@ export const getRequestHandler = (
     requestInterceptor,
     returnNullFields,
     schemas.patch,
-    etags,
+    etagsEnabled,
   )
 
-  const handleDelete = createDeleteRoutes(queries, allowDeleteCollection, requestInterceptor, etags)
+  const handleDelete = createDeleteRoutes(
+    queries,
+    allowDeleteCollection,
+    requestInterceptor,
+    etagsEnabled,
+  )
 
   return {
     handleGet,
