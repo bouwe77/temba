@@ -64,7 +64,7 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
         ? req.headers.host
         : 'default'
 
-    if (config.apiPrefix) server += config.apiPrefix
+    if (config.apiPrefix) server += `/${config.apiPrefix}/`
 
     let resourceInfos = [
       {

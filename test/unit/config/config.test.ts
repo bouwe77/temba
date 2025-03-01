@@ -12,12 +12,14 @@ const defaultConfig: Config = {
   requestInterceptor: null,
   responseBodyInterceptor: null,
   returnNullFields: true,
-  isTesting: false,
   port: 3000,
   schemas: null,
   allowDeleteCollection: false,
   etagsEnabled: false,
   openapi: false,
+
+  isTesting: false,
+  implementations: null,
 }
 
 test('No config returns default config', () => {
@@ -38,19 +40,20 @@ test('No config returns default config', () => {
   )
   expect(initializedConfig.responseBodyInterceptor).toBe(defaultConfig.responseBodyInterceptor)
   expect(initializedConfig.returnNullFields).toBe(defaultConfig.returnNullFields)
-  expect(initializedConfig.isTesting).toBe(defaultConfig.isTesting)
   expect(initializedConfig.port).toBe(defaultConfig.port)
   expect(initializedConfig.schemas).toBe(defaultConfig.schemas)
   expect(initializedConfig.allowDeleteCollection).toBe(defaultConfig.allowDeleteCollection)
   expect(initializedConfig.etagsEnabled).toBe(defaultConfig.etagsEnabled)
   expect(initializedConfig.openapi).toBe(defaultConfig.openapi)
+  expect(initializedConfig.isTesting).toBe(defaultConfig.isTesting)
+  expect(initializedConfig.implementations).toBe(defaultConfig.implementations)
 })
 
 test('Full user config overrides all defaults', () => {
   const config = initConfig({
     resources: ['movies'],
     staticFolder: 'build',
-    apiPrefix: 'api',
+    apiPrefix: 'stuff',
     connectionString: 'mongodb://localhost:27017',
     delay: 1000,
     requestInterceptor: {
@@ -74,7 +77,6 @@ test('Full user config overrides all defaults', () => {
       return body
     },
     returnNullFields: false,
-    isTesting: true,
     port: 3001,
     schemas: {
       stuff: {
@@ -92,12 +94,16 @@ test('Full user config overrides all defaults', () => {
     allowDeleteCollection: true,
     etags: true,
     openapi: true,
+    isTesting: true,
+    implementations: {
+      getStaticFileFromDisk: () => ({ content: 'Hello, World!', mimeType: 'text/plain' }),
+    },
   })
 
   expect(config.resources).toEqual(['movies'])
   expect(config.validateResources).toBe(true)
   expect(config.staticFolder).toBe('build')
-  expect(config.apiPrefix).toBe('/api/')
+  expect(config.apiPrefix).toBe('stuff')
   expect(config.connectionString).toBe('mongodb://localhost:27017')
   expect(config.delay).toBe(1000)
   expect(config.requestInterceptor!.get).toBeInstanceOf(Function)
@@ -107,23 +113,28 @@ test('Full user config overrides all defaults', () => {
   expect(config.requestInterceptor!.delete).toBeInstanceOf(Function)
   expect(config.responseBodyInterceptor).toBeInstanceOf(Function)
   expect(config.returnNullFields).toBe(false)
-  expect(config.isTesting).toBe(true)
   expect(config.port).toBe(3001)
   expect(config.schemas).not.toBeNull()
   expect(config.allowDeleteCollection).toBe(true)
   expect(config.etagsEnabled).toBe(true)
   expect(config.openapi).toBe(true)
+
+  expect(config.isTesting).toBe(true)
+  expect(config.implementations).not.toBeNull()
+  expect(config.implementations!.getStaticFileFromDisk).toBeInstanceOf(Function)
 })
 
 test('Partial user config applies those, but leaves the rest at default', () => {
   const config = initConfig({
-    apiPrefix: 'api',
+    port: 4321,
   })
+
+  expect(config.port).toBe(4321)
 
   expect(config.resources).toEqual(defaultConfig.resources)
   expect(config.validateResources).toBe(defaultConfig.validateResources)
   expect(config.staticFolder).toBe(defaultConfig.staticFolder)
-  expect(config.apiPrefix).toBe('/api/')
+  expect(config.apiPrefix).toBe(defaultConfig.apiPrefix)
   expect(config.connectionString).toBe(defaultConfig.connectionString)
   expect(config.delay).toBe(defaultConfig.delay)
   expect(config.requestInterceptor?.get).toBe(defaultConfig.requestInterceptor?.get)
@@ -133,12 +144,12 @@ test('Partial user config applies those, but leaves the rest at default', () => 
   expect(config.requestInterceptor?.delete).toBe(defaultConfig.requestInterceptor?.delete)
   expect(config.responseBodyInterceptor).toBe(defaultConfig.responseBodyInterceptor)
   expect(config.returnNullFields).toBe(defaultConfig.returnNullFields)
-  expect(config.isTesting).toBe(defaultConfig.isTesting)
-  expect(config.port).toBe(defaultConfig.port)
   expect(config.schemas).toBe(defaultConfig.schemas)
   expect(config.allowDeleteCollection).toBe(defaultConfig.allowDeleteCollection)
   expect(config.etagsEnabled).toBe(defaultConfig.etagsEnabled)
   expect(config.openapi).toBe(defaultConfig.openapi)
+  expect(config.isTesting).toBe(defaultConfig.isTesting)
+  expect(config.implementations).toBe(defaultConfig.implementations)
 })
 
 test('Configuring multiple resources, both strings and extended ones', () => {
@@ -176,4 +187,22 @@ test('Configuring openapi as an object', () => {
       title: 'My custom API title',
     },
   })
+})
+
+test("Configuring staticFolder sets apiPrefix to 'api'", () => {
+  const config = initConfig({
+    staticFolder: 'dist',
+  })
+
+  expect(config.staticFolder).toBe('dist')
+  expect(config.apiPrefix).toBe('api')
+})
+
+test("An empty apiPrefix defaults to 'api' when staticFolder is set", () => {
+  const config = initConfig({
+    staticFolder: 'dist',
+    apiPrefix: '',
+  })
+
+  expect(config.apiPrefix).toBe('api')
 })

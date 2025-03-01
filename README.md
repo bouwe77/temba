@@ -167,25 +167,6 @@ const server = create(config)
 
 Requests on these resources only give a `404 Not Found` if the ID does not exist. Requests on any other resource will always return a `404 Not Found`.
 
-### Static assets
-
-If you want to host static assets, for example next to the API, a web app consuming it, you can configure a `staticFolder`:
-
-```js
-const config = {
-  staticFolder: 'build',
-}
-const server = create(config)
-```
-
-With this setting, sending a `GET` request to the root URL, returns the content that is in the `'./build'` folder in your project.
-
-Without configuring a `staticFolder`, a `GET` to the root URL returns `"It works! ツ"`. When the `staticFolder` is configured, it returns whatever is in the `build` folder in your project, for example an HTML page.
-
-However, this might cause conflicts between the API resources and the web app routes: If the web app in the `build` folder has a route to `/products`, but there is also a `/products` API resource, the web app route is returned.
-
-To be able to still access the `/products` API resource, configure an `apiPrefix`:
-
 ### API prefix
 
 With the `apiPrefix` config setting, all resources get an extra path segment in front of them. If the `apiPrefix` is `'api'`, then `/movies/12345` becomes `/api/movies/12345`:
@@ -199,9 +180,22 @@ const server = create(config)
 
 A request to the `apiPrefix` (e.g. http://localhost:1234/api) will now return the `"It works! ツ"` response message.
 
-After configuring the `apiPrefix`, requests to the root URL (e.g. http://localhost:1234/), instead of the `"It works! ツ"` response message, will now either return a `404 Not Found` on `GET` requests, or a `405 Method Not Allowed` for all other HTTP methods.
+After configuring the `apiPrefix`, requests to the root URL (e.g. http://localhost:1234/), instead of the `"It works! ツ"` response message, will now either return a `404 Not Found` on `GET` requests, or a `405 Method Not Allowed` for any other HTTP method.
 
-However, if you configured both an `apiPrefix` and a `staticFolder`, a `GET` on the root URL will return the content in the `staticFolder`.
+### Static assets
+
+If you want to host static assets, for example a web app consuming the API, you can configure a `staticFolder`:
+
+```js
+const config = {
+  staticFolder: 'build',
+}
+const server = create(config)
+```
+
+With this setting, sending a `GET` request to the root URL, returns the content that is in the `'./build'` folder in your project, for example an HTML page.
+
+To prevent conflicts between the API resources and the web app routes, configuring a `staticFolder` also automatically sets the `apiPrefix` to "`api"`. Of course you can always change the `apiPrefix` to something else.
 
 ### JSON Schema request body validation
 
@@ -437,7 +431,7 @@ These are all the possible settings:
 | Config setting            | Description                                                                                | Default value |
 | :------------------------ | :----------------------------------------------------------------------------------------- | :------------ |
 | `allowDeleteCollection`   | Whether a `DELETE` request on a collection is allowed to delete all items. | `false` |
-| `apiPrefix`               | See [API prefix](#api-prefix)                                                              | `null`        |
+| `apiPrefix`               | See [API prefix](#api-prefix)                                                              | `null` | `'api'`        |
 | `connectionString`        | See [Data persistency](#data-persistency)                                                                    | `null`        |
 | `delay`                   | The delay, in milliseconds, after processing the request before sending the response. | `0`           |
 | `etags`                   | See [Caching and consistency with Etags](#caching-and-consistency-with-etags) | `false`           |
