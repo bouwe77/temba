@@ -1,6 +1,6 @@
 {
   "name": "temba",
-  "version": "0.40.1",
+  "version": "0.41.0",
   "description": "Get a simple REST API with zero coding in less than 30 seconds (seriously).",
   "type": "module",
   "main": "dist/src/index.js",
@@ -45,6 +45,7 @@
     "etag": "^1.8.1",
     "indefinite": "^2.5.1",
     "lowdb": "^7.0.1",
+    "mime": "^4.0.6",
     "morgan": "^1.10.0",
     "openapi3-ts": "^4.4.0"
   }

@@ -22,6 +22,8 @@ test.each([
   ['stuff/foo/', resourceAndId],
   ['/stuff/foo/', resourceAndId],
   ['/stuff//foo/', resourceAndId],
+  // When using an API prefix, while not configured, the API prefix becomes the resource, and the resource the id...
+  ['/api//movies/', { resource: 'api', id: 'movies' }],
 ])("URL '%s' has both a resource and id: %o", (url, expected) => {
   const actual = parseUrl(url)
   expect(actual).toEqual(expected)

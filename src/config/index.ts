@@ -1,6 +1,7 @@
 import type { ConfiguredSchemas } from '../schema/types'
 import type { RequestInterceptor } from '../requestInterceptor/types'
 import type { ResponseBodyInterceptor } from '../responseBodyInterceptor/types'
+import type { Implementations } from '../implementations'
 
 type ResourcePath = string
 
@@ -24,12 +25,14 @@ export type Config = {
   connectionString: string | null
   delay: number
   returnNullFields: boolean
-  isTesting: boolean
   port: number
   schemas: ConfiguredSchemas | null
   allowDeleteCollection: boolean
   etagsEnabled: boolean
   openapi: OpenApiConfig
+
+  isTesting: boolean
+  implementations: Implementations | null
 }
 
 export type ConfigKey = keyof Config
@@ -55,12 +58,16 @@ export type UserConfig = {
   requestInterceptor?: RequestInterceptor
   responseBodyInterceptor?: ResponseBodyInterceptor
   returnNullFields?: boolean
-  isTesting?: boolean
   port?: number
   schemas?: ConfiguredSchemas
   allowDeleteCollection?: boolean
   etags?: boolean
   openapi?: OpenApiConfig
+
+  // Use isTesting when running tests that don't require a started server.
+  isTesting?: boolean
+  // Override implementation in when testing.
+  implementations?: Implementations
 }
 
 const defaultConfig: Config = {
@@ -73,12 +80,14 @@ const defaultConfig: Config = {
   requestInterceptor: null,
   responseBodyInterceptor: null,
   returnNullFields: true,
-  isTesting: false,
   port: 3000,
   schemas: null,
   allowDeleteCollection: false,
   etagsEnabled: false,
   openapi: false,
+
+  isTesting: false,
+  implementations: null,
 }
 
 export const initConfig = (userConfig?: UserConfig): Config => {
@@ -92,11 +101,18 @@ export const initConfig = (userConfig?: UserConfig): Config => {
   }
 
   if (userConfig.staticFolder) {
-    config.staticFolder = userConfig.staticFolder.replace(/[^a-zA-Z0-9]/g, '')
+    //TODO define/what happens when the replace results in an empty string
+    const staticFolder = userConfig.staticFolder.replace(/[^a-zA-Z0-9]/g, '')
+    if (staticFolder.length > 0) {
+      config.staticFolder = staticFolder
+      // To make a clear distinction between static files and API routes
+      config.apiPrefix = 'api'
+    }
   }
 
   if (userConfig.apiPrefix) {
-    config.apiPrefix = '/' + userConfig.apiPrefix.replace(/[^a-zA-Z0-9]/g, '') + '/'
+    //TODO define/what happens when the replace results in an empty string
+    config.apiPrefix = userConfig.apiPrefix.replace(/[^a-zA-Z0-9]/g, '')
   }
 
   if (userConfig.connectionString && userConfig.connectionString.length > 0) {
@@ -158,6 +174,7 @@ export const initConfig = (userConfig?: UserConfig): Config => {
 
   if (!isUndefined(userConfig.isTesting)) {
     config.isTesting = userConfig.isTesting
+    config.implementations = userConfig.implementations || null
   }
 
   if (!isUndefined(userConfig.port)) {

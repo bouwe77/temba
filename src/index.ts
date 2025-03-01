@@ -14,15 +14,15 @@ import { initLogger } from './log/logger'
 import { createOpenApiHandler } from './openapi/openapi'
 import morgan from 'morgan'
 import { TembaError as TembaErrorInternal } from './requestInterceptor/TembaError'
+import { handleStaticFolder } from './staticFolder/staticFolder'
+import { getDefaultImplementations } from './implementations'
 
 const handleRootUrl = (
   req: IncomingMessage,
   res: ServerResponse<IncomingMessage> & { req: IncomingMessage },
 ) => {
   if (req.method !== 'GET') return handleMethodNotAllowed(req, res)
-
-  res.statusCode = 200
-  res.setHeader('Content-Type', 'text/plain')
+  res.writeHead(200, { 'Content-Type': 'text/plain' })
   res.end('It works! ツ')
 }
 
@@ -41,15 +41,22 @@ const createServer = (userConfig?: UserConfig) => {
   const schemas = compileSchemas(config.schemas)
   const handleResource = createResourceHandler(queries, schemas, config)
   const httpLogger = logLevel === 'debug' ? morgan('tiny') : noopHandler
-
   const server = httpCreateServer((req, res) => {
+    const implementations = getDefaultImplementations(config)
+
     httpLogger(req, res, (err) => {
       if (err) return sendErrorResponse(res)
 
       const requestUrl = removePendingAndTrailingSlashes(req.url)
 
       const handleRequest = () => {
-        if (requestUrl === rootPath) {
+        if (config.staticFolder && !`${requestUrl}/`.startsWith(config.apiPrefix + '/')) {
+          handleStaticFolder(req, res, () =>
+            implementations.getStaticFileFromDisk(
+              req.url === '/' ? 'index.html' : req.url || 'index.html',
+            ),
+          )
+        } else if (requestUrl === rootPath) {
           handleRootUrl(req, res)
         } else if (openapiPaths.includes(requestUrl)) {
           createOpenApiHandler(requestUrl.endsWith('.json') ? 'json' : 'yaml', config)(req, res)
