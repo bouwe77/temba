@@ -11,15 +11,14 @@ const logLevels: Record<LogLevel, number> = {
 
 export type Logger = Record<LogLevel, (...data: unknown[]) => void>
 
-const formatLog = (level: LogLevel, ...data: unknown[]) =>
-  `${new Date().toISOString()} ${level.toUpperCase().padEnd(6, ' ')}- ${data.join(' ')}`
-
 const createLogger = (logLevel: LogLevel) => {
   const log = (level: LogLevel, ...data: unknown[]) => {
     // Only log when the level is at least as high as the configured log level
     if (logLevels[level] >= logLevels[logLevel]) {
       try {
-        console[level](formatLog(level, ...data))
+        console[level](
+          `${new Date().toISOString()} ${level.toUpperCase().padEnd(6, ' ')}- ${data.join(' ')}`,
+        )
       } catch {
         // swallow exceptions during logging
       }
@@ -58,6 +57,6 @@ const noopHandler = (
 
 export const getHttpLogger = (logLevel: LogLevel) => {
   return logLevel === 'debug'
-    ? morgan(formatLog(logLevel, ':method :url :status :response-time ms'))
+    ? morgan(':date[iso] DEBUG - :method :url :status :res[content-length] - :response-time ms')
     : noopHandler
 }
