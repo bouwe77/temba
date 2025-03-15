@@ -14,17 +14,26 @@ import { createOpenApiHandler } from './openapi/openapi'
 import { TembaError as TembaErrorInternal } from './requestInterceptor/TembaError'
 import { handleStaticFolder } from './staticFolder/staticFolder'
 import { getDefaultImplementations } from './implementations'
+import { setCorsHeaders } from './cors/cors'
 
 const handleRootUrl = (
   req: IncomingMessage,
   res: ServerResponse<IncomingMessage> & { req: IncomingMessage },
 ) => {
   if (req.method !== 'GET') return handleMethodNotAllowed(req, res)
-  res.writeHead(200, { 'Content-Type': 'text/plain' })
+  res.statusCode = 200
+  res.setHeader('Content-Type', 'text/plain')
+  setCorsHeaders(res)
   res.end('It works! ツ')
 }
 
 const removePendingAndTrailingSlashes = (url?: string) => (url ? url.replace(/^\/+|\/+$/g, '') : '')
+
+const handleOptionsRequest = (req: IncomingMessage, res: ServerResponse<IncomingMessage>) => {
+  res.statusCode = 200
+  setCorsHeaders(res)
+  res.end()
+}
 
 const createServer = (userConfig?: UserConfig) => {
   const config = initConfig(userConfig)
@@ -49,6 +58,10 @@ const createServer = (userConfig?: UserConfig) => {
       const requestUrl = removePendingAndTrailingSlashes(req.url)
 
       const handleRequest = () => {
+        if (req.method === 'OPTIONS') {
+          return handleOptionsRequest(req, res)
+        }
+
         if (config.staticFolder && !`${requestUrl}/`.startsWith(config.apiPrefix + '/')) {
           handleStaticFolder(req, res, () =>
             implementations.getStaticFileFromDisk(

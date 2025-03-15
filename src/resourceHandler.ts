@@ -13,6 +13,7 @@ import type {
 import type { Queries } from './data/types'
 import type { CompiledSchemas } from './schema/types'
 import type { RouterConfig } from './config'
+import { setCorsHeaders } from './cors/cors'
 
 export const noopHandler = (
   _: IncomingMessage,
@@ -31,6 +32,7 @@ export const sendErrorResponse = (
 ) => {
   res.statusCode = statusCode
   res.setHeader('Content-Type', 'application/json')
+  setCorsHeaders(res)
   res.end(JSON.stringify({ message }))
 }
 
@@ -198,6 +200,8 @@ export const createResourceHandler = (
         res.setHeader(key, value)
       }
     }
+
+    setCorsHeaders(res)
 
     if (tembaResponse.body) {
       res.setHeader('Content-Type', 'application/json')

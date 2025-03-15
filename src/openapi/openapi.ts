@@ -4,6 +4,7 @@ import indefinite from 'indefinite'
 import deepmerge from 'deepmerge'
 import type { IncomingMessage, ServerResponse } from 'http'
 import { handleNotFound } from '../resourceHandler'
+import { setCorsHeaders } from '../cors/cors'
 
 const getPathParameters = (resourceInfo: ResourceInfo, id = false) => {
   const { resource, singularResourceLowerCase } = resourceInfo
@@ -122,6 +123,7 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
 
     res.statusCode = 200
     res.setHeader('Content-Type', format === 'json' ? 'application/json' : 'application/yaml')
+    setCorsHeaders(res)
     res.end(format === 'json' ? builder.getSpecAsJson() : builder.getSpecAsYaml())
   }
 
