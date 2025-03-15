@@ -15,18 +15,18 @@ const removeUnderscoreFromId = ({ _id: id, ...updatedItem }: MongoItem): Item =>
   ...updatedItem,
 })
 
-export const createMongoQueries = (connectionString: string, logger: Logger) => {
+export const createMongoQueries = (connectionString: string, log: Logger) => {
   uri = connectionString
 
   const connectToDatabase = async () => {
     if (!db) {
-      logger.debug('Connecting to MongoDB...')
+      log.debug('Connecting to MongoDB...')
       try {
         db = await connect(uri)
-        logger.debug('Connected to MongoDB!')
+        log.debug('Connected to MongoDB!')
       } catch (error) {
-        logger.debug('Error connecting to MongoDB')
-        logger.error(error)
+        log.debug('Error connecting to MongoDB')
+        log.error(error)
       }
     }
   }
