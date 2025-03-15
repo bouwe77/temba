@@ -1,3 +1,6 @@
+import type { IncomingMessage, ServerResponse } from 'node:http'
+import morgan from 'morgan'
+
 type LogLevel = 'debug' | 'info' | 'error'
 
 const logLevels: Record<LogLevel, number> = {
@@ -13,7 +16,9 @@ const createLogger = (logLevel: LogLevel) => {
     // Only log when the level is at least as high as the configured log level
     if (logLevels[level] >= logLevels[logLevel]) {
       try {
-        console[level](level.toUpperCase(), '-', ...data)
+        console[level](
+          `${new Date().toISOString()} ${level.toUpperCase().padEnd(6, ' ')}- ${data.join(' ')}`,
+        )
       } catch {
         // swallow exceptions during logging
       }
@@ -34,8 +39,24 @@ const isInvalid = (value: string | undefined): boolean => {
 export const initLogger = (configuredLogLevel: string | undefined) => {
   const logLevel = isInvalid(configuredLogLevel) ? 'debug' : (configuredLogLevel as LogLevel)
 
+  const log = createLogger(logLevel)
+
+  log.debug('Logger initialized')
+
   return {
     logLevel,
-    logger: createLogger(logLevel),
+    log,
   }
+}
+
+const noopHandler = (
+  _: IncomingMessage,
+  __: ServerResponse<IncomingMessage>,
+  next: (err?: unknown) => void,
+) => next()
+
+export const getHttpLogger = (logLevel: LogLevel) => {
+  return logLevel === 'debug'
+    ? morgan(':date[iso] DEBUG - :method :url :status :res[content-length] - :response-time ms')
+    : noopHandler
 }

@@ -13,24 +13,16 @@ import type {
 import type { Queries } from './data/types'
 import type { CompiledSchemas } from './schema/types'
 import type { RouterConfig } from './config'
-
-export const noopHandler = (
-  _: IncomingMessage,
-  __: ServerResponse<IncomingMessage>,
-  next: (err?: unknown) => void,
-) => next()
+import { setCorsHeaders } from './cors/cors'
 
 export const sendErrorResponse = (
-  res: {
-    statusCode: number
-    setHeader: (arg0: string, arg1: string) => void
-    end: (arg0: string) => void
-  },
+  res: ServerResponse<IncomingMessage>,
   statusCode: number = 500,
   message: string = 'Internal Server Error',
 ) => {
   res.statusCode = statusCode
   res.setHeader('Content-Type', 'application/json')
+  setCorsHeaders(res)
   res.end(JSON.stringify({ message }))
 }
 
@@ -199,6 +191,8 @@ export const createResourceHandler = (
       }
     }
 
+    setCorsHeaders(res)
+
     if (tembaResponse.body) {
       res.setHeader('Content-Type', 'application/json')
       res.write(JSON.stringify(tembaResponse.body))
@@ -217,9 +211,6 @@ export const createResourceHandler = (
     const requestInfo = await parseRequest(httpRequest)
 
     if (isError(requestInfo)) {
-      // return httpResponse.status(requestInfo.status).json({
-      //   message: requestInfo.message,
-      // })
       return sendErrorResponse(httpResponse, requestInfo.status, requestInfo.message)
     }
 

@@ -4,6 +4,7 @@ import type { Config } from '../config'
 import path from 'node:path'
 import fs from 'node:fs'
 import mime from 'mime/lite'
+import { setCorsHeaders } from '../cors/cors'
 
 export type StaticFileInfo = {
   content: Buffer | string
@@ -29,7 +30,9 @@ export const handleStaticFolder = (
   try {
     const staticContent = getStaticFileFromDisk()
 
-    res.writeHead(200, { 'Content-Type': staticContent.mimeType })
+    res.statusCode = 200
+    res.setHeader('Content-Type', staticContent.mimeType)
+    setCorsHeaders(res)
 
     if (typeof staticContent.content === 'string') {
       res.end(staticContent.content)

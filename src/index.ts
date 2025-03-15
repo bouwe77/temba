@@ -7,26 +7,33 @@ import {
   createResourceHandler,
   handleMethodNotAllowed,
   handleNotFound,
-  noopHandler,
   sendErrorResponse,
 } from './resourceHandler'
-import { initLogger } from './log/logger'
+import { getHttpLogger, initLogger } from './log/logger'
 import { createOpenApiHandler } from './openapi/openapi'
-import morgan from 'morgan'
 import { TembaError as TembaErrorInternal } from './requestInterceptor/TembaError'
 import { handleStaticFolder } from './staticFolder/staticFolder'
 import { getDefaultImplementations } from './implementations'
+import { setCorsHeaders } from './cors/cors'
 
 const handleRootUrl = (
   req: IncomingMessage,
   res: ServerResponse<IncomingMessage> & { req: IncomingMessage },
 ) => {
   if (req.method !== 'GET') return handleMethodNotAllowed(req, res)
-  res.writeHead(200, { 'Content-Type': 'text/plain' })
+  res.statusCode = 200
+  res.setHeader('Content-Type', 'text/plain')
+  setCorsHeaders(res)
   res.end('It works! ツ')
 }
 
 const removePendingAndTrailingSlashes = (url?: string) => (url ? url.replace(/^\/+|\/+$/g, '') : '')
+
+const handleOptionsRequest = (req: IncomingMessage, res: ServerResponse<IncomingMessage>) => {
+  res.statusCode = 200
+  setCorsHeaders(res)
+  res.end()
+}
 
 const createServer = (userConfig?: UserConfig) => {
   const config = initConfig(userConfig)
@@ -36,11 +43,12 @@ const createServer = (userConfig?: UserConfig) => {
     `${rootPath ? `${rootPath}/` : ''}openapi.json`,
     `${rootPath ? `${rootPath}/` : ''}openapi.yaml`,
   ]
-  const { logger, logLevel } = initLogger(process.env.LOG_LEVEL)
-  const queries = createQueries(config.connectionString, logger)
+  const { log, logLevel } = initLogger(process.env.LOG_LEVEL)
+  const queries = createQueries(config.connectionString, log)
   const schemas = compileSchemas(config.schemas)
   const handleResource = createResourceHandler(queries, schemas, config)
-  const httpLogger = logLevel === 'debug' ? morgan('tiny') : noopHandler
+  const httpLogger = getHttpLogger(logLevel)
+
   const server = httpCreateServer((req, res) => {
     const implementations = getDefaultImplementations(config)
 
@@ -50,6 +58,10 @@ const createServer = (userConfig?: UserConfig) => {
       const requestUrl = removePendingAndTrailingSlashes(req.url)
 
       const handleRequest = () => {
+        if (req.method === 'OPTIONS') {
+          return handleOptionsRequest(req, res)
+        }
+
         if (config.staticFolder && !`${requestUrl}/`.startsWith(config.apiPrefix + '/')) {
           handleStaticFolder(req, res, () =>
             implementations.getStaticFileFromDisk(
@@ -78,12 +90,12 @@ const createServer = (userConfig?: UserConfig) => {
   return {
     start: () => {
       if (config.isTesting) {
-        logger.info('⛔️ Server not started. Remove or disable isTesting from your config.')
+        log.error('⛔️ Server not started. Remove or disable isTesting from your config.')
         return
       }
 
       server.listen(config.port, () => {
-        console.log(`✅ Server listening on port ${config.port}`)
+        log.debug(`✅ Server listening on port ${config.port}`)
       })
       return server
     },
