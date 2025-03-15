@@ -16,11 +16,7 @@ import type { RouterConfig } from './config'
 import { setCorsHeaders } from './cors/cors'
 
 export const sendErrorResponse = (
-  res: {
-    statusCode: number
-    setHeader: (arg0: string, arg1: string) => void
-    end: (arg0: string) => void
-  },
+  res: ServerResponse<IncomingMessage>,
   statusCode: number = 500,
   message: string = 'Internal Server Error',
 ) => {
@@ -215,9 +211,6 @@ export const createResourceHandler = (
     const requestInfo = await parseRequest(httpRequest)
 
     if (isError(requestInfo)) {
-      // return httpResponse.status(requestInfo.status).json({
-      //   message: requestInfo.message,
-      // })
       return sendErrorResponse(httpResponse, requestInfo.status, requestInfo.message)
     }
 
