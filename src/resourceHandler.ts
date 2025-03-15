@@ -15,12 +15,6 @@ import type { CompiledSchemas } from './schema/types'
 import type { RouterConfig } from './config'
 import { setCorsHeaders } from './cors/cors'
 
-export const noopHandler = (
-  _: IncomingMessage,
-  __: ServerResponse<IncomingMessage>,
-  next: (err?: unknown) => void,
-) => next()
-
 export const sendErrorResponse = (
   res: {
     statusCode: number
