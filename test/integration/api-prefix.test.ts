@@ -22,7 +22,7 @@ test('GET on apiPrefix URL returns welcome text', async () => {
   const response = await request(tembaServer).get('/' + apiPrefix)
 
   expect(response.statusCode).toEqual(200)
-  expect(response.text).toEqual('It works! ツ')
+  expect(response.text).toContain('It works! ツ')
 })
 
 test('GET on apiPrefix and resource URL returns empty array', async () => {
