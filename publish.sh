@@ -16,13 +16,12 @@ fi
 if [ -z "$(git status --porcelain)" ]; then 
     version=$(npm version $1)
     npm run build
+
+    echo "export const version = '$version'\n" > ./dist/src/version.js
+
     npm publish ./dist/src
 
     open "https://github.com/bouwe77/temba/releases/new?tag=$version&title=$version&prerelease=1"
-
-    # git tag $version -m "$version"
-    # git push origin $version
-    # git push origin --tags
 else 
   echo "Error: Commit all changes before publishing"
   exit 1

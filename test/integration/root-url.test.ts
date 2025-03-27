@@ -13,7 +13,7 @@ test('GET on root URL returns welcome text', async () => {
   const response = await request(tembaServer).get('/')
 
   expect(response.statusCode).toEqual(200)
-  expect(response.text).toEqual('It works! ツ')
+  expect(response.text).toContain('It works! ツ')
 })
 
 test('POST on root URL returns Method Not Allowed error', async () => {

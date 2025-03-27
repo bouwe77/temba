@@ -15,6 +15,7 @@ import { TembaError as TembaErrorInternal } from './requestInterceptor/TembaErro
 import { handleStaticFolder } from './staticFolder/staticFolder'
 import { getDefaultImplementations } from './implementations'
 import { setCorsHeaders } from './cors/cors'
+import { version } from './version'
 
 const handleRootUrl = (
   req: IncomingMessage,
@@ -24,7 +25,7 @@ const handleRootUrl = (
   res.statusCode = 200
   res.setHeader('Content-Type', 'text/plain')
   setCorsHeaders(res)
-  res.end('It works! ツ')
+  res.end(`It works! ツ\n\nTemba ${version}`)
 }
 
 const removePendingAndTrailingSlashes = (url?: string) => (url ? url.replace(/^\/+|\/+$/g, '') : '')
