@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { create } from './create.js'
+import { create } from './create/create.js'
 
 const [, , command, ...args] = process.argv
 
