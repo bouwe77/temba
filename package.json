@@ -4,9 +4,6 @@
   "description": "Get a simple REST API with zero coding in less than 30 seconds (seriously).",
   "type": "module",
   "main": "dist/src/index.js",
-  "bin": {
-    "temba": "./cli/cli.js"
-  },
   "scripts": {
     "build": "rm -rf dist && tsc && tsc-alias && cp package.json README.md ./dist/src",
     "test": "vitest",

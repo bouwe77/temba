@@ -2,6 +2,9 @@
   "name": "temba",
   "version": "0.0.0",
   "description": "CLI for scaffolding and managing Temba APIs",
+  "bin": {
+    "temba": "./cli.js"
+  },
   "type": "module",
   "files": [
     "cli.js",
