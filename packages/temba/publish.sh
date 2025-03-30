@@ -27,7 +27,7 @@ if [ -z "$(git status --porcelain)" ]; then
     npm publish
 
     # Update Temba version in examples
-    node ../../update-version.js $version examples
+    node ../../update-version.js $version ../../examples
 
     cd ../temba
     open "https://github.com/bouwe77/temba/releases/new?tag=$version&title=$version&prerelease=1"
