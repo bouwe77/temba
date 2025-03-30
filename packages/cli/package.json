@@ -1,0 +1,16 @@
+{
+  "name": "temba-cli",
+  "version": "0.42.8",
+  "description": "CLI for scaffolding and managing Temba APIs",
+  "bin": {
+    "temba": "./cli.js"
+  },
+  "type": "module",
+  "files": [
+    "cli.js",
+    "create/"
+  ],
+  "dependencies": {
+    "fs-extra": "^11.3.0"
+  }
+}
