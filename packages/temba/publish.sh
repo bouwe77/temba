@@ -18,14 +18,13 @@ if [ -z "$(git status --porcelain)" ]; then
     npm run build
     echo "export const version = '$version'\n" > ./dist/src/version.js
     npm publish ./dist/src
-    # cd ..
 
-    # cd cli
-    # npm version $version
-    # npm publish
-    # cd ..
+    cd ../cli
+    node update-version.js $version
+    npm version $version
+    npm publish
 
-    node ./cli/update-version.js $version
+    cd ../temba
 
     open "https://github.com/bouwe77/temba/releases/new?tag=$version&title=$version&prerelease=1"
 else 
