@@ -1,5 +1,5 @@
 {
-  "name": "temba",
+  "name": "temba-cli",
   "version": "0.0.0",
   "description": "CLI for scaffolding and managing Temba APIs",
   "bin": {
