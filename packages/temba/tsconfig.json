@@ -29,7 +29,7 @@
     "composite": true,
     "declarationMap": true
   },
-  "include": ["packages/temba/src/**/*"],
+  "include": ["src/**/*"],
   "tsc-alias": {
     "resolveFullPaths": true,
     "verbose": false
