@@ -16,10 +16,14 @@ fi
 if [ -z "$(git status --porcelain)" ]; then 
     version=$(npm version $1)
     npm run build
-
     echo "export const version = '$version'\n" > ./dist/src/version.js
-
     npm publish ./dist/src
+    # cd ..
+
+    # cd cli
+    # npm version $version
+    # npm publish
+    # cd ..
 
     node ./cli/update-version.js $version
 

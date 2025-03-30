@@ -12,7 +12,7 @@
     /* Strictness */
     "noUncheckedIndexedAccess": true,
     "strict": true,
-    
+
     /* If transpiling with TypeScript: */
     "module": "ES2015",
     "moduleResolution": "Bundler",
@@ -35,4 +35,3 @@
     "verbose": false
   }
 }
-
