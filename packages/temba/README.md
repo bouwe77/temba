@@ -47,23 +47,26 @@ Prerequisites you need to have:
 
 ### Use the starter with `npx`
 
-Create your own Temba server with the following command and you are up and running!
+Create your own Temba server instantly:
 
-```bash
-npx create-temba-server@latest my-rest-api
-cd my-rest-api
-npm start
+```
+npx temba-cli create my-rest-api
 ```
 
-This command clones the [Temba-starter](https://github.com/bouwe77/temba-starter) repository, installs all dependencies, and starts the server.
+This command will:
 
-In your console you'll see:
+* Create a new folder called `my-rest-api`
+* Install Temba as a dependency
+* Generate a `server.js` file
+* Automatically start your brand-new Temba API
+
+You’ll see:
 
 ```
 ✅ Server listening on port 3000
 ```
 
-Now you can issue any HTTP request, to any resource.
+Now you can send any HTTP request to any resource on localhost:3000 — and it just works.
 
 ### Adding to an existing app
 
