@@ -1,6 +1,7 @@
 import { describe, test, expect } from 'vitest'
 import request from 'supertest'
 import type { UserConfig } from '../../../src/config'
+import { expectSuccess } from '../helpers'
 import { createServer } from '../createServer'
 
 /*
@@ -10,6 +11,16 @@ import { createServer } from '../createServer'
 /*
 Status codes and headers for both JSON and YAML, when openapi is either disabled or enabled.
 */
+
+const errorResponseSchema = {
+  type: 'object',
+  properties: {
+    message: {
+      type: 'string',
+    },
+  },
+  required: ['message'],
+} as const
 
 const endpoints = ['/openapi.json', '/openapi.yaml']
 
@@ -50,7 +61,7 @@ describe.each(endpoints)('OpenAPI documentation', (path) => {
   The body of the OpenAPI documentation is only tested for JSON, as we may assume that the YAML is correct if the JSON is correct.
 */
 
-test('OpenAPI when no resources configured', async () => {
+test('When no resources configured', async () => {
   const tembaServer = createServer({
     openapi: true,
   } satisfies UserConfig)
@@ -82,6 +93,16 @@ test('OpenAPI when no resources configured', async () => {
   expect(root.responses['200'].description).toEqual('The API is working.')
   expect(root.responses['200'].content['text/html'].schema.type).toEqual('string')
 
+  const defaultResponseSchema = {
+    type: 'object',
+    properties: {
+      id: {
+        type: 'string',
+      },
+    },
+    required: ['id'],
+  }
+
   // GET /{resource}
   const get = response.body.paths['/{resource}']['get']
   expect(get.summary).toEqual('List all resources.')
@@ -93,7 +114,9 @@ test('OpenAPI when no resources configured', async () => {
   expect(get.parameters[0].description).toEqual('The name of the resource.')
   expect(get.responses['200'].description).toEqual('List of all resources.')
   expect(get.responses['200'].content['application/json'].schema.type).toEqual('array')
-  expect(get.responses['200'].content['application/json'].schema.items.type).toEqual('object')
+  expect(get.responses['200'].content['application/json'].schema.items).toEqual(
+    defaultResponseSchema,
+  )
 
   // GET /{resource}/{resourceId}
   const getById = response.body.paths['/{resource}/{resourceId}']['get']
@@ -110,12 +133,9 @@ test('OpenAPI when no resources configured', async () => {
   expect(getById.parameters[1].schema.type).toEqual('string')
   expect(getById.parameters[1].description).toEqual('The ID of the resource.')
   expect(getById.responses['200'].description).toEqual('The resource with the resourceId.')
-  expect(getById.responses['200'].content['application/json'].schema.type).toEqual('object')
+  expect(getById.responses['200'].content['application/json'].schema).toEqual(defaultResponseSchema)
   expect(getById.responses['404'].description).toEqual('The resourceId was not found.')
-  expect(getById.responses['404'].content['application/json'].schema.type).toEqual('object')
-  expect(
-    getById.responses['404'].content['application/json'].schema.properties.message.type,
-  ).toEqual('string')
+  expect(getById.responses['404'].content['application/json'].schema).toEqual(errorResponseSchema)
 
   // HEAD /{resource}
   const head = response.body.paths['/{resource}']['head']
@@ -160,12 +180,9 @@ test('OpenAPI when no resources configured', async () => {
   expect(post.responses['201'].description).toEqual(
     'The resource was created. The created resource is returned in the response.',
   )
-  expect(post.responses['201'].content['application/json'].schema.type).toEqual('object')
+  expect(post.responses['201'].content['application/json'].schema).toEqual(defaultResponseSchema)
   expect(post.responses['400'].description).toEqual('The request was invalid.')
-  expect(post.responses['400'].content['application/json'].schema.type).toEqual('object')
-  expect(post.responses['400'].content['application/json'].schema.properties.message.type).toEqual(
-    'string',
-  )
+  expect(post.responses['400'].content['application/json'].schema).toEqual(errorResponseSchema)
   expect(
     post.responses['400'].content['application/json'].examples['IdNotAllowedInRequestBody'].value
       .message,
@@ -221,17 +238,11 @@ test('OpenAPI when no resources configured', async () => {
   expect(put.responses['200'].description).toEqual(
     'The resource was replaced. The replaced resource is returned in the response.',
   )
-  expect(put.responses['200'].content['application/json'].schema.type).toEqual('object')
+  expect(put.responses['200'].content['application/json'].schema).toEqual(defaultResponseSchema)
   expect(put.responses['404'].description).toEqual('The resourceId was not found.')
-  expect(put.responses['404'].content['application/json'].schema.type).toEqual('object')
-  expect(put.responses['404'].content['application/json'].schema.properties.message.type).toEqual(
-    'string',
-  )
+  expect(put.responses['404'].content['application/json'].schema).toEqual(errorResponseSchema)
   expect(put.responses['400'].description).toEqual('The request was invalid.')
-  expect(put.responses['400'].content['application/json'].schema.type).toEqual('object')
-  expect(put.responses['400'].content['application/json'].schema.properties.message.type).toEqual(
-    'string',
-  )
+  expect(put.responses['400'].content['application/json'].schema).toEqual(errorResponseSchema)
   expect(
     put.responses['400'].content['application/json'].examples['MissingIdInUrl'].value.message,
   ).toEqual('An id is required in the URL')
@@ -258,17 +269,11 @@ test('OpenAPI when no resources configured', async () => {
   expect(patch.responses['200'].description).toEqual(
     'The resource was updated. The updated resource is returned in the response.',
   )
-  expect(patch.responses['200'].content['application/json'].schema.type).toEqual('object')
+  expect(patch.responses['200'].content['application/json'].schema).toEqual(defaultResponseSchema)
   expect(patch.responses['404'].description).toEqual('The resourceId was not found.')
-  expect(patch.responses['404'].content['application/json'].schema.type).toEqual('object')
-  expect(patch.responses['404'].content['application/json'].schema.properties.message.type).toEqual(
-    'string',
-  )
+  expect(patch.responses['404'].content['application/json'].schema).toEqual(errorResponseSchema)
   expect(patch.responses['400'].description).toEqual('The request was invalid.')
-  expect(patch.responses['400'].content['application/json'].schema.type).toEqual('object')
-  expect(patch.responses['400'].content['application/json'].schema.properties.message.type).toEqual(
-    'string',
-  )
+  expect(patch.responses['400'].content['application/json'].schema).toEqual(errorResponseSchema)
   expect(
     patch.responses['400'].content['application/json'].examples['MissingIdInUrl'].value.message,
   ).toEqual('An id is required in the URL')
@@ -307,7 +312,7 @@ test('OpenAPI when no resources configured', async () => {
   expect(deleteById.responses['204'].description).toEqual('The resource was deleted.')
 })
 
-test('OpenAPI when a single resource configured', async () => {
+test('When a single resource configured', async () => {
   const tembaServer = createServer({
     openapi: true,
     resources: ['actors'],
@@ -360,10 +365,7 @@ test('OpenAPI when a single resource configured', async () => {
   expect(getById.responses['200'].description).toEqual('The actor with the actorId.')
   expect(getById.responses['200'].content['application/json'].schema.type).toEqual('object')
   expect(getById.responses['404'].description).toEqual('The actorId was not found.')
-  expect(getById.responses['404'].content['application/json'].schema.type).toEqual('object')
-  expect(
-    getById.responses['404'].content['application/json'].schema.properties.message.type,
-  ).toEqual('string')
+  expect(getById.responses['404'].content['application/json'].schema).toEqual(errorResponseSchema)
 
   // HEAD /actors
   const head = response.body.paths['/actors']['head']
@@ -395,10 +397,7 @@ test('OpenAPI when a single resource configured', async () => {
   )
   expect(post.responses['201'].content['application/json'].schema.type).toEqual('object')
   expect(post.responses['400'].description).toEqual('The request was invalid.')
-  expect(post.responses['400'].content['application/json'].schema.type).toEqual('object')
-  expect(post.responses['400'].content['application/json'].schema.properties.message.type).toEqual(
-    'string',
-  )
+  expect(post.responses['400'].content['application/json'].schema).toEqual(errorResponseSchema)
   expect(
     post.responses['400'].content['application/json'].examples['IdNotAllowedInRequestBody'].value
       .message,
@@ -419,15 +418,9 @@ test('OpenAPI when a single resource configured', async () => {
   )
   expect(put.responses['200'].content['application/json'].schema.type).toEqual('object')
   expect(put.responses['404'].description).toEqual('The actorId was not found.')
-  expect(put.responses['404'].content['application/json'].schema.type).toEqual('object')
-  expect(put.responses['404'].content['application/json'].schema.properties.message.type).toEqual(
-    'string',
-  )
+  expect(put.responses['404'].content['application/json'].schema).toEqual(errorResponseSchema)
   expect(put.responses['400'].description).toEqual('The request was invalid.')
-  expect(put.responses['400'].content['application/json'].schema.type).toEqual('object')
-  expect(put.responses['400'].content['application/json'].schema.properties.message.type).toEqual(
-    'string',
-  )
+  expect(put.responses['400'].content['application/json'].schema).toEqual(errorResponseSchema)
   expect(
     put.responses['400'].content['application/json'].examples['MissingIdInUrl'].value.message,
   ).toEqual('An id is required in the URL')
@@ -451,15 +444,9 @@ test('OpenAPI when a single resource configured', async () => {
   )
   expect(patch.responses['200'].content['application/json'].schema.type).toEqual('object')
   expect(patch.responses['404'].description).toEqual('The actorId was not found.')
-  expect(patch.responses['404'].content['application/json'].schema.type).toEqual('object')
-  expect(patch.responses['404'].content['application/json'].schema.properties.message.type).toEqual(
-    'string',
-  )
+  expect(patch.responses['404'].content['application/json'].schema).toEqual(errorResponseSchema)
   expect(patch.responses['400'].description).toEqual('The request was invalid.')
-  expect(patch.responses['400'].content['application/json'].schema.type).toEqual('object')
-  expect(patch.responses['400'].content['application/json'].schema.properties.message.type).toEqual(
-    'string',
-  )
+  expect(patch.responses['400'].content['application/json'].schema).toEqual(errorResponseSchema)
   expect(
     patch.responses['400'].content['application/json'].examples['MissingIdInUrl'].value.message,
   ).toEqual('An id is required in the URL')
@@ -488,7 +475,7 @@ test('OpenAPI when a single resource configured', async () => {
   expect(deleteById.responses['204'].description).toEqual('The actor was deleted.')
 })
 
-test('Server URL contains the configured apiPrefix', async () => {
+test('When apiPrefix configured server URL contains it', async () => {
   const tembaServer = createServer({
     openapi: true,
     resources: ['actors'],
@@ -500,7 +487,7 @@ test('Server URL contains the configured apiPrefix', async () => {
   expect(response.body.servers[0].url).toContain('/api/')
 })
 
-test('OpenAPI paths contains deleting a collection when allowDeleteCollection is true', async () => {
+test('When allowDeleteCollection is true paths contain a delete for the resource collection', async () => {
   const tembaServer = createServer({
     openapi: true,
     resources: ['actors'],
@@ -515,7 +502,7 @@ test('OpenAPI paths contains deleting a collection when allowDeleteCollection is
   expect(deleteAll.responses['204'].description).toEqual('All actors were deleted.')
 })
 
-test('OpenAPI when multiple resources configured', async () => {
+test('When multiple resources configured', async () => {
   const tembaServer = createServer({
     openapi: true,
     resources: [
@@ -549,7 +536,7 @@ test('OpenAPI when multiple resources configured', async () => {
   expect(getById.responses['200'].description).toEqual('The person with the personId.')
 })
 
-test('OpenAPI when a custom OpenAPI object is configured', async () => {
+test('When a custom OpenAPI object is configured', async () => {
   const tembaServer = createServer({
     openapi: {
       info: {
@@ -571,4 +558,131 @@ test('OpenAPI when a custom OpenAPI object is configured', async () => {
   expect(response.body.openapi).toEqual('3.1.0')
   expect(response.body.info.title).toEqual('My custom API title')
   expect(response.body.paths['/actors/{actorId}']['get'].summary).toEqual('My custom summary')
+})
+
+test('When returnNullFields is false the response description indicates this', async () => {
+  const tembaServer = createServer({
+    openapi: true,
+    resources: ['actors'],
+    returnNullFields: false,
+  })
+
+  const response = await request(tembaServer).get('/openapi.json')
+  expectSuccess(response)
+
+  // GET /actors
+  const get = response.body.paths['/actors']['get']
+  expect(get.responses['200'].description).toContain(
+    'Any fields with `null` values are omitted in all API responses.',
+  )
+
+  // GET /actors/{actorId}
+  const getById = response.body.paths['/actors/{actorId}']['get']
+  expect(getById.responses['200'].description).toContain(
+    'Any fields with `null` values are omitted in all API responses.',
+  )
+
+  // POST /actors
+  const post = response.body.paths['/actors']['post']
+  expect(post.responses['201'].description).toContain(
+    'Any fields with `null` values are omitted in all API responses.',
+  )
+
+  // PUT /actors/{actorId}
+  const put = response.body.paths['/actors/{actorId}']['put']
+  expect(put.responses['200'].description).toContain(
+    'Any fields with `null` values are omitted in all API responses.',
+  )
+
+  // PATCH /actors/{actorId}
+  const patch = response.body.paths['/actors/{actorId}']['patch']
+  expect(patch.responses['200'].description).toContain(
+    'Any fields with `null` values are omitted in all API responses.',
+  )
+})
+
+test('When schemas are configured these are specified in both requests and responses', async () => {
+  const createActorRequestSchema = {
+    type: 'object',
+    properties: {
+      name: { type: 'string', minLength: 1, maxLength: 100 },
+      age: { type: 'integer' },
+    },
+    required: ['name'],
+    additionalProperties: false,
+  }
+
+  const replaceActorRequestSchema = createActorRequestSchema
+
+  const updateActorRequestSchema = {
+    type: 'object',
+    properties: {
+      name: { type: 'string', minLength: 1, maxLength: 100 },
+      age: { type: 'integer' },
+    },
+    additionalProperties: false,
+  }
+
+  const tembaServer = createServer({
+    openapi: true,
+    resources: ['actors'],
+    schemas: {
+      actors: {
+        post: createActorRequestSchema,
+        put: replaceActorRequestSchema,
+        patch: updateActorRequestSchema,
+      },
+    },
+  })
+
+  // Note: The response schemas of all methods is based on the POST request schema, even if (for example) the PUT schema would be different for whatever reason.
+  // So if the PUT schema would be different, some of the response schemas might not be correct, as these depend on which request you (last) did.
+
+  const expectedActorResponseSchema = {
+    type: 'object',
+    properties: {
+      id: { type: 'string' },
+      name: { type: 'string', minLength: 1, maxLength: 100 },
+      age: { type: 'integer' },
+    },
+    required: ['id', 'name'],
+    additionalProperties: false,
+  }
+
+  const response = await request(tembaServer).get('/openapi.json')
+  expectSuccess(response)
+
+  // GET /actors
+  const get = response.body.paths['/actors']['get']
+  expect(get.responses['200'].content['application/json'].schema.type).toEqual('array')
+  expect(get.responses['200'].content['application/json'].schema.items).toEqual(
+    expectedActorResponseSchema,
+  )
+
+  // GET /actors/{actorId}
+  const getById = response.body.paths['/actors/{actorId}']['get']
+  expect(getById.responses['200'].content['application/json'].schema).toEqual(
+    expectedActorResponseSchema,
+  )
+
+  // POST /actors
+  const post = response.body.paths['/actors']['post']
+  expect(post.requestBody.content['application/json'].schema).toEqual(createActorRequestSchema)
+  expect(post.responses['201'].content['application/json'].schema).toEqual(
+    expectedActorResponseSchema,
+  )
+
+  // PUT /actors/{actorId}
+  const put = response.body.paths['/actors/{actorId}']['put']
+  expect(put.requestBody.content['application/json'].schema).toEqual(replaceActorRequestSchema)
+  expect(put.responses['200'].content['application/json'].schema).toEqual(
+    expectedActorResponseSchema,
+  )
+
+  // PATCH /actors/{actorId}
+  const patch = response.body.paths['/actors/{actorId}']['patch']
+  expect(patch.requestBody.content['application/json'].schema).toEqual(updateActorRequestSchema)
+  expect(patch.responses['200'].content['application/json'].schema).toEqual(
+    expectedActorResponseSchema,
+  )
 })

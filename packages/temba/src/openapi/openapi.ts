@@ -1,10 +1,50 @@
 import type { Config } from '../config'
-import { OpenApiBuilder, type ParameterObject } from 'openapi3-ts/oas31'
+import {
+  OpenApiBuilder,
+  type ParameterObject,
+  type RequestBodyObject,
+  type SchemaObject,
+} from 'openapi3-ts/oas31'
 import indefinite from 'indefinite'
 import deepmerge from 'deepmerge'
 import type { IncomingMessage, ServerResponse } from 'http'
 import { handleNotFound } from '../resourceHandler'
 import { setCorsHeaders } from '../cors/cors'
+
+const getRequestBodySchema = (schema: SchemaObject = { type: 'object' }) =>
+  ({
+    content: {
+      'application/json': {
+        schema,
+      },
+    },
+  }) satisfies RequestBodyObject
+
+const getResponseBodySchema = (requestSchema?: SchemaObject) => {
+  const defaultSchema = {
+    type: 'object',
+    properties: {
+      id: {
+        type: 'string',
+      },
+    },
+    required: ['id'],
+  }
+
+  if (!requestSchema) return defaultSchema
+
+  return deepmerge(defaultSchema, requestSchema)
+}
+
+const defaultErrorResponseBodySchema = {
+  type: 'object',
+  properties: {
+    message: {
+      type: 'string',
+    },
+  },
+  required: ['message'],
+}
 
 const getPathParameters = (resourceInfo: ResourceInfo, id = false) => {
   const { resource, singularResourceLowerCase } = resourceInfo
@@ -123,17 +163,24 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
 
     res.statusCode = 200
     res.setHeader('Content-Type', format === 'json' ? 'application/json' : 'application/yaml')
+
     setCorsHeaders(res)
     res.end(format === 'json' ? builder.getSpecAsJson() : builder.getSpecAsYaml())
   }
 
   const buildOpenApiSpec = (server: string, resourceInfos: ResourceInfo[]) => {
+    let apiDescription =
+      'This API has been generated using [Temba](https://github.com/bouwe77/temba).'
+    if (!config.returnNullFields) {
+      apiDescription += '\n\nAny fields with `null` values are omitted in all API responses.'
+    }
+
     const builder = OpenApiBuilder.create()
       .addOpenApiVersion('3.1.0')
       .addInfo({
         title: 'My API',
         version: '1.0',
-        description: 'This API has been generated using [Temba](https://github.com/bouwe77/temba).',
+        description: apiDescription,
       })
       .addLicense({
         name: 'Apache 2.0',
@@ -173,6 +220,16 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
         },
       })
 
+      const nullFieldsRemark = () =>
+        config.returnNullFields
+          ? ''
+          : '\n\nAny fields with `null` values are omitted in all API responses.'
+
+      const postRequestSchema = config.schemas?.[resource as keyof typeof config.schemas]
+        ?.post as SchemaObject
+
+      const responseSchema = getResponseBodySchema(postRequestSchema)
+
       // GET, HEAD, POST on a collection
       builder.addPath(`/${resource}`, {
         get: {
@@ -181,14 +238,12 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
           parameters: getPathParameters(resourceInfo),
           responses: {
             '200': {
-              description: `List of all ${pluralResourceLowerCase}.`,
+              description: `List of all ${pluralResourceLowerCase}.${nullFieldsRemark()}`,
               content: {
                 'application/json': {
                   schema: {
                     type: 'array',
-                    items: {
-                      type: 'object',
-                    },
+                    items: responseSchema,
                   },
                 },
               },
@@ -209,23 +264,13 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
           summary: `Create a new ${singularResourceLowerCase}.`,
           operationId: `create${singularResourceUpperCase}`,
           parameters: getPathParameters(resourceInfo),
-          requestBody: {
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                },
-              },
-            },
-          },
+          requestBody: getRequestBodySchema(postRequestSchema),
           responses: {
             '201': {
-              description: `The ${singularResourceLowerCase} was created. The created ${singularResourceLowerCase} is returned in the response.`,
+              description: `The ${singularResourceLowerCase} was created. The created ${singularResourceLowerCase} is returned in the response.${nullFieldsRemark()}`,
               content: {
                 'application/json': {
-                  schema: {
-                    type: 'object',
-                  },
+                  schema: responseSchema,
                 },
               },
             },
@@ -233,14 +278,7 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
               description: 'The request was invalid.',
               content: {
                 'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: {
-                      message: {
-                        type: 'string',
-                      },
-                    },
-                  },
+                  schema: defaultErrorResponseBodySchema,
                   examples: {
                     IdNotAllowedInRequestBody: {
                       value: {
@@ -293,12 +331,10 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
           parameters: getPathParameters(resourceInfo, true),
           responses: {
             '200': {
-              description: `The ${singularResourceLowerCase} with the ${singularResourceLowerCase}Id.`,
+              description: `The ${singularResourceLowerCase} with the ${singularResourceLowerCase}Id.${nullFieldsRemark()}`,
               content: {
                 'application/json': {
-                  schema: {
-                    type: 'object',
-                  },
+                  schema: responseSchema,
                 },
               },
             },
@@ -306,14 +342,7 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
               description: `The ${singularResourceLowerCase}Id was not found.`,
               content: {
                 'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: {
-                      message: {
-                        type: 'string',
-                      },
-                    },
-                  },
+                  schema: defaultErrorResponseBodySchema,
                 },
               },
             },
@@ -347,7 +376,7 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
           },
           responses: {
             '201': {
-              description: `The ${singularResourceLowerCase} was created. The created ${singularResourceLowerCase} is returned in the response.`,
+              description: `The ${singularResourceLowerCase} was created. The created ${singularResourceLowerCase} is returned in the response.${nullFieldsRemark()}`,
               content: {
                 'application/json': {
                   schema: {
@@ -406,23 +435,15 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
           summary: `Replace ${indefinite(singularResourceLowerCase)}.`,
           operationId: `replace${singularResourceUpperCase}`,
           parameters: getPathParameters(resourceInfo, true),
-          requestBody: {
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                },
-              },
-            },
-          },
+          requestBody: getRequestBodySchema(
+            config.schemas?.[resource as keyof typeof config.schemas]?.put as SchemaObject,
+          ),
           responses: {
             '200': {
-              description: `The ${singularResourceLowerCase} was replaced. The replaced ${singularResourceLowerCase} is returned in the response.`,
+              description: `The ${singularResourceLowerCase} was replaced. The replaced ${singularResourceLowerCase} is returned in the response.${nullFieldsRemark()}`,
               content: {
                 'application/json': {
-                  schema: {
-                    type: 'object',
-                  },
+                  schema: responseSchema,
                 },
               },
             },
@@ -430,14 +451,7 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
               description: `The ${singularResourceLowerCase}Id was not found.`,
               content: {
                 'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: {
-                      message: {
-                        type: 'string',
-                      },
-                    },
-                  },
+                  schema: defaultErrorResponseBodySchema,
                 },
               },
             },
@@ -445,14 +459,7 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
               description: 'The request was invalid.',
               content: {
                 'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: {
-                      message: {
-                        type: 'string',
-                      },
-                    },
-                  },
+                  schema: defaultErrorResponseBodySchema,
                   examples: {
                     MissingIdInUrl: {
                       value: {
@@ -474,23 +481,15 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
           summary: `Update ${indefinite(singularResourceLowerCase)}.`,
           operationId: `update${singularResourceUpperCase}`,
           parameters: getPathParameters(resourceInfo, true),
-          requestBody: {
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                },
-              },
-            },
-          },
+          requestBody: getRequestBodySchema(
+            config.schemas?.[resource as keyof typeof config.schemas]?.patch as SchemaObject,
+          ),
           responses: {
             '200': {
-              description: `The ${singularResourceLowerCase} was updated. The updated ${singularResourceLowerCase} is returned in the response.`,
+              description: `The ${singularResourceLowerCase} was updated. The updated ${singularResourceLowerCase} is returned in the response.${nullFieldsRemark()}`,
               content: {
                 'application/json': {
-                  schema: {
-                    type: 'object',
-                  },
+                  schema: responseSchema,
                 },
               },
             },
@@ -498,14 +497,7 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
               description: `The ${singularResourceLowerCase}Id was not found.`,
               content: {
                 'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: {
-                      message: {
-                        type: 'string',
-                      },
-                    },
-                  },
+                  schema: defaultErrorResponseBodySchema,
                 },
               },
             },
@@ -513,14 +505,7 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
               description: 'The request was invalid.',
               content: {
                 'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: {
-                      message: {
-                        type: 'string',
-                      },
-                    },
-                  },
+                  schema: defaultErrorResponseBodySchema,
                   examples: {
                     MissingIdInUrl: {
                       value: {
