@@ -1,6 +1,7 @@
 import { test, expect } from 'vitest'
 import request from 'supertest'
 import { createServer } from './createServer'
+import { UserConfig } from '../../src/config'
 
 // The id is either expected or not allowed in URLs.
 // The id is never allowed in request bodies.
