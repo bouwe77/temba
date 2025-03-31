@@ -560,15 +560,43 @@ test('When a custom OpenAPI object is configured', async () => {
   expect(response.body.paths['/actors/{actorId}']['get'].summary).toEqual('My custom summary')
 })
 
-test('When returnNullFields is false the API description indicates this', async () => {
+test('When returnNullFields is false the response description indicates this', async () => {
   const tembaServer = createServer({
     openapi: true,
+    resources: ['actors'],
     returnNullFields: false,
   })
 
   const response = await request(tembaServer).get('/openapi.json')
+  expectSuccess(response)
 
-  expect(response.body.info.description).contains(
+  // GET /actors
+  const get = response.body.paths['/actors']['get']
+  expect(get.responses['200'].description).toContain(
+    'Any fields with `null` values are omitted in all API responses.',
+  )
+
+  // GET /actors/{actorId}
+  const getById = response.body.paths['/actors/{actorId}']['get']
+  expect(getById.responses['200'].description).toContain(
+    'Any fields with `null` values are omitted in all API responses.',
+  )
+
+  // POST /actors
+  const post = response.body.paths['/actors']['post']
+  expect(post.responses['201'].description).toContain(
+    'Any fields with `null` values are omitted in all API responses.',
+  )
+
+  // PUT /actors/{actorId}
+  const put = response.body.paths['/actors/{actorId}']['put']
+  expect(put.responses['200'].description).toContain(
+    'Any fields with `null` values are omitted in all API responses.',
+  )
+
+  // PATCH /actors/{actorId}
+  const patch = response.body.paths['/actors/{actorId}']['patch']
+  expect(patch.responses['200'].description).toContain(
     'Any fields with `null` values are omitted in all API responses.',
   )
 })
@@ -606,6 +634,9 @@ test('When schemas are configured these are specified in both requests and respo
       },
     },
   })
+
+  // Note: The response schemas of all methods is based on the POST request schema, even if (for example) the PUT schema would be different for whatever reason.
+  // So if the PUT schema would be different, some of the response schemas might not be correct, as these depend on which request you (last) did.
 
   const expectedActorResponseSchema = {
     type: 'object',

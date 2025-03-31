@@ -164,6 +164,8 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
 
     res.statusCode = 200
     res.setHeader('Content-Type', format === 'json' ? 'application/json' : 'application/yaml')
+    res.setHeader('Cache-Control', 'no-store')
+
     setCorsHeaders(res)
     res.end(format === 'json' ? builder.getSpecAsJson() : builder.getSpecAsYaml())
   }
@@ -172,7 +174,7 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
     let apiDescription =
       'This API has been generated using [Temba](https://github.com/bouwe77/temba).'
     if (!config.returnNullFields) {
-      apiDescription += 'Any fields with `null` values are omitted in all API responses.'
+      apiDescription += '\n\nAny fields with `null` values are omitted in all API responses.'
     }
 
     const builder = OpenApiBuilder.create()
@@ -225,7 +227,10 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
 
       const responseSchema = getResponseBodySchema(postRequestSchema)
 
-      console.log(responseSchema)
+      const nullFieldsRemark = () =>
+        config.returnNullFields
+          ? ''
+          : '\n\nAny fields with `null` values are omitted in all API responses.'
 
       // GET, HEAD, POST on a collection
       builder.addPath(`/${resource}`, {
@@ -235,7 +240,7 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
           parameters: getPathParameters(resourceInfo),
           responses: {
             '200': {
-              description: `List of all ${pluralResourceLowerCase}.`,
+              description: `List of all ${pluralResourceLowerCase}.${nullFieldsRemark()}`,
               content: {
                 'application/json': {
                   schema: {
@@ -264,7 +269,7 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
           requestBody: getRequestBodySchema(postRequestSchema),
           responses: {
             '201': {
-              description: `The ${singularResourceLowerCase} was created. The created ${singularResourceLowerCase} is returned in the response.`,
+              description: `The ${singularResourceLowerCase} was created. The created ${singularResourceLowerCase} is returned in the response.${nullFieldsRemark()}`,
               content: {
                 'application/json': {
                   schema: responseSchema,
@@ -328,7 +333,7 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
           parameters: getPathParameters(resourceInfo, true),
           responses: {
             '200': {
-              description: `The ${singularResourceLowerCase} with the ${singularResourceLowerCase}Id.`,
+              description: `The ${singularResourceLowerCase} with the ${singularResourceLowerCase}Id.${nullFieldsRemark()}`,
               content: {
                 'application/json': {
                   schema: responseSchema,
@@ -373,7 +378,7 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
           },
           responses: {
             '201': {
-              description: `The ${singularResourceLowerCase} was created. The created ${singularResourceLowerCase} is returned in the response.`,
+              description: `The ${singularResourceLowerCase} was created. The created ${singularResourceLowerCase} is returned in the response.${nullFieldsRemark()}`,
               content: {
                 'application/json': {
                   schema: {
@@ -437,7 +442,7 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
           ),
           responses: {
             '200': {
-              description: `The ${singularResourceLowerCase} was replaced. The replaced ${singularResourceLowerCase} is returned in the response.`,
+              description: `The ${singularResourceLowerCase} was replaced. The replaced ${singularResourceLowerCase} is returned in the response.${nullFieldsRemark()}`,
               content: {
                 'application/json': {
                   schema: responseSchema,
@@ -483,7 +488,7 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
           ),
           responses: {
             '200': {
-              description: `The ${singularResourceLowerCase} was updated. The updated ${singularResourceLowerCase} is returned in the response.`,
+              description: `The ${singularResourceLowerCase} was updated. The updated ${singularResourceLowerCase} is returned in the response.${nullFieldsRemark()}`,
               content: {
                 'application/json': {
                   schema: responseSchema,
