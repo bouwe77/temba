@@ -47,23 +47,26 @@ Prerequisites you need to have:
 
 ### Use the starter with `npx`
 
-Create your own Temba server with the following command and you are up and running!
+Create your own Temba server instantly:
 
-```bash
-npx create-temba-server@latest my-rest-api
-cd my-rest-api
-npm start
+```
+npx temba-cli create my-rest-api
 ```
 
-This command clones the [Temba-starter](https://github.com/bouwe77/temba-starter) repository, installs all dependencies, and starts the server.
+This command will:
 
-In your console you'll see:
+* Create a new folder called `my-rest-api`
+* Install Temba as a dependency
+* Generate a `server.js` file
+* Automatically start your brand-new Temba API
+
+You’ll see:
 
 ```
 ✅ Server listening on port 3000
 ```
 
-Now you can issue any HTTP request, to any resource.
+Now you can send any HTTP request to any resource on localhost:3000 — and it just works.
 
 ### Adding to an existing app
 
@@ -100,6 +103,7 @@ For every resource (`movies` is just an example), Temba supports the following r
 - `GET /movies` - Get all movies
 - `GET /movies/:id` - Get a movie by its ID
 - `POST /movies` - Create a new movie
+- `POST /movies:/id` - Create a new movie specifying the ID yourself
 - `PATCH /movies/:id` - Partially update a movie by its ID
 - `PUT /movies/:id` - Fully replace a movie by its ID
 - `DELETE /movies` - Delete all movies (if configured)
@@ -113,8 +117,6 @@ The HTTP methods that are supported are `GET`, `POST`, `PATCH`, `PUT`, `DELETE`,
 
 On the root URI (e.g. http://localhost:8080/) only a `GET` request is supported, which shows you a message indicating the API is working. All other HTTP methods on the root URI return a `405 Method Not Allowed` response.
 
-The `OPTIONS` method also works, but because Temba uses Express' default implementation for that, the `Access-Control-Allow-Methods` response header might not always be correct.
-
 ### JSON
 
 Temba supports JSON only.
@@ -123,9 +125,9 @@ Request bodies sent with a `POST`, `PATCH`, and `PUT` requests are valid when th
 
 Any valid formatted JSON is accepted and stored. If you want to validate or even change the JSON in the request bodies, check out [JSON Schema request body validation](#json-schema-request-body-validation) and the [`requestInterceptor`](#request-validation-or-mutation).
 
-IDs are auto generated when creating resources.
+IDs are auto generated when creating resources, unless you specify an ID in the `POST` request URL.
 
-Providing IDs in the request body of `POST`, `PUT`, or `PATCH` requests is not allowed and will return a `400 Bad Request` response. The same applies to adding an ID in a `POST` request URL, or omitting an ID in a `PUT` or `PATCH` request URL.
+Providing IDs in the request body of `POST`, `PUT`, or `PATCH` requests is not allowed and will return a `400 Bad Request` response. Instead, provide the ID in the request URL. However, omitting an ID in a `PUT` or `PATCH` request URL also returns a `400 Bad Request` response.
 
 ## Usage
 
@@ -168,25 +170,6 @@ const server = create(config)
 
 Requests on these resources only give a `404 Not Found` if the ID does not exist. Requests on any other resource will always return a `404 Not Found`.
 
-### Static assets
-
-If you want to host static assets, for example next to the API, a web app consuming it, you can configure a `staticFolder`:
-
-```js
-const config = {
-  staticFolder: 'build',
-}
-const server = create(config)
-```
-
-With this setting, sending a `GET` request to the root URL, returns the content that is in the `'./build'` folder in your project.
-
-Without configuring a `staticFolder`, a `GET` to the root URL returns `"It works! ツ"`. When the `staticFolder` is configured, it returns whatever is in the `build` folder in your project, for example an HTML page.
-
-However, this might cause conflicts between the API resources and the web app routes: If the web app in the `build` folder has a route to `/products`, but there is also a `/products` API resource, the web app route is returned.
-
-To be able to still access the `/products` API resource, configure an `apiPrefix`:
-
 ### API prefix
 
 With the `apiPrefix` config setting, all resources get an extra path segment in front of them. If the `apiPrefix` is `'api'`, then `/movies/12345` becomes `/api/movies/12345`:
@@ -200,9 +183,22 @@ const server = create(config)
 
 A request to the `apiPrefix` (e.g. http://localhost:1234/api) will now return the `"It works! ツ"` response message.
 
-After configuring the `apiPrefix`, requests to the root URL (e.g. http://localhost:1234/), instead of the `"It works! ツ"` response message, will now either return a `404 Not Found` on `GET` requests, or a `405 Method Not Allowed` for all other HTTP methods.
+After configuring the `apiPrefix`, requests to the root URL (e.g. http://localhost:1234/), instead of the `"It works! ツ"` response message, will now either return a `404 Not Found` on `GET` requests, or a `405 Method Not Allowed` for any other HTTP method.
 
-However, if you configured both an `apiPrefix` and a `staticFolder`, a `GET` on the root URL will return the content in the `staticFolder`.
+### Static assets
+
+If you want to host static assets, for example a web app consuming the API, you can configure a `staticFolder`:
+
+```js
+const config = {
+  staticFolder: 'build',
+}
+const server = create(config)
+```
+
+With this setting, sending a `GET` request to the root URL, returns the content that is in the `'./build'` folder in your project, for example an HTML page.
+
+To prevent conflicts between the API resources and the web app routes, configuring a `staticFolder` also automatically sets the `apiPrefix` to "`api"`. Of course you can always change the `apiPrefix` to something else.
 
 ### JSON Schema request body validation
 
@@ -268,7 +264,7 @@ const config = {
     get: ({ headers, resource, id }) => {
       //...
     },
-    post: ({ headers, resource, body }) => {
+    post: ({ headers, resource, id, body }) => {
       // Validate, or even change the request body
     },
     put: ({ headers, resource, id, body }) => {
@@ -303,7 +299,7 @@ Example:
 ```js
 const config = {
   requestInterceptor: {
-    post: ({ headers, resource, body }) => {      
+    post: ({ headers, resource, id, body }) => {      
       // Add a genre to Star Trek films:
       if (resource === 'movies' && body.title.startsWith('Star Trek'))
         return { ...body, genre: 'Science Fiction' }
@@ -381,68 +377,6 @@ After enabling etags, every `GET` request will return an `etag` response header,
 
 For updating or deleting items with a `PUT`, `PATCH`, or `DELETE`, after enabling etags, these requests are _required_ to provide an `If-Match` header with the etag. Only if the etag represents the latest version of the resource the update is made, otherwise the server responds with a `412 Precondition Failed` status code.
 
-### Custom router
-
-Because Temba uses Express under the hood, you can create an Express router, and configure it as a `customRouter`:
-
-```js
-// Example code of how to create an Express router, from the official Express docs at https://expressjs.com/en/guide/routing.html:
-const express = require('express')
-const router = express.Router()
-
-// middleware that is specific to this router
-router.use((req, res, next) => {
-  console.log('Time: ', Date.now())
-  next()
-})
-// define the home page route
-router.get('/', (req, res) => {
-  res.send('Birds home page')
-})
-// define the about route
-router.get('/about', (req, res) => {
-  res.send('About birds')
-})
-
-// Add the custom router to Temba config
-const config = {
-  customRouter: router,
-}
-
-const server = create(config)
-```
-
-> 💁 Don't overuse `customRouter`, as it defeats the purpose of Temba being a simple out-of-the-box solution.
-
-A `customRouter` can only overrule resource routes. The root URL (with or without `staticFolder`) will always be handled by Temba.
-
-So for the following router and config:
-
-```
-router.get('/', (req, res) => {
-  res.send('Birds home page')
-})
-router.get('/stuff', (req, res) => {
-  res.send('Some stuff')
-})
-router.get('api/stuff', (req, res) => {
-  res.send('Some API stuff')
-})
-
-const config = {
-  apiPrefix: 'api',
-  customRouter: router,
-  resources: ['stuff'],
-  staticFolder: 'build',
-}
-const server = create(config)
-```
-
-- `/` will be handled by Temba, and will return the `staticFolder` (`build`) folder contents
-- `/stuff` and `/api/stuff` will be handled by the custom router
-- `/movies` will return a `404 Not Found`, because of `apiPrefix`
-- `/api/movies` will return movies, handled by Temba
-
 ## Config settings overview
 
 Configuring Temba is optional, it already works out of the box.
@@ -454,7 +388,6 @@ const config = {
   allowDeleteCollection: true,
   apiPrefix: 'api',
   connectionString: 'mongodb://localhost:27017/myDatabase',
-  customRouter: router,
   delay: 500,
   etags: true,
   port: 4321,
@@ -462,7 +395,7 @@ const config = {
     get: ({ headers, resource, id }) => {
       //...
     },
-    post: ({ headers, resource, body }) => {
+    post: ({ headers, resource, id, body }) => {
       // Validate, or even change the request body
     },
     put: ({ headers, resource, id, body }) => {
@@ -501,9 +434,8 @@ These are all the possible settings:
 | Config setting            | Description                                                                                | Default value |
 | :------------------------ | :----------------------------------------------------------------------------------------- | :------------ |
 | `allowDeleteCollection`   | Whether a `DELETE` request on a collection is allowed to delete all items. | `false` |
-| `apiPrefix`               | See [API prefix](#api-prefix)                                                              | `null`        |
+| `apiPrefix`               | See [API prefix](#api-prefix)                                                              | `null` | `'api'`        |
 | `connectionString`        | See [Data persistency](#data-persistency)                                                                    | `null`        |
-| `customRouter`            | See [Custom router](#custom-router)                                                        | `null`        |
 | `delay`                   | The delay, in milliseconds, after processing the request before sending the response. | `0`           |
 | `etags`                   | See [Caching and consistency with Etags](#caching-and-consistency-with-etags) | `false`           |
 | `port`                    | The port your Temba server listens on                                                      | `3000`        |
@@ -516,7 +448,7 @@ These are all the possible settings:
 
 ## Under the hood
 
-Temba is built with TypeScript, [Node](https://nodejs.org), [Express](https://expressjs.com/), [Vitest](https://vitest.dev/), [Supertest](https://www.npmjs.com/package/supertest), [@rakered/mongo](https://www.npmjs.com/package/@rakered/mongo), and [lowdb](https://www.npmjs.com/package/lowdb).
+Temba is built with TypeScript, [Node](https://nodejs.org), [Vitest](https://vitest.dev/), [Supertest](https://www.npmjs.com/package/supertest), [@rakered/mongo](https://www.npmjs.com/package/@rakered/mongo), and [lowdb](https://www.npmjs.com/package/lowdb).
 
 ## Contributors ✨
 

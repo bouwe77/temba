@@ -1,0 +1,10 @@
+{
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "temba": "0.42.8"
+  }
+}
