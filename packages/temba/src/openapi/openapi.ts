@@ -36,7 +36,6 @@ const getResponseBodySchema = (requestSchema?: SchemaObject) => {
   return deepmerge(defaultSchema, requestSchema)
 }
 
-//TODO Kan ik garanderen dat een error altijd een message heeft? ---> In alle tests checken/toevoegen
 const defaultErrorResponseBodySchema = {
   type: 'object',
   properties: {
@@ -164,7 +163,6 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
 
     res.statusCode = 200
     res.setHeader('Content-Type', format === 'json' ? 'application/json' : 'application/yaml')
-    res.setHeader('Cache-Control', 'no-store')
 
     setCorsHeaders(res)
     res.end(format === 'json' ? builder.getSpecAsJson() : builder.getSpecAsYaml())
@@ -222,15 +220,15 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
         },
       })
 
-      const postRequestSchema = config.schemas?.[resource as keyof typeof config.schemas]
-        ?.post as SchemaObject
-
-      const responseSchema = getResponseBodySchema(postRequestSchema)
-
       const nullFieldsRemark = () =>
         config.returnNullFields
           ? ''
           : '\n\nAny fields with `null` values are omitted in all API responses.'
+
+      const postRequestSchema = config.schemas?.[resource as keyof typeof config.schemas]
+        ?.post as SchemaObject
+
+      const responseSchema = getResponseBodySchema(postRequestSchema)
 
       // GET, HEAD, POST on a collection
       builder.addPath(`/${resource}`, {
