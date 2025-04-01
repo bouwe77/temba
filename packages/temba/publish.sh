@@ -30,7 +30,7 @@ if [ -z "$(git status --porcelain)" ]; then
     node ../../update-version.js $version ../../examples
 
     cd ../temba
-    open "https://github.com/bouwe77/temba/releases/new?tag=$version&title=$version&prerelease=1"
+    open "https://github.com/bouwe77/temba/releases/new?tag=$version&title=$version"
 else 
   echo "Error: Commit all changes before publishing"
   exit 1
