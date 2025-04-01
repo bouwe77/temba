@@ -15,18 +15,7 @@ import { TembaError as TembaErrorInternal } from './requestInterceptor/TembaErro
 import { handleStaticFolder } from './staticFolder/staticFolder'
 import { getDefaultImplementations } from './implementations'
 import { setCorsHeaders } from './cors/cors'
-import { version } from './version'
-
-const handleRootUrl = (
-  req: IncomingMessage,
-  res: ServerResponse<IncomingMessage> & { req: IncomingMessage },
-) => {
-  if (req.method !== 'GET') return handleMethodNotAllowed(req, res)
-  res.statusCode = 200
-  res.setHeader('Content-Type', 'text/plain')
-  setCorsHeaders(res)
-  res.end(`It works! ツ\n\nTemba ${version}`)
-}
+import { handleRootUrl } from './root/root'
 
 const removePendingAndTrailingSlashes = (url?: string) => (url ? url.replace(/^\/+|\/+$/g, '') : '')
 
