@@ -3,8 +3,11 @@ import { handleMethodNotAllowed } from '../resourceHandler'
 import { setCorsHeaders } from '../cors/cors'
 import { version } from '../version'
 import { getHtml } from './html'
+import type { Config } from '../config'
+import { interceptGetRequest } from '../requestInterceptor/interceptRequest'
+import { TembaError } from '../requestInterceptor/TembaError'
 
-const title = 'Welcome to my API'
+const title = 'My API'
 
 const text = (res: ServerResponse<IncomingMessage>) => {
   res.statusCode = 200
@@ -25,13 +28,12 @@ const html = (res: ServerResponse<IncomingMessage>) => {
   )
 }
 
-export const handleRootUrl = (
-  req: IncomingMessage,
-  res: ServerResponse<IncomingMessage> & { req: IncomingMessage },
-) => {
-  if (req.method !== 'GET') return handleMethodNotAllowed(req, res)
+export const createRootUrlHandler =
+  (config: Config) =>
+  (req: IncomingMessage, res: ServerResponse<IncomingMessage> & { req: IncomingMessage }) => {
+    if (req.method !== 'GET') return handleMethodNotAllowed(req, res)
 
-  if (req.headers.accept?.includes('text/html')) return html(res)
+    if (req.headers.accept?.includes('text/html')) return html(res)
 
-  return text(res)
-}
+    return text(res)
+  }

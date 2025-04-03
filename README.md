@@ -181,9 +181,9 @@ const config = {
 const server = create(config)
 ```
 
-A request to the `apiPrefix` (e.g. http://localhost:1234/api) will now return the `"It works! ツ"` response message.
+A request to the `apiPrefix` (e.g. http://localhost:1234/api) will now return the `"My API"` response message.
 
-After configuring the `apiPrefix`, requests to the root URL (e.g. http://localhost:1234/), instead of the `"It works! ツ"` response message, will now either return a `404 Not Found` on `GET` requests, or a `405 Method Not Allowed` for any other HTTP method.
+After configuring the `apiPrefix`, requests to the root URL (e.g. http://localhost:1234/), instead of the `"My API"` response message, will now either return a `404 Not Found` on `GET` requests, or a `405 Method Not Allowed` for any other HTTP method.
 
 ### Static assets
 

@@ -15,6 +15,7 @@ type MyBody = { name: string }
 
 const requestInterceptor = {
   get: ({ headers, resource, id }) => {
+    if (!resource) throw new TembaError('API Root URL is disabled', 404)
     if (headers['x-foo'] !== 'GET') throw new TembaError('header is not GET', 400)
     if (resource !== 'get-stuff') throw new TembaError('resource is not get-stuff', 400)
     if (id !== 'get-id') throw new TembaError('id is not get-id', 400)
@@ -54,6 +55,11 @@ const requestInterceptor = {
 const tembaServer = createServer({ requestInterceptor } satisfies UserConfig)
 
 describe('Request is correctly passed through to the requestInterceptor callback functions', () => {
+  test('GET API root', async () => {
+    const getResponse = await request(tembaServer).get('/')
+    expect(getResponse.status).toBe(404)
+    expect(getResponse.body).toEqual({ message: 'API Root URL is disabled' })
+  })
   test('GET - requestInterceptor callback function', async () => {
     const getResponse = await request(tembaServer).get('/get-stuff/get-id').set('x-foo', 'GET')
     expect(getResponse.status).toBe(200)
