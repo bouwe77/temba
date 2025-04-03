@@ -13,7 +13,16 @@ test('GET on root URL returns welcome text', async () => {
   const response = await request(tembaServer).get('/')
 
   expect(response.statusCode).toEqual(200)
-  expect(response.text).toContain('It works! ツ')
+  expect(response.text).toContain('My API')
+})
+
+test('GET on root URL returns HTML content', async () => {
+  const response = await request(tembaServer).get('/').set('Accept', 'text/html')
+  expect(response.statusCode).toEqual(200)
+  expect(response.headers['content-type']).toEqual('text/html')
+  expect(response.text).toContain('<title>My API</title>')
+  expect(response.text).toContain('<h1>My API</h1>')
+  expect(response.text).toContain('Temba')
 })
 
 test('POST on root URL returns Method Not Allowed error', async () => {
