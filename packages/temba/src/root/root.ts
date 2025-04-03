@@ -4,8 +4,6 @@ import { setCorsHeaders } from '../cors/cors'
 import { version } from '../version'
 import { getHtml } from './html'
 import type { Config } from '../config'
-import { interceptGetRequest } from '../requestInterceptor/interceptRequest'
-import { TembaError } from '../requestInterceptor/TembaError'
 
 const title = 'My API'
 
@@ -29,7 +27,7 @@ const html = (res: ServerResponse<IncomingMessage>) => {
 }
 
 export const createRootUrlHandler =
-  (config: Config) =>
+  (_: Config) =>
   (req: IncomingMessage, res: ServerResponse<IncomingMessage> & { req: IncomingMessage }) => {
     if (req.method !== 'GET') return handleMethodNotAllowed(req, res)
 

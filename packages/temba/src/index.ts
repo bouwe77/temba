@@ -1,8 +1,6 @@
 import { createServer as httpCreateServer } from 'node:http'
 import { initConfig, type UserConfig } from './config'
 import type { IncomingMessage, ServerResponse } from 'http'
-import { createQueries } from './data/queries'
-import { compileSchemas } from './schema/compile'
 import { createResourceHandler, handleNotFound, sendErrorResponse } from './resourceHandler'
 import { getHttpLogger, initLogger } from './log/logger'
 import { createOpenApiHandler } from './openapi/openapi'
@@ -29,9 +27,6 @@ const createServer = (userConfig?: UserConfig) => {
     `${rootPath ? `${rootPath}/` : ''}openapi.yaml`,
   ]
   const { log, logLevel } = initLogger(process.env.LOG_LEVEL)
-  const queries = createQueries(config.connectionString, log)
-  const schemas = compileSchemas(config.schemas)
-  const handleResource = createResourceHandler(queries, schemas, config)
   const httpLogger = getHttpLogger(logLevel)
 
   const server = httpCreateServer((req, res) => {
@@ -58,7 +53,7 @@ const createServer = (userConfig?: UserConfig) => {
         } else if (openapiPaths.includes(requestUrl)) {
           createOpenApiHandler(requestUrl.endsWith('.json') ? 'json' : 'yaml', config)(req, res)
         } else if (requestUrl.startsWith(rootPath)) {
-          handleResource(req, res)
+          createResourceHandler(log, config)(req, res)
         } else {
           handleNotFound(req, res)
         }

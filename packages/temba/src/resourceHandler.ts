@@ -10,10 +10,9 @@ import type {
   TembaRequest,
   TembaResponse,
 } from './requestHandlers/types'
-import type { Queries } from './data/types'
-import type { CompiledSchemas } from './schema/types'
-import type { RouterConfig } from './config'
 import { setCorsHeaders } from './cors/cors'
+import type { Config } from './config'
+import type { Logger } from './log/logger'
 
 export const sendErrorResponse = (
   res: ServerResponse<IncomingMessage>,
@@ -109,13 +108,9 @@ const convertToDeleteRequest = (requestInfo: RequestInfo) => {
 
 type RequestValidator = (requestInfo: RequestInfo) => RequestInfo | RequestValidationError
 
-export const createResourceHandler = (
-  queries: Queries,
-  schemas: CompiledSchemas,
-  routerConfig: RouterConfig,
-) => {
+export const createResourceHandler = (logger: Logger, config: Config) => {
   const getUrlInfo = (baseUrl: string) => {
-    const url = routerConfig.apiPrefix ? baseUrl.replace(routerConfig.apiPrefix, '') : baseUrl
+    const url = config.apiPrefix ? baseUrl.replace(config.apiPrefix, '') : baseUrl
     return parseUrl(url)
   }
 
@@ -168,12 +163,12 @@ export const createResourceHandler = (
   }
 
   const validateResource = (requestInfo: RequestInfo) => {
-    const resourcePaths = routerConfig.resources.map((resource) => {
+    const resourcePaths = config.resources.map((resource) => {
       return typeof resource === 'string' ? resource : resource.resourcePath
     })
 
     if (
-      routerConfig.validateResources &&
+      config.validateResources &&
       !resourcePaths.includes((requestInfo.resource ?? '').toLowerCase())
     ) {
       return createError(404, 'Invalid resource')
@@ -227,7 +222,7 @@ export const createResourceHandler = (
     sendResponse(response, httpResponse)
   }
 
-  const requestHandler = getRequestHandler(queries, schemas, routerConfig)
+  const requestHandler = getRequestHandler(logger, config)
 
   const getHandler = async (
     httpRequest: IncomingMessage,

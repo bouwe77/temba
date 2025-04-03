@@ -3,23 +3,25 @@ import { createPostRoutes } from './post'
 import { createPutRoutes } from './put'
 import { createPatchRoutes } from './patch'
 import { createDeleteRoutes } from './delete'
+import type { Config } from '../config'
+import { compileSchemas } from '../schema/compile'
+import type { Logger } from '../log/logger'
+import { createQueries } from '../data/queries'
 
-import type { RouterConfig } from '../config'
-import type { CompiledSchemas } from '../schema/types'
-import type { Queries } from '../data/types'
-
-export const getRequestHandler = (
-  queries: Queries,
-  schemas: CompiledSchemas,
-  routerConfig: RouterConfig,
-) => {
+export const getRequestHandler = (logger: Logger, config: Config) => {
   const {
     requestInterceptor,
     responseBodyInterceptor,
     returnNullFields,
     allowDeleteCollection,
     etagsEnabled,
-  } = routerConfig
+    schemas,
+    connectionString,
+  } = config
+
+  const queries = createQueries(connectionString, logger)
+
+  const { post: postSchemas, put: putSchemas, patch: patchSchemas } = compileSchemas(schemas)
 
   const handleGet = createGetRoutes(
     queries,
@@ -29,13 +31,13 @@ export const getRequestHandler = (
     etagsEnabled,
   )
 
-  const handlePost = createPostRoutes(queries, requestInterceptor, returnNullFields, schemas.post)
+  const handlePost = createPostRoutes(queries, requestInterceptor, returnNullFields, postSchemas)
 
   const handlePut = createPutRoutes(
     queries,
     requestInterceptor,
     returnNullFields,
-    schemas.put,
+    putSchemas,
     etagsEnabled,
   )
 
@@ -43,7 +45,7 @@ export const getRequestHandler = (
     queries,
     requestInterceptor,
     returnNullFields,
-    schemas.patch,
+    patchSchemas,
     etagsEnabled,
   )
 

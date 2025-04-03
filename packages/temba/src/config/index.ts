@@ -37,18 +37,6 @@ export type Config = {
 
 export type ConfigKey = keyof Config
 
-export type RouterConfig = Pick<
-  Config,
-  | 'validateResources'
-  | 'resources'
-  | 'apiPrefix'
-  | 'requestInterceptor'
-  | 'responseBodyInterceptor'
-  | 'returnNullFields'
-  | 'allowDeleteCollection'
-  | 'etagsEnabled'
->
-
 export type UserConfig = {
   resources?: Resources
   staticFolder?: string
