@@ -72,7 +72,7 @@ const defaultConfig: Config = {
   schemas: null,
   allowDeleteCollection: false,
   etagsEnabled: false,
-  openapi: false,
+  openapi: true,
 
   isTesting: false,
   implementations: null,

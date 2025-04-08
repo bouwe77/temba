@@ -15,7 +15,6 @@ echo "import { create } from '../dist/src/index.js'
 
 create({
   port: 4321,
-  // add more settings here...
 }).start()
 " > index.js
 
@@ -32,6 +31,9 @@ echo "# API for quick testing
 
 This API is created on the fly to quickly test the Temba API against the local build in the \`dist\` folder.
 " > README.md
+
+# Copy the OpenAPI HTML page
+cp ../src/openapi/openapi.html ./openapi.html
 
 # Start the just created API
 npm run dev
