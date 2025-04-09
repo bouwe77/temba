@@ -23,9 +23,6 @@ const errorResponseSchema = {
 
 const endpoints = ['/openapi.json', '/openapi.yaml']
 
-// TODO:
-// - Sanity check tests voor HTML pagina toevoegen
-
 describe.each(endpoints)('OpenAPI documentation', (path) => {
   test(`When OpenAPI disabled, '${path}' returns a 404`, async () => {
     const tembaServer = createServer({ openapi: false })
