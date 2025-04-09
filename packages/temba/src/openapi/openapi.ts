@@ -93,19 +93,22 @@ type OpenApiFormat = 'json' | 'yaml'
 
 const anyResource = '{resource}'
 
+const getServerUrl = (requestHost: string) => {
+  const hostname = requestHost.split(':')[0] || ''
+  const port = requestHost.split(':')[1] || ''
+  const protocol = ['localhost', '127.0.0.1'].includes(hostname) ? 'http' : 'https'
+
+  let server = `${protocol}://${hostname}`
+  server += !['80', '443'].includes(port) ? `:${port}` : ''
+
+  return server
+}
+
 export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
   const openApiHandler = async (req: IncomingMessage, res: ServerResponse<IncomingMessage>) => {
     if (!config.openapi) {
       return handleNotFound(req, res)
     }
-
-    let server =
-      req.headers.host?.split(':')[1] &&
-      !['80', '443'].includes(req.headers.host.split(':')[1] || '')
-        ? req.headers.host
-        : 'default'
-
-    if (config.apiPrefix) server += `/${config.apiPrefix}/`
 
     let resourceInfos = [
       {
@@ -154,6 +157,9 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
         }
       })
     }
+
+    let server = getServerUrl(req.headers.host || '')
+    if (config.apiPrefix) server += `/${config.apiPrefix}/`
 
     const spec = buildOpenApiSpec(server, resourceInfos)
 
@@ -204,6 +210,7 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
       builder.addPath('/', {
         get: {
           summary: 'API root',
+          description: 'Shows information about the API.',
           operationId: 'getApiRoot',
           responses: {
             '200': {
@@ -233,7 +240,9 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
       // GET, HEAD, POST on a collection
       builder.addPath(`/${resource}`, {
         get: {
-          summary: `List all ${pluralResourceLowerCase}.`,
+          // description: `List all ${pluralResourceLowerCase}.`,
+          description: `List all ${pluralResourceLowerCase}.`,
+          summary: `List all ${pluralResourceLowerCase}`,
           operationId: `getAll${pluralResourceUpperCase}`,
           parameters: getPathParameters(resourceInfo),
           responses: {
@@ -251,17 +260,19 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
           },
         },
         head: {
-          summary: `Returns HTTP headers for the list of ${pluralResourceLowerCase}.`,
+          summary: `HTTP headers for all ${pluralResourceLowerCase}`,
+          description: `Returns HTTP headers for all ${pluralResourceLowerCase}.`,
           operationId: `getAll${pluralResourceUpperCase}Headers`,
           parameters: getPathParameters(resourceInfo),
           responses: {
             '200': {
-              description: `HTTP headers for the list of all ${pluralResourceLowerCase}.`,
+              description: `HTTP headers for all ${pluralResourceLowerCase}.`,
             },
           },
         },
         post: {
-          summary: `Create a new ${singularResourceLowerCase}.`,
+          summary: `Create a new ${singularResourceLowerCase}`,
+          description: `Create a new ${singularResourceLowerCase}.`,
           operationId: `create${singularResourceUpperCase}`,
           parameters: getPathParameters(resourceInfo),
           requestBody: getRequestBodySchema(postRequestSchema),
@@ -297,7 +308,8 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
       if (config.allowDeleteCollection) {
         builder.addPath(`/${resource}`, {
           delete: {
-            summary: `Delete all ${pluralResourceLowerCase}.`,
+            summary: `Delete all ${pluralResourceLowerCase}`,
+            description: `Delete all ${pluralResourceLowerCase}.`,
             operationId: `deleteAll${pluralResourceUpperCase}`,
             parameters: getPathParameters(resourceInfo),
             responses: {
@@ -310,7 +322,8 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
       } else {
         builder.addPath(`/${resource}`, {
           delete: {
-            summary:
+            summary: `Delete all ${pluralResourceLowerCase}`,
+            description:
               'Deleting whole collections is disabled. Enable by setting `allowDeleteCollection` to `true`.',
             operationId: `deleteAll${pluralResourceUpperCase}`,
             parameters: getPathParameters(resourceInfo),
@@ -327,6 +340,7 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
       builder.addPath(`/${resource}/{${singularResourceLowerCase}Id}`, {
         get: {
           summary: `Find ${indefinite(singularResourceLowerCase)} by ID`,
+          description: `Find ${indefinite(singularResourceLowerCase)} by ID.`,
           operationId: `get${singularResourceUpperCase}ById`,
           parameters: getPathParameters(resourceInfo, true),
           responses: {
@@ -349,7 +363,8 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
           },
         },
         head: {
-          summary: `Returns HTTP headers for the ${singularResourceLowerCase} by ID.`,
+          summary: `HTTP headers for the ${singularResourceLowerCase} by ID`,
+          description: `Returns HTTP headers for the ${singularResourceLowerCase} by ID.`,
           operationId: `get${singularResourceUpperCase}ByIdHeaders`,
           parameters: getPathParameters(resourceInfo, true),
           responses: {
@@ -362,7 +377,8 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
           },
         },
         post: {
-          summary: `Create a new ${singularResourceLowerCase}, specifying your own id.`,
+          summary: `Create a new ${singularResourceLowerCase} with id`,
+          description: `Create a new ${singularResourceLowerCase}, specifying your own id.`,
           operationId: `create${singularResourceUpperCase}WithId`,
           parameters: getPathParameters(resourceInfo, true),
           requestBody: {
@@ -432,7 +448,8 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
           },
         },
         put: {
-          summary: `Replace ${indefinite(singularResourceLowerCase)}.`,
+          summary: `Replace ${indefinite(singularResourceLowerCase)}`,
+          description: `Replace ${indefinite(singularResourceLowerCase)}.`,
           operationId: `replace${singularResourceUpperCase}`,
           parameters: getPathParameters(resourceInfo, true),
           requestBody: getRequestBodySchema(
@@ -478,7 +495,8 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
           },
         },
         patch: {
-          summary: `Update ${indefinite(singularResourceLowerCase)}.`,
+          summary: `Update ${indefinite(singularResourceLowerCase)}`,
+          description: `Update ${indefinite(singularResourceLowerCase)}.`,
           operationId: `update${singularResourceUpperCase}`,
           parameters: getPathParameters(resourceInfo, true),
           requestBody: getRequestBodySchema(
@@ -524,7 +542,8 @@ export const createOpenApiHandler = (format: OpenApiFormat, config: Config) => {
           },
         },
         delete: {
-          summary: `Delete ${indefinite(singularResourceLowerCase)}.`,
+          summary: `Delete ${indefinite(singularResourceLowerCase)}`,
+          description: `Delete ${indefinite(singularResourceLowerCase)}.`,
           operationId: `delete${singularResourceUpperCase}`,
           parameters: getPathParameters(resourceInfo, true),
           responses: {
