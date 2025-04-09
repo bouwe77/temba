@@ -11,23 +11,23 @@ import { expectSuccess } from './helpers'
 const resource = '/items/'
 
 describe('GET/HEAD If-None-Match header', () => {
-  test.each(['head', 'get'])('%s does not return an etag header by default', async (method) => {
+  test.each(['GET', 'HEAD'])('%s does not return an etag header by default', async (method) => {
     const tembaServer = createServer()
-    const response = await request(tembaServer)[method](resource)
+    const response = await request(tembaServer)[method.toLowerCase()](resource)
 
     expect(response.headers['etag']).toBeUndefined()
     expect(response.statusCode).toEqual(200)
   })
 
-  test.each(['head', 'get'])('%s returns an etag header when configured', async (method) => {
+  test.each(['GET', 'HEAD'])('%s returns an etag header when configured', async (method) => {
     const tembaServer = createServer({ etags: true } satisfies UserConfig)
-    const response = await request(tembaServer)[method](resource)
+    const response = await request(tembaServer)[method.toLowerCase()](resource)
 
     expect(response.headers['etag']).toBeDefined()
     expect(response.statusCode).toEqual(200)
   })
 
-  test.each(['head', 'get'])(
+  test.each(['GET', 'HEAD'])(
     '%s only returns a different etag if the resource changed',
     async (method) => {
       const tembaServer = createServer({ etags: true } satisfies UserConfig)
@@ -38,12 +38,12 @@ describe('GET/HEAD If-None-Match header', () => {
       const id = postResponse.body.id
 
       // Get the created resource
-      const getResponse = await request(tembaServer)[method](resource + id)
+      const getResponse = await request(tembaServer)[method.toLowerCase()](resource + id)
       expectSuccess(getResponse)
       const etag1 = getResponse.headers['etag']
 
       // Get the created resource again
-      const getResponse2 = await request(tembaServer)[method](resource + id)
+      const getResponse2 = await request(tembaServer)[method.toLowerCase()](resource + id)
       expectSuccess(getResponse2)
       const etag2 = getResponse2.headers['etag']
 
@@ -58,7 +58,7 @@ describe('GET/HEAD If-None-Match header', () => {
       expectSuccess(putResponse)
 
       // Get the resource again
-      const getResponse3 = await request(tembaServer)[method](resource + id)
+      const getResponse3 = await request(tembaServer)[method.toLowerCase()](resource + id)
       expectSuccess(getResponse3)
       const etag3 = getResponse3.headers['etag']
 
@@ -67,7 +67,7 @@ describe('GET/HEAD If-None-Match header', () => {
     },
   )
 
-  test.each(['head', 'get'])(
+  test.each(['GET', 'HEAD'])(
     '%s with If-None-Match returns 304 Not Modified if etag is the same',
     async (method) => {
       const tembaServer = createServer({ etags: true } satisfies UserConfig)
@@ -78,12 +78,12 @@ describe('GET/HEAD If-None-Match header', () => {
       const id = postResponse.body.id
 
       // Get the created resource
-      const getResponse = await request(tembaServer)[method](resource + id)
+      const getResponse = await request(tembaServer)[method.toLowerCase()](resource + id)
       expectSuccess(getResponse)
       const etag = getResponse.headers['etag']
       // Get the resource again with the etag
       const getResponse2 = await request(tembaServer)
-        [method](resource + id)
+        [method.toLowerCase()](resource + id)
         .set('If-None-Match', etag)
       expect(getResponse2.statusCode).toEqual(304)
 
