@@ -4,7 +4,7 @@ import type { Config } from '../config'
 import path from 'node:path'
 import fs from 'node:fs'
 import mime from 'mime/lite'
-import { setCorsHeaders } from '../cors/cors'
+import { sendResponse } from '../responseHandler'
 
 export type StaticFileInfo = {
   content: Buffer | string
@@ -29,10 +29,11 @@ export const handleStaticFolder = (
 
   try {
     const staticContent = getStaticFileFromDisk()
-    res.statusCode = 200
-    res.setHeader('Content-Type', staticContent.mimeType)
-    setCorsHeaders(res)
-    res.end(staticContent.content)
+    sendResponse(res)({
+      statusCode: 200,
+      contentType: staticContent.mimeType,
+      body: staticContent.content,
+    })
   } catch (e) {
     return parseError(e) === 'NotFound' ? handleNotFound(res) : sendErrorResponse(res)
   }

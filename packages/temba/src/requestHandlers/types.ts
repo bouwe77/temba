@@ -17,11 +17,6 @@ export type RequestInfo = {
   ifNoneMatchEtag: string | null
 }
 
-export type ErrorResponse = {
-  message: string
-  status: number
-}
-
 export type TembaRequest = {
   headers: IncomingHttpHeaders
   resource: string
@@ -51,10 +46,4 @@ export type PatchRequest = PutRequest
 export type DeleteRequest = TembaRequest & {
   id: string | null
   etag: string | null
-}
-
-export type TembaResponse = {
-  status: number
-  body?: unknown
-  headers?: Record<string, string>
 }

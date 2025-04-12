@@ -1,9 +1,9 @@
 import type { Config } from '../config'
 import type { IncomingMessage, ServerResponse } from 'http'
 import { handleNotFound } from '../resourceHandler'
-import { setCorsHeaders } from '../cors/cors'
 import { getSpec } from './spec'
 import { getOpenApiHtml } from './html'
+import { sendResponse } from '../responseHandler'
 
 export const getOpenApiPaths = (rootPath: string) => {
   return [
@@ -36,10 +36,11 @@ export const createOpenApiHandler = (config: Config, requestUrl: string, request
     const body =
       format === 'html' ? getOpenApiHtml() : getSpec(config, { format, host: requestHost })
 
-    res.statusCode = 200
-    res.setHeader('Content-Type', contentType)
-    setCorsHeaders(res)
-    res.end(body)
+    sendResponse(res)({
+      statusCode: 200,
+      contentType: contentType,
+      body,
+    })
   }
 
   return openApiHandler

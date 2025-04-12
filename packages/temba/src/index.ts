@@ -7,16 +7,15 @@ import { createOpenApiHandler, getOpenApiPaths } from './openapi'
 import { TembaError as TembaErrorInternal } from './requestInterceptor/TembaError'
 import { handleStaticFolder } from './staticFolder/staticFolder'
 import { getDefaultImplementations } from './implementations'
-import { setCorsHeaders } from './cors/cors'
 import { createRootUrlHandler } from './root/root'
+import { sendResponse } from './responseHandler'
 
 const removePendingAndTrailingSlashes = (url?: string) => (url ? url.replace(/^\/+|\/+$/g, '') : '')
 
-const handleOptionsRequest = (req: IncomingMessage, res: ServerResponse<IncomingMessage>) => {
-  res.statusCode = 200
-  setCorsHeaders(res)
-  res.end()
-}
+const handleOptionsRequest = (res: ServerResponse<IncomingMessage>) =>
+  sendResponse(res)({
+    statusCode: 200,
+  })
 
 const createServer = (userConfig?: UserConfig) => {
   const config = initConfig(userConfig)
@@ -36,7 +35,7 @@ const createServer = (userConfig?: UserConfig) => {
 
       const handleRequest = () => {
         if (req.method === 'OPTIONS') {
-          return handleOptionsRequest(req, res)
+          return handleOptionsRequest(res)
         }
 
         if (config.staticFolder && !`${requestUrl}/`.startsWith(config.apiPrefix + '/')) {
