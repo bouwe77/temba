@@ -25,17 +25,11 @@ export const sendErrorResponse = (
   res.end(JSON.stringify({ message }))
 }
 
-export const handleMethodNotAllowed = (
-  _: IncomingMessage,
-  res: ServerResponse<IncomingMessage>,
-) => {
+export const handleMethodNotAllowed = (res: ServerResponse<IncomingMessage>) => {
   sendErrorResponse(res, 405, 'Method Not Allowed')
 }
 
-export const handleNotFound = (
-  _: IncomingMessage,
-  res: ServerResponse<IncomingMessage> & { req: IncomingMessage },
-) => {
+export const handleNotFound = (res: ServerResponse<IncomingMessage>) => {
   sendErrorResponse(res, 404, 'Not Found')
 }
 

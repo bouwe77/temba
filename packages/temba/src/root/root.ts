@@ -18,25 +18,26 @@ const html = (res: ServerResponse<IncomingMessage>, config: Config) => {
   res.statusCode = 200
   res.setHeader('Content-Type', 'text/html')
   setCorsHeaders(res)
-  res.end(
-    getHtml({
-      version,
-      title,
-      ...(config.openapi && {
-        openapi: {
-          json: `/${config.apiPrefix ? `${config.apiPrefix}/` : ''}openapi.json`,
-          yaml: `/${config.apiPrefix ? `${config.apiPrefix}/` : ''}openapi.yaml`,
-          html: `/${config.apiPrefix ? `${config.apiPrefix}/` : ''}openapi.html`,
-        },
-      }),
+
+  const apiPrefix = config.apiPrefix ? `${config.apiPrefix}/` : ''
+  const html = getHtml({
+    version,
+    title,
+    ...(config.openapi && {
+      openapi: {
+        json: `/${apiPrefix}openapi.json`,
+        yaml: `/${apiPrefix}openapi.yaml`,
+        html: `/${apiPrefix}openapi.html`,
+      },
     }),
-  )
+  })
+
+  res.end(html)
 }
 
 export const createRootUrlHandler =
-  (config: Config) =>
-  (req: IncomingMessage, res: ServerResponse<IncomingMessage> & { req: IncomingMessage }) => {
-    if (req.method !== 'GET') return handleMethodNotAllowed(req, res)
+  (config: Config) => (req: IncomingMessage, res: ServerResponse<IncomingMessage>) => {
+    if (req.method !== 'GET') return handleMethodNotAllowed(res)
 
     if (req.headers.accept?.includes('text/html')) return html(res, config)
 

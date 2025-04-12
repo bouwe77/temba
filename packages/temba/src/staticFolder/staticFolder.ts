@@ -22,25 +22,19 @@ const allowedMethods = ['GET', 'HEAD']
 
 export const handleStaticFolder = (
   req: IncomingMessage,
-  res: ServerResponse<IncomingMessage> & { req: IncomingMessage },
+  res: ServerResponse<IncomingMessage>,
   getStaticFileFromDisk: () => StaticFileInfo,
 ) => {
-  if (!req.method || !allowedMethods.includes(req.method)) return handleMethodNotAllowed(req, res)
+  if (!req.method || !allowedMethods.includes(req.method)) return handleMethodNotAllowed(res)
 
   try {
     const staticContent = getStaticFileFromDisk()
-
     res.statusCode = 200
     res.setHeader('Content-Type', staticContent.mimeType)
     setCorsHeaders(res)
-
-    if (typeof staticContent.content === 'string') {
-      res.end(staticContent.content)
-    } else {
-      res.end(staticContent.content)
-    }
+    res.end(staticContent.content)
   } catch (e) {
-    return parseError(e) === 'NotFound' ? handleNotFound(req, res) : sendErrorResponse(res)
+    return parseError(e) === 'NotFound' ? handleNotFound(res) : sendErrorResponse(res)
   }
 }
 
