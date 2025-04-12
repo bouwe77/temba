@@ -21,7 +21,7 @@ export const createPatchRoutes = (
 
       const validationResult = validate(body, schemas?.[resource])
       if (validationResult.isValid === false) {
-        return { status: 400, body: { message: validationResult.errorMessage } }
+        return { statusCode: 400, body: { message: validationResult.errorMessage } }
       }
 
       let body2 = body
@@ -30,7 +30,7 @@ export const createPatchRoutes = (
           body2 = interceptPatchRequest(requestInterceptor.patch, headers, resource, id, body)
         } catch (error: unknown) {
           return {
-            status: error instanceof TembaError ? error.statusCode : 500,
+            statusCode: error instanceof TembaError ? error.statusCode : 500,
             body: { message: (error as Error).message },
           }
         }
@@ -40,7 +40,7 @@ export const createPatchRoutes = (
 
       if (!item)
         return {
-          status: 404,
+          statusCode: 404,
           body: {
             message: `ID '${id}' not found`,
           },
@@ -50,7 +50,7 @@ export const createPatchRoutes = (
         const itemEtag = etag(JSON.stringify(item))
         if (req.etag !== itemEtag) {
           return {
-            status: 412,
+            statusCode: 412,
             body: {
               message: 'Precondition failed',
             },
@@ -62,9 +62,12 @@ export const createPatchRoutes = (
 
       const updatedItem = await queries.update(resource, item)
 
-      return { status: 200, body: returnNullFields ? updatedItem : removeNullFields(updatedItem) }
+      return {
+        statusCode: 200,
+        body: returnNullFields ? updatedItem : removeNullFields(updatedItem),
+      }
     } catch (error: unknown) {
-      return { status: 500, body: { message: (error as Error).message } }
+      return { statusCode: 500, body: { message: (error as Error).message } }
     }
   }
 

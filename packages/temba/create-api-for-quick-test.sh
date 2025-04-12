@@ -15,7 +15,6 @@ echo "import { create } from '../dist/src/index.js'
 
 create({
   port: 4321,
-  // add more settings here...
 }).start()
 " > index.js
 

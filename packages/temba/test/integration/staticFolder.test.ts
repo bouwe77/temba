@@ -37,7 +37,7 @@ test('Returns static content and API routes have an "api" apiPrefix', async () =
 
   const apiResponse = await request(tembaServer).get('/api')
   expect(apiResponse.status).toBe(200)
-  expect(apiResponse.text).toContain('It works! ツ')
+  expect(apiResponse.text).toContain('My API')
 
   const wrongResourceResponse = await request(tembaServer).get('/articles')
   expect(wrongResourceResponse.status).toBe(404)

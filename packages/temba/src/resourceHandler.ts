@@ -8,51 +8,42 @@ import type {
   PutRequest,
   RequestInfo,
   TembaRequest,
-  TembaResponse,
 } from './requestHandlers/types'
-import type { Queries } from './data/types'
-import type { CompiledSchemas } from './schema/types'
-import type { RouterConfig } from './config'
-import { setCorsHeaders } from './cors/cors'
+import type { Config } from './config'
+import type { Logger } from './log/logger'
+import { sendResponse, type Response } from './responseHandler'
 
 export const sendErrorResponse = (
   res: ServerResponse<IncomingMessage>,
   statusCode: number = 500,
   message: string = 'Internal Server Error',
-) => {
-  res.statusCode = statusCode
-  res.setHeader('Content-Type', 'application/json')
-  setCorsHeaders(res)
-  res.end(JSON.stringify({ message }))
-}
+) =>
+  sendResponse(res)({
+    statusCode,
+    body: JSON.stringify({ message }),
+  })
 
-export const handleMethodNotAllowed = (
-  _: IncomingMessage,
-  res: ServerResponse<IncomingMessage>,
-) => {
+export const handleMethodNotAllowed = (res: ServerResponse<IncomingMessage>) => {
   sendErrorResponse(res, 405, 'Method Not Allowed')
 }
 
-export const handleNotFound = (
-  _: IncomingMessage,
-  res: ServerResponse<IncomingMessage> & { req: IncomingMessage },
-) => {
+export const handleNotFound = (res: ServerResponse<IncomingMessage>) => {
   sendErrorResponse(res, 404, 'Not Found')
 }
 
 type RequestValidationError = {
-  status: number
+  statusCode: number
   message: string
 }
 
 const isError = (
   request: RequestInfo | RequestValidationError,
 ): request is RequestValidationError => {
-  return 'status' in request
+  return 'statusCode' in request
 }
 
-const createError = (status: number, message: string) => {
-  return { status, message } satisfies RequestValidationError
+const createError = (statusCode: number, message: string) => {
+  return { statusCode, message } satisfies RequestValidationError
 }
 
 const validateIdInUrlRequired = (requestInfo: RequestInfo) => {
@@ -109,13 +100,9 @@ const convertToDeleteRequest = (requestInfo: RequestInfo) => {
 
 type RequestValidator = (requestInfo: RequestInfo) => RequestInfo | RequestValidationError
 
-export const createResourceHandler = (
-  queries: Queries,
-  schemas: CompiledSchemas,
-  routerConfig: RouterConfig,
-) => {
+export const createResourceHandler = (logger: Logger, config: Config) => {
   const getUrlInfo = (baseUrl: string) => {
-    const url = routerConfig.apiPrefix ? baseUrl.replace(routerConfig.apiPrefix, '') : baseUrl
+    const url = config.apiPrefix ? baseUrl.replace(config.apiPrefix, '') : baseUrl
     return parseUrl(url)
   }
 
@@ -168,12 +155,12 @@ export const createResourceHandler = (
   }
 
   const validateResource = (requestInfo: RequestInfo) => {
-    const resourcePaths = routerConfig.resources.map((resource) => {
+    const resourcePaths = config.resources.map((resource) => {
       return typeof resource === 'string' ? resource : resource.resourcePath
     })
 
     if (
-      routerConfig.validateResources &&
+      config.validateResources &&
       !resourcePaths.includes((requestInfo.resource ?? '').toLowerCase())
     ) {
       return createError(404, 'Invalid resource')
@@ -182,52 +169,37 @@ export const createResourceHandler = (
     return requestInfo
   }
 
-  const sendResponse = (tembaResponse: TembaResponse, res: ServerResponse<IncomingMessage>) => {
-    res.statusCode = tembaResponse.status
-
-    if (tembaResponse.headers) {
-      for (const [key, value] of Object.entries(tembaResponse.headers)) {
-        res.setHeader(key, value)
-      }
-    }
-
-    setCorsHeaders(res)
-
-    if (tembaResponse.body) {
-      res.setHeader('Content-Type', 'application/json')
-      res.write(JSON.stringify(tembaResponse.body))
-    }
-
-    res.end()
-  }
-
   const handle = async <T extends TembaRequest>(
     httpRequest: IncomingMessage,
     httpResponse: ServerResponse<IncomingMessage>,
     validators: RequestValidator | RequestValidator[],
     convert: (request: RequestInfo) => T,
-    handleRequest: (request: T) => Promise<TembaResponse>,
+    handleRequest: (request: T) => Promise<Response>,
   ) => {
     const requestInfo = await parseRequest(httpRequest)
 
     if (isError(requestInfo)) {
-      return sendErrorResponse(httpResponse, requestInfo.status, requestInfo.message)
+      return sendErrorResponse(httpResponse, requestInfo.statusCode, requestInfo.message)
     }
 
     for (const validator of [validators].flat()) {
       const validationResult = validator(requestInfo)
       if (isError(validationResult)) {
-        return sendErrorResponse(httpResponse, validationResult.status, validationResult.message)
+        return sendErrorResponse(
+          httpResponse,
+          validationResult.statusCode,
+          validationResult.message,
+        )
       }
     }
 
     const convertedRequest = convert(requestInfo)
 
     const response = await handleRequest(convertedRequest)
-    sendResponse(response, httpResponse)
+    sendResponse(httpResponse)(response)
   }
 
-  const requestHandler = getRequestHandler(queries, schemas, routerConfig)
+  const requestHandler = getRequestHandler(logger, config)
 
   const getHandler = async (
     httpRequest: IncomingMessage,
