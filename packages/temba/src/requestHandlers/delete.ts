@@ -17,7 +17,7 @@ export const createDeleteRoutes = (
 
       if (requestInterceptor?.delete) {
         try {
-          interceptDeleteRequest(requestInterceptor.delete, headers, resource, id)
+          await interceptDeleteRequest(requestInterceptor.delete, headers, resource, id)
         } catch (error: unknown) {
           return {
             statusCode: error instanceof TembaError ? error.statusCode : 500,

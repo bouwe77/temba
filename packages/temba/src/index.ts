@@ -9,6 +9,8 @@ import { handleStaticFolder } from './staticFolder/staticFolder'
 import { getDefaultImplementations } from './implementations'
 import { createRootUrlHandler } from './root/root'
 import { sendResponse } from './responseHandler'
+import { createQueries } from './data/queries'
+import { compileSchemas } from './schema/compile'
 
 const removePendingAndTrailingSlashes = (url?: string) => (url ? url.replace(/^\/+|\/+$/g, '') : '')
 
@@ -17,12 +19,15 @@ const handleOptionsRequest = (res: ServerResponse<IncomingMessage>) =>
     statusCode: 200,
   })
 
-const createServer = (userConfig?: UserConfig) => {
+const createServer = async (userConfig?: UserConfig) => {
   const config = initConfig(userConfig)
 
   const rootPath = config.apiPrefix ? removePendingAndTrailingSlashes(config.apiPrefix) : ''
   const openapiPaths = getOpenApiPaths(rootPath)
   const { log, logLevel } = initLogger(process.env.LOG_LEVEL)
+  const queries = createQueries(config.connectionString, log)
+  const schemas = compileSchemas(config.schemas)
+  const handleResource = await createResourceHandler(queries, schemas, config)
   const httpLogger = getHttpLogger(logLevel)
 
   const server = httpCreateServer((req, res) => {
@@ -33,23 +38,26 @@ const createServer = (userConfig?: UserConfig) => {
 
       const requestUrl = removePendingAndTrailingSlashes(req.url)
 
-      const handleRequest = () => {
+      const handleRequest = async () => {
         if (req.method === 'OPTIONS') {
           return handleOptionsRequest(res)
         }
 
         if (config.staticFolder && !`${requestUrl}/`.startsWith(config.apiPrefix + '/')) {
-          handleStaticFolder(req, res, () =>
-            implementations.getStaticFileFromDisk(
-              req.url === '/' ? 'index.html' : req.url || 'index.html',
-            ),
+          handleStaticFolder(
+            req,
+            res,
+            async () =>
+              await implementations.getStaticFileFromDisk(
+                req.url === '/' ? 'index.html' : req.url || 'index.html',
+              ),
           )
         } else if (requestUrl === rootPath) {
           createRootUrlHandler(config)(req, res)
         } else if (openapiPaths.includes(requestUrl)) {
           createOpenApiHandler(config, requestUrl, req.headers.host || '')(res)
         } else if (requestUrl.startsWith(rootPath)) {
-          createResourceHandler(log, config)(req, res)
+          await handleResource(req, res)
         } else {
           handleNotFound(res)
         }

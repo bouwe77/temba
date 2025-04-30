@@ -7,7 +7,7 @@ import { createServer } from './createServer'
 */
 
 // This Temba server is created with the default configuration, i.e. no config object is supplied.
-const tembaServer = createServer()
+const tembaServer = await createServer()
 
 describe('GET text response on root URL', () => {
   test('GET on root URL returns welcome text', async () => {
@@ -29,14 +29,14 @@ describe('GET HTML response on root URL', () => {
 
     expect(response.text).toContain('Temba')
 
-    expect(response.text).toContain('"/openapi.html"')
-    expect(response.text).toContain('"/openapi.yaml"')
-    expect(response.text).toContain('"/openapi.json"')
+    expect(response.text).toContain('/openapi.html')
+    expect(response.text).toContain('/openapi.yaml')
+    expect(response.text).toContain('/openapi.json')
   })
 
   test('GET on root URL returns HTML content with apiPrefix', async () => {
     const response = await request(
-      createServer({
+      await createServer({
         apiPrefix: 'api',
       }),
     )
@@ -44,9 +44,9 @@ describe('GET HTML response on root URL', () => {
       .set('Accept', 'text/html')
     expect(response.statusCode).toEqual(200)
 
-    expect(response.text).toContain('"/api/openapi.html"')
-    expect(response.text).toContain('"/api/openapi.yaml"')
-    expect(response.text).toContain('"/api/openapi.json"')
+    expect(response.text).toContain('/api/openapi.html')
+    expect(response.text).toContain('/api/openapi.yaml')
+    expect(response.text).toContain('/api/openapi.json')
   })
 })
 

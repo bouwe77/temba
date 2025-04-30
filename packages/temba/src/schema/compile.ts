@@ -1,8 +1,7 @@
-import Ajv, { type AnySchema } from 'ajv'
+import Ajv from 'ajv'
 import type { CompiledSchemas, ConfiguredSchemas } from './types'
 
 export const compileSchemas = (configuredSchemas: ConfiguredSchemas | null) => {
-  // Turn the configured schemas into compiled schemas
   const compiledSchemas: CompiledSchemas = {
     post: {},
     put: {},
@@ -11,22 +10,23 @@ export const compileSchemas = (configuredSchemas: ConfiguredSchemas | null) => {
 
   if (!configuredSchemas) return compiledSchemas
 
-  // Use a single Ajv instance in the whole app
   const ajv = new Ajv()
 
-  Object.keys(configuredSchemas).forEach((resource) => {
-    if (configuredSchemas[resource]?.post) {
-      compiledSchemas.post[resource] = ajv.compile(configuredSchemas[resource]?.post as AnySchema)
+  for (const resource of Object.keys(configuredSchemas)) {
+    const schemaSet = configuredSchemas[resource]
+
+    if (schemaSet?.post) {
+      compiledSchemas.post[resource] = ajv.compile(schemaSet.post)
     }
 
-    if (configuredSchemas[resource]?.put) {
-      compiledSchemas.put[resource] = ajv.compile(configuredSchemas[resource]?.put as AnySchema)
+    if (schemaSet?.put) {
+      compiledSchemas.put[resource] = ajv.compile(schemaSet.put)
     }
 
-    if (configuredSchemas[resource]?.patch) {
-      compiledSchemas.patch[resource] = ajv.compile(configuredSchemas[resource]?.patch as AnySchema)
+    if (schemaSet?.patch) {
+      compiledSchemas.patch[resource] = ajv.compile(schemaSet.patch)
     }
-  })
+  }
 
   return compiledSchemas
 }

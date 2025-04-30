@@ -6,9 +6,9 @@ import { createServer } from './createServer'
   Tests for a CRUD roundtrip along all supported HTTP methods.
 */
 
-describe('CRUD', () => {
+describe('CRUD', async () => {
   // This Temba server is created with the default configuration, i.e. no config object is supplied.
-  const tembaServer = createServer()
+  const tembaServer = await createServer()
 
   const resource = '/articles/'
 
@@ -134,7 +134,7 @@ describe('CRUD', () => {
 
 describe('POST user-defined IDs', () => {
   test('Create items with both generated and user-defined IDs', async () => {
-    const tembaServer = createServer()
+    const tembaServer = await createServer()
     const resource = '/items/'
     // Get all items, there should be 0.
     const getAllResponse = await request(tembaServer).get(resource)
@@ -168,7 +168,7 @@ describe('POST user-defined IDs', () => {
   })
 
   test('Creating an item with an existing ID returns 409 Conflict', async () => {
-    const tembaServer = createServer()
+    const tembaServer = await createServer()
     const resource = '/items/'
     // Create a new item with a user-defined ID.
     const userDefinedId = 'user_defined_id'
@@ -188,7 +188,7 @@ describe('POST user-defined IDs', () => {
 
 describe('DELETE collection', () => {
   test('DELETE on resource URL (without ID) by default returns 405 Method Not Allowed and does not delete anything', async () => {
-    const tembaServer = createServer()
+    const tembaServer = await createServer()
     const resource = '/articles/'
 
     // Get all items, there should be 0.
@@ -213,7 +213,7 @@ describe('DELETE collection', () => {
   })
 
   test('DELETE on resource URL (without ID) deletes collection if allowDeleteCollection setting is set to true', async () => {
-    const tembaServer = createServer({
+    const tembaServer = await createServer({
       allowDeleteCollection: true,
     })
     const resource = '/articles/'

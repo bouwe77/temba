@@ -27,7 +27,7 @@ export const createPutRoutes = (
       let body2 = body
       if (requestInterceptor?.put) {
         try {
-          body2 = interceptPutRequest(requestInterceptor.put, headers, resource, id, body)
+          body2 = await interceptPutRequest(requestInterceptor.put, headers, resource, id, body)
         } catch (error: unknown) {
           return {
             statusCode: error instanceof TembaError ? error.statusCode : 500,

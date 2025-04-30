@@ -4,7 +4,7 @@ import type { UserConfig } from '../../../src/config'
 import { createServer } from '../createServer'
 import type { RequestInterceptor } from '../../../src/requestInterceptor/types'
 
-describe('requestInterceptors that return a (new or changed) request body object', () => {
+describe('requestInterceptors that return a (new or changed) request body object', async () => {
   const requestInterceptor: RequestInterceptor = {
     post: ({ resource }) => {
       if (resource === 'movies') return { title: 'The Matrix' }
@@ -17,7 +17,7 @@ describe('requestInterceptors that return a (new or changed) request body object
     },
   }
 
-  const tembaServer = createServer({ requestInterceptor } satisfies UserConfig)
+  const tembaServer = await createServer({ requestInterceptor } satisfies UserConfig)
 
   test('POST with a requestInterceptor that returns a request body', async () => {
     const resourceUrl = '/movies'

@@ -8,7 +8,7 @@ import { createServer } from './createServer'
 */
 
 test.each([true, false])('returnNullFields setting is %s', async (returnNullFields) => {
-  const tembaServer = createServer({ returnNullFields } satisfies UserConfig)
+  const tembaServer = await createServer({ returnNullFields } satisfies UserConfig)
 
   // Create a car
   const createResponse = await request(tembaServer)

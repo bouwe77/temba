@@ -5,7 +5,7 @@ import { createServer } from '../createServer'
 import type { RequestInterceptor } from '../../../src/requestInterceptor/types'
 import { TembaError } from '../../../src/requestInterceptor/TembaError'
 
-describe('requestInterceptors that throw a TembaError should return the message and status code', () => {
+describe('requestInterceptors that throw a TembaError should return the message and status code', async () => {
   const requestInterceptor: RequestInterceptor = {
     post: ({ resource }) => {
       if (resource === 'movies') throw new TembaError('400 Bad Request error from POST', 400)
@@ -18,7 +18,7 @@ describe('requestInterceptors that throw a TembaError should return the message 
     },
   }
 
-  const tembaServer = createServer({ requestInterceptor } satisfies UserConfig)
+  const tembaServer = await createServer({ requestInterceptor } satisfies UserConfig)
 
   test('POST with a requestInterceptor that returns an error should result in 400 Bad Request', async () => {
     // Send a POST request.
@@ -48,7 +48,7 @@ describe('requestInterceptors that throw a TembaError should return the message 
   })
 })
 
-describe('requestInterceptors that throw a regular Error should return a 500 Internal Server Error', () => {
+describe('requestInterceptors that throw a regular Error should return a 500 Internal Server Error', async () => {
   const requestInterceptor: RequestInterceptor = {
     post: ({ resource }) => {
       if (resource === 'movies') throw new Error('Something is wrong')
@@ -58,7 +58,7 @@ describe('requestInterceptors that throw a regular Error should return a 500 Int
     },
   }
 
-  const tembaServer = createServer({ requestInterceptor } satisfies UserConfig)
+  const tembaServer = await createServer({ requestInterceptor } satisfies UserConfig)
 
   test('POST and PUT return 500 status code', async () => {
     // Send a POST request.

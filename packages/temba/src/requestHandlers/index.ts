@@ -4,24 +4,21 @@ import { createPutRoutes } from './put'
 import { createPatchRoutes } from './patch'
 import { createDeleteRoutes } from './delete'
 import type { Config } from '../config'
-import { compileSchemas } from '../schema/compile'
-import type { Logger } from '../log/logger'
-import { createQueries } from '../data/queries'
+import type { CompiledSchemas } from '../schema/types'
+import type { Queries } from '../data/types'
 
-export const getRequestHandler = (logger: Logger, config: Config) => {
+export const getRequestHandler = async (
+  queries: Queries,
+  schemas: CompiledSchemas,
+  config: Config,
+) => {
   const {
     requestInterceptor,
     responseBodyInterceptor,
     returnNullFields,
     allowDeleteCollection,
     etagsEnabled,
-    schemas,
-    connectionString,
   } = config
-
-  const queries = createQueries(connectionString, logger)
-
-  const { post: postSchemas, put: putSchemas, patch: patchSchemas } = compileSchemas(schemas)
 
   const handleGet = createGetRoutes(
     queries,
@@ -31,13 +28,13 @@ export const getRequestHandler = (logger: Logger, config: Config) => {
     etagsEnabled,
   )
 
-  const handlePost = createPostRoutes(queries, requestInterceptor, returnNullFields, postSchemas)
+  const handlePost = createPostRoutes(queries, requestInterceptor, returnNullFields, schemas.post)
 
   const handlePut = createPutRoutes(
     queries,
     requestInterceptor,
     returnNullFields,
-    putSchemas,
+    schemas.put,
     etagsEnabled,
   )
 
@@ -45,7 +42,7 @@ export const getRequestHandler = (logger: Logger, config: Config) => {
     queries,
     requestInterceptor,
     returnNullFields,
-    patchSchemas,
+    schemas.patch,
     etagsEnabled,
   )
 

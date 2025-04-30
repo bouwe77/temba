@@ -27,7 +27,7 @@ export const createPatchRoutes = (
       let body2 = body
       if (requestInterceptor?.patch) {
         try {
-          body2 = interceptPatchRequest(requestInterceptor.patch, headers, resource, id, body)
+          body2 = await interceptPatchRequest(requestInterceptor.patch, headers, resource, id, body)
         } catch (error: unknown) {
           return {
             statusCode: error instanceof TembaError ? error.statusCode : 500,

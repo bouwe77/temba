@@ -8,46 +8,46 @@ import type {
   InterceptedReturnValue,
 } from './types'
 
-export const interceptGetRequest = (
+export const interceptGetRequest = async (
   intercept: InterceptedGetRequest,
   headers: IncomingHttpHeaders,
   resource: string,
   id: string | null,
 ) => {
-  intercept({ headers, resource, id })
+  await intercept({ headers, resource, id })
 }
 
-export const interceptPostRequest = (
+export const interceptPostRequest = async (
   intercept: InterceptedPostRequest,
   headers: IncomingHttpHeaders,
   resource: string,
   id: string | null,
   body: unknown,
 ) => {
-  const intercepted = intercept({ headers, resource, body, id })
+  const intercepted = await intercept({ headers, resource, body, id })
   return interceptRequest(intercepted, body)
 }
 
-export const interceptPutRequest = (
+export const interceptPutRequest = async (
   intercept: InterceptedPutRequest,
   headers: IncomingHttpHeaders,
   resource: string,
   id: string,
   body: unknown,
 ) => {
-  const intercepted = intercept({ headers, resource, id, body })
+  const intercepted = await intercept({ headers, resource, id, body })
   return interceptRequest(intercepted, body)
 }
 
 export const interceptPatchRequest = interceptPutRequest
 
-export const interceptDeleteRequest = (
+export const interceptDeleteRequest = async (
   intercept: InterceptedDeleteRequest,
   headers: IncomingHttpHeaders,
   resource: string,
   id: string | null,
 ) => {
-  intercept({ headers, resource, id })
+  await intercept({ headers, resource, id })
 }
 
 const interceptRequest = (intercepted: InterceptedReturnValue, body: unknown) => {

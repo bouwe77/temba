@@ -22,7 +22,7 @@ test('Schema validation POST/PUT/PATCH', async () => {
   }
   const schemaUpdate = { ...schemaCreateReplace, required: [] }
 
-  const tembaServer = createServer({
+  const tembaServer = await createServer({
     schemas: {
       cars: {
         post: schemaCreateReplace,
@@ -131,7 +131,7 @@ test('Schema validation per resource', async () => {
     required: ['brand'],
   }
 
-  const tembaServer = createServer({
+  const tembaServer = await createServer({
     schemas: {
       cars: {
         post: schema,
@@ -169,7 +169,7 @@ test('Schema allows nulls, but the response will omit them with the returnNullFi
     required: ['brand'],
   }
 
-  const tembaServer = createServer({
+  const tembaServer = await createServer({
     schemas: {
       cars: {
         post: schema,

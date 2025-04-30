@@ -24,11 +24,13 @@ type WithBodyAndMaybeId = WithBody & {
 
 export type InterceptedReturnValue = void | object
 
-export type InterceptedGetRequest = (request: WithMaybeId) => InterceptedReturnValue
-export type InterceptedPostRequest = (request: WithBodyAndMaybeId) => InterceptedReturnValue
-export type InterceptedPatchRequest = (request: WithIdAndBody) => InterceptedReturnValue
-export type InterceptedPutRequest = (request: WithIdAndBody) => InterceptedReturnValue
-export type InterceptedDeleteRequest = (request: WithMaybeId) => InterceptedReturnValue
+export type InterceptedGetRequest = (request: WithMaybeId) => Promise<InterceptedReturnValue>
+export type InterceptedPostRequest = (
+  request: WithBodyAndMaybeId,
+) => Promise<InterceptedReturnValue>
+export type InterceptedPatchRequest = (request: WithIdAndBody) => Promise<InterceptedReturnValue>
+export type InterceptedPutRequest = (request: WithIdAndBody) => Promise<InterceptedReturnValue>
+export type InterceptedDeleteRequest = (request: WithMaybeId) => Promise<InterceptedReturnValue>
 
 export type RequestInterceptor = {
   get?: InterceptedGetRequest

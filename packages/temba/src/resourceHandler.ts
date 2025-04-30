@@ -10,18 +10,20 @@ import type {
   TembaRequest,
 } from './requestHandlers/types'
 import type { Config } from './config'
-import type { Logger } from './log/logger'
 import { sendResponse, type Response } from './responseHandler'
+import type { Queries } from './data/types'
+import type { CompiledSchemas } from './schema/types'
 
 export const sendErrorResponse = (
   res: ServerResponse<IncomingMessage>,
   statusCode: number = 500,
   message: string = 'Internal Server Error',
-) =>
+) => {
   sendResponse(res)({
     statusCode,
-    body: JSON.stringify({ message }),
+    body: { message },
   })
+}
 
 export const handleMethodNotAllowed = (res: ServerResponse<IncomingMessage>) => {
   sendErrorResponse(res, 405, 'Method Not Allowed')
@@ -100,7 +102,11 @@ const convertToDeleteRequest = (requestInfo: RequestInfo) => {
 
 type RequestValidator = (requestInfo: RequestInfo) => RequestInfo | RequestValidationError
 
-export const createResourceHandler = (logger: Logger, config: Config) => {
+export const createResourceHandler = async (
+  queries: Queries,
+  schemas: CompiledSchemas,
+  config: Config,
+) => {
   const getUrlInfo = (baseUrl: string) => {
     const url = config.apiPrefix ? baseUrl.replace(config.apiPrefix, '') : baseUrl
     return parseUrl(url)
@@ -199,7 +205,7 @@ export const createResourceHandler = (logger: Logger, config: Config) => {
     sendResponse(httpResponse)(response)
   }
 
-  const requestHandler = getRequestHandler(logger, config)
+  const requestHandler = await getRequestHandler(queries, schemas, config)
 
   const getHandler = async (
     httpRequest: IncomingMessage,

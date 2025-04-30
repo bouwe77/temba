@@ -16,11 +16,24 @@ export const sendResponse = (res: ServerResponse<IncomingMessage>) => (response:
       res.setHeader(key, value)
     })
   }
-  res.setHeader('Content-Type', response.contentType || 'application/json')
+
   setCorsHeaders(res)
 
   if (response.body) {
-    res.write(JSON.stringify(response.body))
+    const body =
+      typeof response.body === 'string' || Buffer.isBuffer(response.body)
+        ? response.body
+        : JSON.stringify(response.body)
+
+    if (response.contentType) {
+      res.setHeader('Content-Type', response.contentType)
+    } else if (typeof response.body === 'string') {
+      res.setHeader('Content-Type', 'text/plain')
+    } else {
+      res.setHeader('Content-Type', 'application/json')
+    }
+
+    res.write(body)
   }
 
   res.end()

@@ -25,14 +25,14 @@ const endpoints = ['/openapi.json', '/openapi.yaml']
 
 describe.each(endpoints)('OpenAPI documentation', (path) => {
   test(`When OpenAPI disabled, '${path}' returns a 404`, async () => {
-    const tembaServer = createServer({ openapi: false })
+    const tembaServer = await createServer({ openapi: false })
     const response = await request(tembaServer).get(path)
 
     expect(response.statusCode).toEqual(404)
   })
 
   test(`When OpenAPI enabled, '${path}' returns a 200 with the content-type header`, async () => {
-    const tembaServer = createServer({
+    const tembaServer = await createServer({
       openapi: true,
       resources: ['actors'],
     })
@@ -54,7 +54,7 @@ describe.each(endpoints)('OpenAPI documentation', (path) => {
 */
 
 test('When no resources configured', async () => {
-  const tembaServer = createServer({
+  const tembaServer = await createServer({
     openapi: true,
   })
 
@@ -320,7 +320,7 @@ test('When no resources configured', async () => {
 })
 
 test('When a single resource configured', async () => {
-  const tembaServer = createServer({
+  const tembaServer = await createServer({
     openapi: true,
     resources: ['actors'],
   })
@@ -496,7 +496,7 @@ test('When a single resource configured', async () => {
 })
 
 test('When apiPrefix configured server URL contains it', async () => {
-  const tembaServer = createServer({
+  const tembaServer = await createServer({
     openapi: true,
     resources: ['actors'],
     apiPrefix: '/api',
@@ -508,7 +508,7 @@ test('When apiPrefix configured server URL contains it', async () => {
 })
 
 test('When allowDeleteCollection is true paths contain a delete for the resource collection', async () => {
-  const tembaServer = createServer({
+  const tembaServer = await createServer({
     openapi: true,
     resources: ['actors'],
     allowDeleteCollection: true,
@@ -523,7 +523,7 @@ test('When allowDeleteCollection is true paths contain a delete for the resource
 })
 
 test('When multiple resources configured', async () => {
-  const tembaServer = createServer({
+  const tembaServer = await createServer({
     openapi: true,
     resources: [
       'actors',
@@ -557,7 +557,7 @@ test('When multiple resources configured', async () => {
 })
 
 test('When a custom OpenAPI object is configured', async () => {
-  const tembaServer = createServer({
+  const tembaServer = await createServer({
     openapi: {
       info: {
         title: 'My custom API title',
@@ -581,7 +581,7 @@ test('When a custom OpenAPI object is configured', async () => {
 })
 
 test('When returnNullFields is false the response description indicates this', async () => {
-  const tembaServer = createServer({
+  const tembaServer = await createServer({
     openapi: true,
     resources: ['actors'],
     returnNullFields: false,
@@ -643,7 +643,7 @@ test('When schemas are configured these are specified in both requests and respo
     additionalProperties: false,
   }
 
-  const tembaServer = createServer({
+  const tembaServer = await createServer({
     openapi: true,
     resources: ['actors'],
     schemas: {

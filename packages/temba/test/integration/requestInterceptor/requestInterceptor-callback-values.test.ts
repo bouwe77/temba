@@ -51,7 +51,9 @@ const requestInterceptor = {
   },
 } satisfies RequestInterceptor
 
-const tembaServer = createServer({ requestInterceptor } satisfies UserConfig)
+const tembaServer = await createServer({
+  requestInterceptor,
+} satisfies UserConfig)
 
 describe('Request is correctly passed through to the requestInterceptor callback functions', () => {
   test('GET - requestInterceptor callback function', async () => {
