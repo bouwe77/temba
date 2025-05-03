@@ -11,28 +11,9 @@ import type {
   TembaRequest,
 } from './requestHandlers/types'
 import type { Config } from './config'
-import { sendResponse, type Response } from './responseHandler'
+import { sendErrorResponse, sendResponse, type Response } from './responseHandler'
 import type { Queries } from './data/types'
 import type { CompiledSchemas } from './schema/types'
-
-export const sendErrorResponse = (
-  res: ServerResponse<IncomingMessage>,
-  statusCode: number = 500,
-  message: string = 'Internal Server Error',
-) => {
-  sendResponse(res)({
-    statusCode,
-    body: { message },
-  })
-}
-
-export const handleMethodNotAllowed = (res: ServerResponse<IncomingMessage>) => {
-  sendErrorResponse(res, 405, 'Method Not Allowed')
-}
-
-export const handleNotFound = (res: ServerResponse<IncomingMessage>) => {
-  sendErrorResponse(res, 404, 'Not Found')
-}
 
 type RequestValidationError = {
   statusCode: number

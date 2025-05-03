@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { handleMethodNotAllowed } from '../resourceHandler'
+import { handleMethodNotAllowed } from '../responseHandler'
 import { version } from '../version'
 import { getHtml } from './html'
 import type { Config } from '../config'

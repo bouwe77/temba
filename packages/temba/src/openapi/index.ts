@@ -1,6 +1,6 @@
 import type { Config } from '../config'
 import type { IncomingMessage, ServerResponse } from 'http'
-import { handleNotFound } from '../resourceHandler'
+import { handleNotFound } from '../responseHandler'
 import { getSpec } from './spec'
 import { getOpenApiHtml } from './html'
 import { sendResponse } from '../responseHandler'

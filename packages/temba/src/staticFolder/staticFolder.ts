@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'http'
-import { handleMethodNotAllowed, handleNotFound, sendErrorResponse } from '../resourceHandler'
+import { handleMethodNotAllowed, handleNotFound, sendErrorResponse } from '../responseHandler'
 import type { Config } from '../config'
 import path from 'node:path'
 import { promises as fs } from 'fs'

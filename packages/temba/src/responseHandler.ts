@@ -39,3 +39,22 @@ export const sendResponse = (res: ServerResponse<IncomingMessage>) => (response:
 
   res.end()
 }
+
+export const sendErrorResponse = (
+  res: ServerResponse<IncomingMessage>,
+  statusCode: number = 500,
+  message: string = 'Internal Server Error',
+) => {
+  sendResponse(res)({
+    statusCode,
+    body: { message },
+  })
+}
+
+export const handleMethodNotAllowed = (res: ServerResponse<IncomingMessage>) => {
+  sendErrorResponse(res, 405, 'Method Not Allowed')
+}
+
+export const handleNotFound = (res: ServerResponse<IncomingMessage>) => {
+  sendErrorResponse(res, 404, 'Not Found')
+}
