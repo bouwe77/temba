@@ -1,4 +1,3 @@
-import type { UserConfig } from '../../src/config'
 import { Implementations } from '../../src/implementations'
 import { create } from '../../src/index'
 

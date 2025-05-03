@@ -1,6 +1,5 @@
 import { describe, beforeEach, test, expect } from 'vitest'
 import request from 'supertest'
-import type { UserConfig } from '../../src/config'
 import { createServer } from './createServer'
 
 describe('responseBodyInterceptor unusual (but allowed) implementations', () => {
@@ -13,7 +12,7 @@ describe('responseBodyInterceptor unusual (but allowed) implementations', () => 
           //do not return anything when returnValue is undefined
           if (typeof returnValue !== 'undefined') return returnValue
         },
-      } satisfies UserConfig)
+      })
 
       // Delete all items.
       await request(tembaServer).delete('/stuff')
@@ -46,7 +45,7 @@ describe('responseBodyInterceptor unusual (but allowed) implementations', () => 
       responseBodyInterceptor: () => {
         throw new Error('Something went wrong')
       },
-    } satisfies UserConfig)
+    })
 
     const response = await request(tembaServer).get('/stuff')
     expect(response.statusCode).toEqual(500)
@@ -62,7 +61,7 @@ describe('responseBodyInterceptor unusual (but allowed) implementations', () => 
           return 'A string, instead of an array'
         }
       },
-    } satisfies UserConfig)
+    })
 
     const {
       body: { id },
@@ -93,7 +92,7 @@ describe('responseBodyInterceptor returns an updated response', async () => {
         }
       }
     },
-  } satisfies UserConfig)
+  })
 
   beforeEach(async () => {
     // Delete all items

@@ -1,6 +1,5 @@
 import { test, expect, describe } from 'vitest'
 import request from 'supertest'
-import type { UserConfig } from '../../src/config'
 import { createServer } from './createServer'
 import { expectSuccess } from './helpers'
 
@@ -20,7 +19,7 @@ describe('GET/HEAD If-None-Match header', () => {
   })
 
   test.each(['GET', 'HEAD'])('%s returns an etag header when configured', async (method) => {
-    const tembaServer = await createServer({ etags: true } satisfies UserConfig)
+    const tembaServer = await createServer({ etags: true })
     const response = await request(tembaServer)[method.toLowerCase()](resource)
 
     expect(response.headers['etag']).toBeDefined()
@@ -30,7 +29,7 @@ describe('GET/HEAD If-None-Match header', () => {
   test.each(['GET', 'HEAD'])(
     '%s only returns a different etag if the resource changed',
     async (method) => {
-      const tembaServer = await createServer({ etags: true } satisfies UserConfig)
+      const tembaServer = await createServer({ etags: true })
 
       // Create a resource
       const postResponse = await request(tembaServer).post(resource).send({ name: 'item 1' })
@@ -70,7 +69,7 @@ describe('GET/HEAD If-None-Match header', () => {
   test.each(['GET', 'HEAD'])(
     '%s with If-None-Match returns 304 Not Modified if etag is the same',
     async (method) => {
-      const tembaServer = await createServer({ etags: true } satisfies UserConfig)
+      const tembaServer = await createServer({ etags: true })
 
       // Create a resource
       const postResponse = await request(tembaServer).post(resource).send({ name: 'item 1' })
@@ -107,7 +106,7 @@ describe('GET/HEAD If-None-Match header', () => {
 
 describe('PUT/PATCH/DELETE If-Match header', () => {
   test('PUT requires an If-Match header with an up to date etag', async () => {
-    const tembaServer = await createServer({ etags: true } satisfies UserConfig)
+    const tembaServer = await createServer({ etags: true })
 
     // Create a resource
     const postResponse = await request(tembaServer).post(resource).send({ name: 'item 1' })
@@ -147,7 +146,7 @@ describe('PUT/PATCH/DELETE If-Match header', () => {
   })
 
   test('PATCH requires an If-Match header with an up to date etag', async () => {
-    const tembaServer = await createServer({ etags: true } satisfies UserConfig)
+    const tembaServer = await createServer({ etags: true })
 
     // Create a resource
     const postResponse = await request(tembaServer).post(resource).send({ name: 'item 1' })
@@ -187,7 +186,7 @@ describe('PUT/PATCH/DELETE If-Match header', () => {
   })
 
   test('DELETE an item requires an If-Match header with an up to date etag', async () => {
-    const tembaServer = await createServer({ etags: true } satisfies UserConfig)
+    const tembaServer = await createServer({ etags: true })
 
     // Create a resource
     const postResponse = await request(tembaServer).post(resource).send({ name: 'item 1' })
@@ -220,7 +219,7 @@ describe('PUT/PATCH/DELETE If-Match header', () => {
     const tembaServer = await createServer({
       etags: true,
       allowDeleteCollection: true,
-    } satisfies UserConfig)
+    })
 
     // Create a resource
     const postResponse = await request(tembaServer).post(resource).send({ name: 'item 1' })

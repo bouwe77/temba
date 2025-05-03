@@ -1,6 +1,5 @@
 import { describe, test, expect } from 'vitest'
 import request from 'supertest'
-import type { UserConfig } from '../../../src/config'
 import { createServer } from '../createServer'
 import type { RequestInterceptor } from '../../../src/requestInterceptor/types'
 import { TembaError } from '../../../src/requestInterceptor/TembaError'
@@ -18,7 +17,7 @@ describe('requestInterceptors that throw a TembaError should return the message 
     },
   }
 
-  const tembaServer = await createServer({ requestInterceptor } satisfies UserConfig)
+  const tembaServer = await createServer({ requestInterceptor })
 
   test('POST with a requestInterceptor that returns an error should result in 400 Bad Request', async () => {
     // Send a POST request.
@@ -58,7 +57,7 @@ describe('requestInterceptors that throw a regular Error should return a 500 Int
     },
   }
 
-  const tembaServer = await createServer({ requestInterceptor } satisfies UserConfig)
+  const tembaServer = await createServer({ requestInterceptor })
 
   test('POST and PUT return 500 status code', async () => {
     // Send a POST request.
