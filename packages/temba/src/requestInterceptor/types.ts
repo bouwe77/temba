@@ -1,4 +1,5 @@
 import type { IncomingHttpHeaders } from 'http'
+import type { Body } from '../requestHandlers/types'
 
 type MaybePromise<T> = T | Promise<T>
 
@@ -12,12 +13,12 @@ type WithMaybeId = InterceptedResource & {
 }
 
 type WithBody = InterceptedResource & {
-  body: unknown
+  body: Body
 }
 
 type WithIdAndBody = InterceptedResource & {
   id: string
-  body: unknown
+  body: Body
 }
 
 type WithBodyAndMaybeId = WithBody & {

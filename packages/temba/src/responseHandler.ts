@@ -1,10 +1,11 @@
 import type { IncomingMessage, ServerResponse } from 'http'
 import { setCorsHeaders } from './cors/cors'
+import type { Body } from './requestHandlers/types'
 
 export type Response = {
   statusCode: number
   headers?: Record<string, string>
-  body?: unknown
+  body?: Body
   contentType?: string
 }
 

@@ -7,6 +7,7 @@ import type {
   InterceptedPutRequest,
   InterceptedReturnValue,
 } from './types'
+import type { Body } from '../requestHandlers/types'
 
 export const interceptGetRequest = async (
   intercept: InterceptedGetRequest,
@@ -22,7 +23,7 @@ export const interceptPostRequest = async (
   headers: IncomingHttpHeaders,
   resource: string,
   id: string | null,
-  body: unknown,
+  body: Body,
 ) => {
   const intercepted = await intercept({ headers, resource, body, id })
   return interceptRequest(intercepted, body)
@@ -33,7 +34,7 @@ export const interceptPutRequest = async (
   headers: IncomingHttpHeaders,
   resource: string,
   id: string,
-  body: unknown,
+  body: Body,
 ) => {
   const intercepted = await intercept({ headers, resource, id, body })
   return interceptRequest(intercepted, body)
@@ -50,7 +51,7 @@ export const interceptDeleteRequest = async (
   await intercept({ headers, resource, id })
 }
 
-const interceptRequest = (intercepted: InterceptedReturnValue, body: unknown) => {
+const interceptRequest = (intercepted: InterceptedReturnValue, body: Body) => {
   if (!intercepted && typeof body === 'object') return body
 
   // The request body was replaced by an object

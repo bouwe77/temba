@@ -1,5 +1,7 @@
 import type { IncomingHttpHeaders } from 'http'
 
+export type Body = object | string | Buffer | null
+
 export type UrlInfo = {
   resource: string | null
   id: string | null
@@ -8,7 +10,7 @@ export type UrlInfo = {
 export type RequestInfo = {
   id: string | null
   resource: string
-  body: unknown | null
+  body: Body | null
   host: string | null
   protocol: string | null
   method: string
@@ -29,7 +31,7 @@ export type GetRequest = TembaRequest & {
 }
 
 export type PostRequest = TembaRequest & {
-  body: unknown
+  body: Body
   protocol: string | null
   host: string | null
   id: string | null
@@ -37,7 +39,7 @@ export type PostRequest = TembaRequest & {
 
 export type PutRequest = TembaRequest & {
   id: string
-  body: unknown
+  body: Body
   etag: string | null
 }
 

@@ -1,7 +1,8 @@
 import type { ValidateFunction } from 'ajv'
 import type { ValidationResult } from './types'
+import type { Body } from '../requestHandlers/types'
 
-export const validate = (body: unknown, validate?: ValidateFunction<unknown>): ValidationResult => {
+export const validate = (body: Body, validate?: ValidateFunction<unknown>): ValidationResult => {
   if (!validate) return { isValid: true }
 
   if (validate(body)) {

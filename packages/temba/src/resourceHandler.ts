@@ -2,6 +2,7 @@ import type { IncomingMessage, ServerResponse } from 'http'
 import { getRequestHandler } from './requestHandlers'
 import { parseUrl } from './urls/urlParser'
 import type {
+  Body,
   DeleteRequest,
   GetRequest,
   PostRequest,
@@ -112,7 +113,7 @@ export const createResourceHandler = async (
     return parseUrl(url)
   }
 
-  const getBody = (request: IncomingMessage) => {
+  const getBody = (request: IncomingMessage): Promise<Body | null> => {
     return new Promise((resolve, reject) => {
       const bodyParts: Buffer[] = []
 
@@ -124,7 +125,7 @@ export const createResourceHandler = async (
           try {
             const body = Buffer.concat(bodyParts).toString()
             if (!body) return resolve(null)
-            resolve(JSON.parse(body) as unknown)
+            resolve(JSON.parse(body))
           } catch {
             reject(new Error('Invalid JSON'))
           }
@@ -273,20 +274,10 @@ export const createResourceHandler = async (
   }
 
   return (req: IncomingMessage, res: ServerResponse<IncomingMessage>) => {
-    if (['GET', 'HEAD'].includes(req.method ?? '')) {
-      return getHandler(req, res)
-    }
-    if (req.method === 'POST') {
-      return postHandler(req, res)
-    }
-    if (req.method === 'PUT') {
-      return putHandler(req, res)
-    }
-    if (req.method === 'PATCH') {
-      return patchHandler(req, res)
-    }
-    if (req.method === 'DELETE') {
-      return deleteHandler(req, res)
-    }
+    if (['GET', 'HEAD'].includes(req.method ?? '')) return getHandler(req, res)
+    if (req.method === 'POST') return postHandler(req, res)
+    if (req.method === 'PUT') return putHandler(req, res)
+    if (req.method === 'PATCH') return patchHandler(req, res)
+    if (req.method === 'DELETE') return deleteHandler(req, res)
   }
 }

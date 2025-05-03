@@ -5,7 +5,7 @@ import { interceptGetRequest } from '../requestInterceptor/interceptRequest'
 import type { RequestInterceptor } from '../requestInterceptor/types'
 import { interceptResponseBody } from '../responseBodyInterceptor/interceptResponseBody'
 import type { ResponseBodyInterceptor } from '../responseBodyInterceptor/types'
-import type { GetRequest } from './types'
+import type { Body, GetRequest } from './types'
 import { removeNullFields } from './utils'
 
 export const createGetRoutes = (
@@ -18,7 +18,7 @@ export const createGetRoutes = (
   const handleGet = async (req: GetRequest) => {
     const { headers, resource, id, ifNoneMatchEtag } = req
 
-    const responseOk = (body: unknown) => {
+    const responseOk = (body: Body) => {
       if (!etagsEnabled) return { statusCode: 200, body }
 
       const etag = generateEtag(body)
