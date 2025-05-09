@@ -1,6 +1,5 @@
 import { test, expect } from 'vitest'
 import request from 'supertest'
-import type { UserConfig } from '../../src/config'
 import { createServer } from './createServer'
 
 /*
@@ -9,7 +8,7 @@ import { createServer } from './createServer'
 
 // This Temba server is created with an apiPrefix configured
 const apiPrefix = 'api'
-const tembaServer = createServer({ apiPrefix } satisfies UserConfig)
+const tembaServer = await createServer({ apiPrefix })
 
 test('GET on root URL returns 404 Not Found error', async () => {
   const response = await request(tembaServer).get('/')
@@ -22,7 +21,7 @@ test('GET on apiPrefix URL returns welcome text', async () => {
   const response = await request(tembaServer).get('/' + apiPrefix)
 
   expect(response.statusCode).toEqual(200)
-  expect(response.text).toContain('It works! ツ')
+  expect(response.text).toContain('My API')
 })
 
 test('GET on apiPrefix and resource URL returns empty array', async () => {
@@ -78,7 +77,7 @@ test('HEAD on resource URL without apiPrefix returns 404 Not Found', async () =>
 
 test('apiPrefix is equal to resource name', async () => {
   const apiPrefix = 'movies'
-  const server = createServer({ apiPrefix } satisfies UserConfig)
+  const server = await createServer({ apiPrefix })
   const moviesUrl = `/${apiPrefix}/movies/`
 
   // Create a movie

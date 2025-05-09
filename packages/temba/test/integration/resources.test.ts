@@ -7,7 +7,7 @@ import { createServer } from './createServer'
 */
 
 test('Only configured resources can be found, others return a 404', async () => {
-  const tembaServer = createServer({
+  const tembaServer = await createServer({
     resources: [
       'movies',
       {

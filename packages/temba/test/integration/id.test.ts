@@ -1,12 +1,11 @@
 import { test, expect } from 'vitest'
 import request from 'supertest'
 import { createServer } from './createServer'
-import { UserConfig } from '../../src/config'
 
 // The id is either expected or not allowed in URLs.
 // The id is never allowed in request bodies.
 
-const tembaServer = createServer()
+const tembaServer = await createServer()
 const resource = '/articles/'
 
 test('When POSTing and PUTting with ID in request body, return bad request', async () => {
@@ -68,7 +67,7 @@ test('ID validation in request bodies when a schema is configured', async () => 
     additionalProperties: false,
   }
 
-  const tembaServer = createServer({
+  const tembaServer = await createServer({
     schemas: {
       articles: {
         post: schema,
@@ -76,7 +75,7 @@ test('ID validation in request bodies when a schema is configured', async () => 
         patch: schema,
       },
     },
-  } satisfies UserConfig)
+  })
 
   // post with an id in the request body is a bad request
   const newItem = { id: 'some_id', brand: 'newItem' }

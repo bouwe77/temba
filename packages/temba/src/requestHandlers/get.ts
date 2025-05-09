@@ -5,7 +5,7 @@ import { interceptGetRequest } from '../requestInterceptor/interceptRequest'
 import type { RequestInterceptor } from '../requestInterceptor/types'
 import { interceptResponseBody } from '../responseBodyInterceptor/interceptResponseBody'
 import type { ResponseBodyInterceptor } from '../responseBodyInterceptor/types'
-import type { GetRequest } from './types'
+import type { Body, GetRequest } from './types'
 import { removeNullFields } from './utils'
 
 export const createGetRoutes = (
@@ -18,22 +18,22 @@ export const createGetRoutes = (
   const handleGet = async (req: GetRequest) => {
     const { headers, resource, id, ifNoneMatchEtag } = req
 
-    const responseOk = (body: unknown) => {
-      if (!etagsEnabled) return { status: 200, body }
+    const responseOk = (body: Body) => {
+      if (!etagsEnabled) return { statusCode: 200, body }
 
       const etag = generateEtag(body)
       return ifNoneMatchEtag === etag
-        ? { status: 304, headers: { etag } }
-        : { status: 200, body, headers: { etag } }
+        ? { statusCode: 304, headers: { etag } }
+        : { statusCode: 200, body, headers: { etag } }
     }
 
     try {
       if (req.method === 'get' && requestInterceptor?.get) {
         try {
-          interceptGetRequest(requestInterceptor.get, headers, resource, id)
+          await interceptGetRequest(requestInterceptor.get, headers, resource, id)
         } catch (error: unknown) {
           return {
-            status: error instanceof TembaError ? error.statusCode : 500,
+            statusCode: error instanceof TembaError ? error.statusCode : 500,
             body: { message: (error as Error).message },
           }
         }
@@ -43,7 +43,7 @@ export const createGetRoutes = (
         const item = await queries.getById(resource, id)
 
         if (!item) {
-          return { status: 404 }
+          return { statusCode: 404 }
         }
 
         const theItem = responseBodyInterceptor
@@ -81,7 +81,7 @@ export const createGetRoutes = (
 
       return responseOk(theItems)
     } catch (error: unknown) {
-      return { status: 500, body: { message: (error as Error).message } }
+      return { statusCode: 500, body: { message: (error as Error).message } }
     }
   }
 

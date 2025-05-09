@@ -2,9 +2,11 @@ import { test, expect } from 'vitest'
 import request from 'supertest'
 import { createServer } from './createServer'
 
-const getStaticFileFromDisk = (filename: string) => {
+const getStaticFileFromDisk = async (
+  filename: string,
+): Promise<{ content: string; mimeType: string }> => {
   if (filename === 'index.html')
-    return {
+    return Promise.resolve({
       content: `
 <!DOCTYPE html>
 <html>
@@ -16,12 +18,12 @@ const getStaticFileFromDisk = (filename: string) => {
   </body>
 </html>`,
       mimeType: 'text/html',
-    }
+    })
   else throw { code: 'ENOENT' }
 }
 
 test('Returns static content and API routes have an "api" apiPrefix', async () => {
-  const tembaServer = createServer(
+  const tembaServer = await createServer(
     {
       staticFolder: 'dist',
     },
@@ -37,7 +39,7 @@ test('Returns static content and API routes have an "api" apiPrefix', async () =
 
   const apiResponse = await request(tembaServer).get('/api')
   expect(apiResponse.status).toBe(200)
-  expect(apiResponse.text).toContain('It works! ツ')
+  expect(apiResponse.text).toContain('My API')
 
   const wrongResourceResponse = await request(tembaServer).get('/articles')
   expect(wrongResourceResponse.status).toBe(404)
@@ -48,7 +50,7 @@ test('Returns static content and API routes have an "api" apiPrefix', async () =
 })
 
 test('When static file not found, it returns a 404', async () => {
-  const tembaServer = createServer(
+  const tembaServer = await createServer(
     {
       staticFolder: 'dist',
     },
@@ -64,7 +66,7 @@ test('When static file not found, it returns a 404', async () => {
 })
 
 test('When reading static file errors, it returns a 500', async () => {
-  const tembaServer = createServer(
+  const tembaServer = await createServer(
     {
       staticFolder: 'dist',
     },
@@ -80,7 +82,7 @@ test('When reading static file errors, it returns a 500', async () => {
 })
 
 test('Only GET method is allowed for static folder', async () => {
-  const tembaServer = createServer({
+  const tembaServer = await createServer({
     staticFolder: 'dist',
   })
 

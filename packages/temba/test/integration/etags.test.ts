@@ -1,6 +1,5 @@
 import { test, expect, describe } from 'vitest'
 import request from 'supertest'
-import type { UserConfig } from '../../src/config'
 import { createServer } from './createServer'
 import { expectSuccess } from './helpers'
 
@@ -11,26 +10,26 @@ import { expectSuccess } from './helpers'
 const resource = '/items/'
 
 describe('GET/HEAD If-None-Match header', () => {
-  test.each(['head', 'get'])('%s does not return an etag header by default', async (method) => {
-    const tembaServer = createServer()
-    const response = await request(tembaServer)[method](resource)
+  test.each(['GET', 'HEAD'])('%s does not return an etag header by default', async (method) => {
+    const tembaServer = await createServer()
+    const response = await request(tembaServer)[method.toLowerCase()](resource)
 
     expect(response.headers['etag']).toBeUndefined()
     expect(response.statusCode).toEqual(200)
   })
 
-  test.each(['head', 'get'])('%s returns an etag header when configured', async (method) => {
-    const tembaServer = createServer({ etags: true } satisfies UserConfig)
-    const response = await request(tembaServer)[method](resource)
+  test.each(['GET', 'HEAD'])('%s returns an etag header when configured', async (method) => {
+    const tembaServer = await createServer({ etags: true })
+    const response = await request(tembaServer)[method.toLowerCase()](resource)
 
     expect(response.headers['etag']).toBeDefined()
     expect(response.statusCode).toEqual(200)
   })
 
-  test.each(['head', 'get'])(
+  test.each(['GET', 'HEAD'])(
     '%s only returns a different etag if the resource changed',
     async (method) => {
-      const tembaServer = createServer({ etags: true } satisfies UserConfig)
+      const tembaServer = await createServer({ etags: true })
 
       // Create a resource
       const postResponse = await request(tembaServer).post(resource).send({ name: 'item 1' })
@@ -38,12 +37,12 @@ describe('GET/HEAD If-None-Match header', () => {
       const id = postResponse.body.id
 
       // Get the created resource
-      const getResponse = await request(tembaServer)[method](resource + id)
+      const getResponse = await request(tembaServer)[method.toLowerCase()](resource + id)
       expectSuccess(getResponse)
       const etag1 = getResponse.headers['etag']
 
       // Get the created resource again
-      const getResponse2 = await request(tembaServer)[method](resource + id)
+      const getResponse2 = await request(tembaServer)[method.toLowerCase()](resource + id)
       expectSuccess(getResponse2)
       const etag2 = getResponse2.headers['etag']
 
@@ -58,7 +57,7 @@ describe('GET/HEAD If-None-Match header', () => {
       expectSuccess(putResponse)
 
       // Get the resource again
-      const getResponse3 = await request(tembaServer)[method](resource + id)
+      const getResponse3 = await request(tembaServer)[method.toLowerCase()](resource + id)
       expectSuccess(getResponse3)
       const etag3 = getResponse3.headers['etag']
 
@@ -67,10 +66,10 @@ describe('GET/HEAD If-None-Match header', () => {
     },
   )
 
-  test.each(['head', 'get'])(
+  test.each(['GET', 'HEAD'])(
     '%s with If-None-Match returns 304 Not Modified if etag is the same',
     async (method) => {
-      const tembaServer = createServer({ etags: true } satisfies UserConfig)
+      const tembaServer = await createServer({ etags: true })
 
       // Create a resource
       const postResponse = await request(tembaServer).post(resource).send({ name: 'item 1' })
@@ -78,12 +77,12 @@ describe('GET/HEAD If-None-Match header', () => {
       const id = postResponse.body.id
 
       // Get the created resource
-      const getResponse = await request(tembaServer)[method](resource + id)
+      const getResponse = await request(tembaServer)[method.toLowerCase()](resource + id)
       expectSuccess(getResponse)
       const etag = getResponse.headers['etag']
       // Get the resource again with the etag
       const getResponse2 = await request(tembaServer)
-        [method](resource + id)
+        [method.toLowerCase()](resource + id)
         .set('If-None-Match', etag)
       expect(getResponse2.statusCode).toEqual(304)
 
@@ -96,18 +95,18 @@ describe('GET/HEAD If-None-Match header', () => {
 
       // Get the resource again with the etag from the GET before the update
       const getResponse3 = await request(tembaServer)
-        [method](resource + id)
+        [method.toLowerCase()](resource + id)
         .set('If-None-Match', etag)
       expectSuccess(getResponse3)
       expect(getResponse3.statusCode).toEqual(200)
-      if (method === 'get') expect(getResponse3.body.name).toEqual('item 2')
+      if (method === 'GET') expect(getResponse3.body.name).toEqual('item 2')
     },
   )
 })
 
 describe('PUT/PATCH/DELETE If-Match header', () => {
   test('PUT requires an If-Match header with an up to date etag', async () => {
-    const tembaServer = createServer({ etags: true } satisfies UserConfig)
+    const tembaServer = await createServer({ etags: true })
 
     // Create a resource
     const postResponse = await request(tembaServer).post(resource).send({ name: 'item 1' })
@@ -147,7 +146,7 @@ describe('PUT/PATCH/DELETE If-Match header', () => {
   })
 
   test('PATCH requires an If-Match header with an up to date etag', async () => {
-    const tembaServer = createServer({ etags: true } satisfies UserConfig)
+    const tembaServer = await createServer({ etags: true })
 
     // Create a resource
     const postResponse = await request(tembaServer).post(resource).send({ name: 'item 1' })
@@ -187,7 +186,7 @@ describe('PUT/PATCH/DELETE If-Match header', () => {
   })
 
   test('DELETE an item requires an If-Match header with an up to date etag', async () => {
-    const tembaServer = createServer({ etags: true } satisfies UserConfig)
+    const tembaServer = await createServer({ etags: true })
 
     // Create a resource
     const postResponse = await request(tembaServer).post(resource).send({ name: 'item 1' })
@@ -217,10 +216,10 @@ describe('PUT/PATCH/DELETE If-Match header', () => {
   })
 
   test('DELETE a collection requires an If-Match header with an up to date etag', async () => {
-    const tembaServer = createServer({
+    const tembaServer = await createServer({
       etags: true,
       allowDeleteCollection: true,
-    } satisfies UserConfig)
+    })
 
     // Create a resource
     const postResponse = await request(tembaServer).post(resource).send({ name: 'item 1' })

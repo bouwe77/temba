@@ -1,7 +1,6 @@
 import { test, expect } from 'vitest'
 import request from 'supertest'
 import { createServer } from './createServer'
-import type { UserConfig } from '../../src/config'
 import { expectSuccess } from './helpers'
 
 /*
@@ -22,7 +21,7 @@ test('Schema validation POST/PUT/PATCH', async () => {
   }
   const schemaUpdate = { ...schemaCreateReplace, required: [] }
 
-  const tembaServer = createServer({
+  const tembaServer = await createServer({
     schemas: {
       cars: {
         post: schemaCreateReplace,
@@ -30,7 +29,7 @@ test('Schema validation POST/PUT/PATCH', async () => {
         patch: schemaUpdate,
       },
     },
-  } satisfies UserConfig)
+  })
 
   // POST only the required brand
   let response = await request(tembaServer).post(resourceUrl).send({ brand: 'Mercedes-Benz' })
@@ -131,13 +130,13 @@ test('Schema validation per resource', async () => {
     required: ['brand'],
   }
 
-  const tembaServer = createServer({
+  const tembaServer = await createServer({
     schemas: {
       cars: {
         post: schema,
       },
     },
-  } satisfies UserConfig)
+  })
 
   // A car with a brand is valid
   let response = await request(tembaServer).post(resourceUrl).send({ brand: 'Mercedes-Benz' })
@@ -169,14 +168,14 @@ test('Schema allows nulls, but the response will omit them with the returnNullFi
     required: ['brand'],
   }
 
-  const tembaServer = createServer({
+  const tembaServer = await createServer({
     schemas: {
       cars: {
         post: schema,
       },
     },
     returnNullFields: false,
-  } satisfies UserConfig)
+  })
 
   const createResponse = await request(tembaServer).post(resourceUrl).send({
     brand: 'Mercedes-Benz',

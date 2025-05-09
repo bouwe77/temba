@@ -1,4 +1,7 @@
 import type { IncomingHttpHeaders } from 'http'
+import type { Body } from '../requestHandlers/types'
+
+type MaybePromise<T> = T | Promise<T>
 
 type InterceptedResource = {
   headers: IncomingHttpHeaders
@@ -10,12 +13,12 @@ type WithMaybeId = InterceptedResource & {
 }
 
 type WithBody = InterceptedResource & {
-  body: unknown
+  body: Body
 }
 
 type WithIdAndBody = InterceptedResource & {
   id: string
-  body: unknown
+  body: Body
 }
 
 type WithBodyAndMaybeId = WithBody & {
@@ -24,11 +27,17 @@ type WithBodyAndMaybeId = WithBody & {
 
 export type InterceptedReturnValue = void | object
 
-export type InterceptedGetRequest = (request: WithMaybeId) => InterceptedReturnValue
-export type InterceptedPostRequest = (request: WithBodyAndMaybeId) => InterceptedReturnValue
-export type InterceptedPatchRequest = (request: WithIdAndBody) => InterceptedReturnValue
-export type InterceptedPutRequest = (request: WithIdAndBody) => InterceptedReturnValue
-export type InterceptedDeleteRequest = (request: WithMaybeId) => InterceptedReturnValue
+export type InterceptedGetRequest = (request: WithMaybeId) => MaybePromise<InterceptedReturnValue>
+export type InterceptedPostRequest = (
+  request: WithBodyAndMaybeId,
+) => MaybePromise<InterceptedReturnValue>
+export type InterceptedPatchRequest = (
+  request: WithIdAndBody,
+) => MaybePromise<InterceptedReturnValue>
+export type InterceptedPutRequest = (request: WithIdAndBody) => MaybePromise<InterceptedReturnValue>
+export type InterceptedDeleteRequest = (
+  request: WithMaybeId,
+) => MaybePromise<InterceptedReturnValue>
 
 export type RequestInterceptor = {
   get?: InterceptedGetRequest

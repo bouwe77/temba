@@ -20,16 +20,16 @@ export const createPostRoutes = (
 
       const validationResult = validate(body, schemas[resource])
       if (validationResult.isValid === false) {
-        return { status: 400, body: { message: validationResult.errorMessage } }
+        return { statusCode: 400, body: { message: validationResult.errorMessage } }
       }
 
       let body2 = body
       if (requestInterceptor?.post) {
         try {
-          body2 = interceptPostRequest(requestInterceptor.post, headers, resource, id, body)
+          body2 = await interceptPostRequest(requestInterceptor.post, headers, resource, id, body)
         } catch (error: unknown) {
           return {
-            status: error instanceof TembaError ? error.statusCode : 500,
+            statusCode: error instanceof TembaError ? error.statusCode : 500,
             body: { message: (error as Error).message },
           }
         }
@@ -40,7 +40,7 @@ export const createPostRoutes = (
 
         if (item)
           return {
-            status: 409,
+            statusCode: 409,
             body: {
               message: `ID '${id}' already exists`,
             },
@@ -57,11 +57,11 @@ export const createPostRoutes = (
             pathname: `${resource}/${newItem.id}`,
           }),
         },
-        status: 201,
+        statusCode: 201,
         body: returnNullFields ? newItem : removeNullFields(newItem),
       }
     } catch (error: unknown) {
-      return { status: 500, body: { message: (error as Error).message } }
+      return { statusCode: 500, body: { message: (error as Error).message } }
     }
   }
 

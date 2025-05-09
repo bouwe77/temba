@@ -16,7 +16,7 @@ const defaultConfig: Config = {
   schemas: null,
   allowDeleteCollection: false,
   etagsEnabled: false,
-  openapi: false,
+  openapi: true,
 
   isTesting: false,
   implementations: null,
@@ -96,7 +96,8 @@ test('Full user config overrides all defaults', () => {
     openapi: true,
     isTesting: true,
     implementations: {
-      getStaticFileFromDisk: () => ({ content: 'Hello, World!', mimeType: 'text/plain' }),
+      getStaticFileFromDisk: () =>
+        Promise.resolve({ content: 'Hello, World!', mimeType: 'text/plain' }),
     },
   })
 

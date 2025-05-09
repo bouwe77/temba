@@ -3,15 +3,14 @@ import { createPostRoutes } from './post'
 import { createPutRoutes } from './put'
 import { createPatchRoutes } from './patch'
 import { createDeleteRoutes } from './delete'
-
-import type { RouterConfig } from '../config'
+import type { Config } from '../config'
 import type { CompiledSchemas } from '../schema/types'
 import type { Queries } from '../data/types'
 
-export const getRequestHandler = (
+export const getRequestHandler = async (
   queries: Queries,
   schemas: CompiledSchemas,
-  routerConfig: RouterConfig,
+  config: Config,
 ) => {
   const {
     requestInterceptor,
@@ -19,7 +18,7 @@ export const getRequestHandler = (
     returnNullFields,
     allowDeleteCollection,
     etagsEnabled,
-  } = routerConfig
+  } = config
 
   const handleGet = createGetRoutes(
     queries,

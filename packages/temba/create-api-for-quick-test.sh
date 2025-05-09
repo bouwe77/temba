@@ -13,10 +13,10 @@ cd api-for-quick-testing
 # Create index.js that imports Temba from the dist folder and starts the server
 echo "import { create } from '../dist/src/index.js'
 
-create({
+const server = await create({
   port: 4321,
-  // add more settings here...
-}).start()
+})
+server.start()
 " > index.js
 
 # Create package.json to start the server with `npm run dev`

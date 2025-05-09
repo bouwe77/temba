@@ -7,7 +7,7 @@ import { createServer } from './createServer'
 */
 
 // This Temba server is created with the default configuration, i.e. no config object is supplied.
-const tembaServer = createServer()
+const tembaServer = await createServer()
 
 const resource = '/cars/'
 

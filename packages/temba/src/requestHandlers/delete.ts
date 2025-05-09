@@ -17,10 +17,10 @@ export const createDeleteRoutes = (
 
       if (requestInterceptor?.delete) {
         try {
-          interceptDeleteRequest(requestInterceptor.delete, headers, resource, id)
+          await interceptDeleteRequest(requestInterceptor.delete, headers, resource, id)
         } catch (error: unknown) {
           return {
-            status: error instanceof TembaError ? error.statusCode : 500,
+            statusCode: error instanceof TembaError ? error.statusCode : 500,
             body: { message: (error as Error).message },
           }
         }
@@ -33,7 +33,7 @@ export const createDeleteRoutes = (
             const itemEtag = etag(JSON.stringify(item))
             if (req.etag !== itemEtag) {
               return {
-                status: 412,
+                statusCode: 412,
                 body: {
                   message: 'Precondition failed',
                 },
@@ -47,7 +47,7 @@ export const createDeleteRoutes = (
           // The client needs to do a GET to determine it, after which it finds out the item is gone.
           if (etagsEnabled && !req.etag) {
             return {
-              status: 412,
+              statusCode: 412,
               body: {
                 message: 'Precondition failed',
               },
@@ -56,7 +56,7 @@ export const createDeleteRoutes = (
         }
       } else {
         if (!allowDeleteCollection) {
-          return { status: 405 }
+          return { statusCode: 405 }
         }
 
         if (etagsEnabled) {
@@ -64,7 +64,7 @@ export const createDeleteRoutes = (
           const etagValue = etag(JSON.stringify(items))
           if (req.etag !== etagValue) {
             return {
-              status: 412,
+              statusCode: 412,
               body: {
                 message: 'Precondition failed',
               },
@@ -75,9 +75,9 @@ export const createDeleteRoutes = (
         await queries.deleteAll(resource)
       }
 
-      return { status: 204 }
+      return { statusCode: 204 }
     } catch (error: unknown) {
-      return { status: 500, body: { message: (error as Error).message } }
+      return { statusCode: 500, body: { message: (error as Error).message } }
     }
   }
 

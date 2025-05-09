@@ -78,8 +78,8 @@ Alternatively, add Temba to your app manually:
 
 ```js
 import { create } from "temba"
-const server = create()
-server.start()
+const server = await create()
+await server.start()
 ```
 
 3. In your console you'll see:
@@ -141,7 +141,7 @@ By default data is stored in memory. This means the data is flushed when the ser
 const config = {
   connectionString: 'data.json',
 }
-const server = create(config)
+const server = await create(config)
 ```
 
 All resources are saved in a single JSON file. The file is not created or updated unless you create, update, or delete resources.
@@ -152,7 +152,7 @@ All resources are saved in a single JSON file. The file is not created or update
 const config = {
   connectionString: 'mongodb://localhost:27017/myDatabase',
 }
-const server = create(config)
+const server = await create(config)
 ```
 
 For every resource you use in your requests, a collection is created in the database. However, not until you actually create a resource with a `POST`.
@@ -165,7 +165,7 @@ If you only want to allow specific resource names, configure them by providing a
 const config = {
   resources: ['movies', 'actors'],
 }
-const server = create(config)
+const server = await create(config)
 ```
 
 Requests on these resources only give a `404 Not Found` if the ID does not exist. Requests on any other resource will always return a `404 Not Found`.
@@ -178,12 +178,10 @@ With the `apiPrefix` config setting, all resources get an extra path segment in 
 const config = {
   apiPrefix: 'api',
 }
-const server = create(config)
+const server = await create(config)
 ```
 
-A request to the `apiPrefix` (e.g. http://localhost:1234/api) will now return the `"It works! ツ"` response message.
-
-After configuring the `apiPrefix`, requests to the root URL (e.g. http://localhost:1234/), instead of the `"It works! ツ"` response message, will now either return a `404 Not Found` on `GET` requests, or a `405 Method Not Allowed` for any other HTTP method.
+After configuring the `apiPrefix`, requests to the root URL (e.g. http://localhost:1234/), will now either return a `404 Not Found` on `GET` requests, or a `405 Method Not Allowed` for any other HTTP method.
 
 ### Static assets
 
@@ -193,7 +191,7 @@ If you want to host static assets, for example a web app consuming the API, you 
 const config = {
   staticFolder: 'build',
 }
-const server = create(config)
+const server = await create(config)
 ```
 
 With this setting, sending a `GET` request to the root URL, returns the content that is in the `'./build'` folder in your project, for example an HTML page.
@@ -247,7 +245,7 @@ const config = {
   },
 }
 
-const server = create(config)
+const server = await create(config)
 ```
 
 If a request is not valid according to the schema, a `400 Bad Request` response is returned, and a message in the response body indicating the validation error.
@@ -279,7 +277,7 @@ const config = {
   },
 }
 
-const server = create(config)
+const server = await create(config)
 ```
 
 The `requestInterceptor` is an object with fields for each of the HTTP methods you might want to intercept, and the callback function you want Temba to call, before processing the request, i.e. going to the database.
@@ -319,7 +317,7 @@ const config = {
   },
 }
 
-const server = create(config)
+const server = await create(config)
 ```
 
 ### Response body interception
@@ -349,7 +347,7 @@ const config = {
   },
 }
 
-const server = create(config)
+const server = await create(config)
 ```
 
 `responseBodyInterceptor` is a callback function that provides an object containing the `resource`, `body`, and the `id`. Depending on whether it's a collection or item request, the `body` is either an array or object, and the `id` can be `undefined`.
@@ -370,7 +368,7 @@ To optimize `GET` requests, and only send JSON over the wire when it changed, yo
 const config = {
   etags: true,
 }
-const server = create(config)
+const server = await create(config)
 ```
 
 After enabling etags, every `GET` request will return an `etag` response header, which clients can (optionally) send as an `If-None-Match` header with every subsequent `GET` request. Only if the resource changed in the meantime the server will return the new JSON, and otherwise it will return a `304 Not Modified` response with an empty response body.
@@ -426,7 +424,7 @@ const config = {
   },
   staticFolder: 'build',
 }
-const server = create(config)
+const server = await create(config)
 ```
 
 These are all the possible settings:

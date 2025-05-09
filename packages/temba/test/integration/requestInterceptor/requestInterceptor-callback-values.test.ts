@@ -1,6 +1,5 @@
 import { test, expect, describe } from 'vitest'
 import request from 'supertest'
-import type { UserConfig } from '../../../src/config'
 import { createServer } from '../createServer'
 import { RequestInterceptor } from '../../../src/requestInterceptor/types'
 import { TembaError } from '../../../src/requestInterceptor/TembaError'
@@ -51,7 +50,9 @@ const requestInterceptor = {
   },
 } satisfies RequestInterceptor
 
-const tembaServer = createServer({ requestInterceptor } satisfies UserConfig)
+const tembaServer = await createServer({
+  requestInterceptor,
+})
 
 describe('Request is correctly passed through to the requestInterceptor callback functions', () => {
   test('GET - requestInterceptor callback function', async () => {

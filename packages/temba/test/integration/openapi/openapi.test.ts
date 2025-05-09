@@ -1,6 +1,5 @@
 import { describe, test, expect } from 'vitest'
 import request from 'supertest'
-import type { UserConfig } from '../../../src/config'
 import { expectSuccess } from '../helpers'
 import { createServer } from '../createServer'
 
@@ -25,25 +24,18 @@ const errorResponseSchema = {
 const endpoints = ['/openapi.json', '/openapi.yaml']
 
 describe.each(endpoints)('OpenAPI documentation', (path) => {
-  test(`When OpenAPI not configured '${path}' returns a 404`, async () => {
-    const tembaServer = createServer()
+  test(`When OpenAPI disabled, '${path}' returns a 404`, async () => {
+    const tembaServer = await createServer({ openapi: false })
     const response = await request(tembaServer).get(path)
 
     expect(response.statusCode).toEqual(404)
   })
 
-  test(`When OpenAPI disabled '${path}' returns a 404`, async () => {
-    const tembaServer = createServer({ openapi: false } satisfies UserConfig)
-    const response = await request(tembaServer).get(path)
-
-    expect(response.statusCode).toEqual(404)
-  })
-
-  test(`When OpenAPI enabled '${path}' returns a 200 with the content-type header`, async () => {
-    const tembaServer = createServer({
+  test(`When OpenAPI enabled, '${path}' returns a 200 with the content-type header`, async () => {
+    const tembaServer = await createServer({
       openapi: true,
       resources: ['actors'],
-    } satisfies UserConfig)
+    })
     const response = await request(tembaServer).get(path)
 
     expect(response.statusCode).toEqual(200)
@@ -62,9 +54,9 @@ describe.each(endpoints)('OpenAPI documentation', (path) => {
 */
 
 test('When no resources configured', async () => {
-  const tembaServer = createServer({
+  const tembaServer = await createServer({
     openapi: true,
-  } satisfies UserConfig)
+  })
 
   const response = await request(tembaServer).get('/openapi.json')
   expect(response.statusCode).toEqual(200)
@@ -81,7 +73,11 @@ test('When no resources configured', async () => {
   expect(response.body.info.license.url).toEqual('http://www.apache.org/licenses/LICENSE-2.0.html')
 
   expect(response.body.servers.length).toEqual(1)
-  expect(response.body.servers[0].url.length).toBeGreaterThan(0)
+  const url = response.body.servers[0].url
+  const expected = 'http://127.0.0.1:'
+  if (!url.startsWith(expected)) {
+    throw new Error(`Expected URL to start with ${expected}, but got: ${url}`)
+  }
 
   // Paths object has 3 paths: "/", "/{resource}" and "/{resource}/{resourceId}"
   expect(Object.keys(response.body.paths).length).toEqual(3)
@@ -89,6 +85,7 @@ test('When no resources configured', async () => {
   // GET /
   const root = response.body.paths['/']['get']
   expect(root.summary).toEqual('API root')
+  expect(root.description).toEqual('Shows information about the API.')
   expect(root.operationId).toEqual('getApiRoot')
   expect(root.responses['200'].description).toEqual('The API is working.')
   expect(root.responses['200'].content['text/html'].schema.type).toEqual('string')
@@ -105,7 +102,8 @@ test('When no resources configured', async () => {
 
   // GET /{resource}
   const get = response.body.paths['/{resource}']['get']
-  expect(get.summary).toEqual('List all resources.')
+  expect(get.summary).toEqual('List all resources')
+  expect(get.description).toEqual('List all resources.')
   expect(get.operationId).toEqual('getAllResources')
   expect(get.parameters[0].name).toEqual('resource')
   expect(get.parameters[0].in).toEqual('path')
@@ -121,6 +119,7 @@ test('When no resources configured', async () => {
   // GET /{resource}/{resourceId}
   const getById = response.body.paths['/{resource}/{resourceId}']['get']
   expect(getById.summary).toEqual('Find a resource by ID')
+  expect(getById.description).toEqual('Find a resource by ID.')
   expect(getById.operationId).toEqual('getResourceById')
   expect(getById.parameters[0].name).toEqual('resource')
   expect(getById.parameters[0].in).toEqual('path')
@@ -139,18 +138,20 @@ test('When no resources configured', async () => {
 
   // HEAD /{resource}
   const head = response.body.paths['/{resource}']['head']
-  expect(head.summary).toEqual('Returns HTTP headers for the list of resources.')
+  expect(head.summary).toEqual('HTTP headers for all resources')
+  expect(head.description).toEqual('Returns HTTP headers for all resources.')
   expect(head.operationId).toEqual('getAllResourcesHeaders')
   expect(head.parameters[0].name).toEqual('resource')
   expect(head.parameters[0].in).toEqual('path')
   expect(head.parameters[0].required).toEqual(true)
   expect(head.parameters[0].schema.type).toEqual('string')
   expect(head.parameters[0].description).toEqual('The name of the resource.')
-  expect(head.responses['200'].description).toEqual('HTTP headers for the list of all resources.')
+  expect(head.responses['200'].description).toEqual('HTTP headers for all resources.')
 
   // HEAD /{resource}/{resourceId}
   const headById = response.body.paths['/{resource}/{resourceId}']['head']
-  expect(headById.summary).toEqual('Returns HTTP headers for the resource by ID.')
+  expect(headById.summary).toEqual('HTTP headers for the resource by ID')
+  expect(headById.description).toEqual('Returns HTTP headers for the resource by ID.')
   expect(headById.operationId).toEqual('getResourceByIdHeaders')
   expect(getById.parameters[0].name).toEqual('resource')
   expect(getById.parameters[0].in).toEqual('path')
@@ -169,7 +170,8 @@ test('When no resources configured', async () => {
 
   // POST /{resource}
   const post = response.body.paths['/{resource}']['post']
-  expect(post.summary).toEqual('Create a new resource.')
+  expect(post.summary).toEqual('Create a new resource')
+  expect(post.description).toEqual('Create a new resource.')
   expect(post.operationId).toEqual('createResource')
   expect(post.parameters[0].name).toEqual('resource')
   expect(post.parameters[0].in).toEqual('path')
@@ -190,7 +192,8 @@ test('When no resources configured', async () => {
 
   // POST /{resource}/{resourceId}
   const postId = response.body.paths['/{resource}/{resourceId}']['post']
-  expect(postId.summary).toEqual('Create a new resource, specifying your own id.')
+  expect(postId.summary).toEqual('Create a new resource with id')
+  expect(postId.description).toEqual('Create a new resource, specifying your own id.')
   expect(postId.operationId).toEqual('createResourceWithId')
   expect(postId.parameters[0].name).toEqual('resource')
   expect(postId.parameters[0].in).toEqual('path')
@@ -222,7 +225,8 @@ test('When no resources configured', async () => {
 
   // PUT /{resource}/{resourceId}
   const put = response.body.paths['/{resource}/{resourceId}']['put']
-  expect(put.summary).toEqual('Replace a resource.')
+  expect(put.summary).toEqual('Replace a resource')
+  expect(put.description).toEqual('Replace a resource.')
   expect(put.operationId).toEqual('replaceResource')
   expect(getById.parameters[0].name).toEqual('resource')
   expect(getById.parameters[0].in).toEqual('path')
@@ -253,7 +257,8 @@ test('When no resources configured', async () => {
 
   // PATCH /{resource}/{resourceId}
   const patch = response.body.paths['/{resource}/{resourceId}']['patch']
-  expect(patch.summary).toEqual('Update a resource.')
+  expect(patch.summary).toEqual('Update a resource')
+  expect(patch.description).toEqual('Update a resource.')
   expect(patch.operationId).toEqual('updateResource')
   expect(getById.parameters[0].name).toEqual('resource')
   expect(getById.parameters[0].in).toEqual('path')
@@ -284,7 +289,8 @@ test('When no resources configured', async () => {
 
   // DELETE /{resource} is disabled, so not in the paths
   const deleteAll = response.body.paths['/{resource}']['delete']
-  expect(deleteAll.summary).toEqual(
+  expect(deleteAll.summary).toEqual('Delete all resources')
+  expect(deleteAll.description).toEqual(
     'Deleting whole collections is disabled. Enable by setting `allowDeleteCollection` to `true`.',
   )
   expect(deleteAll.operationId).toEqual('deleteAllResources')
@@ -297,7 +303,8 @@ test('When no resources configured', async () => {
 
   // DELETE /{resource}/{resourceId}
   const deleteById = response.body.paths['/{resource}/{resourceId}']['delete']
-  expect(deleteById.summary).toEqual('Delete a resource.')
+  expect(deleteById.summary).toEqual('Delete a resource')
+  expect(deleteById.description).toEqual('Delete a resource.')
   expect(deleteById.operationId).toEqual('deleteResource')
   expect(getById.parameters[0].name).toEqual('resource')
   expect(getById.parameters[0].in).toEqual('path')
@@ -313,10 +320,10 @@ test('When no resources configured', async () => {
 })
 
 test('When a single resource configured', async () => {
-  const tembaServer = createServer({
+  const tembaServer = await createServer({
     openapi: true,
     resources: ['actors'],
-  } satisfies UserConfig)
+  })
 
   const response = await request(tembaServer).get('/openapi.json')
 
@@ -333,7 +340,11 @@ test('When a single resource configured', async () => {
   expect(response.body.info.license.url).toEqual('http://www.apache.org/licenses/LICENSE-2.0.html')
 
   expect(response.body.servers.length).toEqual(1)
-  expect(response.body.servers[0].url.length).toBeGreaterThan(0)
+  const url = response.body.servers[0].url
+  const expected = 'http://127.0.0.1:'
+  if (!url.startsWith(expected)) {
+    throw new Error(`Expected URL to start with ${expected}, but got: ${url}`)
+  }
 
   // Paths object has 3 paths: "/", "/actors" and "/actors/{actorId}"
   expect(Object.keys(response.body.paths).length).toEqual(3)
@@ -341,13 +352,15 @@ test('When a single resource configured', async () => {
   // GET /
   const root = response.body.paths['/']['get']
   expect(root.summary).toEqual('API root')
+  expect(root.description).toEqual('Shows information about the API.')
   expect(root.operationId).toEqual('getApiRoot')
   expect(root.responses['200'].description).toEqual('The API is working.')
   expect(root.responses['200'].content['text/html'].schema.type).toEqual('string')
 
   // GET /actors
   const get = response.body.paths['/actors']['get']
-  expect(get.summary).toEqual('List all actors.')
+  expect(get.summary).toEqual('List all actors')
+  expect(get.description).toEqual('List all actors.')
   expect(get.operationId).toEqual('getAllActors')
   expect(get.responses['200'].description).toEqual('List of all actors.')
   expect(get.responses['200'].content['application/json'].schema.type).toEqual('array')
@@ -356,6 +369,7 @@ test('When a single resource configured', async () => {
   // GET /actors/{actorId}
   const getById = response.body.paths['/actors/{actorId}']['get']
   expect(getById.summary).toEqual('Find an actor by ID')
+  expect(getById.description).toEqual('Find an actor by ID.')
   expect(getById.operationId).toEqual('getActorById')
   expect(getById.parameters[0].name).toEqual('actorId')
   expect(getById.parameters[0].in).toEqual('path')
@@ -369,13 +383,15 @@ test('When a single resource configured', async () => {
 
   // HEAD /actors
   const head = response.body.paths['/actors']['head']
-  expect(head.summary).toEqual('Returns HTTP headers for the list of actors.')
+  expect(head.summary).toEqual('HTTP headers for all actors')
+  expect(head.description).toEqual('Returns HTTP headers for all actors.')
   expect(head.operationId).toEqual('getAllActorsHeaders')
-  expect(head.responses['200'].description).toEqual('HTTP headers for the list of all actors.')
+  expect(head.responses['200'].description).toEqual('HTTP headers for all actors.')
 
   // HEAD /actors/{actorId}
   const headById = response.body.paths['/actors/{actorId}']['head']
-  expect(headById.summary).toEqual('Returns HTTP headers for the actor by ID.')
+  expect(headById.summary).toEqual('HTTP headers for the actor by ID')
+  expect(headById.description).toEqual('Returns HTTP headers for the actor by ID.')
   expect(headById.operationId).toEqual('getActorByIdHeaders')
   expect(headById.parameters[0].name).toEqual('actorId')
   expect(headById.parameters[0].in).toEqual('path')
@@ -389,7 +405,8 @@ test('When a single resource configured', async () => {
 
   // POST /actors
   const post = response.body.paths['/actors']['post']
-  expect(post.summary).toEqual('Create a new actor.')
+  expect(post.summary).toEqual('Create a new actor')
+  expect(post.description).toEqual('Create a new actor.')
   expect(post.operationId).toEqual('createActor')
   expect(post.requestBody.content['application/json'].schema.type).toEqual('object')
   expect(post.responses['201'].description).toEqual(
@@ -405,7 +422,8 @@ test('When a single resource configured', async () => {
 
   // PUT /actors/{actorId}
   const put = response.body.paths['/actors/{actorId}']['put']
-  expect(put.summary).toEqual('Replace an actor.')
+  expect(put.summary).toEqual('Replace an actor')
+  expect(put.description).toEqual('Replace an actor.')
   expect(put.operationId).toEqual('replaceActor')
   expect(put.parameters[0].name).toEqual('actorId')
   expect(put.parameters[0].in).toEqual('path')
@@ -431,7 +449,8 @@ test('When a single resource configured', async () => {
 
   // PATCH /actors/{actorId}
   const patch = response.body.paths['/actors/{actorId}']['patch']
-  expect(patch.summary).toEqual('Update an actor.')
+  expect(patch.summary).toEqual('Update an actor')
+  expect(patch.description).toEqual('Update an actor.')
   expect(patch.operationId).toEqual('updateActor')
   expect(patch.parameters[0].name).toEqual('actorId')
   expect(patch.parameters[0].in).toEqual('path')
@@ -457,7 +476,7 @@ test('When a single resource configured', async () => {
 
   // DELETE /actors is disabled, so not in the paths
   const deleteAll = response.body.paths['/actors']['delete']
-  expect(deleteAll.summary).toEqual(
+  expect(deleteAll.description).toEqual(
     'Deleting whole collections is disabled. Enable by setting `allowDeleteCollection` to `true`.',
   )
   expect(deleteAll.operationId).toEqual('deleteAllActors')
@@ -465,7 +484,8 @@ test('When a single resource configured', async () => {
 
   // DELETE /actors/{actorId}
   const deleteById = response.body.paths['/actors/{actorId}']['delete']
-  expect(deleteById.summary).toEqual('Delete an actor.')
+  expect(deleteById.summary).toEqual('Delete an actor')
+  expect(deleteById.description).toEqual('Delete an actor.')
   expect(deleteById.operationId).toEqual('deleteActor')
   expect(deleteById.parameters[0].name).toEqual('actorId')
   expect(deleteById.parameters[0].in).toEqual('path')
@@ -476,11 +496,11 @@ test('When a single resource configured', async () => {
 })
 
 test('When apiPrefix configured server URL contains it', async () => {
-  const tembaServer = createServer({
+  const tembaServer = await createServer({
     openapi: true,
     resources: ['actors'],
     apiPrefix: '/api',
-  } satisfies UserConfig)
+  })
 
   const response = await request(tembaServer).get('/api/openapi.json')
   expect(response.body.servers.length).toEqual(1)
@@ -488,22 +508,22 @@ test('When apiPrefix configured server URL contains it', async () => {
 })
 
 test('When allowDeleteCollection is true paths contain a delete for the resource collection', async () => {
-  const tembaServer = createServer({
+  const tembaServer = await createServer({
     openapi: true,
     resources: ['actors'],
     allowDeleteCollection: true,
-  } satisfies UserConfig)
+  })
 
   const response = await request(tembaServer).get('/openapi.json')
 
   const deleteAll = response.body.paths['/actors']['delete']
-  expect(deleteAll.summary).toEqual('Delete all actors.')
+  expect(deleteAll.summary).toEqual('Delete all actors')
   expect(deleteAll.operationId).toEqual('deleteAllActors')
   expect(deleteAll.responses['204'].description).toEqual('All actors were deleted.')
 })
 
 test('When multiple resources configured', async () => {
-  const tembaServer = createServer({
+  const tembaServer = await createServer({
     openapi: true,
     resources: [
       'actors',
@@ -513,7 +533,7 @@ test('When multiple resources configured', async () => {
         pluralName: 'people',
       },
     ],
-  } satisfies UserConfig)
+  })
 
   const response = await request(tembaServer).get('/openapi.json')
 
@@ -526,7 +546,7 @@ test('When multiple resources configured', async () => {
 
   // For the people resource some sanity checks for correct usage of the singular an plural resource names
   const get = response.body.paths['/people']['get']
-  expect(get.summary).toEqual('List all people.')
+  expect(get.summary).toEqual('List all people')
   expect(get.operationId).toEqual('getAllPeople')
   expect(get.responses['200'].description).toEqual('List of all people.')
 
@@ -537,7 +557,7 @@ test('When multiple resources configured', async () => {
 })
 
 test('When a custom OpenAPI object is configured', async () => {
-  const tembaServer = createServer({
+  const tembaServer = await createServer({
     openapi: {
       info: {
         title: 'My custom API title',
@@ -551,7 +571,7 @@ test('When a custom OpenAPI object is configured', async () => {
       },
     },
     resources: ['actors'],
-  } satisfies UserConfig)
+  })
 
   const response = await request(tembaServer).get('/openapi.json')
 
@@ -561,7 +581,7 @@ test('When a custom OpenAPI object is configured', async () => {
 })
 
 test('When returnNullFields is false the response description indicates this', async () => {
-  const tembaServer = createServer({
+  const tembaServer = await createServer({
     openapi: true,
     resources: ['actors'],
     returnNullFields: false,
@@ -623,7 +643,7 @@ test('When schemas are configured these are specified in both requests and respo
     additionalProperties: false,
   }
 
-  const tembaServer = createServer({
+  const tembaServer = await createServer({
     openapi: true,
     resources: ['actors'],
     schemas: {
