@@ -79,7 +79,7 @@ Alternatively, add Temba to your app manually:
 ```js
 import { create } from "temba"
 const server = await create()
-await server.start()
+server.start()
 ```
 
 3. In your console you'll see:
