@@ -34,7 +34,6 @@ describe.each(endpoints)('OpenAPI documentation', (path) => {
   test(`When OpenAPI enabled, '${path}' returns a 200 with the content-type header`, async () => {
     const tembaServer = await createServer({
       openapi: true,
-      resources: ['actors'],
     })
     const response = await request(tembaServer).get(path)
 
