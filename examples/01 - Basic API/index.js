@@ -1,5 +1,5 @@
 import { create } from "temba";
 
-const server = create();
+const server = await create();
 
 server.start();
