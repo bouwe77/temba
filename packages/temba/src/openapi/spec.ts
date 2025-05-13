@@ -146,7 +146,7 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
 
   builder.addTag({
     name: 'API',
-    description: 'Shows information about the API.',
+    description: 'Shows information about the API',
   })
 
   // GET on the root URL
@@ -525,7 +525,6 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
   return builder.getSpec()
 }
 
-TODO TODO TODO TODO TODO TODO TODO TODO TODO tests for the tags
 
 export const getSpec = (
   config: Config,

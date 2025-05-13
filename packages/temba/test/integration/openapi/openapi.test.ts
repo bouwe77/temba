@@ -79,6 +79,17 @@ test('When no resources configured', async () => {
     throw new Error(`Expected URL to start with ${expected}, but got: ${url}`)
   }
 
+  expect(response.body.tags).toEqual([
+    {
+      name: 'API',
+      description: 'Shows information about the API',
+    },
+    {
+      name: 'Resources',
+      description: 'All resources',
+    }
+  ])
+
   // Paths object has 3 paths: "/", "/{resource}" and "/{resource}/{resourceId}"
   expect(Object.keys(response.body.paths).length).toEqual(3)
 
@@ -86,7 +97,9 @@ test('When no resources configured', async () => {
   const root = response.body.paths['/']['get']
   expect(root.summary).toEqual('API root')
   expect(root.description).toEqual('Shows information about the API.')
+  
   expect(root.operationId).toEqual('getApiRoot')
+  expect(root.tags[0]).toEqual('API')
   expect(root.responses['200'].description).toEqual('The API is working.')
   expect(root.responses['200'].content['text/html'].schema.type).toEqual('string')
 
@@ -105,6 +118,7 @@ test('When no resources configured', async () => {
   expect(get.summary).toEqual('List all resources')
   expect(get.description).toEqual('List all resources.')
   expect(get.operationId).toEqual('getAllResources')
+  expect(get.tags[0]).toEqual('Resources')
   expect(get.parameters[0].name).toEqual('resource')
   expect(get.parameters[0].in).toEqual('path')
   expect(get.parameters[0].required).toEqual(true)
@@ -121,6 +135,7 @@ test('When no resources configured', async () => {
   expect(getById.summary).toEqual('Find a resource by ID')
   expect(getById.description).toEqual('Find a resource by ID.')
   expect(getById.operationId).toEqual('getResourceById')
+  expect(getById.tags[0]).toEqual('Resources')
   expect(getById.parameters[0].name).toEqual('resource')
   expect(getById.parameters[0].in).toEqual('path')
   expect(getById.parameters[0].required).toEqual(true)
@@ -141,6 +156,7 @@ test('When no resources configured', async () => {
   expect(head.summary).toEqual('HTTP headers for all resources')
   expect(head.description).toEqual('Returns HTTP headers for all resources.')
   expect(head.operationId).toEqual('getAllResourcesHeaders')
+  expect(head.tags[0]).toEqual('Resources')
   expect(head.parameters[0].name).toEqual('resource')
   expect(head.parameters[0].in).toEqual('path')
   expect(head.parameters[0].required).toEqual(true)
@@ -153,6 +169,7 @@ test('When no resources configured', async () => {
   expect(headById.summary).toEqual('HTTP headers for the resource by ID')
   expect(headById.description).toEqual('Returns HTTP headers for the resource by ID.')
   expect(headById.operationId).toEqual('getResourceByIdHeaders')
+  expect(headById.tags[0]).toEqual('Resources')
   expect(getById.parameters[0].name).toEqual('resource')
   expect(getById.parameters[0].in).toEqual('path')
   expect(getById.parameters[0].required).toEqual(true)
@@ -173,6 +190,7 @@ test('When no resources configured', async () => {
   expect(post.summary).toEqual('Create a new resource')
   expect(post.description).toEqual('Create a new resource.')
   expect(post.operationId).toEqual('createResource')
+  expect(post.tags[0]).toEqual('Resources')
   expect(post.parameters[0].name).toEqual('resource')
   expect(post.parameters[0].in).toEqual('path')
   expect(post.parameters[0].required).toEqual(true)
@@ -195,6 +213,7 @@ test('When no resources configured', async () => {
   expect(postId.summary).toEqual('Create a new resource with id')
   expect(postId.description).toEqual('Create a new resource, specifying your own id.')
   expect(postId.operationId).toEqual('createResourceWithId')
+  expect(postId.tags[0]).toEqual('Resources')
   expect(postId.parameters[0].name).toEqual('resource')
   expect(postId.parameters[0].in).toEqual('path')
   expect(postId.parameters[0].required).toEqual(true)
@@ -228,6 +247,7 @@ test('When no resources configured', async () => {
   expect(put.summary).toEqual('Replace a resource')
   expect(put.description).toEqual('Replace a resource.')
   expect(put.operationId).toEqual('replaceResource')
+  expect(put.tags[0]).toEqual('Resources')
   expect(getById.parameters[0].name).toEqual('resource')
   expect(getById.parameters[0].in).toEqual('path')
   expect(getById.parameters[0].required).toEqual(true)
@@ -260,6 +280,7 @@ test('When no resources configured', async () => {
   expect(patch.summary).toEqual('Update a resource')
   expect(patch.description).toEqual('Update a resource.')
   expect(patch.operationId).toEqual('updateResource')
+  expect(patch.tags[0]).toEqual('Resources')
   expect(getById.parameters[0].name).toEqual('resource')
   expect(getById.parameters[0].in).toEqual('path')
   expect(getById.parameters[0].required).toEqual(true)
@@ -294,6 +315,7 @@ test('When no resources configured', async () => {
     'Deleting whole collections is disabled. Enable by setting `allowDeleteCollection` to `true`.',
   )
   expect(deleteAll.operationId).toEqual('deleteAllResources')
+  expect(deleteAll.tags[0]).toEqual('Resources')
   expect(deleteAll.parameters[0].name).toEqual('resource')
   expect(deleteAll.parameters[0].in).toEqual('path')
   expect(deleteAll.parameters[0].required).toEqual(true)
@@ -306,6 +328,7 @@ test('When no resources configured', async () => {
   expect(deleteById.summary).toEqual('Delete a resource')
   expect(deleteById.description).toEqual('Delete a resource.')
   expect(deleteById.operationId).toEqual('deleteResource')
+  expect(deleteById.tags[0]).toEqual('Resources')
   expect(getById.parameters[0].name).toEqual('resource')
   expect(getById.parameters[0].in).toEqual('path')
   expect(getById.parameters[0].required).toEqual(true)
@@ -339,6 +362,17 @@ test('When a single resource configured', async () => {
   expect(response.body.info.license.name).toEqual('Apache 2.0')
   expect(response.body.info.license.url).toEqual('http://www.apache.org/licenses/LICENSE-2.0.html')
 
+  expect(response.body.tags).toEqual([
+    {
+      name: 'API',
+      description: 'Shows information about the API',
+    },
+    {
+      name: 'Actors', 
+      description: 'All actors',
+    },
+  ])
+
   expect(response.body.servers.length).toEqual(1)
   const url = response.body.servers[0].url
   const expected = 'http://127.0.0.1:'
@@ -354,6 +388,7 @@ test('When a single resource configured', async () => {
   expect(root.summary).toEqual('API root')
   expect(root.description).toEqual('Shows information about the API.')
   expect(root.operationId).toEqual('getApiRoot')
+  expect(root.tags[0]).toEqual('API')
   expect(root.responses['200'].description).toEqual('The API is working.')
   expect(root.responses['200'].content['text/html'].schema.type).toEqual('string')
 
@@ -362,6 +397,7 @@ test('When a single resource configured', async () => {
   expect(get.summary).toEqual('List all actors')
   expect(get.description).toEqual('List all actors.')
   expect(get.operationId).toEqual('getAllActors')
+  expect(get.tags[0]).toEqual('Actors')
   expect(get.responses['200'].description).toEqual('List of all actors.')
   expect(get.responses['200'].content['application/json'].schema.type).toEqual('array')
   expect(get.responses['200'].content['application/json'].schema.items.type).toEqual('object')
@@ -371,6 +407,7 @@ test('When a single resource configured', async () => {
   expect(getById.summary).toEqual('Find an actor by ID')
   expect(getById.description).toEqual('Find an actor by ID.')
   expect(getById.operationId).toEqual('getActorById')
+  expect(getById.tags[0]).toEqual('Actors')
   expect(getById.parameters[0].name).toEqual('actorId')
   expect(getById.parameters[0].in).toEqual('path')
   expect(getById.parameters[0].required).toEqual(true)
@@ -386,6 +423,7 @@ test('When a single resource configured', async () => {
   expect(head.summary).toEqual('HTTP headers for all actors')
   expect(head.description).toEqual('Returns HTTP headers for all actors.')
   expect(head.operationId).toEqual('getAllActorsHeaders')
+  expect(head.tags[0]).toEqual('Actors')
   expect(head.responses['200'].description).toEqual('HTTP headers for all actors.')
 
   // HEAD /actors/{actorId}
@@ -393,6 +431,7 @@ test('When a single resource configured', async () => {
   expect(headById.summary).toEqual('HTTP headers for the actor by ID')
   expect(headById.description).toEqual('Returns HTTP headers for the actor by ID.')
   expect(headById.operationId).toEqual('getActorByIdHeaders')
+  expect(headById.tags[0]).toEqual('Actors')
   expect(headById.parameters[0].name).toEqual('actorId')
   expect(headById.parameters[0].in).toEqual('path')
   expect(headById.parameters[0].required).toEqual(true)
@@ -408,6 +447,7 @@ test('When a single resource configured', async () => {
   expect(post.summary).toEqual('Create a new actor')
   expect(post.description).toEqual('Create a new actor.')
   expect(post.operationId).toEqual('createActor')
+  expect(post.tags[0]).toEqual('Actors')
   expect(post.requestBody.content['application/json'].schema.type).toEqual('object')
   expect(post.responses['201'].description).toEqual(
     'The actor was created. The created actor is returned in the response.',
@@ -425,6 +465,7 @@ test('When a single resource configured', async () => {
   expect(put.summary).toEqual('Replace an actor')
   expect(put.description).toEqual('Replace an actor.')
   expect(put.operationId).toEqual('replaceActor')
+  expect(get.tags[0]).toEqual('Actors')
   expect(put.parameters[0].name).toEqual('actorId')
   expect(put.parameters[0].in).toEqual('path')
   expect(put.parameters[0].required).toEqual(true)
@@ -452,6 +493,7 @@ test('When a single resource configured', async () => {
   expect(patch.summary).toEqual('Update an actor')
   expect(patch.description).toEqual('Update an actor.')
   expect(patch.operationId).toEqual('updateActor')
+  expect(patch.tags[0]).toEqual('Actors')
   expect(patch.parameters[0].name).toEqual('actorId')
   expect(patch.parameters[0].in).toEqual('path')
   expect(patch.parameters[0].required).toEqual(true)
@@ -480,6 +522,7 @@ test('When a single resource configured', async () => {
     'Deleting whole collections is disabled. Enable by setting `allowDeleteCollection` to `true`.',
   )
   expect(deleteAll.operationId).toEqual('deleteAllActors')
+  expect(deleteAll.tags[0]).toEqual('Actors')
   expect(deleteAll.responses['405'].description).toEqual('Method not allowed')
 
   // DELETE /actors/{actorId}
@@ -487,6 +530,7 @@ test('When a single resource configured', async () => {
   expect(deleteById.summary).toEqual('Delete an actor')
   expect(deleteById.description).toEqual('Delete an actor.')
   expect(deleteById.operationId).toEqual('deleteActor')
+  expect(deleteById.tags[0]).toEqual('Actors')
   expect(deleteById.parameters[0].name).toEqual('actorId')
   expect(deleteById.parameters[0].in).toEqual('path')
   expect(deleteById.parameters[0].required).toEqual(true)
@@ -519,6 +563,7 @@ test('When allowDeleteCollection is true paths contain a delete for the resource
   const deleteAll = response.body.paths['/actors']['delete']
   expect(deleteAll.summary).toEqual('Delete all actors')
   expect(deleteAll.operationId).toEqual('deleteAllActors')
+  expect(deleteAll.tags[0]).toEqual('Actors')
   expect(deleteAll.responses['204'].description).toEqual('All actors were deleted.')
 })
 
@@ -537,6 +582,22 @@ test('When multiple resources configured', async () => {
 
   const response = await request(tembaServer).get('/openapi.json')
 
+
+  expect(response.body.tags).toEqual([
+    {
+      name: 'API',
+      description: 'Shows information about the API',
+    },
+    {
+      name: 'Actors',
+      description: 'All actors',
+    },
+    {
+      name: 'People',
+      description: 'All people',
+    },
+  ])
+
   // Paths object has 5 paths: "/", "/actors", "/actors/{actorId}", "/people", "/people/{personId}"
   expect(Object.keys(response.body.paths).length).toEqual(5)
   expect(response.body.paths['/actors']).toBeDefined()
@@ -548,11 +609,13 @@ test('When multiple resources configured', async () => {
   const get = response.body.paths['/people']['get']
   expect(get.summary).toEqual('List all people')
   expect(get.operationId).toEqual('getAllPeople')
+  expect(get.tags[0]).toEqual('People')
   expect(get.responses['200'].description).toEqual('List of all people.')
 
   const getById = response.body.paths['/people/{personId}']['get']
   expect(getById.summary).toEqual('Find a person by ID')
   expect(getById.operationId).toEqual('getPersonById')
+  expect(getById.tags[0]).toEqual('People')
   expect(getById.responses['200'].description).toEqual('The person with the personId.')
 })
 
