@@ -453,21 +453,21 @@ const server = await create(config)
 
 These are all the possible settings:
 
-| Config setting            | Description                                                                           | Default value    |
-| :------------------------ | :-------------------------------------------------------------------------------------| :--------------- |
-| `allowDeleteCollection`   | Whether a `DELETE` request on a collection is allowed to delete all items.            | `false`          |
-| `apiPrefix`               | See [API prefix](#api-prefix)                                                         | `null` | `'api'` |
-| `connectionString`        | See [Data persistency](#data-persistency)                                             | `null`           |
-| `delay`                   | The delay, in milliseconds, after processing the request before sending the response. | `0`              |
-| `etags`                   | See [Caching and consistency with Etags](#caching-and-consistency-with-etags)         | `false`          |
-| `openapi`                 | Whether the OpenAPI specification docs are available for your API.                    | `true`           |
-| `port`                    | The port your Temba server listens on                                                 | `3000`           |
-| `requestInterceptor`      | See [Request validation or mutation](#request-validation-or-mutation)                 | `noop`           |
-| `resources`               | See [Allowing specific resources only](#allowing-specific-resources-only)             | `[]`             |
-| `responseBodyInterceptor` | See [Response body interception](#response-body-interception)                         | `noop`           |
-| `returnNullFields`        | Whether fields with a null value should be returned in responses.                     | `true`           |
-| `schema`                  | See [JSON Schema request body validation](#json-schema-request-body-validation)       | `null`           |
-| `staticFolder`            | See [Static assets](#static-assets)                                                   | `null`           |
+| Config setting            | Description                                                                                  | Default value    |
+| :------------------------ | :------------------------------------------------------------------------------------------- | :--------------- |
+| `allowDeleteCollection`   | Whether a `DELETE` request on a collection is allowed to delete all items.                   | `false`          |
+| `apiPrefix`               | See [API prefix](#api-prefix)                                                                | `null` | `'api'` |
+| `connectionString`        | See [Data persistency](#data-persistency)                                                    | `null`           |
+| `delay`                   | The delay, in milliseconds, after processing the request before sending the response.        | `0`              |
+| `etags`                   | See [Caching and consistency with Etags](#caching-and-consistency-with-etags)                | `false`          |
+| `openapi`                 | Enable or disable OpenAPI, or supply your custom spec object to merge into the default spec. | `true`           |
+| `port`                    | The port your Temba server listens on                                                        | `3000`           |
+| `requestInterceptor`      | See [Request validation or mutation](#request-validation-or-mutation)                        | `noop`           |
+| `resources`               | See [Allowing specific resources only](#allowing-specific-resources-only)                    | `[]`             |
+| `responseBodyInterceptor` | See [Response body interception](#response-body-interception)                                | `noop`           |
+| `returnNullFields`        | Whether fields with a null value should be returned in responses.                            | `true`           |
+| `schema`                  | See [JSON Schema request body validation](#json-schema-request-body-validation)              | `null`           |
+| `staticFolder`            | See [Static assets](#static-assets)                                                          | `null`           |
 
 ## Under the hood
 
