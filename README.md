@@ -1,6 +1,6 @@
 # Temba
 
-[![Temba on NPM](https://img.shields.io/npm/v/temba)](https://www.npmjs.com/package/temba) [![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-) [![Documentation](https://img.shields.io/badge/Documentation-orange?logo=read-the-docs)](<DOCS_URL>)
+[![Temba on NPM](https://img.shields.io/npm/v/temba)](https://www.npmjs.com/package/temba) [![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-) [![Documentation](https://img.shields.io/badge/Documentation-orange?logo=read-the-docs)](https://temba.bouwe.io)
 
 
 
