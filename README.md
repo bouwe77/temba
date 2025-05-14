@@ -167,7 +167,7 @@ OpenAPI support in Temba is enabled by default, automatically generating both JS
 
 Alongside these specs, Temba serves interactive HTML documentation (i.e. Swagger UI) out of the box. 
 
-OpenAPI support is controlled through the openapi setting, which accepts two forms:
+OpenAPI support is controlled through the `openapi` setting, which accepts two forms:
 
 * **Boolean**
 
