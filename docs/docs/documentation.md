@@ -1,42 +1,10 @@
-# Temba
+---
+id: documentation
+title: Documentation
+sidebar_position: 2
+---
 
-[![Temba on NPM](https://img.shields.io/npm/v/temba)](https://www.npmjs.com/package/temba)
-
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
-
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
-
-**Create a simple HTTP API with zero coding in less than 30 seconds (seriously)**
-
-For developers that need a **quick NodeJS backend** for small projects.
-
-**No need for any coding**, unless you want to opt-out of the defaults, or want to do more customization.
-
-An **OpenAPI specification** is generated and enabled by default, providing **interactive documentation** and allowing you to generate client code from it.
-
-Data is kept **in memory**, but you can also store it in a **JSON file** or **MongoDB database**.
-
-## Table of contents
-
-[Temba?](#temba-1)
-
-[Getting Started](#getting-started)
-
-[What Temba does](#what-temba-does)
-
-[Usage](#usage)
-
-[Config settings overview](#config-settings-overview)
-
-## Temba?
-
-> _"Temba, at REST"_
-
-A metaphor for the declining of a gift, from the [Star Trek - The Next Generation episode "Darmok"](https://memory-alpha.fandom.com/wiki/Temba).
-
-In the fictional Tamarian language the word _"Temba"_ means something like _"giving"_ or _"offering"_. So I am offering you this versatile library to help you build APIs with ease.
+# Documentation
 
 ## Getting Started
 
@@ -49,28 +17,23 @@ Prerequisites you need to have:
 
 ### Use the starter with `npx`
 
-Create your own Temba server instantly:
+Create your own Temba server with the following command and you are up and running!
 
+```bash
+npx create-temba-server@latest my-rest-api
+cd my-rest-api
+npm start
 ```
-npx temba-cli create my-rest-api
-```
 
-This command will:
+This command clones the [Temba-starter](https://github.com/bouwe77/temba-starter) repository, installs all dependencies, and starts the server.
 
-* Create a new folder called `my-rest-api`
-* Install Temba as a dependency
-* Generate a `server.js` file
-* Automatically start your brand-new Temba API
-
-You’ll see:
+In your console you'll see:
 
 ```
 ✅ Server listening on port 3000
 ```
 
-Now you can send any HTTP request to any resource on localhost:3000 — and it just works.
-
-Or headover to the interactive OpenAPI specification of your API in your browser at `/openapi`.
+Now you can issue any HTTP request, to any resource.
 
 ### Adding to an existing app
 
@@ -82,7 +45,7 @@ Alternatively, add Temba to your app manually:
 
 ```js
 import { create } from "temba"
-const server = await create()
+const server = create()
 server.start()
 ```
 
@@ -107,7 +70,6 @@ For every resource (`movies` is just an example), Temba supports the following r
 - `GET /movies` - Get all movies
 - `GET /movies/:id` - Get a movie by its ID
 - `POST /movies` - Create a new movie
-- `POST /movies:/id` - Create a new movie specifying the ID yourself
 - `PATCH /movies/:id` - Partially update a movie by its ID
 - `PUT /movies/:id` - Fully replace a movie by its ID
 - `DELETE /movies` - Delete all movies (if configured)
@@ -121,6 +83,8 @@ The HTTP methods that are supported are `GET`, `POST`, `PATCH`, `PUT`, `DELETE`,
 
 On the root URI (e.g. http://localhost:8080/) only a `GET` request is supported, which shows you a message indicating the API is working. All other HTTP methods on the root URI return a `405 Method Not Allowed` response.
 
+The `OPTIONS` method also works, but because Temba uses Express' default implementation for that, the `Access-Control-Allow-Methods` response header might not always be correct.
+
 ### JSON
 
 Temba supports JSON only.
@@ -129,9 +93,9 @@ Request bodies sent with a `POST`, `PATCH`, and `PUT` requests are valid when th
 
 Any valid formatted JSON is accepted and stored. If you want to validate or even change the JSON in the request bodies, check out [JSON Schema request body validation](#json-schema-request-body-validation) and the [`requestInterceptor`](#request-validation-or-mutation).
 
-IDs are auto generated when creating resources, unless you specify an ID in the `POST` request URL.
+IDs are auto generated when creating resources.
 
-Providing IDs in the request body of `POST`, `PUT`, or `PATCH` requests is not allowed and will return a `400 Bad Request` response. Instead, provide the ID in the request URL. However, omitting an ID in a `PUT` or `PATCH` request URL also returns a `400 Bad Request` response.
+Providing IDs in the request body of `POST`, `PUT`, or `PATCH` requests is not allowed and will return a `400 Bad Request` response. The same applies to adding an ID in a `POST` request URL, or omitting an ID in a `PUT` or `PATCH` request URL.
 
 ## Usage
 
@@ -145,7 +109,7 @@ By default data is stored in memory. This means the data is flushed when the ser
 const config = {
   connectionString: 'data.json',
 }
-const server = await create(config)
+const server = create(config)
 ```
 
 All resources are saved in a single JSON file. The file is not created or updated unless you create, update, or delete resources.
@@ -156,29 +120,10 @@ All resources are saved in a single JSON file. The file is not created or update
 const config = {
   connectionString: 'mongodb://localhost:27017/myDatabase',
 }
-const server = await create(config)
+const server = create(config)
 ```
 
 For every resource you use in your requests, a collection is created in the database. However, not until you actually create a resource with a `POST`.
-
-### OpenAPI specification
-
-OpenAPI support in Temba is enabled by default, automatically generating both JSON and YAML specifications that accurately reflect your configured resources and settings. 
-
-Alongside these specs, Temba serves interactive HTML documentation (i.e. Swagger UI) out of the box. 
-
-OpenAPI support is controlled through the `openapi` setting, which accepts two forms:
-
-* **Boolean**
-
-  * `true` (default) enables OpenAPI support.
-  * `false` disables it completely.
-
-* **Object**
-
-  * Supplying an object both enables OpenAPI **and** lets you customize the spec.
-  * The object must adhere to the `OpenAPIObject` interface (see [openapi3-ts model](https://github.com/metadevpro/openapi3-ts/blob/71b55d772bacc58c127540b6a75d1b17a7ddadbb/src/model/openapi31.ts)).
-  * Temba will deep-merge your custom specification into its default spec, preserving all auto-generated endpoints and schemas while applying your overrides.
 
 ### Allowing specific resources only
 
@@ -188,10 +133,29 @@ If you only want to allow specific resource names, configure them by providing a
 const config = {
   resources: ['movies', 'actors'],
 }
-const server = await create(config)
+const server = create(config)
 ```
 
 Requests on these resources only give a `404 Not Found` if the ID does not exist. Requests on any other resource will always return a `404 Not Found`.
+
+### Static assets
+
+If you want to host static assets, for example next to the API, a web app consuming it, you can configure a `staticFolder`:
+
+```js
+const config = {
+  staticFolder: 'build',
+}
+const server = create(config)
+```
+
+With this setting, sending a `GET` request to the root URL, returns the content that is in the `'./build'` folder in your project.
+
+Without configuring a `staticFolder`, a `GET` to the root URL returns `"It works! ツ"`. When the `staticFolder` is configured, it returns whatever is in the `build` folder in your project, for example an HTML page.
+
+However, this might cause conflicts between the API resources and the web app routes: If the web app in the `build` folder has a route to `/products`, but there is also a `/products` API resource, the web app route is returned.
+
+To be able to still access the `/products` API resource, configure an `apiPrefix`:
 
 ### API prefix
 
@@ -201,25 +165,14 @@ With the `apiPrefix` config setting, all resources get an extra path segment in 
 const config = {
   apiPrefix: 'api',
 }
-const server = await create(config)
+const server = create(config)
 ```
 
-After configuring the `apiPrefix`, requests to the root URL (e.g. http://localhost:1234/), will now either return a `404 Not Found` on `GET` requests, or a `405 Method Not Allowed` for any other HTTP method.
+A request to the `apiPrefix` (e.g. http://localhost:1234/api) will now return the `"It works! ツ"` response message.
 
-### Static assets
+After configuring the `apiPrefix`, requests to the root URL (e.g. http://localhost:1234/), instead of the `"It works! ツ"` response message, will now either return a `404 Not Found` on `GET` requests, or a `405 Method Not Allowed` for all other HTTP methods.
 
-If you want to host static assets, for example a web app consuming the API, you can configure a `staticFolder`:
-
-```js
-const config = {
-  staticFolder: 'build',
-}
-const server = await create(config)
-```
-
-With this setting, sending a `GET` request to the root URL, returns the content that is in the `'./build'` folder in your project, for example an HTML page.
-
-To prevent conflicts between the API resources and the web app routes, configuring a `staticFolder` also automatically sets the `apiPrefix` to "`api"`. Of course you can always change the `apiPrefix` to something else.
+However, if you configured both an `apiPrefix` and a `staticFolder`, a `GET` on the root URL will return the content in the `staticFolder`.
 
 ### JSON Schema request body validation
 
@@ -268,7 +221,7 @@ const config = {
   },
 }
 
-const server = await create(config)
+const server = create(config)
 ```
 
 If a request is not valid according to the schema, a `400 Bad Request` response is returned, and a message in the response body indicating the validation error.
@@ -285,7 +238,7 @@ const config = {
     get: ({ headers, resource, id }) => {
       //...
     },
-    post: ({ headers, resource, id, body }) => {
+    post: ({ headers, resource, body }) => {
       // Validate, or even change the request body
     },
     put: ({ headers, resource, id, body }) => {
@@ -300,7 +253,7 @@ const config = {
   },
 }
 
-const server = await create(config)
+const server = create(config)
 ```
 
 The `requestInterceptor` is an object with fields for each of the HTTP methods you might want to intercept, and the callback function you want Temba to call, before processing the request, i.e. going to the database.
@@ -320,7 +273,7 @@ Example:
 ```js
 const config = {
   requestInterceptor: {
-    post: ({ headers, resource, id, body }) => {      
+    post: ({ headers, resource, body }) => {      
       // Add a genre to Star Trek films:
       if (resource === 'movies' && body.title.startsWith('Star Trek'))
         return { ...body, genre: 'Science Fiction' }
@@ -340,7 +293,7 @@ const config = {
   },
 }
 
-const server = await create(config)
+const server = create(config)
 ```
 
 ### Response body interception
@@ -370,7 +323,7 @@ const config = {
   },
 }
 
-const server = await create(config)
+const server = create(config)
 ```
 
 `responseBodyInterceptor` is a callback function that provides an object containing the `resource`, `body`, and the `id`. Depending on whether it's a collection or item request, the `body` is either an array or object, and the `id` can be `undefined`.
@@ -391,12 +344,74 @@ To optimize `GET` requests, and only send JSON over the wire when it changed, yo
 const config = {
   etags: true,
 }
-const server = await create(config)
+const server = create(config)
 ```
 
 After enabling etags, every `GET` request will return an `etag` response header, which clients can (optionally) send as an `If-None-Match` header with every subsequent `GET` request. Only if the resource changed in the meantime the server will return the new JSON, and otherwise it will return a `304 Not Modified` response with an empty response body.
 
 For updating or deleting items with a `PUT`, `PATCH`, or `DELETE`, after enabling etags, these requests are _required_ to provide an `If-Match` header with the etag. Only if the etag represents the latest version of the resource the update is made, otherwise the server responds with a `412 Precondition Failed` status code.
+
+### Custom router
+
+Because Temba uses Express under the hood, you can create an Express router, and configure it as a `customRouter`:
+
+```js
+// Example code of how to create an Express router, from the official Express docs at https://expressjs.com/en/guide/routing.html:
+const express = require('express')
+const router = express.Router()
+
+// middleware that is specific to this router
+router.use((req, res, next) => {
+  console.log('Time: ', Date.now())
+  next()
+})
+// define the home page route
+router.get('/', (req, res) => {
+  res.send('Birds home page')
+})
+// define the about route
+router.get('/about', (req, res) => {
+  res.send('About birds')
+})
+
+// Add the custom router to Temba config
+const config = {
+  customRouter: router,
+}
+
+const server = create(config)
+```
+
+> 💁 Don't overuse `customRouter`, as it defeats the purpose of Temba being a simple out-of-the-box solution.
+
+A `customRouter` can only overrule resource routes. The root URL (with or without `staticFolder`) will always be handled by Temba.
+
+So for the following router and config:
+
+```
+router.get('/', (req, res) => {
+  res.send('Birds home page')
+})
+router.get('/stuff', (req, res) => {
+  res.send('Some stuff')
+})
+router.get('api/stuff', (req, res) => {
+  res.send('Some API stuff')
+})
+
+const config = {
+  apiPrefix: 'api',
+  customRouter: router,
+  resources: ['stuff'],
+  staticFolder: 'build',
+}
+const server = create(config)
+```
+
+- `/` will be handled by Temba, and will return the `staticFolder` (`build`) folder contents
+- `/stuff` and `/api/stuff` will be handled by the custom router
+- `/movies` will return a `404 Not Found`, because of `apiPrefix`
+- `/api/movies` will return movies, handled by Temba
 
 ## Config settings overview
 
@@ -409,15 +424,15 @@ const config = {
   allowDeleteCollection: true,
   apiPrefix: 'api',
   connectionString: 'mongodb://localhost:27017/myDatabase',
+  customRouter: router,
   delay: 500,
   etags: true,
-  openapi: true,
   port: 4321,
   requestInterceptor: {
     get: ({ headers, resource, id }) => {
       //...
     },
-    post: ({ headers, resource, id, body }) => {
+    post: ({ headers, resource, body }) => {
       // Validate, or even change the request body
     },
     put: ({ headers, resource, id, body }) => {
@@ -448,51 +463,28 @@ const config = {
   },
   staticFolder: 'build',
 }
-const server = await create(config)
+const server = create(config)
 ```
 
 These are all the possible settings:
 
-| Config setting            | Description                                                                                  | Default value    |
-| :------------------------ | :------------------------------------------------------------------------------------------- | :--------------- |
-| `allowDeleteCollection`   | Whether a `DELETE` request on a collection is allowed to delete all items.                   | `false`          |
-| `apiPrefix`               | See [API prefix](#api-prefix)                                                                | `null` | `'api'` |
-| `connectionString`        | See [Data persistency](#data-persistency)                                                    | `null`           |
-| `delay`                   | The delay, in milliseconds, after processing the request before sending the response.        | `0`              |
-| `etags`                   | See [Caching and consistency with Etags](#caching-and-consistency-with-etags)                | `false`          |
-| `openapi`                 | Enable or disable OpenAPI, or supply your custom spec object to merge into the default spec. | `true`           |
-| `port`                    | The port your Temba server listens on                                                        | `3000`           |
-| `requestInterceptor`      | See [Request validation or mutation](#request-validation-or-mutation)                        | `noop`           |
-| `resources`               | See [Allowing specific resources only](#allowing-specific-resources-only)                    | `[]`             |
-| `responseBodyInterceptor` | See [Response body interception](#response-body-interception)                                | `noop`           |
-| `returnNullFields`        | Whether fields with a null value should be returned in responses.                            | `true`           |
-| `schema`                  | See [JSON Schema request body validation](#json-schema-request-body-validation)              | `null`           |
-| `staticFolder`            | See [Static assets](#static-assets)                                                          | `null`           |
+| Config setting            | Description                                                                                | Default value |
+| :------------------------ | :----------------------------------------------------------------------------------------- | :------------ |
+| `allowDeleteCollection`   | Whether a `DELETE` request on a collection is allowed to delete all items. | `false` |
+| `apiPrefix`               | See [API prefix](#api-prefix)                                                              | `null`        |
+| `connectionString`        | See [Data persistency](#data-persistency)                                                                    | `null`        |
+| `customRouter`            | See [Custom router](#custom-router)                                                        | `null`        |
+| `delay`                   | The delay, in milliseconds, after processing the request before sending the response. | `0`           |
+| `etags`                   | See [Caching and consistency with Etags](#caching-and-consistency-with-etags) | `false`           |
+| `port`                    | The port your Temba server listens on                                                      | `3000`        |
+| `requestInterceptor`  | See [Request validation or mutation](#request-validation-or-mutation)            | `noop`        |
+| `resources`               | See [Allowing specific resources only](#allowing-specific-resources-only)                  | `[]`          |
+| `responseBodyInterceptor` | See [Response body interception](#response-body-interception)                     | `noop`        |
+| `returnNullFields`        | Whether fields with a null value should be returned in responses.                        | `true`        |
+| `schema`                  | See [JSON Schema request body validation](#json-schema-request-body-validation)                                                                                         | `null`        |
+| `staticFolder`            | See [Static assets](#static-assets)                                                        | `null`        |
 
 ## Under the hood
 
-Temba is built with TypeScript, [Node](https://nodejs.org), [Vitest](https://vitest.dev/), [Supertest](https://www.npmjs.com/package/supertest), [@rakered/mongo](https://www.npmjs.com/package/@rakered/mongo), and [lowdb](https://www.npmjs.com/package/lowdb).
+Temba is built with TypeScript, [Node](https://nodejs.org), [Express](https://expressjs.com/), [Vitest](https://vitest.dev/), [Supertest](https://www.npmjs.com/package/supertest), [@rakered/mongo](https://www.npmjs.com/package/@rakered/mongo), and [lowdb](https://www.npmjs.com/package/lowdb).
 
-## Contributors ✨
-
-Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
-
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
-<table>
-  <tr>
-    <td align="center"><a href="https://bouwe.io"><img src="https://avatars.githubusercontent.com/u/4126793?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Bouwe K. Westerdijk</b></sub></a><br /><a href="https://github.com/bouwe77/temba/commits?author=bouwe77" title="Code">💻</a> <a href="https://github.com/bouwe77/temba/issues?q=author%3Abouwe77" title="Bug reports">🐛</a> <a href="https://github.com/bouwe77/temba/commits?author=bouwe77" title="Documentation">📖</a> <a href="#ideas-bouwe77" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/bouwe77/temba/commits?author=bouwe77" title="Tests">⚠️</a></td>
-  </tr>
-</table>
-
-<!-- markdownlint-restore -->
-<!-- prettier-ignore-end -->
-
-<!-- ALL-CONTRIBUTORS-LIST:END -->
-
-This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
-
-# License
-
-MIT, see [LICENSE](https://github.com/bouwe77/temba/blob/main/LICENSE).
