@@ -1,12 +1,8 @@
 # Temba
 
-[![Temba on NPM](https://img.shields.io/npm/v/temba)](https://www.npmjs.com/package/temba)
+[![Temba on NPM](https://img.shields.io/npm/v/temba)](https://www.npmjs.com/package/temba) [![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-) [![Documentation](https://img.shields.io/badge/Documentation-orange?logo=read-the-docs)](<DOCS_URL>)
 
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
-
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 **Get a simple REST API with zero coding in less than 30 seconds (seriously).**
 
