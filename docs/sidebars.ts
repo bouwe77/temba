@@ -1,9 +1,9 @@
-import type { SidebarsConfig } from '@docusaurus/plugin-content-docs'
+import type { SidebarsConfig } from "@docusaurus/plugin-content-docs";
 
 const sidebars: SidebarsConfig = {
   tembaSidebar: [
-    'introduction',
-    'documentation',
+    // 'introduction',
+    "documentation",
     // {
     //   type: 'category',
     //   label: 'Getting Started',
@@ -34,6 +34,6 @@ const sidebars: SidebarsConfig = {
     // },
     // 'roadmap',
   ],
-}
+};
 
-export default sidebars
+export default sidebars;
