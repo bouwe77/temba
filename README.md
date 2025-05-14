@@ -1,5 +1,6 @@
 # Temba
 
+<p align="left">
 [![Temba on NPM](https://img.shields.io/npm/v/temba)](https://www.npmjs.com/package/temba)
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
@@ -9,6 +10,7 @@
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 [![Documentation](https://img.shields.io/badge/documentation-8A2BE2)](https://temba.bouwe.io)
+</p>
 
 **Get a simple REST API with zero coding in less than 30 seconds (seriously).**
 
