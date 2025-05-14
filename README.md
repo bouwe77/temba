@@ -8,6 +8,8 @@
 
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
+[![Documentation](https://img.shields.io/badge/documentation-8A2BE2)](https://temba.bouwe.io)
+
 **Get a simple REST API with zero coding in less than 30 seconds (seriously).**
 
 For developers that need a **quick NodeJS backend** for small projects.
