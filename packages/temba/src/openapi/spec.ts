@@ -14,6 +14,18 @@ type OpenApiFormat = 'json' | 'yaml'
 
 const anyResource = '{resource}'
 
+type ResourceInfo = {
+  resource: string
+  pluralResourceLowerCase: string
+  pluralResourceUpperCase: string
+  singularResourceLowerCase: string
+  singularResourceUpperCase: string
+  tag: {
+    name: string
+    description: string
+  }
+}
+
 const defaultResourceInfos = [
   {
     resource: anyResource,
@@ -21,6 +33,10 @@ const defaultResourceInfos = [
     pluralResourceUpperCase: 'Resources',
     singularResourceLowerCase: 'resource',
     singularResourceUpperCase: 'Resource',
+    tag: {
+      name: 'Resources',
+      description: 'All resources',
+    },
   } satisfies ResourceInfo,
 ]
 
@@ -94,14 +110,6 @@ const getPathParameters = (resourceInfo: ResourceInfo, id = false) => {
   return parameters
 }
 
-type ResourceInfo = {
-  resource: string
-  pluralResourceLowerCase: string
-  pluralResourceUpperCase: string
-  singularResourceLowerCase: string
-  singularResourceUpperCase: string
-}
-
 const getServerUrl = (requestHost: string) => {
   const hostname = requestHost.split(':')[0] || ''
   const port = requestHost.split(':')[1] || ''
@@ -136,6 +144,33 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
       url: server,
     })
 
+  builder.addTag({
+    name: 'API',
+    description: 'Shows information about the API',
+  })
+
+  // GET on the root URL
+  builder.addPath('/', {
+    get: {
+      summary: 'API root',
+      description: 'Shows information about the API.',
+      operationId: 'getApiRoot',
+      responses: {
+        '200': {
+          description: 'The API is working.',
+          content: {
+            'text/html': {
+              schema: {
+                type: 'string',
+              },
+            },
+          },
+        },
+      },
+      tags: ['API'],
+    },
+  })
+
   resourceInfos.forEach((resourceInfo) => {
     const {
       resource,
@@ -145,26 +180,8 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
       singularResourceUpperCase,
     } = resourceInfo
 
-    // GET on the root URL
-    builder.addPath('/', {
-      get: {
-        summary: 'API root',
-        description: 'Shows information about the API.',
-        operationId: 'getApiRoot',
-        responses: {
-          '200': {
-            description: 'The API is working.',
-            content: {
-              'text/html': {
-                schema: {
-                  type: 'string',
-                },
-              },
-            },
-          },
-        },
-      },
-    })
+    // Add the tag for this resource
+    builder.addTag(resourceInfo.tag)
 
     const nullFieldsRemark = () =>
       config.returnNullFields
@@ -197,6 +214,7 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
             },
           },
         },
+        tags: [resourceInfo.tag.name],
       },
       head: {
         summary: `HTTP headers for all ${pluralResourceLowerCase}`,
@@ -208,6 +226,7 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
             description: `HTTP headers for all ${pluralResourceLowerCase}.`,
           },
         },
+        tags: [resourceInfo.tag.name],
       },
       post: {
         summary: `Create a new ${singularResourceLowerCase}`,
@@ -240,6 +259,7 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
             },
           },
         },
+        tags: [resourceInfo.tag.name],
       },
     })
 
@@ -256,6 +276,7 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
               description: `All ${pluralResourceLowerCase} were deleted.`,
             },
           },
+          tags: [resourceInfo.tag.name],
         },
       })
     } else {
@@ -271,6 +292,7 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
               description: `Method not allowed`,
             },
           },
+          tags: [resourceInfo.tag.name],
         },
       })
     }
@@ -300,6 +322,7 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
             },
           },
         },
+        tags: [resourceInfo.tag.name],
       },
       head: {
         summary: `HTTP headers for the ${singularResourceLowerCase} by ID`,
@@ -314,6 +337,7 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
             description: `The ${singularResourceLowerCase}Id was not found.`,
           },
         },
+        tags: [resourceInfo.tag.name],
       },
       post: {
         summary: `Create a new ${singularResourceLowerCase} with id`,
@@ -385,6 +409,7 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
             },
           },
         },
+        tags: [resourceInfo.tag.name],
       },
       put: {
         summary: `Replace ${indefinite(singularResourceLowerCase)}`,
@@ -432,6 +457,7 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
             },
           },
         },
+        tags: [resourceInfo.tag.name],
       },
       patch: {
         summary: `Update ${indefinite(singularResourceLowerCase)}`,
@@ -479,6 +505,7 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
             },
           },
         },
+        tags: [resourceInfo.tag.name],
       },
       delete: {
         summary: `Delete ${indefinite(singularResourceLowerCase)}`,
@@ -490,12 +517,14 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
             description: `The ${singularResourceLowerCase} was deleted.`,
           },
         },
+        tags: [resourceInfo.tag.name],
       },
     })
   })
 
   return builder.getSpec()
 }
+
 
 export const getSpec = (
   config: Config,
@@ -518,6 +547,10 @@ export const getSpec = (
         }
         const singularResourceUpperCase =
           singularResourceLowerCase.charAt(0).toUpperCase() + singularResourceLowerCase.slice(1)
+        const tag = {
+          name: pluralResourceUpperCase,
+          description: `All ${pluralResourceLowerCase}`,
+        }
 
         return {
           resource,
@@ -525,6 +558,7 @@ export const getSpec = (
           pluralResourceUpperCase,
           singularResourceLowerCase,
           singularResourceUpperCase,
+          tag,
         } satisfies ResourceInfo
       } else {
         const pluralResourceLowerCase = resource.pluralName.toLowerCase()
@@ -533,12 +567,18 @@ export const getSpec = (
         const singularResourceLowerCase = resource.singularName.toLowerCase()
         const singularResourceUpperCase =
           singularResourceLowerCase.charAt(0).toUpperCase() + singularResourceLowerCase.slice(1)
+        const tag = {
+          name: pluralResourceUpperCase,
+          description: `All ${pluralResourceLowerCase}`,
+        }
+
         return {
           resource: resource.resourcePath,
           pluralResourceLowerCase,
           pluralResourceUpperCase,
           singularResourceLowerCase,
           singularResourceUpperCase,
+          tag,
         } satisfies ResourceInfo
       }
     })

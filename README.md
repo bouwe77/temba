@@ -10,11 +10,13 @@
 
 **Get a simple REST API with zero coding in less than 30 seconds (seriously).**
 
-For developers that need a quick NodeJS backend for small projects.
+For developers that need a **quick NodeJS backend** for small projects.
 
-No need for any coding, unless you want to opt-out of the defaults, or want to do more customization.
+**No need for any coding**, unless you want to opt-out of the defaults, or want to do more customization.
 
-Data is kept in memory, but you can also store it in a JSON file or MongoDB database.
+An **OpenAPI specification** is generated and enabled by default, providing **interactive documentation** and allowing you to generate client code from it.
+
+Data is kept **in memory**, but you can also store it in a **JSON file** or **MongoDB database**.
 
 ## Table of contents
 
@@ -67,6 +69,8 @@ You’ll see:
 ```
 
 Now you can send any HTTP request to any resource on localhost:3000 — and it just works.
+
+Or headover to the interactive OpenAPI specification of your API in your browser at `/openapi`.
 
 ### Adding to an existing app
 
@@ -156,6 +160,25 @@ const server = await create(config)
 ```
 
 For every resource you use in your requests, a collection is created in the database. However, not until you actually create a resource with a `POST`.
+
+### OpenAPI specification
+
+OpenAPI support in Temba is enabled by default, automatically generating both JSON and YAML specifications that accurately reflect your configured resources and settings. 
+
+Alongside these specs, Temba serves interactive HTML documentation (i.e. Swagger UI) out of the box. 
+
+OpenAPI support is controlled through the `openapi` setting, which accepts two forms:
+
+* **Boolean**
+
+  * `true` (default) enables OpenAPI support.
+  * `false` disables it completely.
+
+* **Object**
+
+  * Supplying an object both enables OpenAPI **and** lets you customize the spec.
+  * The object must adhere to the `OpenAPIObject` interface (see [openapi3-ts model](https://github.com/metadevpro/openapi3-ts/blob/71b55d772bacc58c127540b6a75d1b17a7ddadbb/src/model/openapi31.ts)).
+  * Temba will deep-merge your custom specification into its default spec, preserving all auto-generated endpoints and schemas while applying your overrides.
 
 ### Allowing specific resources only
 
@@ -388,6 +411,7 @@ const config = {
   connectionString: 'mongodb://localhost:27017/myDatabase',
   delay: 500,
   etags: true,
+  openapi: true,
   port: 4321,
   requestInterceptor: {
     get: ({ headers, resource, id }) => {
@@ -429,20 +453,21 @@ const server = await create(config)
 
 These are all the possible settings:
 
-| Config setting            | Description                                                                                | Default value |
-| :------------------------ | :----------------------------------------------------------------------------------------- | :------------ |
-| `allowDeleteCollection`   | Whether a `DELETE` request on a collection is allowed to delete all items. | `false` |
-| `apiPrefix`               | See [API prefix](#api-prefix)                                                              | `null` | `'api'`        |
-| `connectionString`        | See [Data persistency](#data-persistency)                                                                    | `null`        |
-| `delay`                   | The delay, in milliseconds, after processing the request before sending the response. | `0`           |
-| `etags`                   | See [Caching and consistency with Etags](#caching-and-consistency-with-etags) | `false`           |
-| `port`                    | The port your Temba server listens on                                                      | `3000`        |
-| `requestInterceptor`  | See [Request validation or mutation](#request-validation-or-mutation)            | `noop`        |
-| `resources`               | See [Allowing specific resources only](#allowing-specific-resources-only)                  | `[]`          |
-| `responseBodyInterceptor` | See [Response body interception](#response-body-interception)                     | `noop`        |
-| `returnNullFields`        | Whether fields with a null value should be returned in responses.                        | `true`        |
-| `schema`                  | See [JSON Schema request body validation](#json-schema-request-body-validation)                                                                                         | `null`        |
-| `staticFolder`            | See [Static assets](#static-assets)                                                        | `null`        |
+| Config setting            | Description                                                                                  | Default value    |
+| :------------------------ | :------------------------------------------------------------------------------------------- | :--------------- |
+| `allowDeleteCollection`   | Whether a `DELETE` request on a collection is allowed to delete all items.                   | `false`          |
+| `apiPrefix`               | See [API prefix](#api-prefix)                                                                | `null` | `'api'` |
+| `connectionString`        | See [Data persistency](#data-persistency)                                                    | `null`           |
+| `delay`                   | The delay, in milliseconds, after processing the request before sending the response.        | `0`              |
+| `etags`                   | See [Caching and consistency with Etags](#caching-and-consistency-with-etags)                | `false`          |
+| `openapi`                 | Enable or disable OpenAPI, or supply your custom spec object to merge into the default spec. | `true`           |
+| `port`                    | The port your Temba server listens on                                                        | `3000`           |
+| `requestInterceptor`      | See [Request validation or mutation](#request-validation-or-mutation)                        | `noop`           |
+| `resources`               | See [Allowing specific resources only](#allowing-specific-resources-only)                    | `[]`             |
+| `responseBodyInterceptor` | See [Response body interception](#response-body-interception)                                | `noop`           |
+| `returnNullFields`        | Whether fields with a null value should be returned in responses.                            | `true`           |
+| `schema`                  | See [JSON Schema request body validation](#json-schema-request-body-validation)              | `null`           |
+| `staticFolder`            | See [Static assets](#static-assets)                                                          | `null`           |
 
 ## Under the hood
 

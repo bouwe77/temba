@@ -1,6 +1,6 @@
 {
   "name": "temba-cli",
-  "version": "0.44.0",
+  "version": "0.45.0",
   "description": "CLI for scaffolding and managing Temba APIs",
   "author": "Bouwe (https://bouwe.io)",
   "bin": {
