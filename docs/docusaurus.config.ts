@@ -1,47 +1,48 @@
-import { themes as prismThemes } from 'prism-react-renderer'
-import type { Config } from '@docusaurus/types'
-import type * as Preset from '@docusaurus/preset-classic'
+import { themes as prismThemes } from "prism-react-renderer";
+import type { Config } from "@docusaurus/types";
+import type * as Preset from "@docusaurus/preset-classic";
 
 const config: Config = {
-  title: 'Temba',
-  tagline: 'Create a simple HTTP API with zero coding in less than 30 seconds (seriously)',
-  favicon: 'img/favicon.ico',
+  title: "Temba",
+  tagline:
+    "Create a simple HTTP API with zero coding in less than 30 seconds (seriously)",
+  favicon: "img/favicon.ico",
 
   // Set the production url of your site here
-  url: 'https://temba.bouwe.io',
+  url: "https://temba.bouwe.io",
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/',
+  baseUrl: "/",
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'bouwe77', // Usually your GitHub org/user name.
-  projectName: 'temba-docs', // Usually your repo name.
+  organizationName: "bouwe77", // Usually your GitHub org/user name.
+  projectName: "temba-docs", // Usually your repo name.
 
-  onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
+  onBrokenLinks: "throw",
+  onBrokenMarkdownLinks: "warn",
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
   // may want to replace "en" with "zh-Hans".
   i18n: {
-    defaultLocale: 'en',
-    locales: ['en'],
+    defaultLocale: "en",
+    locales: ["en"],
   },
 
   presets: [
     [
-      'classic',
+      "classic",
       {
         docs: {
-          sidebarPath: './sidebars.ts',
+          sidebarPath: "./sidebars.ts",
           // Remove this to remove the "edit this page" links.
-          editUrl: 'https://github.com/bouwe77/temba/tree/master/docs/',
+          editUrl: "https://github.com/bouwe77/temba/tree/master/docs/",
         },
         blog: {
           showReadingTime: true,
           feedOptions: {
-            type: ['rss', 'atom'],
+            type: ["rss", "atom"],
             xslt: true,
           },
           // Please change this to your repo.
@@ -49,12 +50,12 @@ const config: Config = {
           // editUrl:
           //   'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
           // Useful options to enforce blogging best practices
-          onInlineTags: 'warn',
-          onInlineAuthors: 'warn',
-          onUntruncatedBlogPosts: 'warn',
+          onInlineTags: "warn",
+          onInlineAuthors: "warn",
+          onUntruncatedBlogPosts: "warn",
         },
         theme: {
-          customCss: './src/css/custom.css',
+          customCss: "./src/css/custom.css",
         },
       } satisfies Preset.Options,
     ],
@@ -64,35 +65,35 @@ const config: Config = {
     // Replace with your project's social card
     // image: 'img/docusaurus-social-card.jpg',
     navbar: {
-      title: '🎁 Temba',
-      // logo: {
-      //   alt: 'Temba Logo',
-      //   src: 'img/logo.svg',
-      // },
+      title: "Temba",
+      logo: {
+        alt: "Temba Logo",
+        src: "img/logo.svg",
+      },
       items: [
         // { to: '/docs/getting-started', label: 'Getting Started', position: 'left' },
-        { to: '/docs/documentation', label: 'Documentation', position: 'left' },
+        { to: "/docs/documentation", label: "Documentation", position: "left" },
         // { to: '/blog', label: 'Blog', position: 'left' },
         {
-          href: 'https://github.com/bouwe77/temba',
-          label: 'GitHub',
-          position: 'right',
+          href: "https://github.com/bouwe77/temba",
+          label: "GitHub",
+          position: "right",
         },
       ],
     },
     footer: {
-      style: 'dark',
+      style: "dark",
       links: [
         {
-          title: 'On this site',
+          title: "On this site",
           items: [
             // {
             //   label: 'Getting Started',
             //   to: '/docs/getting-started',
             // },
             {
-              label: 'Documentation',
-              to: '/docs/documentation',
+              label: "Documentation",
+              to: "/docs/documentation",
             },
           ],
         },
@@ -114,15 +115,15 @@ const config: Config = {
         //   ],
         // },
         {
-          title: 'More',
+          title: "More",
           items: [
             {
-              label: 'Blog',
-              href: 'https://bouwe.io/categories/temba',
+              label: "Blog",
+              href: "https://bouwe.io/categories/temba",
             },
             {
-              label: 'GitHub',
-              href: 'https://github.com/bouwe77/temba',
+              label: "GitHub",
+              href: "https://github.com/bouwe77/temba",
             },
           ],
         },
@@ -134,6 +135,6 @@ const config: Config = {
       darkTheme: prismThemes.dracula,
     },
   } satisfies Preset.ThemeConfig,
-}
+};
 
-export default config
+export default config;
