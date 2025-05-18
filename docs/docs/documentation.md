@@ -6,7 +6,7 @@ sidebar_position: 2
 
 # Documentation
 
-**Get a simple REST API with zero coding in less than 30 seconds (seriously).**
+**Create a simple REST API with zero coding in less than 30 seconds (seriously).**
 
 For developers that need a **quick NodeJS backend** for small projects.
 
