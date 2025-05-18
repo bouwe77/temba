@@ -5,7 +5,7 @@ import type * as Preset from "@docusaurus/preset-classic";
 const config: Config = {
   title: "Temba",
   tagline:
-    "Create a simple HTTP API with zero coding in less than 30 seconds (seriously)",
+    "Create a simple REST API with zero coding in less than 30 seconds (seriously)",
   favicon: "img/favicon.ico",
 
   // Set the production url of your site here
