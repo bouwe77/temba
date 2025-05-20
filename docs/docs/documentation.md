@@ -396,6 +396,39 @@ After enabling etags, every `GET` request will return an `etag` response header,
 
 For updating or deleting items with a `PUT`, `PATCH`, or `DELETE`, after enabling etags, these requests are _required_ to provide an `If-Match` header with the etag. Only if the etag represents the latest version of the resource the update is made, otherwise the server responds with a `412 Precondition Failed` status code.
 
+## Filtering
+
+Temba supports LHS bracket notation for filtering on `GET` requests by appending square-bracket operators to your field names in the query string, for example:
+
+`GET /items?price[gte]=10&price[lte]=100`
+
+By default, omitting the operator is equivalent to `[eq]`, so both of these are equivalent:
+
+```http
+GET /users?role=admin
+GET /users?role[eq]=admin
+```
+
+Invalid field names or operators are simply ignored.
+
+The following operators are supported:
+
+| Operator       | Description                                   | Example                               |
+| -------------- | --------------------------------------------- | ------------------------------------- |
+| `[eq]`         | equals                                        | `?name[eq]=Alice` (or `?name=Alice`)  |
+| `[ne]`         | not equals                                    | `?status[ne]=archived`                |
+| `[exists]`     | field is present (`true`) or absent (`false`) | `?email[exists]=true`                 |
+| `[gt]`         | greater than                                  | `?age[gt]=18`                         |
+| `[gte]`        | greater than or equal                         | `?price[gte]=10`                      |
+| `[lt]`         | less than                                     | `?score[lt]=100`                      |
+| `[lte]`        | less than or equal                            | `?price[lte]=100`                     |
+| `[in]`         | one of a list of values                       | `?age[in]=18,21,65`                   |
+| `[nin]`        | not in a list of values                       | `?status[nin]=draft,pending`          |
+| `[regex]`      | full regular-expression match (URL-encode)    | `?name[regex]=^A.*e$` → `%5E%A.*e%24` |
+| `[contains]`   | substring match                               | `?description[contains]=lorem`        |
+| `[startsWith]` | prefix match                                  | `?username[startsWith]=admin`         |
+| `[endsWith]`   | suffix match                                  | `?email[endsWith]=@example.com`       |
+
 ## Config settings overview
 
 Configuring Temba is optional, it already works out of the box.
