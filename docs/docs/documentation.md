@@ -398,36 +398,42 @@ For updating or deleting items with a `PUT`, `PATCH`, or `DELETE`, after enablin
 
 ## Filtering
 
-Temba supports LHS bracket notation for filtering on `GET` requests by appending square-bracket operators to your field names in the query string, for example:
+Temba supports JSON:API style filtering on `GET` requests by appending square-bracket operators to your field names in the query string. Every filter expression must start with the literal `filter` prefix. For example:
 
-`GET /items?price[gte]=10&price[lte]=100`
+`GET /items?filter.price[gte]=10&filter.price[lte]=100`
+
+You can mix dots and brackets in any combination when specifying filters (e.g. `filter.role.eq=admin`, `filter.role[eq]=admin`, `filter[role].eq=admin`, `filter[role][eq]=admin`, etc.), but the recommended—and most common—style is to put the operator between brackets:
+
+```http
+GET /users?filter.role[eq]=admin
+```
 
 By default, omitting the operator is equivalent to `[eq]`, so both of these are equivalent:
 
 ```http
-GET /users?role=admin
-GET /users?role[eq]=admin
+GET /users?filter.role=admin
+GET /users?filter.role[eq]=admin
 ```
 
-Invalid field names or operators are simply ignored.
+Invalid filter expressions (unknown fields or unsupported operators) are ignored.
 
 The following operators are supported:
 
-| Operator       | Description                                   | Example                               |
-| -------------- | --------------------------------------------- | ------------------------------------- |
-| `[eq]`         | equals                                        | `?name[eq]=Alice` (or `?name=Alice`)  |
-| `[ne]`         | not equals                                    | `?status[ne]=archived`                |
-| `[exists]`     | field is present (`true`) or absent (`false`) | `?email[exists]=true`                 |
-| `[gt]`         | greater than                                  | `?age[gt]=18`                         |
-| `[gte]`        | greater than or equal                         | `?price[gte]=10`                      |
-| `[lt]`         | less than                                     | `?score[lt]=100`                      |
-| `[lte]`        | less than or equal                            | `?price[lte]=100`                     |
-| `[in]`         | one of a list of values                       | `?age[in]=18,21,65`                   |
-| `[nin]`        | not in a list of values                       | `?status[nin]=draft,pending`          |
-| `[regex]`      | full regular-expression match (URL-encode)    | `?name[regex]=^A.*e$` → `%5E%A.*e%24` |
-| `[contains]`   | substring match                               | `?description[contains]=lorem`        |
-| `[startsWith]` | prefix match                                  | `?username[startsWith]=admin`         |
-| `[endsWith]`   | suffix match                                  | `?email[endsWith]=@example.com`       |
+| Operator       | Description                                   | Example                                            |
+| -------------- | --------------------------------------------- | -------------------------------------------------- |
+| `[eq]`         | equals                                        | `?filter.name[eq]=Alice` (or `?filter.name=Alice`) |
+| `[ne]`         | not equals                                    | `?filter.status[ne]=archived`                      |
+| `[exists]`     | field is present (`true`) or absent (`false`) | `?filter.email[exists]=true`                       |
+| `[gt]`         | greater than                                  | `?filter.age[gt]=18`                               |
+| `[gte]`        | greater than or equal                         | `?filter.price[gte]=10`                            |
+| `[lt]`         | less than                                     | `?filter.score[lt]=100`                            |
+| `[lte]`        | less than or equal                            | `?filter.price[lte]=100`                           |
+| `[in]`         | one of a list of values                       | `?filter.age[in]=18,21,65`                         |
+| `[nin]`        | not in a list of values                       | `?filter.status[nin]=draft,pending`                |
+| `[regex]`      | full regular-expression match (URL-encode)    | `?filter.name[regex]=^A.*e$` → `%5E%A.*e%24`       |
+| `[contains]`   | substring match                               | `?filter.description[contains]=lorem`              |
+| `[startsWith]` | prefix match                                  | `?filter.username[startsWith]=admin`               |
+| `[endsWith]`   | suffix match                                  | `?filter.email[endsWith]=@example.com`             |
 
 ## Config settings overview
 
