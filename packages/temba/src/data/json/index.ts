@@ -29,19 +29,27 @@ export default function createJsonQueries({ filename }: JsonConfig) {
     return db
   }
 
-  async function getAll(resource: string) {
+  async function getAll({ resource }: { resource: string }) {
     const db = await getDb()
     const data = db.data[resource] || []
     return data
   }
 
-  async function getById(resource: string, id: string) {
+  async function getById({ resource, id }: { resource: string; id: string }) {
     const db = await getDb()
     const data = db.data[resource] || []
     return (data || []).find((x) => x.id === id) || null
   }
 
-  async function create(resource: string, id: string | null, item: ItemWithoutId) {
+  async function create({
+    resource,
+    id,
+    item,
+  }: {
+    resource: string
+    id: string | null
+    item: ItemWithoutId
+  }) {
     const db = await getDb()
     const itemWithId = {
       ...item,
@@ -54,7 +62,7 @@ export default function createJsonQueries({ filename }: JsonConfig) {
     return itemWithId
   }
 
-  async function update(resource: string, item: Item) {
+  async function update({ resource, item }: { resource: string; item: Item }) {
     const updatedItem = { ...item } satisfies Item
 
     const db = await getDb()
@@ -65,18 +73,18 @@ export default function createJsonQueries({ filename }: JsonConfig) {
     return updatedItem
   }
 
-  async function replace(resource: string, item: Item) {
-    return update(resource, item)
+  async function replace(query: { resource: string; item: Item }) {
+    return update(query)
   }
 
-  async function deleteById(resource: string, id: string) {
+  async function deleteById({ resource, id }: { resource: string; id: string }) {
     const db = await getDb()
     await db.update((data) => {
       data[resource] = [...(data[resource] || []).filter((r) => r.id !== id)]
     })
   }
 
-  async function deleteAll(resource: string) {
+  async function deleteAll({ resource }: { resource: string }) {
     const db = await getDb()
     await db.update((data) => {
       data[resource] = []

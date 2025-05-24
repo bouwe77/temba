@@ -31,7 +31,7 @@ export const createMongoQueries = (connectionString: string, log: Logger) => {
     }
   }
 
-  const getAll = async (resource: string) => {
+  const getAll = async ({ resource }: { resource: string }) => {
     await connectToDatabase()
 
     const items = (await db[resource].find({})) as MongoItem[]
@@ -41,7 +41,7 @@ export const createMongoQueries = (connectionString: string, log: Logger) => {
     return items.map((item) => removeUnderscoreFromId(item))
   }
 
-  const getById = async (resource: string, id: string) => {
+  const getById = async ({ resource, id }: { resource: string; id: string }) => {
     await connectToDatabase()
 
     const item = await db[resource].findOne({ _id: id })
@@ -51,7 +51,15 @@ export const createMongoQueries = (connectionString: string, log: Logger) => {
     return removeUnderscoreFromId(item)
   }
 
-  const create = async (resource: string, id: string | null, item: ItemWithoutId) => {
+  const create = async ({
+    resource,
+    id,
+    item,
+  }: {
+    resource: string
+    id: string | null
+    item: ItemWithoutId
+  }) => {
     await connectToDatabase()
 
     const createdItem = await db[resource].insertOne(id ? { ...item, _id: id } : item)
@@ -59,7 +67,7 @@ export const createMongoQueries = (connectionString: string, log: Logger) => {
     return removeUnderscoreFromId(createdItem.ops[0])
   }
 
-  const update = async (resource: string, item: Item) => {
+  const update = async ({ resource, item }: { resource: string; item: Item }) => {
     await connectToDatabase()
 
     const { id, ...itemWithoutId } = item
@@ -73,7 +81,7 @@ export const createMongoQueries = (connectionString: string, log: Logger) => {
     return removeUnderscoreFromId(updatedItem.value)
   }
 
-  const replace = async (resource: string, item: Item) => {
+  const replace = async ({ resource, item }: { resource: string; item: Item }) => {
     await connectToDatabase()
 
     const { id, ...itemWithoutId } = item
@@ -85,13 +93,13 @@ export const createMongoQueries = (connectionString: string, log: Logger) => {
     return removeUnderscoreFromId(replacedItem.value)
   }
 
-  const deleteById = async (resource: string, id: string) => {
+  const deleteById = async ({ resource, id }: { resource: string; id: string }) => {
     await connectToDatabase()
 
     await db[resource].deleteOne({ _id: id })
   }
 
-  const deleteAll = async (resource: string) => {
+  const deleteAll = async ({ resource }: { resource: string }) => {
     await connectToDatabase()
 
     await db[resource].deleteMany({})

@@ -36,7 +36,7 @@ export const createPatchRoutes = (
         }
       }
 
-      let item = await queries.getById(resource, id)
+      let item = await queries.getById({ resource, id })
 
       if (!item)
         return {
@@ -60,7 +60,7 @@ export const createPatchRoutes = (
 
       item = { ...item, ...(body2 as object), id }
 
-      const updatedItem = await queries.update(resource, item)
+      const updatedItem = await queries.update({ resource, item })
 
       return {
         statusCode: 200,

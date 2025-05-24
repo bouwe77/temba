@@ -36,7 +36,7 @@ export const createPutRoutes = (
         }
       }
 
-      let item = await queries.getById(resource, id)
+      let item = await queries.getById({ resource, id })
 
       if (!item)
         return {
@@ -60,7 +60,7 @@ export const createPutRoutes = (
 
       item = { ...(body2 as object), id }
 
-      const replacedItem = await queries.replace(resource, item)
+      const replacedItem = await queries.replace({ resource, item })
 
       return {
         statusCode: 200,

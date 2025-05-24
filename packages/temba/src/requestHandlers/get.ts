@@ -40,7 +40,7 @@ export const createGetRoutes = (
       }
 
       if (id) {
-        const item = await queries.getById(resource, id)
+        const item = await queries.getById({ resource, id })
 
         if (!item) {
           return { statusCode: 404 }
@@ -63,7 +63,7 @@ export const createGetRoutes = (
         return responseOk(theItem)
       }
 
-      const items = await queries.getAll(resource)
+      const items = await queries.getAll({ resource })
 
       const theItems = responseBodyInterceptor
         ? interceptResponseBody(responseBodyInterceptor, { resource, body: items })

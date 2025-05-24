@@ -1,4 +1,5 @@
 import type { IncomingHttpHeaders } from 'http'
+import type { Filter } from '../filtering/filter'
 
 export type Body = object | string | Buffer | null
 
@@ -17,6 +18,7 @@ export type RequestInfo = {
   headers: IncomingHttpHeaders
   etag: string | null
   ifNoneMatchEtag: string | null
+  queryString: string | null
 }
 
 export type TembaRequest = {
@@ -28,6 +30,7 @@ export type GetRequest = TembaRequest & {
   id: string | null
   method: 'get' | 'head'
   ifNoneMatchEtag: string | null
+  filter: Filter | null
 }
 
 export type PostRequest = TembaRequest & {

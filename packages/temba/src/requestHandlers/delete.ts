@@ -27,7 +27,7 @@ export const createDeleteRoutes = (
       }
 
       if (id) {
-        const item = await queries.getById(resource, id)
+        const item = await queries.getById({ resource, id })
         if (item) {
           if (etagsEnabled) {
             const itemEtag = etag(JSON.stringify(item))
@@ -41,7 +41,7 @@ export const createDeleteRoutes = (
             }
           }
 
-          await queries.deleteById(resource, id)
+          await queries.deleteById({ resource, id })
         } else {
           // Even when deleting a non existing item, we still need an etag.
           // The client needs to do a GET to determine it, after which it finds out the item is gone.
@@ -60,7 +60,7 @@ export const createDeleteRoutes = (
         }
 
         if (etagsEnabled) {
-          const items = await queries.getAll(resource)
+          const items = await queries.getAll({ resource })
           const etagValue = etag(JSON.stringify(items))
           if (req.etag !== etagValue) {
             return {
@@ -72,7 +72,7 @@ export const createDeleteRoutes = (
           }
         }
 
-        await queries.deleteAll(resource)
+        await queries.deleteAll({ resource })
       }
 
       return { statusCode: 204 }
