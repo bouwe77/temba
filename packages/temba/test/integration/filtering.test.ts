@@ -23,14 +23,14 @@ async function createData(tembaServer: Server, data: { name: string }[]) {
 test('GET - Filter using [eq] operator', async () => {
   const tembaServer = await createServer()
 
-  // Create 3 resources
-  const data = [{ name: 'Piet' }, { name: 'Miep' }, { name: 'Tering Henkie' }]
+  // Create 2 resources
+  const data = [{ name: 'Piet' }, { name: 'Miep' }]
   await createData(tembaServer, data)
 
   // Get all resources without filtering
   const getAllResponse = await request(tembaServer).get(resource)
   expectSuccess(getAllResponse)
-  expect(getAllResponse.body.length).toEqual(3)
+  expect(getAllResponse.body.length).toEqual(2)
   expect(getAllResponse.body.map((item: { name: string }) => item.name)).toEqual(
     data.map((item) => item.name),
   )
@@ -39,7 +39,7 @@ test('GET - Filter using [eq] operator', async () => {
   const queryStrings = [
     'filter.name[eq]=Miep',
     'filter.name[eq]=miep',
-    'filter.name=miep',
+    'filter.name=Miep',
     'filter.name=MIEP',
   ]
 
