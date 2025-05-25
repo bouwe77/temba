@@ -7,15 +7,31 @@ import {
 } from '../../filtering/filter'
 
 const operatorFns: Record<Operator, (a: unknown, b: string) => boolean> = {
-  eq: (a, b) =>
-    typeof a === 'string'
-      ? a.localeCompare(b, undefined, { sensitivity: 'accent' }) === 0
-      : a === b,
+  eq: (a, b) => {
+    if (typeof a === 'string') {
+      return a.localeCompare(b, undefined, { sensitivity: 'accent' }) === 0
+    }
+    if (typeof a === 'number') {
+      return a === Number(b)
+    }
+    if (typeof a === 'boolean') {
+      return a === (b.toLowerCase() === 'true')
+    }
+    return a === b
+  },
 
-  neq: (a, b) =>
-    typeof a === 'string'
-      ? a.localeCompare(b, undefined, { sensitivity: 'accent' }) !== 0
-      : a !== b,
+  neq: (a, b) => {
+    if (typeof a === 'string') {
+      return a.localeCompare(b, undefined, { sensitivity: 'accent' }) !== 0
+    }
+    if (typeof a === 'number') {
+      return a !== Number(b)
+    }
+    if (typeof a === 'boolean') {
+      return a !== (b.toLowerCase() === 'true')
+    }
+    return a !== b
+  },
 }
 
 const isOperatorObject = (obj: unknown): obj is OperatorObject => {

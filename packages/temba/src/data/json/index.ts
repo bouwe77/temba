@@ -32,9 +32,16 @@ export default function createJsonQueries({ filename }: JsonConfig) {
   }
 
   async function getAll({ resource, filter }: { resource: string; filter?: Filter }) {
-    const data = (await getDb()).data[resource]
-    if (!data || data.length === 0) return []
-    return filter ? data.filter(makePredicate(filter)) : data
+    const data = (await getDb()).data[resource] || []
+    if (!filter) return data
+
+    // For now I leave this too elaborate code to simplify debugging
+    const pred = makePredicate(filter)
+    return data.filter((item) => {
+      const ok = pred(item)
+      //console.log('  item=', item, '\n  matches=', ok)
+      return ok
+    })
   }
 
   async function getById({ resource, id }: { resource: string; id: string }) {
