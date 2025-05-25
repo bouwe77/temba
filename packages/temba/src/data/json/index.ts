@@ -2,6 +2,8 @@ import type { Item, ItemWithoutId, Queries } from '../types'
 import { Low, type Adapter, Memory } from 'lowdb'
 import { JSONFile } from 'lowdb/node'
 import type { PathLike } from 'node:fs'
+import type { Filter } from '../../filtering/filter'
+import { makePredicate } from './filtering'
 
 const getInMemoryDb = <Data>(defaultData: Data): Promise<Low<Data>> => {
   return getJsonDb(new Memory<Data>(), defaultData)
@@ -29,10 +31,10 @@ export default function createJsonQueries({ filename }: JsonConfig) {
     return db
   }
 
-  async function getAll({ resource }: { resource: string }) {
-    const db = await getDb()
-    const data = db.data[resource] || []
-    return data
+  async function getAll({ resource, filter }: { resource: string; filter?: Filter }) {
+    const data = (await getDb()).data[resource]
+    if (!data || data.length === 0) return []
+    return filter ? data.filter(makePredicate(filter)) : data
   }
 
   async function getById({ resource, id }: { resource: string; id: string }) {
