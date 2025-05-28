@@ -49,7 +49,7 @@ const matchesFilter = (obj: Record<string, unknown>, spec: NestedFilter): boolea
     if (isOperatorObject(constraint)) {
       return (Object.keys(constraint) as Operator[]).every((op) => {
         const rhs = constraint[op]
-        return rhs !== undefined && operatorFns[op](v, rhs)
+        return rhs !== undefined && operatorFns[op]?.(v, rhs)
       })
     } else {
       if (typeof v !== 'object' || v === null) return false

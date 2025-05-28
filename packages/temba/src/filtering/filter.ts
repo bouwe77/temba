@@ -55,7 +55,8 @@ const hasFilterProp = (x: unknown): x is { filter: unknown } => isObject(x) && '
 export const isValidFilter = (filter: unknown): filter is RawFilter => {
   if (!hasFilterProp(filter)) return false
   const inner = filter.filter
-  return isObject(inner) && !Array.isArray(inner)
+  const isValid = isObject(inner) && !Array.isArray(inner)
+  return isValid
 }
 
 export const prepareFilter = (rawFilter: RawFilter): Filter =>
