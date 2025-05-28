@@ -408,7 +408,7 @@ You can mix dots and brackets in any combination when specifying filters (e.g. `
 GET /users?filter.role[eq]=admin
 ```
 
-By default, omitting the operator is equivalent to `[eq]`, so both of these are equivalent:
+Omitting the operator defaults to an `[eq]` operator, so both of these are equivalent:
 
 ```http
 GET /users?filter.role=admin
