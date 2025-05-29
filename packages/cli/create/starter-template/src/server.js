@@ -1,6 +1,6 @@
 import { create } from 'temba'
 
-const server = create({
+const server = await create({
   port: 8362,
 })
 
