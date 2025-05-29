@@ -47,13 +47,11 @@ const getFilter = (queryString: string | null) => {
   if (!queryString) return null
 
   let filter: Filter | null = null
-  if (queryString) {
-    const parsedQueryString = parseQueryString(queryString)
+  const parsedQueryString = parseQueryString(queryString)
 
-    const maybeFilter: unknown = parsedQueryString
-    if (isValidFilter(maybeFilter)) {
-      filter = prepareFilter(maybeFilter)
-    }
+  const maybeFilter: unknown = parsedQueryString
+  if (isValidFilter(maybeFilter)) {
+    filter = prepareFilter(maybeFilter)
   }
 
   return filter
