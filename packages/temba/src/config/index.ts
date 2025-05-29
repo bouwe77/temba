@@ -68,7 +68,7 @@ const defaultConfig: Config = {
   requestInterceptor: null,
   responseBodyInterceptor: null,
   returnNullFields: true,
-  port: 3000,
+  port: 8362,
   schemas: null,
   allowDeleteCollection: false,
   etagsEnabled: false,

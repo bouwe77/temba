@@ -63,10 +63,10 @@ This command will:
 You’ll see:
 
 ```
-✅ Server listening on port 3000
+✅ Server listening on port 8362
 ```
 
-Now you can send any HTTP request to any resource on localhost:3000 — and it just works.
+Now you can send any HTTP request to any resource on localhost:8362 — and it just works.
 
 Or headover to the interactive OpenAPI specification of your API in your browser at `/openapi`.
 
@@ -87,7 +87,7 @@ server.start()
 3. In your console you'll see:
 
 ```
-✅ Server listening on port 3000
+✅ Server listening on port 8362
 ```
 
 ### Configuration
@@ -459,7 +459,7 @@ These are all the possible settings:
 | `delay`                   | The delay, in milliseconds, after processing the request before sending the response.        | `0`              |
 | `etags`                   | See [Caching and consistency with Etags](#caching-and-consistency-with-etags)                | `false`          |
 | `openapi`                 | Enable or disable OpenAPI, or supply your custom spec object to merge into the default spec. | `true`           |
-| `port`                    | The port your Temba server listens on                                                        | `3000`           |
+| `port`                    | The port your Temba server listens on                                                        | `8362`           |
 | `requestInterceptor`      | See [Request validation or mutation](#request-validation-or-mutation)                        | `noop`           |
 | `resources`               | See [Allowing specific resources only](#allowing-specific-resources-only)                    | `[]`             |
 | `responseBodyInterceptor` | See [Response body interception](#response-body-interception)                                | `noop`           |
