@@ -43,7 +43,7 @@ server.start()`}
       </CodeBlock>
       <b>3. Run</b>
       <CodeBlock className={styles.codeBlock} language="bash">
-        {`✅ Server listening on port 3000`}
+        {`✅ Server listening on port 8362`}
       </CodeBlock>
       <b>Or instead, combine all these steps into just using the CLI</b>
       <CodeBlock className={styles.codeBlock} language="bash">

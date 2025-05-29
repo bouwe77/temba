@@ -1,7 +1,7 @@
 import { create } from 'temba'
 
 const server = create({
-  port: 3000,
+  port: 8362,
 })
 
 server.start()

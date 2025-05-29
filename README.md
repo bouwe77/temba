@@ -32,10 +32,10 @@ This command will:
 You’ll see:
 
 ```
-✅ Server listening on port 3000
+✅ Server listening on port 8362
 ```
 
-Now you can send any HTTP request to any resource on localhost:3000 — and it just works.
+Now you can send any HTTP request to any resource on localhost:8362 — and it just works.
 
 Or headover to the interactive OpenAPI specification of your API in your browser at `/openapi`.
 
