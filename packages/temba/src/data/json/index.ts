@@ -31,12 +31,12 @@ export default function createJsonQueries({ filename }: JsonConfig) {
     return db
   }
 
-  //TODO refactor into a separate getByFilter function
-  async function getAll({ resource, filter }: { resource: string; filter?: Filter }) {
-    const data = (await getDb()).data[resource] || []
-    if (!filter) return data
+  async function getAll({ resource }: { resource: string }) {
+    return (await getDb()).data[resource] || []
+  }
 
-    // For now I leave this too elaborate code to simplify debugging
+  async function getByFilter({ resource, filter }: { resource: string; filter: Filter }) {
+    const data = (await getDb()).data[resource] || []
     const pred = makePredicate(filter)
     return data.filter((item) => {
       const ok = pred(item)
@@ -110,6 +110,7 @@ export default function createJsonQueries({ filename }: JsonConfig) {
 
   const fileQueries: Queries = {
     getAll,
+    getByFilter,
     getById,
     create,
     update,

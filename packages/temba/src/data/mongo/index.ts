@@ -42,6 +42,10 @@ export const createMongoQueries = (connectionString: string, log: Logger) => {
     return items.map((item) => removeUnderscoreFromId(item))
   }
 
+  const getByFilter = async (_: { resource: string; filter: Filter }) => {
+    throw new Error('NOT IMPLEMENTED YET')
+  }
+
   const getById = async ({ resource, id }: { resource: string; id: string }) => {
     await connectToDatabase()
 
@@ -112,6 +116,7 @@ export const createMongoQueries = (connectionString: string, log: Logger) => {
 
   const mongoQueries: Queries = {
     getAll,
+    getByFilter,
     getById,
     create,
     update,

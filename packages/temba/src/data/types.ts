@@ -8,7 +8,8 @@ export type Item = {
 export type ItemWithoutId = Omit<Item, 'id'>
 
 export type Queries = {
-  getAll: (query: { resource: string; filter?: Filter }) => Promise<Item[]>
+  getAll: (query: { resource: string }) => Promise<Item[]>
+  getByFilter: (query: { resource: string; filter: Filter }) => Promise<Item[]>
   getById: (query: { resource: string; id: string }) => Promise<Item | null>
   create: (query: { resource: string; id: string | null; item: ItemWithoutId }) => Promise<Item>
   update: (query: { resource: string; item: Item }) => Promise<Item>

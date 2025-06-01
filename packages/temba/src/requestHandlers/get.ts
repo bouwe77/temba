@@ -62,7 +62,9 @@ export const createGetRoutes = (
         return responseOk(theItem)
       }
 
-      const items = await queries.getAll(filter ? { resource, filter } : { resource })
+      const items = filter
+        ? await queries.getByFilter({ resource, filter })
+        : await queries.getAll({ resource })
 
       const theItems = responseBodyInterceptor
         ? interceptResponseBody(responseBodyInterceptor, { resource, body: items })
