@@ -13,7 +13,7 @@ export const createDeleteRoutes = (
 ) => {
   const handleDelete = async (req: DeleteRequest) => {
     try {
-      const { headers, resource, id } = req
+      const { headers, resource, id, filter } = req
 
       if (requestInterceptor?.delete) {
         try {
@@ -72,7 +72,11 @@ export const createDeleteRoutes = (
           }
         }
 
-        await queries.deleteAll({ resource })
+        if (filter) {
+          await queries.deleteByFilter({ resource, filter })
+        } else {
+          await queries.deleteAll({ resource })
+        }
       }
 
       return { statusCode: 204 }

@@ -51,4 +51,5 @@ export type PatchRequest = PutRequest
 export type DeleteRequest = TembaRequest & {
   id: string | null
   etag: string | null
+  filter: Filter | null
 }

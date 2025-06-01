@@ -1,6 +1,7 @@
 import { type Db, connect } from '@rakered/mongo'
 import type { Item, ItemWithoutId, Queries } from '../types'
 import type { Logger } from '../../log/logger'
+import type { Filter } from '../../filtering/filter'
 
 let uri: string
 let db: Db
@@ -105,6 +106,10 @@ export const createMongoQueries = (connectionString: string, log: Logger) => {
     await db[resource].deleteMany({})
   }
 
+  const deleteByFilter = async (_: { resource: string; filter: Filter }) => {
+    throw new Error('NOT IMPLEMENTED YET')
+  }
+
   const mongoQueries: Queries = {
     getAll,
     getById,
@@ -113,6 +118,7 @@ export const createMongoQueries = (connectionString: string, log: Logger) => {
     replace,
     deleteById,
     deleteAll,
+    deleteByFilter,
   }
 
   return mongoQueries

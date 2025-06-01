@@ -31,6 +31,7 @@ export default function createJsonQueries({ filename }: JsonConfig) {
     return db
   }
 
+  //TODO refactor into a separate getByFilter function
   async function getAll({ resource, filter }: { resource: string; filter?: Filter }) {
     const data = (await getDb()).data[resource] || []
     if (!filter) return data
@@ -39,7 +40,6 @@ export default function createJsonQueries({ filename }: JsonConfig) {
     const pred = makePredicate(filter)
     return data.filter((item) => {
       const ok = pred(item)
-      //console.log('  item=', item, '\n  matches=', ok)
       return ok
     })
   }
@@ -100,6 +100,14 @@ export default function createJsonQueries({ filename }: JsonConfig) {
     })
   }
 
+  async function deleteByFilter({ resource, filter }: { resource: string; filter: Filter }) {
+    const db = await getDb()
+    const pred = makePredicate(filter)
+    await db.update((data) => {
+      data[resource] = (data[resource] || []).filter((item) => !pred(item))
+    })
+  }
+
   const fileQueries: Queries = {
     getAll,
     getById,
@@ -108,6 +116,7 @@ export default function createJsonQueries({ filename }: JsonConfig) {
     replace,
     deleteById,
     deleteAll,
+    deleteByFilter,
   }
 
   return fileQueries

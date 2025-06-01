@@ -206,3 +206,43 @@ describe('GET', () => {
     }
   })
 })
+
+describe('DELETE', () => {
+  test.each([
+    'filter.name[eq]=Miep',
+    'filter.name[eq]=miep',
+    // No operator defaults to [eq]
+    'filter.name=Miep',
+    'filter.name=MIEP',
+    // Multiple [eq] filters
+    'filter.name[eq]=miep&filter.age[eq]=23',
+    'filter.name[eq]=miep&filter.age[eq]=23&filter.isActive[eq]=false',
+  ])('Filter using [eq] operator', async (queryString: string) => {
+    const tembaServer = await createServer({
+      allowDeleteCollection: true,
+    })
+
+    // Create 2 resources
+    const data = [
+      { name: 'Piet', age: 24, isActive: true },
+      { name: 'Miep', age: 23, isActive: false },
+    ]
+    await createData(tembaServer, data)
+
+    // Get all resources
+    const getAllResponse = await request(tembaServer).get(resource)
+    expect(getAllResponse.body.length).toEqual(2)
+    expect(getAllResponse.body.map((item: { name: string }) => item.name)).toEqual(
+      data.map((item) => item.name),
+    )
+
+    // Delete with case-insensitive filter using [eq] operator
+    const deleteFilterResponse = await request(tembaServer).delete(resource).query(queryString)
+    expectSuccess(deleteFilterResponse)
+
+    // Get all resources
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body.map((item: { name: string }) => item.name)).toEqual(['Piet'])
+  })
+})

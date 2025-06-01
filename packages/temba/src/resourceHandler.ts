@@ -97,6 +97,7 @@ const convertToDeleteRequest = (requestInfo: RequestInfo) => {
     id: requestInfo.id,
     resource: requestInfo.resource,
     etag: requestInfo.etag ?? null,
+    filter: getFilter(requestInfo.queryString),
   } satisfies DeleteRequest
 }
 

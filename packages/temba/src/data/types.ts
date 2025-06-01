@@ -15,4 +15,5 @@ export type Queries = {
   replace: (query: { resource: string; item: Item }) => Promise<Item>
   deleteById: (query: { resource: string; id: string }) => Promise<void>
   deleteAll: (query: { resource: string }) => Promise<void>
+  deleteByFilter: (query: { resource: string; filter: Filter }) => Promise<void>
 }
