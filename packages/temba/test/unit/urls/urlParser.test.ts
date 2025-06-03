@@ -11,6 +11,9 @@ test.each([
   ['/stuff/', resourceOnly],
   ['//stuff/', resourceOnly],
   ['/stuff//', resourceOnly],
+  // Query strings are ignored
+  ['stuff?query=string', resourceOnly],
+  ['/stuff?query=string', resourceOnly],
 ])("URL '%s' only has a resource: %o", (url, expected) => {
   const actual = parseUrl(url)
   expect(actual).toEqual(expected)
@@ -24,6 +27,9 @@ test.each([
   ['/stuff//foo/', resourceAndId],
   // When using an API prefix, while not configured, the API prefix becomes the resource, and the resource the id...
   ['/api//movies/', { resource: 'api', id: 'movies' }],
+  // Query strings are ignored
+  ['stuff/foo?query=string', resourceAndId],
+  ['/stuff/foo?query=string', resourceAndId],
 ])("URL '%s' has both a resource and id: %o", (url, expected) => {
   const actual = parseUrl(url)
   expect(actual).toEqual(expected)
@@ -34,6 +40,9 @@ test.each([
   ['/stuff/foo/bar', resourceAndId],
   ['stuff/foo/bar/', resourceAndId],
   ['/stuff/foo/bar/', resourceAndId],
+  // Query strings are ignored
+  ['stuff/foo/bar?query=string', resourceAndId],
+  ['/stuff/foo/bar?query=string', resourceAndId],
 ])("URL '%s' has additional path items next to a resource and id: %o", (url, expected) => {
   const actual = parseUrl(url)
   expect(actual).toEqual(expected)

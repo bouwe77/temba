@@ -1,8 +1,18 @@
 export const parseUrl = (url: string) => {
-  const urlSegments = url.split('/').filter((i) => i)
+  let pathname: string
 
-  const resource = (urlSegments.length > 0 ? urlSegments[0] : null) ?? null
-  const id = (urlSegments.length > 1 ? urlSegments[1] : null) ?? null
+  try {
+    // for absolute URLs
+    pathname = new URL(url).pathname
+  } catch {
+    // for relative URLs or malformed ones
+    pathname = url.split('?')[0] ?? ''
+  }
 
-  return { resource, id }
+  const segments = pathname.split('/').filter(Boolean)
+
+  return {
+    resource: segments[0] ?? null,
+    id: segments[1] ?? null,
+  }
 }

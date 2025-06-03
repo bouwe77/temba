@@ -14,6 +14,9 @@ import type { Config } from './config'
 import { sendErrorResponse, sendResponse, type Response } from './responseHandler'
 import type { Queries } from './data/types'
 import type { CompiledSchemas } from './schema/types'
+import { parseQueryString } from './queryStrings/parseQueryString'
+import { isValidFilter, prepareFilter, type Filter } from './filtering/filter'
+import { parse } from 'url'
 
 type RequestValidationError = {
   statusCode: number
@@ -40,6 +43,20 @@ const validateIdInRequestBodyNotAllowed = (requestInfo: RequestInfo) => {
     : requestInfo
 }
 
+const getFilter = (queryString: string | null) => {
+  if (!queryString) return null
+
+  let filter: Filter | null = null
+  const parsedQueryString = parseQueryString(queryString)
+
+  const maybeFilter: unknown = parsedQueryString
+  if (isValidFilter(maybeFilter)) {
+    filter = prepareFilter(maybeFilter)
+  }
+
+  return filter
+}
+
 const convertToGetRequest = (requestInfo: RequestInfo) => {
   return {
     headers: requestInfo.headers,
@@ -47,6 +64,7 @@ const convertToGetRequest = (requestInfo: RequestInfo) => {
     resource: requestInfo.resource,
     method: requestInfo.method.toUpperCase() === 'HEAD' ? 'head' : 'get',
     ifNoneMatchEtag: requestInfo.ifNoneMatchEtag,
+    filter: getFilter(requestInfo.queryString),
   } satisfies GetRequest
 }
 
@@ -79,6 +97,7 @@ const convertToDeleteRequest = (requestInfo: RequestInfo) => {
     id: requestInfo.id,
     resource: requestInfo.resource,
     etag: requestInfo.etag ?? null,
+    filter: getFilter(requestInfo.queryString),
   } satisfies DeleteRequest
 }
 
@@ -115,6 +134,11 @@ export const createResourceHandler = async (
     })
   }
 
+  const getQueryString = (req: IncomingMessage): string | null => {
+    const parsedUrl = parse(req.url || '', true)
+    return parsedUrl.search || null
+  }
+
   const parseRequest = async (req: IncomingMessage) => {
     const urlInfo = getUrlInfo(req.url ?? '')
 
@@ -139,6 +163,7 @@ export const createResourceHandler = async (
       headers: req.headers,
       etag: req.headers['if-match'] ?? null,
       ifNoneMatchEtag: req.headers['if-none-match'] ?? null,
+      queryString: getQueryString(req),
     } satisfies RequestInfo
   }
 

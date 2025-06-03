@@ -36,7 +36,7 @@ export const createPostRoutes = (
       }
 
       if (id) {
-        const item = await queries.getById(resource, id)
+        const item = await queries.getById({ resource, id })
 
         if (item)
           return {
@@ -47,7 +47,7 @@ export const createPostRoutes = (
           }
       }
 
-      const newItem = await queries.create(resource, id, body2 as ItemWithoutId)
+      const newItem = await queries.create({ resource, id, item: body2 as ItemWithoutId })
 
       return {
         headers: {
