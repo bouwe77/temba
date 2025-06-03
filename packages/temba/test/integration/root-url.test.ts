@@ -60,9 +60,9 @@ describe('Other methods', () => {
     },
   )
 
-  test('OPTIONS on root URL returns 200 OK', async () => {
+  test('OPTIONS on root URL returns 204 No Content', async () => {
     const response = await request(tembaServer).options('/')
-    expect(response.statusCode).toEqual(200)
-    expect(response.body).toBeDefined()
+    expect(response.statusCode).toEqual(204)
+    expect(JSON.stringify(response.body)).toEqual('{}')
   })
 })
