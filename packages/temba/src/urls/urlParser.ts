@@ -1,5 +1,5 @@
 export const parseUrl = (url: string) => {
-  const path = url.split('?')[0]
+  const path = url.split('?')[0] || ''
   const urlSegments = path.split('/').filter((i) => i)
 
   const resource = (urlSegments.length > 0 ? urlSegments[0] : null) ?? null
