@@ -1,5 +1,7 @@
 import type { Item } from '../data/types'
 
+type MaybePromise<T> = T | Promise<T>
+
 export type InterceptedResponse =
   | {
       body: Item
@@ -11,4 +13,4 @@ export type InterceptedResponse =
       resource: string
     }
 
-export type ResponseBodyInterceptor = (info: InterceptedResponse) => unknown
+export type ResponseBodyInterceptor = (info: InterceptedResponse) => MaybePromise<unknown>
