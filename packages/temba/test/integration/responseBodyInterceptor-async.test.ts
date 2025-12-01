@@ -1,4 +1,4 @@
-import { describe, beforeEach, test, expect } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import request from 'supertest'
 import { createServer } from './createServer'
 
@@ -33,11 +33,6 @@ describe('responseBodyInterceptor async support', () => {
           }
         }
       },
-    })
-
-    beforeEach(async () => {
-      // Delete all items
-      await request(tembaServer).delete('/movies')
     })
 
     // Create some movies
