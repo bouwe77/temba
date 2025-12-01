@@ -25,7 +25,7 @@ export const interceptGetRequest = async (
   headers: IncomingHttpHeaders,
   resource: string,
   id: string | null,
-): Promise<InterceptResult | void> => {
+): Promise<InterceptResult> => {
   const actions = createActions()
   const result = await intercept({ headers, resource, id }, actions)
   return processInterceptResult(result)
@@ -62,7 +62,7 @@ export const interceptDeleteRequest = async (
   headers: IncomingHttpHeaders,
   resource: string,
   id: string | null,
-): Promise<InterceptResult | void> => {
+): Promise<InterceptResult> => {
   const actions = createActions()
   const result = await intercept({ headers, resource, id }, actions)
   return processInterceptResult(result)
@@ -90,6 +90,8 @@ const processInterceptResult = (
   }
 
   // Legacy behavior removed - plain objects are no longer supported
-  // If we get here, the return value is invalid - treat as void
+  // If we get here, the return value is invalid (e.g., plain object, number, string, boolean, etc.)
+  // We treat it as void and continue with the original body
+  // Developers should use actions.setRequestBody() or actions.response() instead
   return { type: 'continue', body: originalBody }
 }

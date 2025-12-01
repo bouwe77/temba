@@ -10,7 +10,8 @@ describe('Breaking change: Plain object returns are now ignored', () => {
       post: ({ resource }, _actions): any => {
         if (resource === 'movies') {
           // This is the OLD way - returning a plain object
-          // With the new API, this should be IGNORED
+          // With the new API, this is IGNORED as part of the breaking change
+          // The original request body will be used instead
           return { title: 'Modified Title' }
         }
       },
@@ -39,7 +40,8 @@ describe('Breaking change: Plain object returns are now ignored', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       put: ({ body }, _actions): any => {
         // This is the OLD way - returning a plain object
-        // With the new API, this should be IGNORED
+        // With the new API, this is IGNORED as part of the breaking change
+        // The original request body will be used instead
         return { ...(body as object), modified: true }
       },
     }
@@ -66,7 +68,8 @@ describe('Breaking change: Plain object returns are now ignored', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       patch: ({ body }, _actions): any => {
         // This is the OLD way - returning a plain object
-        // With the new API, this should be IGNORED
+        // With the new API, this is IGNORED as part of the breaking change
+        // The original request body will be used instead
         return { ...(body as object), patched: true }
       },
     }

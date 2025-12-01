@@ -38,7 +38,7 @@ export const createGetRoutes = (
           )
 
           // If interceptor returned a response signal, return immediately
-          if (interceptResult && interceptResult.type === 'response') {
+          if (interceptResult.type === 'response') {
             return {
               statusCode: interceptResult.status,
               body: interceptResult.body,
