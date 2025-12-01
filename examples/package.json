@@ -5,6 +5,6 @@
   "license": "ISC",
   "private": "true",
   "dependencies": {
-    "temba": "0.46.1"
+    "temba": "0.46.2"
   }
 }
