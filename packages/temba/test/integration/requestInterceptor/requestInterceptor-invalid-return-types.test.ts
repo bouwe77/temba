@@ -12,14 +12,14 @@ describe('requestInterceptors does not return an object', async () => {
   }
 
   const requestInterceptor: RequestInterceptor = {
-    post: ({ resource }) => {
-      return getResponse(resource)
+    post: ({ resource }, actions) => {
+      return getResponse(resource) as any
     },
-    put: ({ resource }) => {
-      return getResponse(resource)
+    put: ({ resource }, actions) => {
+      return getResponse(resource) as any
     },
-    patch: ({ resource }) => {
-      return getResponse(resource)
+    patch: ({ resource }, actions) => {
+      return getResponse(resource) as any
     },
   }
 

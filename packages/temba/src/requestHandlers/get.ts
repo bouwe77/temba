@@ -30,7 +30,20 @@ export const createGetRoutes = (
     try {
       if (req.method === 'get' && requestInterceptor?.get) {
         try {
-          await interceptGetRequest(requestInterceptor.get, headers, resource, id)
+          const interceptResult = await interceptGetRequest(
+            requestInterceptor.get,
+            headers,
+            resource,
+            id,
+          )
+
+          // If interceptor returned a response signal, return immediately
+          if (interceptResult && interceptResult.type === 'response') {
+            return {
+              statusCode: interceptResult.status,
+              body: interceptResult.body,
+            }
+          }
         } catch (error: unknown) {
           return {
             statusCode: error instanceof TembaError ? error.statusCode : 500,

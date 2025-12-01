@@ -4,9 +4,9 @@ import { createServer } from '../createServer'
 
 describe('requestInterceptors that return nothing (void) to indicate nothing should be done', async () => {
   const requestInterceptor = {
-    post: () => {},
-    put: () => {},
-    patch: () => {},
+    post: (request, actions) => {},
+    put: (request, actions) => {},
+    patch: (request, actions) => {},
   }
 
   const tembaServer = await createServer({ requestInterceptor })

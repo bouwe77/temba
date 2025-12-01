@@ -5,14 +5,14 @@ import type { RequestInterceptor } from '../../../src/requestInterceptor/types'
 
 describe('requestInterceptors that return a (new or changed) request body object', async () => {
   const requestInterceptor: RequestInterceptor = {
-    post: ({ resource }) => {
-      if (resource === 'movies') return { title: 'The Matrix' }
+    post: ({ resource }, actions) => {
+      if (resource === 'movies') return actions.setRequestBody({ title: 'The Matrix' })
     },
-    put: ({ body }) => {
-      return { ...(body as object), replaced: true }
+    put: ({ body }, actions) => {
+      return actions.setRequestBody({ ...(body as object), replaced: true })
     },
-    patch: ({ body }) => {
-      return { ...(body as object), updated: true }
+    patch: ({ body }, actions) => {
+      return actions.setRequestBody({ ...(body as object), updated: true })
     },
   }
 
