@@ -13,13 +13,12 @@ import {
   isActionSignal,
   isSetRequestBodySignal,
   isResponseSignal,
-  type ActionSignal,
 } from './actionSignals'
 
 // Result type for interceptor processing
 export type InterceptResult =
   | { type: 'continue'; body?: Body }
-  | { type: 'response'; status: number; body?: any }
+  | { type: 'response'; status: number; body?: Body }
 
 export const interceptGetRequest = async (
   intercept: InterceptedGetRequest,
@@ -82,11 +81,11 @@ const processInterceptResult = (
   // If it's an action signal, process it
   if (isActionSignal(intercepted)) {
     if (isSetRequestBodySignal(intercepted)) {
-      return { type: 'continue', body: intercepted.body }
+      return { type: 'continue', body: intercepted.body as Body }
     }
 
     if (isResponseSignal(intercepted)) {
-      return { type: 'response', status: intercepted.status, body: intercepted.body }
+      return { type: 'response', status: intercepted.status, body: intercepted.body as Body }
     }
   }
 

@@ -114,7 +114,7 @@ describe('requestInterceptor async support', () => {
     }
 
     const requestInterceptor: RequestInterceptor = {
-      get: async ({ resource }, actions) => {
+      get: async ({ resource }, _actions) => {
         const hasAccess = await validateAccess(resource)
         if (!hasAccess) {
           throw new Error('Access denied')
@@ -147,7 +147,7 @@ describe('requestInterceptor async support', () => {
     }
 
     const requestInterceptor: RequestInterceptor = {
-      delete: async ({ id }, actions) => {
+      delete: async ({ id }, _actions) => {
         const canDelete = await validateDeletion(id)
         if (!canDelete) {
           throw new Error('Cannot delete protected item')

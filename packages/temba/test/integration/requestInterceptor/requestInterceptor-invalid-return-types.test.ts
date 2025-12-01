@@ -12,14 +12,17 @@ describe('requestInterceptors does not return an object', async () => {
   }
 
   const requestInterceptor: RequestInterceptor = {
-    post: ({ resource }, actions) => {
-      return getResponse(resource) as any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    post: ({ resource }, _actions): any => {
+      return getResponse(resource)
     },
-    put: ({ resource }, actions) => {
-      return getResponse(resource) as any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    put: ({ resource }, _actions): any => {
+      return getResponse(resource)
     },
-    patch: ({ resource }, actions) => {
-      return getResponse(resource) as any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    patch: ({ resource }, _actions): any => {
+      return getResponse(resource)
     },
   }
 

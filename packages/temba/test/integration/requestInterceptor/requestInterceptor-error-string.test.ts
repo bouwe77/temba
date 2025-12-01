@@ -6,13 +6,13 @@ import { TembaError } from '../../../src/requestInterceptor/TembaError'
 
 describe('requestInterceptors that throw a TembaError should return the message and status code', async () => {
   const requestInterceptor: RequestInterceptor = {
-    post: ({ resource }, actions) => {
+    post: ({ resource }, _actions) => {
       if (resource === 'movies') throw new TembaError('400 Bad Request error from POST', 400)
     },
-    put: (request, actions) => {
+    put: (_request, _actions) => {
       throw new TembaError('500 Internal Server Error from PUT', 500)
     },
-    patch: (request, actions) => {
+    patch: (_request, _actions) => {
       throw new TembaError('200 OK from PATCH', 200)
     },
   }
@@ -49,10 +49,10 @@ describe('requestInterceptors that throw a TembaError should return the message 
 
 describe('requestInterceptors that throw a regular Error should return a 500 Internal Server Error', async () => {
   const requestInterceptor: RequestInterceptor = {
-    post: ({ resource }, actions) => {
+    post: ({ resource }, _actions) => {
       if (resource === 'movies') throw new Error('Something is wrong')
     },
-    put: ({ resource }, actions) => {
+    put: ({ resource }, _actions) => {
       if (resource === 'movies') throw new Error('Something is wrong here as well')
     },
   }
