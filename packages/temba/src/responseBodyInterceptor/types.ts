@@ -1,6 +1,5 @@
 import type { Item } from '../data/types'
-
-type MaybePromise<T> = T | Promise<T>
+import type { MaybePromise } from '../types'
 
 export type InterceptedResponse =
   | {
