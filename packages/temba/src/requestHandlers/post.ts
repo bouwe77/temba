@@ -26,7 +26,24 @@ export const createPostRoutes = (
       let body2 = body
       if (requestInterceptor?.post) {
         try {
-          body2 = await interceptPostRequest(requestInterceptor.post, headers, resource, id, body)
+          const interceptResult = await interceptPostRequest(
+            requestInterceptor.post,
+            headers,
+            resource,
+            id,
+            body,
+          )
+
+          // If interceptor returned a response signal, return immediately
+          if (interceptResult.type === 'response') {
+            return {
+              statusCode: interceptResult.status,
+              body: interceptResult.body,
+            }
+          }
+
+          // Otherwise, continue with the modified body
+          body2 = interceptResult.body ?? body
         } catch (error: unknown) {
           return {
             statusCode: error instanceof TembaError ? error.statusCode : 500,

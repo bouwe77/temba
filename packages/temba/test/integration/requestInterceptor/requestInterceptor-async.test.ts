@@ -19,10 +19,10 @@ describe('requestInterceptor async support', () => {
     }
 
     const requestInterceptor: RequestInterceptor = {
-      post: async ({ body }) => {
+      post: async ({ body }, actions) => {
         // Async operation to fetch and add genre
         const genre = await fetchGenre(body.title)
-        return { ...body, genre }
+        return actions.setRequestBody({ ...body, genre })
       },
     }
 
@@ -51,9 +51,9 @@ describe('requestInterceptor async support', () => {
     }
 
     const requestInterceptor: RequestInterceptor = {
-      put: async ({ body }) => {
+      put: async ({ body }, actions) => {
         const rating = await fetchRating()
-        return { ...body, rating }
+        return actions.setRequestBody({ ...body, rating })
       },
     }
 
@@ -82,9 +82,9 @@ describe('requestInterceptor async support', () => {
     }
 
     const requestInterceptor: RequestInterceptor = {
-      patch: async ({ body }) => {
+      patch: async ({ body }, actions) => {
         const director = await fetchDirector()
-        return { ...body, director }
+        return actions.setRequestBody({ ...body, director })
       },
     }
 
