@@ -13,20 +13,20 @@ import { TembaError } from '../../../src/requestInterceptor/TembaError'
 type MyBody = { name: string }
 
 const requestInterceptor = {
-  get: ({ headers, resource, id }, _actions) => {
+  get: ({ headers, resource, id }) => {
     if (headers['x-foo'] !== 'GET') throw new TembaError('header is not GET', 400)
     if (resource !== 'get-stuff') throw new TembaError('resource is not get-stuff', 400)
     if (id !== 'get-id') throw new TembaError('id is not get-id', 400)
     throw new TembaError('GET is OK', 200)
   },
-  post: ({ headers, resource, body }, _actions) => {
+  post: ({ headers, resource, body }) => {
     if (headers['x-foo'] !== 'POST') throw new TembaError('header is not POST', 400)
     if (resource !== 'post-stuff') throw new TembaError('resource is not post-stuff', 400)
     if ((body as MyBody).name !== 'post-name')
       throw new TembaError('body does not have post-name', 400)
     throw new TembaError('POST is OK', 200)
   },
-  put: ({ headers, resource, id, body }, _actions) => {
+  put: ({ headers, resource, id, body }) => {
     if (headers['x-foo'] !== 'PUT') throw new TembaError('header is not PUT', 400)
     if (resource !== 'put-stuff') throw new TembaError('resource is not put-stuff', 400)
     if (id !== 'put-id') throw new TembaError('id is not put-id', 400)
@@ -34,7 +34,7 @@ const requestInterceptor = {
       throw new TembaError('body does not have put-name', 400)
     throw new TembaError('PUT is OK', 200)
   },
-  patch: ({ headers, resource, id, body }, _actions) => {
+  patch: ({ headers, resource, id, body }) => {
     if (headers['x-foo'] !== 'PATCH') throw new TembaError('header is not PATCH', 400)
     if (resource !== 'patch-stuff') throw new TembaError('resource is not patch-stuff', 400)
     if (id !== 'patch-id') throw new TembaError('id is not patch-id', 400)
@@ -42,7 +42,7 @@ const requestInterceptor = {
       throw new TembaError('body does not have patch-name', 400)
     throw new TembaError('PATCH is OK', 200)
   },
-  delete: ({ headers, resource, id }, _actions) => {
+  delete: ({ headers, resource, id }) => {
     if (headers['x-foo'] !== 'DELETE') throw new TembaError('header is not DELETE', 400)
     if (resource !== 'delete-stuff') throw new TembaError('resource is not delete-stuff', 400)
     if (id !== 'delete-id') throw new TembaError('id is not delete-id', 400)

@@ -6,8 +6,7 @@ import type { RequestInterceptor } from '../../../src/requestInterceptor/types'
 describe('Breaking change: Plain object returns are now ignored', () => {
   describe('POST interceptor returning plain objects (legacy behavior)', async () => {
     const requestInterceptor: RequestInterceptor = {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      post: ({ resource }, _actions): any => {
+      post: ({ resource }) => {
         if (resource === 'movies') {
           // This is the OLD way - returning a plain object
           // With the new API, this is IGNORED as part of the breaking change
@@ -37,8 +36,7 @@ describe('Breaking change: Plain object returns are now ignored', () => {
 
   describe('PUT interceptor returning plain objects (legacy behavior)', async () => {
     const requestInterceptor: RequestInterceptor = {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      put: ({ body }, _actions): any => {
+      put: ({ body }) => {
         // This is the OLD way - returning a plain object
         // With the new API, this is IGNORED as part of the breaking change
         // The original request body will be used instead
@@ -65,8 +63,7 @@ describe('Breaking change: Plain object returns are now ignored', () => {
 
   describe('PATCH interceptor returning plain objects (legacy behavior)', async () => {
     const requestInterceptor: RequestInterceptor = {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      patch: ({ body }, _actions): any => {
+      patch: ({ body }) => {
         // This is the OLD way - returning a plain object
         // With the new API, this is IGNORED as part of the breaking change
         // The original request body will be used instead
