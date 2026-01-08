@@ -75,8 +75,38 @@ const defaultErrorResponseBodySchema = {
   required: ['message'],
 }
 
-const getPathParameters = (resourceInfo: ResourceInfo, id = false) => {
+/**
+ * Helper to define the ETag header for responses
+ */
+const getEtagHeader = () => ({
+  ETag: {
+    description: 'The entity tag for the resource.',
+    schema: {
+      type: 'string',
+    },
+  },
+})
+
+const getPathParameters = (config: Config, resourceInfo: ResourceInfo, id = false) => {
   const { resource, singularResourceLowerCase } = resourceInfo
+
+  let parameters: ParameterObject[] = []
+
+  // If ETags are enabled, add If-None-Match as an optional header parameter
+  if (config.etagsEnabled) {
+    parameters = [
+      ...parameters,
+      {
+        name: 'If-None-Match',
+        in: 'header',
+        required: false,
+        schema: {
+          type: 'string',
+        },
+        description: 'The entity tag (ETag) previously returned. Used for conditional requests.',
+      },
+    ]
+  }
 
   const resourceParameter = {
     name: 'resource',
@@ -98,7 +128,6 @@ const getPathParameters = (resourceInfo: ResourceInfo, id = false) => {
     description: `The ID of the ${singularResourceLowerCase}.`,
   } satisfies ParameterObject
 
-  let parameters: ParameterObject[] = []
   if (resource === anyResource) {
     parameters = [...parameters, resourceParameter]
   }
@@ -139,7 +168,6 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
       name: 'Apache 2.0',
       url: 'http://www.apache.org/licenses/LICENSE-2.0.html',
     })
-    // For convenience, we use a generic server URL, relative to where the docs are served from.
     .addServer({
       url: server,
     })
@@ -180,7 +208,6 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
       singularResourceUpperCase,
     } = resourceInfo
 
-    // Add the tag for this resource
     builder.addTag(resourceInfo.tag)
 
     const nullFieldsRemark = () =>
@@ -193,17 +220,20 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
 
     const responseSchema = getResponseBodySchema(postRequestSchema)
 
+    // Conditional headers based on config
+    const responseHeaders = config.etagsEnabled ? getEtagHeader() : undefined
+
     // GET, HEAD, POST on a collection
     builder.addPath(`/${resource}`, {
       get: {
-        // description: `List all ${pluralResourceLowerCase}.`,
         description: `List all ${pluralResourceLowerCase}.`,
         summary: `List all ${pluralResourceLowerCase}`,
         operationId: `getAll${pluralResourceUpperCase}`,
-        parameters: getPathParameters(resourceInfo),
+        parameters: getPathParameters(config, resourceInfo),
         responses: {
           '200': {
             description: `List of all ${pluralResourceLowerCase}.${nullFieldsRemark()}`,
+            headers: responseHeaders,
             content: {
               'application/json': {
                 schema: {
@@ -220,10 +250,11 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
         summary: `HTTP headers for all ${pluralResourceLowerCase}`,
         description: `Returns HTTP headers for all ${pluralResourceLowerCase}.`,
         operationId: `getAll${pluralResourceUpperCase}Headers`,
-        parameters: getPathParameters(resourceInfo),
+        parameters: getPathParameters(config, resourceInfo),
         responses: {
           '200': {
             description: `HTTP headers for all ${pluralResourceLowerCase}.`,
+            headers: responseHeaders,
           },
         },
         tags: [resourceInfo.tag.name],
@@ -232,11 +263,12 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
         summary: `Create a new ${singularResourceLowerCase}`,
         description: `Create a new ${singularResourceLowerCase}.`,
         operationId: `create${singularResourceUpperCase}`,
-        parameters: getPathParameters(resourceInfo),
+        parameters: getPathParameters(config, resourceInfo),
         requestBody: getRequestBodySchema(postRequestSchema),
         responses: {
           '201': {
             description: `The ${singularResourceLowerCase} was created. The created ${singularResourceLowerCase} is returned in the response.${nullFieldsRemark()}`,
+            headers: responseHeaders,
             content: {
               'application/json': {
                 schema: responseSchema,
@@ -263,39 +295,29 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
       },
     })
 
-    // DELETE on a collection if configured
-    if (config.allowDeleteCollection) {
-      builder.addPath(`/${resource}`, {
-        delete: {
-          summary: `Delete all ${pluralResourceLowerCase}`,
-          description: `Delete all ${pluralResourceLowerCase}.`,
-          operationId: `deleteAll${pluralResourceUpperCase}`,
-          parameters: getPathParameters(resourceInfo),
-          responses: {
-            '204': {
-              description: `All ${pluralResourceLowerCase} were deleted.`,
+    // DELETE on a collection
+    builder.addPath(`/${resource}`, {
+      delete: {
+        summary: `Delete all ${pluralResourceLowerCase}`,
+        description: config.allowDeleteCollection
+          ? `Delete all ${pluralResourceLowerCase}.`
+          : 'Deleting whole collections is disabled. Enable by setting `allowDeleteCollection` to `true`.',
+        operationId: `deleteAll${pluralResourceUpperCase}`,
+        parameters: getPathParameters(config, resourceInfo),
+        responses: config.allowDeleteCollection
+          ? {
+              '204': {
+                description: `All ${pluralResourceLowerCase} were deleted.`,
+              },
+            }
+          : {
+              '405': {
+                description: `Method not allowed`,
+              },
             },
-          },
-          tags: [resourceInfo.tag.name],
-        },
-      })
-    } else {
-      builder.addPath(`/${resource}`, {
-        delete: {
-          summary: `Delete all ${pluralResourceLowerCase}`,
-          description:
-            'Deleting whole collections is disabled. Enable by setting `allowDeleteCollection` to `true`.',
-          operationId: `deleteAll${pluralResourceUpperCase}`,
-          parameters: getPathParameters(resourceInfo),
-          responses: {
-            '405': {
-              description: `Method not allowed`,
-            },
-          },
-          tags: [resourceInfo.tag.name],
-        },
-      })
-    }
+        tags: [resourceInfo.tag.name],
+      },
+    })
 
     // GET, HEAD, POST, PUT, PATCH, DELETE on an ID
     builder.addPath(`/${resource}/{${singularResourceLowerCase}Id}`, {
@@ -303,16 +325,25 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
         summary: `Find ${indefinite(singularResourceLowerCase)} by ID`,
         description: `Find ${indefinite(singularResourceLowerCase)} by ID.`,
         operationId: `get${singularResourceUpperCase}ById`,
-        parameters: getPathParameters(resourceInfo, true),
+        parameters: getPathParameters(config, resourceInfo, true),
         responses: {
           '200': {
             description: `The ${singularResourceLowerCase} with the ${singularResourceLowerCase}Id.${nullFieldsRemark()}`,
+            headers: responseHeaders,
             content: {
               'application/json': {
                 schema: responseSchema,
               },
             },
           },
+          ...(config.etagsEnabled
+            ? {
+                '304': {
+                  description: 'The resource has not been modified.',
+                  headers: responseHeaders,
+                },
+              }
+            : {}),
           '404': {
             description: `The ${singularResourceLowerCase}Id was not found.`,
             content: {
@@ -328,10 +359,11 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
         summary: `HTTP headers for the ${singularResourceLowerCase} by ID`,
         description: `Returns HTTP headers for the ${singularResourceLowerCase} by ID.`,
         operationId: `get${singularResourceUpperCase}ByIdHeaders`,
-        parameters: getPathParameters(resourceInfo, true),
+        parameters: getPathParameters(config, resourceInfo, true),
         responses: {
           '200': {
             description: `HTTP headers for the ${singularResourceLowerCase} with the ${singularResourceLowerCase}Id.`,
+            headers: responseHeaders,
           },
           '404': {
             description: `The ${singularResourceLowerCase}Id was not found.`,
@@ -343,7 +375,7 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
         summary: `Create a new ${singularResourceLowerCase} with id`,
         description: `Create a new ${singularResourceLowerCase}, specifying your own id.`,
         operationId: `create${singularResourceUpperCase}WithId`,
-        parameters: getPathParameters(resourceInfo, true),
+        parameters: getPathParameters(config, resourceInfo, true),
         requestBody: {
           content: {
             'application/json': {
@@ -356,6 +388,7 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
         responses: {
           '201': {
             description: `The ${singularResourceLowerCase} was created. The created ${singularResourceLowerCase} is returned in the response.${nullFieldsRemark()}`,
+            headers: responseHeaders,
             content: {
               'application/json': {
                 schema: {
@@ -415,13 +448,14 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
         summary: `Replace ${indefinite(singularResourceLowerCase)}`,
         description: `Replace ${indefinite(singularResourceLowerCase)}.`,
         operationId: `replace${singularResourceUpperCase}`,
-        parameters: getPathParameters(resourceInfo, true),
+        parameters: getPathParameters(config, resourceInfo, true),
         requestBody: getRequestBodySchema(
           config.schemas?.[resource as keyof typeof config.schemas]?.put as SchemaObject,
         ),
         responses: {
           '200': {
             description: `The ${singularResourceLowerCase} was replaced. The replaced ${singularResourceLowerCase} is returned in the response.${nullFieldsRemark()}`,
+            headers: responseHeaders,
             content: {
               'application/json': {
                 schema: responseSchema,
@@ -463,13 +497,14 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
         summary: `Update ${indefinite(singularResourceLowerCase)}`,
         description: `Update ${indefinite(singularResourceLowerCase)}.`,
         operationId: `update${singularResourceUpperCase}`,
-        parameters: getPathParameters(resourceInfo, true),
+        parameters: getPathParameters(config, resourceInfo, true),
         requestBody: getRequestBodySchema(
           config.schemas?.[resource as keyof typeof config.schemas]?.patch as SchemaObject,
         ),
         responses: {
           '200': {
             description: `The ${singularResourceLowerCase} was updated. The updated ${singularResourceLowerCase} is returned in the response.${nullFieldsRemark()}`,
+            headers: responseHeaders,
             content: {
               'application/json': {
                 schema: responseSchema,
@@ -511,7 +546,7 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
         summary: `Delete ${indefinite(singularResourceLowerCase)}`,
         description: `Delete ${indefinite(singularResourceLowerCase)}.`,
         operationId: `delete${singularResourceUpperCase}`,
-        parameters: getPathParameters(resourceInfo, true),
+        parameters: getPathParameters(config, resourceInfo, true),
         responses: {
           '204': {
             description: `The ${singularResourceLowerCase} was deleted.`,
@@ -524,7 +559,6 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
 
   return builder.getSpec()
 }
-
 
 export const getSpec = (
   config: Config,
@@ -593,6 +627,5 @@ export const getSpec = (
     typeof config.openapi === 'object' ? deepmerge(spec, config.openapi) : spec,
   )
 
-  const specje = request.format === 'json' ? builder.getSpecAsJson() : builder.getSpecAsYaml()
-  return specje
+  return request.format === 'json' ? builder.getSpecAsJson() : builder.getSpecAsYaml()
 }
