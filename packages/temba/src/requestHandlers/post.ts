@@ -6,12 +6,14 @@ import type { ValidateFunctionPerResource } from '../schema/types'
 import type { PostRequest } from './types'
 import type { ItemWithoutId, Queries } from '../data/types'
 import type { RequestInterceptor } from '../requestInterceptor/types'
+import type { BroadcastFunction } from '../websocket/websocket'
 
 export const createPostRoutes = (
   queries: Queries,
   requestInterceptor: RequestInterceptor | null,
   returnNullFields: boolean,
   schemas: ValidateFunctionPerResource,
+  broadcast: BroadcastFunction | null,
 ) => {
   const handlePost = async (req: PostRequest) => {
     const { headers, protocol, host, resource, id } = req
@@ -61,6 +63,11 @@ export const createPostRoutes = (
     }
 
     const newItem = await queries.create(resource, id, body as ItemWithoutId)
+
+    // Broadcast to WebSocket clients if enabled
+    if (broadcast) {
+      broadcast(resource, 'CREATE', newItem)
+    }
 
     return {
       headers: {

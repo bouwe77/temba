@@ -6,6 +6,7 @@ import type { PutRequest } from './types'
 import type { Queries } from '../data/types'
 import type { RequestInterceptor } from '../requestInterceptor/types'
 import { etag } from '../etags/etags'
+import type { BroadcastFunction } from '../websocket/websocket'
 
 export const createPutRoutes = (
   queries: Queries,
@@ -13,6 +14,7 @@ export const createPutRoutes = (
   returnNullFields: boolean,
   schemas: ValidateFunctionPerResource | null,
   etagsEnabled: boolean,
+  broadcast: BroadcastFunction | null,
 ) => {
   const handlePut = async (req: PutRequest) => {
     const { headers, resource, id } = req
@@ -74,6 +76,11 @@ export const createPutRoutes = (
     item = { ...(body as object), id }
 
     const replacedItem = await queries.replace(resource, item)
+
+    // Broadcast to WebSocket clients if enabled
+    if (broadcast) {
+      broadcast(resource, 'UPDATE', replacedItem)
+    }
 
     return {
       statusCode: 200,

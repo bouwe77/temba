@@ -117,7 +117,7 @@ For every resource (`movies` is just an example), Temba supports the following r
 
 The HTTP methods that are supported are `GET`, `POST`, `PATCH`, `PUT`, `DELETE`, and `HEAD`.
 
-On the root URI (e.g. http://localhost:8080/) only a `GET` request is supported, which shows you a message indicating the API is working. All other HTTP methods on the root URI return a `405 Method Not Allowed` response.
+On the root URI (e.g. http://localhost:8362/) only a `GET` request is supported, which shows you a message indicating the API is working. All other HTTP methods on the root URI return a `405 Method Not Allowed` response.
 
 ### JSON
 
@@ -214,7 +214,7 @@ const config = {
 const server = await create(config)
 ```
 
-After configuring the `apiPrefix`, requests to the root URL (e.g. http://localhost:1234/), will now either return a `404 Not Found` on `GET` requests, or a `405 Method Not Allowed` for any other HTTP method.
+After configuring the `apiPrefix`, requests to the root URL (e.g. http://localhost:8362/), will now either return a `404 Not Found` on `GET` requests, or a `405 Method Not Allowed` for any other HTTP method.
 
 ### Static assets
 
@@ -395,6 +395,55 @@ After enabling etags, every `GET` request will return an `etag` response header,
 
 For updating or deleting items with a `PUT`, `PATCH`, or `DELETE`, after enabling etags, these requests are _required_ to provide an `If-Match` header with the etag. Only if the etag represents the latest version of the resource the update is made, otherwise the server responds with a `412 Precondition Failed` status code.
 
+### WebSockets
+
+Temba can automatically broadcast data changes to connected clients via WebSockets. 
+
+To enable WebSocket support:
+
+```js
+const config = {
+  webSocket: true,
+}
+```
+
+Once enabled, the WebSocket server is available at the same host and port as your API, using the /ws path, for example: `ws://localhost:8362/ws`
+
+Once connected, whenever a resource is changed via a `POST`, `PUT`, `PATCH`, or `DELETE` request a message will be sent.
+
+The broadcast message is a JSON object containing the name of the resource, the type of change (`"CREATE"`, `"UPDATE"`, `"DELETE"`, or "DELETE_ALL"), and the updated resource object:
+
+```json
+{
+  "resource": "movies",
+  "action": "CREATE",
+  "data": {
+    "id": "123",
+    "title": "O Brother, Where Art Thou?",
+    "description": "In the deep south..."
+  }
+}
+```
+
+For a single deletion (e.g., `DELETE /movies/123`), the data object contains only the ID of the deleted item:
+
+```json
+{
+  "resource": "movies",
+  "action": "DELETE",
+  "data": { "id": "123" }
+}
+```
+
+For a collection deletion (e.g., `DELETE /movies`), the action is `"DELETE_ALL"` and the data property is omitted entirely:
+
+```json
+{
+  "resource": "movies",
+  "action": "DELETE_ALL"
+}
+```
+
 ## Config settings overview
 
 Configuring Temba is optional, it already works out of the box.
@@ -444,6 +493,7 @@ const config = {
     },
   },
   staticFolder: 'build',
+  webSocket: true,
 }
 const server = await create(config)
 ```
@@ -465,6 +515,7 @@ These are all the possible settings:
 | `returnNullFields`        | Whether fields with a null value should be returned in responses.                            | `true`           |
 | `schema`                  | See [JSON Schema request body validation](#json-schema-request-body-validation)              | `null`           |
 | `staticFolder`            | See [Static assets](#static-assets)                                                          | `null`           |
+| `webSocket`            | See [WebSockets](#websockets)                                                          | `false`           |
 
 ## Under the hood
 

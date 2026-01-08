@@ -11,6 +11,7 @@ import { createRootUrlHandler } from './root/root'
 import { sendResponse } from './responseHandler'
 import { createQueries } from './data/queries'
 import { compileSchemas } from './schema/compile'
+import { createWebSocketServer, type BroadcastFunction } from './websocket/websocket'
 
 const removePendingAndTrailingSlashes = (url?: string) => (url ? url.replace(/^\/+|\/+$/g, '') : '')
 
@@ -27,10 +28,21 @@ const createServer = async (userConfig?: UserConfig) => {
   const { log, logLevel } = initLogger(process.env.LOG_LEVEL)
   const queries = createQueries(config.connectionString, log)
   const schemas = compileSchemas(config.schemas)
-  const handleResource = await createResourceHandler(queries, schemas, config)
   const httpLogger = getHttpLogger(logLevel)
 
-  const server = httpCreateServer((req, res) => {
+  // Create the server first without the request handler
+  const server = httpCreateServer()
+
+  // Initialize WebSocket server if enabled (must be after server creation)
+  const broadcast: BroadcastFunction | null = config.webSocket
+    ? createWebSocketServer(server)
+    : null
+
+  // Now create the resource handler with the broadcast function
+  const handleResource = await createResourceHandler(queries, schemas, config, broadcast)
+
+  // Set up the request handler
+  server.on('request', (req, res) => {
     const implementations = getDefaultImplementations(config)
 
     httpLogger(req, res, (err) => {

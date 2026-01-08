@@ -3,12 +3,14 @@ import { etag } from '../etags/etags'
 import { interceptDeleteRequest } from '../requestInterceptor/interceptRequest'
 import type { RequestInterceptor } from '../requestInterceptor/types'
 import type { DeleteRequest } from './types'
+import type { BroadcastFunction } from '../websocket/websocket'
 
 export const createDeleteRoutes = (
   queries: Queries,
   allowDeleteCollection: boolean,
   requestInterceptor: RequestInterceptor | null,
   etagsEnabled: boolean,
+  broadcast: BroadcastFunction | null,
 ) => {
   const handleDelete = async (req: DeleteRequest) => {
     const { headers, resource, id } = req
@@ -53,6 +55,11 @@ export const createDeleteRoutes = (
         }
 
         await queries.deleteById(resource, id)
+
+        // Broadcast to WebSocket clients if enabled
+        if (broadcast) {
+          broadcast(resource, 'DELETE', { id })
+        }
       } else {
         // Even when deleting a non existing item, we still need an etag.
         // The client needs to do a GET to determine it, after which it finds out the item is gone.
@@ -84,6 +91,11 @@ export const createDeleteRoutes = (
       }
 
       await queries.deleteAll(resource)
+
+      // Broadcast to WebSocket clients if enabled
+      if (broadcast) {
+        broadcast(resource, 'DELETE_ALL')
+      }
     }
 
     return { statusCode: 204 }
