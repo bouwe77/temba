@@ -10,9 +10,9 @@ import type {
 import type { Body } from '../requestHandlers/types'
 import {
   createActions,
-  isActionSignal,
-  isSetRequestBodySignal,
-  isResponseSignal,
+  isInterceptorAction,
+  isSetRequestBodyAction,
+  isResponseAction,
 } from './actionSignals'
 
 // Result type for interceptor processing
@@ -78,13 +78,13 @@ const processInterceptResult = (
     return { type: 'continue', body: originalBody }
   }
 
-  // If it's an action signal, process it
-  if (isActionSignal(intercepted)) {
-    if (isSetRequestBodySignal(intercepted)) {
+  // If it's an interceptor action, process it
+  if (isInterceptorAction(intercepted)) {
+    if (isSetRequestBodyAction(intercepted)) {
       return { type: 'continue', body: intercepted.body as Body }
     }
 
-    if (isResponseSignal(intercepted)) {
+    if (isResponseAction(intercepted)) {
       return { type: 'response', status: intercepted.status, body: intercepted.body as Body }
     }
   }

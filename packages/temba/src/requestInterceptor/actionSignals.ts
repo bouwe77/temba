@@ -1,61 +1,61 @@
-// Internal marker to identify action signals
-const ACTION_SIGNAL_MARKER = Symbol('ActionSignal')
+// Internal marker to identify interceptor actions
+const INTERCEPTOR_ACTION_MARKER = Symbol('InterceptorAction')
 
-// Base interface for all action signals
-type ActionSignalBase = {
-  readonly [ACTION_SIGNAL_MARKER]: true
+// Base interface for all interceptor actions
+type InterceptorActionBase = {
+  readonly [INTERCEPTOR_ACTION_MARKER]: true
   readonly type: 'setRequestBody' | 'response'
 }
 
-// Signal for setting/modifying the request body
-export type SetRequestBodySignal = {
+// Action for setting/modifying the request body
+export type SetRequestBodyAction = {
   readonly type: 'setRequestBody'
   readonly body: unknown
-} & ActionSignalBase
+} & InterceptorActionBase
 
-// Signal for returning a custom response
-export type ResponseSignal = {
+// Action for returning a custom response
+export type ResponseAction = {
   readonly type: 'response'
   readonly body?: unknown
   readonly status: number
-} & ActionSignalBase
+} & InterceptorActionBase
 
-// Union type of all action signals
-export type ActionSignal = SetRequestBodySignal | ResponseSignal
+// Union type of all interceptor actions
+export type InterceptorAction = SetRequestBodyAction | ResponseAction
 
-// Type guard to check if a value is an action signal
-export const isActionSignal = (value: unknown): value is ActionSignal => {
+// Type guard to check if a value is an interceptor action
+export const isInterceptorAction = (value: unknown): value is InterceptorAction => {
   return (
     !!value &&
     typeof value === 'object' &&
-    ACTION_SIGNAL_MARKER in value &&
-    (value as ActionSignal)[ACTION_SIGNAL_MARKER] === true
+    INTERCEPTOR_ACTION_MARKER in value &&
+    (value as InterceptorAction)[INTERCEPTOR_ACTION_MARKER] === true
   )
 }
 
-// Type guard for SetRequestBodySignal
-export const isSetRequestBodySignal = (signal: ActionSignal): signal is SetRequestBodySignal => {
-  return signal.type === 'setRequestBody'
+// Type guard for SetRequestBodyAction
+export const isSetRequestBodyAction = (action: InterceptorAction): action is SetRequestBodyAction => {
+  return action.type === 'setRequestBody'
 }
 
-// Type guard for ResponseSignal
-export const isResponseSignal = (signal: ActionSignal): signal is ResponseSignal => {
-  return signal.type === 'response'
+// Type guard for ResponseAction
+export const isResponseAction = (action: InterceptorAction): action is ResponseAction => {
+  return action.type === 'response'
 }
 
-// Factory function to create a SetRequestBodySignal
-const createSetRequestBodySignal = (body: unknown): SetRequestBodySignal => {
+// Factory function to create a SetRequestBodyAction
+const createSetRequestBodyAction = (body: unknown): SetRequestBodyAction => {
   return {
-    [ACTION_SIGNAL_MARKER]: true,
+    [INTERCEPTOR_ACTION_MARKER]: true,
     type: 'setRequestBody',
     body,
   }
 }
 
-// Factory function to create a ResponseSignal
-const createResponseSignal = (options?: { body?: unknown; status?: number }): ResponseSignal => {
+// Factory function to create a ResponseAction
+const createResponseAction = (options?: { body?: unknown; status?: number }): ResponseAction => {
   return {
-    [ACTION_SIGNAL_MARKER]: true,
+    [INTERCEPTOR_ACTION_MARKER]: true,
     type: 'response',
     body: options?.body,
     status: options?.status ?? 200,
@@ -64,14 +64,14 @@ const createResponseSignal = (options?: { body?: unknown; status?: number }): Re
 
 // Actions object that gets injected into interceptor callbacks
 export type Actions = {
-  setRequestBody: (body: unknown) => SetRequestBodySignal
-  response: (options?: { body?: unknown; status?: number }) => ResponseSignal
+  setRequestBody: (body: unknown) => SetRequestBodyAction
+  response: (options?: { body?: unknown; status?: number }) => ResponseAction
 }
 
 // Factory to create the actions object
 export const createActions = (): Actions => {
   return {
-    setRequestBody: createSetRequestBodySignal,
-    response: createResponseSignal,
+    setRequestBody: createSetRequestBodyAction,
+    response: createResponseAction,
   }
 }
