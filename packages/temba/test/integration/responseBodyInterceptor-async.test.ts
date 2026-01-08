@@ -2,6 +2,8 @@ import { describe, test, expect } from 'vitest'
 import request from 'supertest'
 import { createServer } from './createServer'
 
+type Movie = { id: string; title: string }
+
 describe('responseBodyInterceptor async support', () => {
   test('Async responseBodyInterceptor can fetch data and return modified response', async () => {
     // Simulate an async operation that fetches additional data
@@ -15,17 +17,17 @@ describe('responseBodyInterceptor async support', () => {
     }
 
     const tembaServer = await createServer({
-      responseBodyInterceptor: async (info) => {
-        if (info.resource === 'movies') {
-          if ('id' in info) {
+      responseBodyInterceptor: async ({ body, resource }) => {
+        if (resource === 'movies') {
+          if ('id' in body) {
             // Single item - add async-fetched data
-            const extraData = await fetchExtraData(info.body.title)
-            return { ...info.body, asyncExtra: extraData }
+            const extraData = await fetchExtraData((body as Movie).title)
+            return { ...body, asyncExtra: extraData }
           } else {
             // Collection - add async-fetched data to each item
             const enrichedItems = await Promise.all(
-              info.body.map(async (item) => {
-                const extraData = await fetchExtraData(item.title)
+              body.map(async (item) => {
+                const extraData = await fetchExtraData((item as Movie).title)
                 return { ...item, asyncExtra: extraData }
               }),
             )

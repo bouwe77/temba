@@ -3,7 +3,7 @@ import request from 'supertest'
 import { createServer } from '../createServer'
 import { RequestInterceptor } from '../../../src/requestInterceptor/types'
 
-type MyBody = { title: string }
+type Movie = { title: string }
 
 describe('requestInterceptor async support', () => {
   test('Async POST requestInterceptor can fetch data and modify request body', async () => {
@@ -23,10 +23,10 @@ describe('requestInterceptor async support', () => {
     const requestInterceptor: RequestInterceptor = {
       post: async ({ body }, actions) => {
         // Async operation to fetch and add genre
-        const myBody = body as MyBody
-        const title = myBody.title
+        const movie = body as Movie
+        const title = movie.title
         const genre = await fetchGenre(title)
-        return actions.setRequestBody({ ...myBody, genre })
+        return actions.setRequestBody({ ...movie, genre })
       },
     }
 
@@ -57,7 +57,7 @@ describe('requestInterceptor async support', () => {
     const requestInterceptor: RequestInterceptor = {
       put: async ({ body }, actions) => {
         const rating = await fetchRating()
-        return actions.setRequestBody({ ...(body as MyBody), rating })
+        return actions.setRequestBody({ ...(body as Movie), rating })
       },
     }
 
@@ -88,7 +88,7 @@ describe('requestInterceptor async support', () => {
     const requestInterceptor: RequestInterceptor = {
       patch: async ({ body }, actions) => {
         const director = await fetchDirector()
-        return actions.setRequestBody({ ...(body as MyBody), director })
+        return actions.setRequestBody({ ...(body as Movie), director })
       },
     }
 
