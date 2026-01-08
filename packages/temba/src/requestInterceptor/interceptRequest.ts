@@ -13,7 +13,7 @@ import {
   isInterceptorAction,
   isSetRequestBodyAction,
   isResponseAction,
-} from './actionSignals'
+} from './interceptorActions'
 
 // Result type for interceptor processing
 export type InterceptResult =

@@ -34,7 +34,7 @@ export const createPostRoutes = (
             body,
           )
 
-          // If interceptor returned a response signal, return immediately
+          // If interceptor returned a response action, return immediately
           if (interceptResult.type === 'response') {
             return {
               statusCode: interceptResult.status,

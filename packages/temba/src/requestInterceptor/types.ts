@@ -1,7 +1,7 @@
 import type { IncomingHttpHeaders } from 'http'
 import type { Body } from '../requestHandlers/types'
 import type { MaybePromise } from '../types'
-import type { Actions, InterceptorAction } from './actionSignals'
+import type { Actions, InterceptorAction } from './interceptorActions'
 
 type InterceptedResource = {
   headers: IncomingHttpHeaders
