@@ -1,9 +1,11 @@
 {
   "name": "temba-monorepo",
+  "type": "module",
   "private": true,
   "workspaces": [
     "packages/*",
-    "docs"
+    "docs",
+    "examples"
   ],
   "scripts": {
     "test": "npm test -w packages/temba",
