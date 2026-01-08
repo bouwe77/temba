@@ -17,14 +17,14 @@ export const createPatchRoutes = (
 ) => {
   const handlePatch = async (req: PatchRequest) => {
     try {
-      const { headers, body, resource, id } = req
+      const { headers, resource, id } = req
+      let { body } = req
 
       const validationResult = validate(body, schemas?.[resource])
       if (validationResult.isValid === false) {
         return { statusCode: 400, body: { message: validationResult.errorMessage } }
       }
 
-      let body2 = body
       if (requestInterceptor?.patch) {
         try {
           const interceptResult = await interceptPatchRequest(
@@ -35,7 +35,6 @@ export const createPatchRoutes = (
             body,
           )
 
-          // If interceptor returned a response action, return immediately
           if (interceptResult.type === 'response') {
             return {
               statusCode: interceptResult.status,
@@ -43,8 +42,7 @@ export const createPatchRoutes = (
             }
           }
 
-          // Otherwise, continue with the modified body
-          body2 = interceptResult.body ?? body
+          body = interceptResult.body ?? body
         } catch (error: unknown) {
           return {
             statusCode: error instanceof TembaError ? error.statusCode : 500,
@@ -75,7 +73,7 @@ export const createPatchRoutes = (
         }
       }
 
-      item = { ...item, ...(body2 as object), id }
+      item = { ...item, ...(body as object), id }
 
       const updatedItem = await queries.update(resource, item)
 

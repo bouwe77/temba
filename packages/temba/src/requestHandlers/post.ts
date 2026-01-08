@@ -16,14 +16,14 @@ export const createPostRoutes = (
 ) => {
   const handlePost = async (req: PostRequest) => {
     try {
-      const { headers, body, protocol, host, resource, id } = req
+      const { headers, protocol, host, resource, id } = req
+      let { body } = req
 
       const validationResult = validate(body, schemas[resource])
       if (validationResult.isValid === false) {
         return { statusCode: 400, body: { message: validationResult.errorMessage } }
       }
 
-      let body2 = body
       if (requestInterceptor?.post) {
         try {
           const interceptResult = await interceptPostRequest(
@@ -34,7 +34,6 @@ export const createPostRoutes = (
             body,
           )
 
-          // If interceptor returned a response action, return immediately
           if (interceptResult.type === 'response') {
             return {
               statusCode: interceptResult.status,
@@ -42,8 +41,7 @@ export const createPostRoutes = (
             }
           }
 
-          // Otherwise, continue with the modified body
-          body2 = interceptResult.body ?? body
+          body = interceptResult.body ?? body
         } catch (error: unknown) {
           return {
             statusCode: error instanceof TembaError ? error.statusCode : 500,
@@ -64,7 +62,7 @@ export const createPostRoutes = (
           }
       }
 
-      const newItem = await queries.create(resource, id, body2 as ItemWithoutId)
+      const newItem = await queries.create(resource, id, body as ItemWithoutId)
 
       return {
         headers: {
