@@ -24,15 +24,17 @@ export type BroadcastFunction = (
 export const createWebSocketServer = (httpServer: HttpServer): BroadcastFunction => {
   const wss = new WebSocketServer({ noServer: true })
 
-  // Handle upgrade requests only for /ws path
+  // Handle upgrade requests
   httpServer.on('upgrade', (request: IncomingMessage, socket, head) => {
     const { pathname } = parse(request.url || '')
 
-    if (pathname === '/ws') {
+    // WebSockets handshakes MUST be GET requests
+    if (pathname === '/ws' && request.method === 'GET') {
       wss.handleUpgrade(request, socket, head, (ws) => {
         wss.emit('connection', ws, request)
       })
     } else {
+      // Not our path or invalid method for a handshake
       socket.destroy()
     }
   })
@@ -57,13 +59,18 @@ export const createWebSocketServer = (httpServer: HttpServer): BroadcastFunction
       }
     }
 
-    const message = JSON.stringify(payload)
+    try {
+      const message = JSON.stringify(payload)
 
-    wss.clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(message)
-      }
-    })
+      wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(message)
+        }
+      })
+    } catch (error) {
+      // Log error but don't crash the server if data is non-serializable
+      console.error('Failed to stringify WebSocket payload:', error)
+    }
   }
 
   return broadcast
