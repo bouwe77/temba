@@ -1,7 +1,6 @@
 import type { Queries } from '../data/types'
 import { etag } from '../etags/etags'
 import { interceptDeleteRequest } from '../requestInterceptor/interceptRequest'
-import { TembaError } from '../requestInterceptor/TembaError'
 import type { RequestInterceptor } from '../requestInterceptor/types'
 import type { DeleteRequest } from './types'
 
@@ -33,7 +32,7 @@ export const createDeleteRoutes = (
           }
         } catch (error: unknown) {
           return {
-            statusCode: error instanceof TembaError ? error.statusCode : 500,
+            statusCode: 500,
             body: { message: (error as Error).message },
           }
         }

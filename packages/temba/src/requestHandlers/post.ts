@@ -6,7 +6,6 @@ import type { ValidateFunctionPerResource } from '../schema/types'
 import type { PostRequest } from './types'
 import type { ItemWithoutId, Queries } from '../data/types'
 import type { RequestInterceptor } from '../requestInterceptor/types'
-import { TembaError } from '../requestInterceptor/TembaError'
 
 export const createPostRoutes = (
   queries: Queries,
@@ -44,7 +43,7 @@ export const createPostRoutes = (
           body = interceptResult.body ?? body
         } catch (error: unknown) {
           return {
-            statusCode: error instanceof TembaError ? error.statusCode : 500,
+            statusCode: 500,
             body: { message: (error as Error).message },
           }
         }

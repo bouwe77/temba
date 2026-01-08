@@ -1,6 +1,5 @@
 import type { Queries } from '../data/types'
 import { generateEtag } from '../etags/etags'
-import { TembaError } from '../requestInterceptor/TembaError'
 import { interceptGetRequest } from '../requestInterceptor/interceptRequest'
 import type { RequestInterceptor } from '../requestInterceptor/types'
 import { interceptResponseBody } from '../responseBodyInterceptor/interceptResponseBody'
@@ -46,7 +45,7 @@ export const createGetRoutes = (
           }
         } catch (error: unknown) {
           return {
-            statusCode: error instanceof TembaError ? error.statusCode : 500,
+            statusCode: 500,
             body: { message: (error as Error).message },
           }
         }

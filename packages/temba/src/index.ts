@@ -5,7 +5,6 @@ import { createResourceHandler } from './resourceHandler'
 import { handleNotFound, sendErrorResponse } from './responseHandler'
 import { getHttpLogger, initLogger } from './log/logger'
 import { createOpenApiHandler, getOpenApiPaths } from './openapi'
-import { TembaError as TembaErrorInternal } from './requestInterceptor/TembaError'
 import { handleStaticFolder } from './staticFolder/staticFolder'
 import { getDefaultImplementations } from './implementations'
 import { createRootUrlHandler } from './root/root'
@@ -91,5 +90,3 @@ const createServer = async (userConfig?: UserConfig) => {
 }
 
 export const create = (userConfig?: UserConfig) => createServer(userConfig)
-
-export const TembaError = TembaErrorInternal
