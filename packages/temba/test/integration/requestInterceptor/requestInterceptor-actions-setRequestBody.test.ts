@@ -3,7 +3,7 @@ import request from 'supertest'
 import { createServer } from '../createServer'
 import type { RequestInterceptor } from '../../../src/requestInterceptor/types'
 
-describe('requestInterceptors that return a (new or changed) request body object', async () => {
+describe('requestInterceptor with actions.setRequestBody() for overriding request bodies', async () => {
   const requestInterceptor: RequestInterceptor = {
     post: ({ resource }, actions) => {
       if (resource === 'movies') return actions.setRequestBody({ title: 'The Matrix' })
