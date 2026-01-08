@@ -68,6 +68,7 @@ describe('responseBodyInterceptor unusual (but allowed) implementations', () => 
     } = await request(tembaServer).post('/stuff').send({ name: 'newItem' })
 
     const response = await request(tembaServer).get('/stuff')
+    //TODO fix this test...
     return
     expect(response.statusCode).toEqual(200)
     expect(response.body).toEqual('A string, instead of an array')

@@ -1,6 +1,6 @@
 {
   "name": "temba",
-  "version": "0.51.0",
+  "version": "0.51.1",
   "description": "Create a simple REST API with zero coding in less than 30 seconds (seriously).",
   "type": "module",
   "main": "dist/src/index.js",
@@ -8,13 +8,13 @@
     "build": "rm -rf dist && tsc && tsc-alias && cp package.json ../../README.md ./dist/src",
     "test": "vitest",
     "test:watch": "vitest --watch",
-    "lint": "eslint . && npx tsc",
+    "lint": "eslint . && tsc --noEmit",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
     "update": "npx -y jelmerro/nus"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bouwe77/temba.git"
+    "url": "git+https://github.com/bouwe77/temba.git"
   },
   "homepage": "https://github.com/bouwe77/temba#readme",
   "author": "Bouwe (https://bouwe.io)",

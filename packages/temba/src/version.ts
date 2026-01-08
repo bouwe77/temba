@@ -1,2 +1,1 @@
-// Placeholder, overwritten during build, do not edit
-export const version = 'v0.0.0-dev'
+export const version = '0.51.1';
