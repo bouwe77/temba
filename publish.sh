@@ -18,7 +18,7 @@ if [ "$DRY_RUN" = false ] && [ -n "$(git status --porcelain)" ]; then
   exit 1
 fi
 
-# --- NEW SAFETY CHECK ---
+# --- SAFETY CHECK ---
 echo "🔍 Running pre-publish checks (lint & test)..."
 if [ "$DRY_RUN" = false ]; then
   npm run check
@@ -29,19 +29,12 @@ if [ "$DRY_RUN" = false ]; then
 else
   echo "[DRY RUN] Would run: npm run check"
 fi
-# ------------------------
 
-# 2. Version Calculation
+# 2. Version Calculation (Strictly numeric)
 CURRENT_VERSION=$(node -p "require('./packages/temba/package.json').version")
-NEXT_VERSION=$(node -p "
-  const [major, minor, patch] = '$CURRENT_VERSION'.split('.').map(Number);
-  if ('$TYPE' === 'major') console.log(\`\${major + 1}.0.0\`);
-  else if ('$TYPE' === 'minor') console.log(\`\${major}.\${minor + 1}.0\`);
-  else console.log(\`\${major}.\${minor}.\${patch + 1}\`);
-")
-V_VERSION="v$NEXT_VERSION"
+NEXT_VERSION=$(node -p "const [ma, mi, pa] = '$CURRENT_VERSION'.split('.').map(Number); '$TYPE' === 'major' ? \`\${ma+1}.0.0\` : '$TYPE' === 'minor' ? \`\${ma}.\${mi+1}.0\` : \`\${ma}.\${mi}.\${pa+1}\`")
 
-echo "🚀 Releasing $V_VERSION (from $CURRENT_VERSION)..."
+echo "🚀 Releasing $NEXT_VERSION (from $CURRENT_VERSION)..."
 
 run_cmd() {
   if [ "$DRY_RUN" = true ]; then
@@ -56,12 +49,12 @@ echo "📦 Processing Temba library..."
 if [ "$DRY_RUN" = false ]; then
     cd packages/temba
     npm version $TYPE --no-git-tag-version
-    echo "export const version = '$V_VERSION';" > ./src/version.ts
+    echo "export const version = '$NEXT_VERSION';" > ./src/version.ts
     npm run build
     npm publish ./dist/src
     cd ../..
 else
-    echo "[DRY RUN] Bump version, write src/version.ts, build, and publish temba"
+    echo "[DRY RUN] Bump version, write src/version.ts with '$NEXT_VERSION', build, and publish temba"
 fi
 
 # 4. Process CLI
@@ -87,7 +80,7 @@ if [ -d "$DOCS_REPO" ]; then
     cp -R docs/dist/* "$DOCS_REPO/"
     cd "$DOCS_REPO"
     git add .
-    git commit -m "docs: update to $V_VERSION"
+    git commit -m "docs: update to $NEXT_VERSION"
     git push
     cd ../temba
   fi
@@ -98,11 +91,11 @@ fi
 # 7. Wrap up
 echo "🔗 Finalizing Git..."
 run_cmd "git add ."
-run_cmd "git commit -m \"chore: release $V_VERSION\""
+run_cmd "git commit -m \"chore: release $NEXT_VERSION\""
 
 if [ "$DRY_RUN" = false ]; then
   echo "🌍 Opening GitHub to finalize release notes..."
-  open "https://github.com/bouwe77/temba/releases/new?tag=$V_VERSION&title=$V_VERSION"
+  open "https://github.com/bouwe77/temba/releases/new?tag=$NEXT_VERSION&title=$NEXT_VERSION"
   echo "✅ Done! All packages updated and docs synced."
 else
   echo "🏁 Dry run complete. No changes were made."
