@@ -39,17 +39,23 @@ export const createWebSocketServer = (httpServer: HttpServer): BroadcastFunction
 
   // Broadcast function that sends messages to all connected clients
   const broadcast: BroadcastFunction = (resource, action, data) => {
-    const payload: BroadcastPayload =
-      action === 'DELETE_ALL'
-        ? {
-            resource,
-            action,
-          }
-        : {
-            resource,
-            action,
-            data: data!,
-          }
+    let payload: BroadcastPayload
+
+    if (action === 'DELETE_ALL') {
+      payload = {
+        resource,
+        action,
+      }
+    } else {
+      if (!data) {
+        throw new Error(`Data is required for action: ${action}`)
+      }
+      payload = {
+        resource,
+        action,
+        data,
+      }
+    }
 
     const message = JSON.stringify(payload)
 
