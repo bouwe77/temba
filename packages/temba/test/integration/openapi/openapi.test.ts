@@ -86,7 +86,7 @@ test('When no resources configured', async () => {
     {
       name: 'Resources',
       description: 'All resources',
-    }
+    },
   ])
 
   // Paths object has 3 paths: "/", "/{resource}" and "/{resource}/{resourceId}"
@@ -96,7 +96,7 @@ test('When no resources configured', async () => {
   const root = response.body.paths['/']['get']
   expect(root.summary).toEqual('API root')
   expect(root.description).toEqual('Shows information about the API.')
-  
+
   expect(root.operationId).toEqual('getApiRoot')
   expect(root.tags[0]).toEqual('API')
   expect(root.responses['200'].description).toEqual('The API is working.')
@@ -367,7 +367,7 @@ test('When a single resource configured', async () => {
       description: 'Shows information about the API',
     },
     {
-      name: 'Actors', 
+      name: 'Actors',
       description: 'All actors',
     },
   ])
@@ -581,7 +581,6 @@ test('When multiple resources configured', async () => {
 
   const response = await request(tembaServer).get('/openapi.json')
 
-
   expect(response.body.tags).toEqual([
     {
       name: 'API',
@@ -767,4 +766,61 @@ test('When schemas are configured these are specified in both requests and respo
   expect(patch.responses['200'].content['application/json'].schema).toEqual(
     expectedActorResponseSchema,
   )
+})
+
+test('When etag is enabled the ETag header and If-None-Match parameter are specified', async () => {
+  const tembaServer = await createServer({
+    openapi: true,
+    resources: ['actors'],
+    etags: true,
+  })
+
+  const response = await request(tembaServer).get('/openapi.json')
+  expectSuccess(response)
+
+  const etagHeaderSchema = {
+    description: 'The entity tag for the resource.',
+    schema: {
+      type: 'string',
+    },
+  }
+
+  const ifNoneMatchParameter = {
+    name: 'If-None-Match',
+    in: 'header',
+    required: false,
+    schema: {
+      type: 'string',
+    },
+    description: 'The entity tag (ETag) previously returned. Used for conditional requests.',
+  }
+
+  // GET /actors
+  const get = response.body.paths['/actors']['get']
+  expect(get.parameters).toContainEqual(ifNoneMatchParameter)
+  expect(get.responses['200'].headers.ETag).toEqual(etagHeaderSchema)
+
+  // HEAD /actors
+  const head = response.body.paths['/actors']['head']
+  expect(head.responses['200'].headers.ETag).toEqual(etagHeaderSchema)
+
+  // POST /actors
+  const post = response.body.paths['/actors']['post']
+  expect(post.responses['201'].headers.ETag).toEqual(etagHeaderSchema)
+
+  // GET /actors/{actorId}
+  const getById = response.body.paths['/actors/{actorId}']['get']
+  expect(getById.parameters).toContainEqual(ifNoneMatchParameter)
+  expect(getById.responses['200'].headers.ETag).toEqual(etagHeaderSchema)
+  expect(getById.responses['304']).toBeDefined()
+  expect(getById.responses['304'].description).toEqual('The resource has not been modified.')
+  expect(getById.responses['304'].headers.ETag).toEqual(etagHeaderSchema)
+
+  // PUT /actors/{actorId}
+  const put = response.body.paths['/actors/{actorId}']['put']
+  expect(put.responses['200'].headers.ETag).toEqual(etagHeaderSchema)
+
+  // PATCH /actors/{actorId}
+  const patch = response.body.paths['/actors/{actorId}']['patch']
+  expect(patch.responses['200'].headers.ETag).toEqual(etagHeaderSchema)
 })
