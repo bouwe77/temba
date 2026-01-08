@@ -1,3 +1,4 @@
+import { UserConfig } from '../../src/config'
 import { Implementations } from '../../src/implementations'
 import { create } from '../../src/index'
 
@@ -7,5 +8,5 @@ export const createServer = async (config: UserConfig = {}, implementations?: Im
     isTesting: true,
     implementations,
   })
-  return server.server!
+  return server.server
 }
