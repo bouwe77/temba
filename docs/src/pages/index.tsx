@@ -5,6 +5,8 @@ import Layout from '@theme/Layout'
 import HomepageFeatures from '@site/src/components/HomepageFeatures'
 import Heading from '@theme/Heading'
 import styles from './index.module.css'
+import CodeBlock from '@theme/CodeBlock' // Docusaurus’s built-in code renderer
+import Link from '@docusaurus/Link'
 
 function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext()
@@ -24,9 +26,6 @@ function HomepageHeader() {
     </header>
   )
 }
-
-import CodeBlock from '@theme/CodeBlock' // Docusaurus’s built-in code renderer
-import Link from '@docusaurus/Link'
 
 function CodeSection() {
   return (

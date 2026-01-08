@@ -135,7 +135,7 @@ Providing IDs in the request body of `POST`, `PUT`, or `PATCH` requests is not a
 
 ### Data persistency
 
-By default data is stored in memory. This means the data is flushed when the server restarts. To persist your data, provide the `connectionString` config setting for your JSON file or MongoDB database.
+By default data is stored in memory. This means the data is flushed when the server restarts. To persist your data, provide the `connectionString` config setting for your JSON file(s) or MongoDB database.
 
 #### JSON file
 
@@ -144,9 +144,21 @@ const config = {
   connectionString: 'data.json',
 }
 const server = await create(config)
+````
+
+All resources are stored in a single JSON file.
+The file is created automatically when the first resource is added (`POST`).
+
+To store each resource in its own JSON file, use a folder instead:
+
+```js
+const config = {
+  connectionString: 'data',
+}
+const server = await create(config)
 ```
 
-All resources are saved in a single JSON file. The file is not created or updated unless you create, update, or delete resources.
+Each resource will be saved in a separate JSON file inside the `data` folder, created on demand when data for that resource is first added.
 
 #### MongoDB
 

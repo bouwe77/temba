@@ -17,7 +17,7 @@ const removePendingAndTrailingSlashes = (url?: string) => (url ? url.replace(/^\
 
 const handleOptionsRequest = (res: ServerResponse<IncomingMessage>) =>
   sendResponse(res)({
-    statusCode: 200,
+    statusCode: 204,
   })
 
 const createServer = async (userConfig?: UserConfig) => {
