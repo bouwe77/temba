@@ -1,130 +1,88 @@
-import { describe, test, expect } from 'vitest'
+import { describe, test, expect, beforeAll } from 'vitest'
 import request from 'supertest'
 import { createServer } from '../createServer'
 import type { RequestInterceptor } from '../../../src/requestInterceptor/types'
 
+type ServerInstance = Awaited<ReturnType<typeof createServer>>
+type RequestFactory = Record<string, (url: string) => request.Test>
+const createRequest = (server: ServerInstance) => request(server) as unknown as RequestFactory
+
 describe('requestInterceptor error handling', () => {
-  describe('Runtime exceptions in GET interceptor', async () => {
-    const requestInterceptor: RequestInterceptor = {
-      get: () => {
-        throw new Error('Something went wrong in GET')
-      },
-    }
+  const throwingInterceptor: RequestInterceptor = {
+    get: () => {
+      throw new Error('GET error')
+    },
+    post: () => {
+      throw new Error('POST error')
+    },
+    put: () => {
+      throw new Error('PUT error')
+    },
+    patch: () => {
+      throw new Error('PATCH error')
+    },
+    delete: () => {
+      throw new Error('DELETE error')
+    },
+  }
 
-    const tembaServer = await createServer({ requestInterceptor })
+  let tembaServer: ServerInstance
 
-    test('GET interceptor exception returns 500 with error message', async () => {
-      const response = await request(tembaServer).get('/movies')
-
-      expect(response.statusCode).toEqual(500)
-      expect(response.body).toEqual({ message: 'Something went wrong in GET' })
-    })
+  beforeAll(async () => {
+    tembaServer = await createServer({ requestInterceptor: throwingInterceptor })
   })
 
-  describe('Runtime exceptions in POST interceptor', async () => {
-    const requestInterceptor: RequestInterceptor = {
-      post: () => {
-        throw new Error('Something went wrong in POST')
-      },
-    }
+  test.each([
+    { method: 'get', path: '/movies', body: undefined, expectedError: 'GET error' },
+    { method: 'post', path: '/movies', body: { title: 'Test' }, expectedError: 'POST error' },
+    { method: 'put', path: '/movies/test-id', body: { title: 'Test' }, expectedError: 'PUT error' },
+    {
+      method: 'patch',
+      path: '/movies/test-id',
+      body: { title: 'Test' },
+      expectedError: 'PATCH error',
+    },
+    { method: 'delete', path: '/movies/test-id', body: undefined, expectedError: 'DELETE error' },
+  ])('$method interceptor exception returns 500', async ({ method, path, body, expectedError }) => {
+    let req = createRequest(tembaServer)[method](path)
 
-    const tembaServer = await createServer({ requestInterceptor })
+    if (body) req = req.send(body)
 
-    test('POST interceptor exception returns 500 with error message', async () => {
-      const response = await request(tembaServer).post('/movies').send({ title: 'Test' })
+    const response = await req
 
-      expect(response.statusCode).toEqual(500)
-      expect(response.body).toEqual({ message: 'Something went wrong in POST' })
-    })
+    expect(response.statusCode).toEqual(500)
+    expect(response.body).toEqual({ message: expectedError })
   })
 
-  describe('Runtime exceptions in PUT interceptor', async () => {
-    const requestInterceptor: RequestInterceptor = {
-      put: () => {
-        throw new Error('Something went wrong in PUT')
-      },
-    }
-
-    const tembaServer = await createServer({ requestInterceptor })
-
-    test('PUT interceptor exception returns 500 with error message', async () => {
-      const response = await request(tembaServer).put('/movies/test-id').send({ title: 'Test' })
-
-      expect(response.statusCode).toEqual(500)
-      expect(response.body).toEqual({ message: 'Something went wrong in PUT' })
-    })
-  })
-
-  describe('Runtime exceptions in PATCH interceptor', async () => {
-    const requestInterceptor: RequestInterceptor = {
-      patch: () => {
-        throw new Error('Something went wrong in PATCH')
-      },
-    }
-
-    const tembaServer = await createServer({ requestInterceptor })
-
-    test('PATCH interceptor exception returns 500 with error message', async () => {
-      const response = await request(tembaServer).patch('/movies/test-id').send({ title: 'Test' })
-
-      expect(response.statusCode).toEqual(500)
-      expect(response.body).toEqual({ message: 'Something went wrong in PATCH' })
-    })
-  })
-
-  describe('Runtime exceptions in DELETE interceptor', async () => {
-    const requestInterceptor: RequestInterceptor = {
-      delete: () => {
-        throw new Error('Something went wrong in DELETE')
-      },
-    }
-
-    const tembaServer = await createServer({ requestInterceptor })
-
-    test('DELETE interceptor exception returns 500 with error message', async () => {
-      const response = await request(tembaServer).delete('/movies/test-id')
-
-      expect(response.statusCode).toEqual(500)
-      expect(response.body).toEqual({ message: 'Something went wrong in DELETE' })
-    })
-  })
-
-  describe('Async runtime exceptions in interceptor', async () => {
-    const requestInterceptor: RequestInterceptor = {
+  test('Async interceptor exception returns 500', async () => {
+    const asyncInterceptor: RequestInterceptor = {
       post: async () => {
-        // Simulate an async operation that throws
         await new Promise((resolve) => setTimeout(resolve, 10))
         throw new Error('Async operation failed')
       },
     }
+    const server = await createServer({ requestInterceptor: asyncInterceptor })
 
-    const tembaServer = await createServer({ requestInterceptor })
+    const response = await request(server).post('/movies').send({ title: 'Test' })
 
-    test('Async POST interceptor exception returns 500 with error message', async () => {
-      const response = await request(tembaServer).post('/movies').send({ title: 'Test' })
-
-      expect(response.statusCode).toEqual(500)
-      expect(response.body).toEqual({ message: 'Async operation failed' })
-    })
+    expect(response.statusCode).toEqual(500)
+    expect(response.body).toEqual({ message: 'Async operation failed' })
   })
 
-  describe('TypeError in interceptor', async () => {
-    const requestInterceptor: RequestInterceptor = {
+  test('TypeError in interceptor returns 500', async () => {
+    const typeErrorInterceptor: RequestInterceptor = {
+      // @ts-expect-error -- we want to test a runtime TypeError ---
       get: () => {
-        // Intentionally cause a TypeError by accessing property on undefined
         const obj: { prop?: string } = {}
-        // @ts-expect-error - intentionally causing TypeError for testing
+        // @ts-expect-error -- we want to test a runtime TypeError ---
         return obj.prop.length
       },
     }
+    const server = await createServer({ requestInterceptor: typeErrorInterceptor })
 
-    const tembaServer = await createServer({ requestInterceptor })
+    const response = await request(server).get('/movies')
 
-    test('TypeError in interceptor returns 500 with error message', async () => {
-      const response = await request(tembaServer).get('/movies')
-
-      expect(response.statusCode).toEqual(500)
-      expect(response.body.message).toContain('Cannot read')
-    })
+    expect(response.statusCode).toEqual(500)
+    expect(response.body.message).toContain('Cannot read')
   })
 })
