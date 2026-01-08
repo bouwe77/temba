@@ -1,0 +1,13 @@
+{
+  "name": "temba-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "docs"
+  ],
+  "scripts": {
+    "test": "npm test -w packages/temba",
+    "lint": "npm run lint -w packages/temba",
+    "check": "npm run lint && npm test"
+  }
+}
