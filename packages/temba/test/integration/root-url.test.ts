@@ -51,18 +51,18 @@ describe('GET HTML response on root URL', () => {
 })
 
 describe('Other methods', () => {
-  test.each(['POST', 'PUT', 'DELETE', 'PATCH', 'HEAD'])(
+  test.each(['post', 'put', 'delete', 'patch', 'head'] as const)(
     '%s on root URL returns Method Not Allowed error',
     async (method) => {
-      const response = await request(tembaServer)[method.toLowerCase()]('/')
+      const response = await request(tembaServer)[method]('/')
       expect(response.statusCode).toEqual(405)
-      if (method !== 'HEAD') expect(response.body.message).toEqual('Method Not Allowed')
+      if (method !== 'head') expect(response.body.message).toEqual('Method Not Allowed')
     },
   )
 
-  test('OPTIONS on root URL returns 200 OK', async () => {
+  test('OPTIONS on root URL returns 204 No Content', async () => {
     const response = await request(tembaServer).options('/')
-    expect(response.statusCode).toEqual(200)
-    expect(response.body).toBeDefined()
+    expect(response.statusCode).toEqual(204)
+    expect(JSON.stringify(response.body)).toEqual('{}')
   })
 })

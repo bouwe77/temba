@@ -5,8 +5,8 @@ import Layout from '@theme/Layout'
 import HomepageFeatures from '@site/src/components/HomepageFeatures'
 import Heading from '@theme/Heading'
 import styles from './index.module.css'
-import Link from '@docusaurus/Link'
 import CodeBlock from '@theme/CodeBlock' // Docusaurus’s built-in code renderer
+import Link from '@docusaurus/Link'
 
 function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext()
@@ -18,7 +18,7 @@ function HomepageHeader() {
         </Heading>
         <p className="hero__subtitle">{siteConfig.tagline}</p>
         <div className={styles.buttons}>
-          <Link className={`button button--lg ${styles.docsButton}`} to="/docs/documentation">
+          <Link className={`button ${styles.docsButton}`} to="/docs/documentation">
             Straight to the docs 🚀
           </Link>
         </div>

@@ -1,7 +1,6 @@
 import type { IncomingHttpHeaders } from 'http'
 import type { Body } from '../requestHandlers/types'
-
-type MaybePromise<T> = T | Promise<T>
+import type { MaybePromise } from '../types'
 
 type InterceptedResource = {
   headers: IncomingHttpHeaders
