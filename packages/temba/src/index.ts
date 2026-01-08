@@ -17,7 +17,7 @@ const removePendingAndTrailingSlashes = (url?: string) => (url ? url.replace(/^\
 
 const handleOptionsRequest = (res: ServerResponse<IncomingMessage>) =>
   sendResponse(res)({
-    statusCode: 200,
+    statusCode: 204,
   })
 
 const createServer = async (userConfig?: UserConfig) => {
@@ -74,6 +74,7 @@ const createServer = async (userConfig?: UserConfig) => {
 
   return {
     start: () => {
+      // Do not start the server if isTesting is true as supertest starts and stops the server itself.
       if (config.isTesting) {
         log.error('⛔️ Server not started. Remove or disable isTesting from your config.')
         return
@@ -84,8 +85,8 @@ const createServer = async (userConfig?: UserConfig) => {
       })
       return server
     },
-    // Expose the http server    for testing purposes only, e.g. usage with supertest.
-    server: config.isTesting ? server : undefined,
+    // Expose the http server
+    server,
   }
 }
 
