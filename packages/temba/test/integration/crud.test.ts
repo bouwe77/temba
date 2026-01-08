@@ -128,7 +128,7 @@ describe('CRUD', async () => {
     // Check there are no items anymore.
     const getAllResponse3 = await request(tembaServer).get(resource)
     expect(getAllResponse3.status).toBe(200)
-    expect(getAllResponse2.body.length).toBe(0)
+    expect(getAllResponse3.body.length).toBe(0)
   })
 })
 

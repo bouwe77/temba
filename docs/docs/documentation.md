@@ -68,7 +68,7 @@ You’ll see:
 
 Now you can send any HTTP request to any resource on localhost:8362 — and it just works.
 
-Or headover to the interactive OpenAPI specification of your API in your browser at `/openapi`.
+Or head over to the interactive OpenAPI specification of your API in your browser at `/openapi`.
 
 ### Adding to an existing app
 
