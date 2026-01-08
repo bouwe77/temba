@@ -14,6 +14,7 @@ import type { Config } from './config'
 import { sendErrorResponse, sendResponse, type Response } from './responseHandler'
 import type { Queries } from './data/types'
 import type { CompiledSchemas } from './schema/types'
+import type { BroadcastFunction } from './websocket/websocket'
 
 type RequestValidationError = {
   statusCode: number
@@ -88,6 +89,7 @@ export const createResourceHandler = async (
   queries: Queries,
   schemas: CompiledSchemas,
   config: Config,
+  broadcast: BroadcastFunction | null,
 ) => {
   const getUrlInfo = (baseUrl: string) => {
     const url = config.apiPrefix ? baseUrl.replace(config.apiPrefix, '') : baseUrl
@@ -187,7 +189,7 @@ export const createResourceHandler = async (
     sendResponse(httpResponse)(response)
   }
 
-  const requestHandler = await getRequestHandler(queries, schemas, config)
+  const requestHandler = await getRequestHandler(queries, schemas, config, broadcast)
 
   const getHandler = async (
     httpRequest: IncomingMessage,

@@ -6,6 +6,7 @@ import { createDeleteRoutes } from './delete'
 import type { Config } from '../config'
 import type { CompiledSchemas } from '../schema/types'
 import type { Queries } from '../data/types'
+import type { BroadcastFunction } from '../websocket/websocket'
 
 // Wrapper to handle errors for all request handlers
 const withErrorHandling = <TArgs extends unknown[], TReturn>(
@@ -24,6 +25,7 @@ export const getRequestHandler = async (
   queries: Queries,
   schemas: CompiledSchemas,
   config: Config,
+  broadcast: BroadcastFunction | null,
 ) => {
   const {
     requestInterceptor,
@@ -44,7 +46,7 @@ export const getRequestHandler = async (
   )
 
   const handlePost = withErrorHandling(
-    createPostRoutes(queries, requestInterceptor, returnNullFields, schemas.post),
+    createPostRoutes(queries, requestInterceptor, returnNullFields, schemas.post, broadcast),
   )
 
   const handlePut = withErrorHandling(
@@ -54,6 +56,7 @@ export const getRequestHandler = async (
       returnNullFields,
       schemas.put,
       etagsEnabled,
+      broadcast,
     ),
   )
 
@@ -64,6 +67,7 @@ export const getRequestHandler = async (
       returnNullFields,
       schemas.patch,
       etagsEnabled,
+      broadcast,
     ),
   )
 
@@ -73,6 +77,7 @@ export const getRequestHandler = async (
       allowDeleteCollection,
       requestInterceptor,
       etagsEnabled,
+      broadcast,
     ),
   )
 

@@ -30,6 +30,7 @@ export type Config = {
   allowDeleteCollection: boolean
   etagsEnabled: boolean
   openapi: OpenApiConfig
+  webSocket: boolean
 
   isTesting: boolean
   implementations: Implementations | null
@@ -51,6 +52,7 @@ export type UserConfig = {
   allowDeleteCollection?: boolean
   etags?: boolean
   openapi?: OpenApiConfig
+  webSocket?: boolean
 
   // Use isTesting when running tests that don't require a started server.
   isTesting?: boolean
@@ -73,6 +75,7 @@ const defaultConfig: Config = {
   allowDeleteCollection: false,
   etagsEnabled: false,
   openapi: true,
+  webSocket: false,
 
   isTesting: false,
   implementations: null,
@@ -185,6 +188,10 @@ export const initConfig = (userConfig?: UserConfig): Config => {
 
   if (!isUndefined(userConfig.openapi)) {
     config.openapi = userConfig.openapi
+  }
+
+  if (!isUndefined(userConfig.webSocket)) {
+    config.webSocket = userConfig.webSocket
   }
 
   return config
