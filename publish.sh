@@ -91,7 +91,7 @@ fi
 # 7. Wrap up
 echo "🔗 Finalizing Git..."
 run_cmd "git add ."
-run_cmd "git commit -m \"chore: release $NEXT_VERSION\""
+run_cmd "git commit -m \"$NEXT_VERSION\""
 
 if [ "$DRY_RUN" = false ]; then
   echo "🌍 Opening GitHub to finalize release notes..."
