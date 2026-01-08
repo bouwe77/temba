@@ -207,3 +207,46 @@ test("An empty apiPrefix defaults to 'api' when staticFolder is set", () => {
 
   expect(config.apiPrefix).toBe('api')
 })
+
+test('apiPrefix with only special characters is ignored (remains null)', () => {
+  const config = initConfig({
+    // This resolves to "" and should be ignored
+    apiPrefix: '/_/',
+  })
+
+  // It remains the default (null) instead of becoming ""
+  expect(config.apiPrefix).toBeNull()
+})
+
+test('staticFolder with only special characters is ignored', () => {
+  const config = initConfig({
+    // This resolves to "" and should be ignored
+    staticFolder: './_/',
+  })
+
+  expect(config.staticFolder).toBeNull()
+  // Since staticFolder was ignored, it never triggered the "api" default
+  expect(config.apiPrefix).toBeNull()
+})
+
+test('Invalid apiPrefix does NOT overwrite the default "api" set by staticFolder', () => {
+  const config = initConfig({
+    staticFolder: 'public', // Sets apiPrefix to 'api'
+    apiPrefix: '/_/', // Invalid input
+  })
+
+  expect(config.staticFolder).toBe('public')
+  // The invalid input is ignored, preserving the 'api' default
+  expect(config.apiPrefix).toBe('api')
+})
+
+test('Valid apiPrefix correctly overrides the "api" default', () => {
+  const config = initConfig({
+    staticFolder: 'public', // Sets apiPrefix to 'api'
+    apiPrefix: 'v1', // Valid input
+  })
+
+  expect(config.staticFolder).toBe('public')
+  // The valid input overwrites 'api'
+  expect(config.apiPrefix).toBe('v1')
+})
