@@ -256,6 +256,64 @@ describe('WebSocket broadcast feature', () => {
     wsClient3.close()
   })
 
+  test('DELETE collection broadcasts DELETE_ALL message without data', async () => {
+    // We need to create a new server with allowDeleteCollection enabled
+    const tembaInstance2 = await create({
+      resources: ['movies'],
+      webSocket: true,
+      allowDeleteCollection: true,
+      port: 0,
+    })
+
+    const server2 = tembaInstance2.start()
+    const address2 = server2.address()
+    const port2 = address2 && typeof address2 !== 'string' ? address2.port : 0
+
+    // Connect a new WebSocket client
+    const wsClient2 = new WebSocket(`ws://localhost:${port2}/ws`)
+
+    await new Promise<void>((resolve) => wsClient2.on('open', resolve))
+
+    // Create some movies
+    await fetch(`http://localhost:${port2}/movies`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'Movie 1' }),
+    })
+
+    await fetch(`http://localhost:${port2}/movies`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'Movie 2' }),
+    })
+
+    // Listen for the DELETE_ALL message
+    const messagePromise = new Promise<void>((resolve) => {
+      wsClient2.once('message', (data) => {
+        const message = JSON.parse(data.toString())
+
+        if (message.action === 'DELETE_ALL') {
+          expect(message).toEqual({
+            resource: 'movies',
+            action: 'DELETE_ALL',
+          })
+          expect(message).not.toHaveProperty('data')
+          resolve()
+        }
+      })
+    })
+
+    // Delete entire collection
+    await fetch(`http://localhost:${port2}/movies`, {
+      method: 'DELETE',
+    })
+
+    await messagePromise
+
+    wsClient2.close()
+    await new Promise<void>((resolve) => server2.close(() => resolve()))
+  })
+
   test('No broadcast when WebSocket is disabled', async () => {
     // Create a server without WebSocket
     const tembaInstance = await create({

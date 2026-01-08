@@ -17,6 +17,7 @@ const defaultConfig: Config = {
   allowDeleteCollection: false,
   etagsEnabled: false,
   openapi: true,
+  webSocket: false,
 
   isTesting: false,
   implementations: null,
@@ -45,6 +46,7 @@ test('No config returns default config', () => {
   expect(initializedConfig.allowDeleteCollection).toBe(defaultConfig.allowDeleteCollection)
   expect(initializedConfig.etagsEnabled).toBe(defaultConfig.etagsEnabled)
   expect(initializedConfig.openapi).toBe(defaultConfig.openapi)
+  expect(initializedConfig.webSocket).toBe(defaultConfig.webSocket)
   expect(initializedConfig.isTesting).toBe(defaultConfig.isTesting)
   expect(initializedConfig.implementations).toBe(defaultConfig.implementations)
 })
@@ -94,6 +96,7 @@ test('Full user config overrides all defaults', () => {
     allowDeleteCollection: true,
     etags: true,
     openapi: true,
+    webSocket: true,
     isTesting: true,
     implementations: {
       getStaticFileFromDisk: () =>
@@ -119,6 +122,7 @@ test('Full user config overrides all defaults', () => {
   expect(config.allowDeleteCollection).toBe(true)
   expect(config.etagsEnabled).toBe(true)
   expect(config.openapi).toBe(true)
+  expect(config.webSocket).toBe(true)
 
   expect(config.isTesting).toBe(true)
   expect(config.implementations).not.toBeNull()
@@ -149,6 +153,7 @@ test('Partial user config applies those, but leaves the rest at default', () => 
   expect(config.allowDeleteCollection).toBe(defaultConfig.allowDeleteCollection)
   expect(config.etagsEnabled).toBe(defaultConfig.etagsEnabled)
   expect(config.openapi).toBe(defaultConfig.openapi)
+  expect(config.webSocket).toBe(defaultConfig.webSocket)
   expect(config.isTesting).toBe(defaultConfig.isTesting)
   expect(config.implementations).toBe(defaultConfig.implementations)
 })

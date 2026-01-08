@@ -2,18 +2,23 @@ import { WebSocketServer, WebSocket } from 'ws'
 import type { Server as HttpServer, IncomingMessage } from 'http'
 import { parse } from 'url'
 
-export type BroadcastAction = 'CREATE' | 'UPDATE' | 'DELETE'
+export type BroadcastAction = 'CREATE' | 'UPDATE' | 'DELETE' | 'DELETE_ALL'
 
-export type BroadcastPayload = {
-  resource: string
-  action: BroadcastAction
-  data: object | { id: string }
-}
+export type BroadcastPayload =
+  | {
+      resource: string
+      action: 'CREATE' | 'UPDATE' | 'DELETE'
+      data: object | { id: string }
+    }
+  | {
+      resource: string
+      action: 'DELETE_ALL'
+    }
 
 export type BroadcastFunction = (
   resource: string,
   action: BroadcastAction,
-  data: object | { id: string },
+  data?: object | { id: string },
 ) => void
 
 export const createWebSocketServer = (httpServer: HttpServer): BroadcastFunction => {
@@ -34,11 +39,17 @@ export const createWebSocketServer = (httpServer: HttpServer): BroadcastFunction
 
   // Broadcast function that sends messages to all connected clients
   const broadcast: BroadcastFunction = (resource, action, data) => {
-    const payload: BroadcastPayload = {
-      resource,
-      action,
-      data,
-    }
+    const payload: BroadcastPayload =
+      action === 'DELETE_ALL'
+        ? {
+            resource,
+            action,
+          }
+        : {
+            resource,
+            action,
+            data: data!,
+          }
 
     const message = JSON.stringify(payload)
 

@@ -91,6 +91,11 @@ export const createDeleteRoutes = (
       }
 
       await queries.deleteAll(resource)
+
+      // Broadcast to WebSocket clients if enabled
+      if (broadcast) {
+        broadcast(resource, 'DELETE_ALL')
+      }
     }
 
     return { statusCode: 204 }
