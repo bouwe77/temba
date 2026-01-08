@@ -285,12 +285,12 @@ describe('WebSocket broadcast feature', () => {
         throw new Error('WebSocket should not be available when disabled')
       })
 
-      // Timeout after 1 second
+      // Timeout after 200ms
       setTimeout(() => {
         testWs.close()
         testServer.close()
         resolve()
-      }, 1000)
+      }, 200)
     })
   })
 })
