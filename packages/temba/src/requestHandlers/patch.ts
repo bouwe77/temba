@@ -6,6 +6,7 @@ import type { PatchRequest } from './types'
 import type { Queries } from '../data/types'
 import type { RequestInterceptor } from '../requestInterceptor/types'
 import { etag } from '../etags/etags'
+import type { BroadcastFunction } from '../websocket/websocket'
 
 export const createPatchRoutes = (
   queries: Queries,
@@ -13,6 +14,7 @@ export const createPatchRoutes = (
   returnNullFields: boolean,
   schemas: ValidateFunctionPerResource | null,
   etagsEnabled: boolean,
+  broadcast: BroadcastFunction | null,
 ) => {
   const handlePatch = async (req: PatchRequest) => {
     const { headers, resource, id } = req
@@ -74,6 +76,11 @@ export const createPatchRoutes = (
     item = { ...item, ...(body as object), id }
 
     const updatedItem = await queries.update(resource, item)
+
+    // Broadcast to WebSocket clients if enabled
+    if (broadcast) {
+      broadcast(resource, 'UPDATE', updatedItem)
+    }
 
     return {
       statusCode: 200,
