@@ -1,6 +1,6 @@
 {
   "name": "temba",
-  "version": "0.51.0",
+  "version": "0.51.1",
   "description": "Create a simple REST API with zero coding in less than 30 seconds (seriously).",
   "type": "module",
   "main": "dist/src/index.js",
