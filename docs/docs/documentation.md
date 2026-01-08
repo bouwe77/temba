@@ -117,7 +117,7 @@ For every resource (`movies` is just an example), Temba supports the following r
 
 The HTTP methods that are supported are `GET`, `POST`, `PATCH`, `PUT`, `DELETE`, and `HEAD`.
 
-On the root URI (e.g. http://localhost:8080/) only a `GET` request is supported, which shows you a message indicating the API is working. All other HTTP methods on the root URI return a `405 Method Not Allowed` response.
+On the root URI (e.g. http://localhost:8362/) only a `GET` request is supported, which shows you a message indicating the API is working. All other HTTP methods on the root URI return a `405 Method Not Allowed` response.
 
 ### JSON
 
@@ -214,7 +214,7 @@ const config = {
 const server = await create(config)
 ```
 
-After configuring the `apiPrefix`, requests to the root URL (e.g. http://localhost:1234/), will now either return a `404 Not Found` on `GET` requests, or a `405 Method Not Allowed` for any other HTTP method.
+After configuring the `apiPrefix`, requests to the root URL (e.g. http://localhost:8362/), will now either return a `404 Not Found` on `GET` requests, or a `405 Method Not Allowed` for any other HTTP method.
 
 ### Static assets
 
@@ -394,6 +394,46 @@ const server = await create(config)
 After enabling etags, every `GET` request will return an `etag` response header, which clients can (optionally) send as an `If-None-Match` header with every subsequent `GET` request. Only if the resource changed in the meantime the server will return the new JSON, and otherwise it will return a `304 Not Modified` response with an empty response body.
 
 For updating or deleting items with a `PUT`, `PATCH`, or `DELETE`, after enabling etags, these requests are _required_ to provide an `If-Match` header with the etag. Only if the etag represents the latest version of the resource the update is made, otherwise the server responds with a `412 Precondition Failed` status code.
+
+### WebSockets
+
+Temba can automatically broadcast data changes to connected clients via WebSockets. 
+
+To enable WebSocket support:
+
+```js
+const config = {
+  webSocket: true,
+}
+```
+
+Once enabled, the WebSocket server is available at the same host and port as your API, using the /ws path, for example: `ws://localhost:8362/ws`
+
+Once connected, whenever a resource is changed via a POST, PUT, PATCH, or DELETE request a message will be sent.
+
+The broadcast message is a JSON object containing the name of the resource, the type of change ("CREATE", "UPDATE", or "DELETE"), and the updated resource object:
+
+```json
+{
+  "resource": "movies",
+  "action": "CREATE",
+  "data": {
+    "id": "123",
+    "title": "O Brother, Where Art Thou?",
+    "description": "In the deep south..."
+  }
+}
+```
+
+For deletions, the data object contains only the ID of the deleted item:
+
+```json
+{
+  "resource": "movies",
+  "action": "DELETE",
+  "data": { "id": "123" }
+}
+```
 
 ## Config settings overview
 
