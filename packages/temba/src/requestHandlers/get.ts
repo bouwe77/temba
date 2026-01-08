@@ -47,7 +47,7 @@ export const createGetRoutes = (
         }
 
         const theItem = responseBodyInterceptor
-          ? interceptResponseBody(responseBodyInterceptor, { resource, body: item, id })
+          ? await interceptResponseBody(responseBodyInterceptor, { resource, body: item, id })
           : item
 
         if (!returnNullFields) {
@@ -66,7 +66,7 @@ export const createGetRoutes = (
       const items = await queries.getAll(resource)
 
       const theItems = responseBodyInterceptor
-        ? interceptResponseBody(responseBodyInterceptor, { resource, body: items })
+        ? await interceptResponseBody(responseBodyInterceptor, { resource, body: items })
         : items
 
       if (!returnNullFields) {
