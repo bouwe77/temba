@@ -3,6 +3,8 @@ import request from 'supertest'
 import { createServer } from '../createServer'
 import { RequestInterceptor } from '../../../src/requestInterceptor/types'
 
+type Movie = { title: string }
+
 describe('requestInterceptor async support', () => {
   test('Async POST requestInterceptor can fetch data and modify request body', async () => {
     // Simulate an async operation that fetches additional data
@@ -19,10 +21,12 @@ describe('requestInterceptor async support', () => {
     }
 
     const requestInterceptor: RequestInterceptor = {
-      post: async ({ body }) => {
+      post: async ({ body }, actions) => {
         // Async operation to fetch and add genre
-        const genre = await fetchGenre(body.title)
-        return { ...body, genre }
+        const movie = body as Movie
+        const title = movie.title
+        const genre = await fetchGenre(title)
+        return actions.setRequestBody({ ...movie, genre })
       },
     }
 
@@ -51,9 +55,9 @@ describe('requestInterceptor async support', () => {
     }
 
     const requestInterceptor: RequestInterceptor = {
-      put: async ({ body }) => {
+      put: async ({ body }, actions) => {
         const rating = await fetchRating()
-        return { ...body, rating }
+        return actions.setRequestBody({ ...(body as Movie), rating })
       },
     }
 
@@ -82,16 +86,18 @@ describe('requestInterceptor async support', () => {
     }
 
     const requestInterceptor: RequestInterceptor = {
-      patch: async ({ body }) => {
+      patch: async ({ body }, actions) => {
         const director = await fetchDirector()
-        return { ...body, director }
+        return actions.setRequestBody({ ...(body as Movie), director })
       },
     }
 
     const tembaServer = await createServer({ requestInterceptor })
 
     // Create a movie first
-    const createResponse = await request(tembaServer).post('/movies').send({ title: 'Interstellar' })
+    const createResponse = await request(tembaServer)
+      .post('/movies')
+      .send({ title: 'Interstellar' })
     const movieId = createResponse.body.id
 
     // Patch with async interceptor
@@ -148,7 +154,7 @@ describe('requestInterceptor async support', () => {
 
     const requestInterceptor: RequestInterceptor = {
       delete: async ({ id }) => {
-        const canDelete = await validateDeletion(id)
+        const canDelete = await validateDeletion(id!)
         if (!canDelete) {
           throw new Error('Cannot delete protected item')
         }

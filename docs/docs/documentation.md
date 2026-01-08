@@ -285,27 +285,16 @@ If a request is not valid according to the schema, a `400 Bad Request` response 
 
 ### Intercepting requests
 
-In addition to (or instead of) validating the request using JSON Schema, you can also intercept the request before it is persisted, using the `requestInterceptor` setting.
+In addition to (or instead of) validating the request using JSON Schema, you can intercept the request before it is persisted using the requestInterceptor setting.
 
-It allows you to implement your own validation, or even change the request body.
+This allows you to update the request body before saving, or overrule the processing entirely to handle the response yourself.
 
 ```js
 const config = {
   requestInterceptor: {
-    get: ({ headers, resource, id }) => {
-      //...
-    },
-    post: ({ headers, resource, id, body }) => {
-      // Validate, or even change the request body
-    },
-    put: ({ headers, resource, id, body }) => {
-      // Validate, or even change the request body
-    },
-    patch: ({ headers, resource, id, body }) => {
-      // Validate, or even change the request body
-    },
-    delete: ({ headers, resource, id }) => {
-      //...
+    // Intercept POST requests
+    post: ({ headers, resource, id, body, actions }) => {
+      // Return an instruction here...
     },
   },
 }
@@ -313,44 +302,42 @@ const config = {
 const server = await create(config)
 ```
 
-The `requestInterceptor` is an object with fields for each of the HTTP methods you might want to intercept, and the callback function you want Temba to call, before processing the request, i.e. going to the database.
+Your callback determines what happens next based on the action (i.e. instruction) you return:
 
-Each callback function receives an object containing the request headers and the `resource` (e.g. `"movies"`). Depending on the HTTP method, also the `id` from the URL, and the request `body` are provided. `body` is a JSON object of the request body.
+Update the request body, so Temba will save that to the database instead, using `actions.setRequestBody(newBody)`.
 
-> Request headers are not used by Temba internally when processing requests, so they are only passed into the `requestInterceptor` callback so you can do your own custom header validation.
+Overrule Temba handling the request entirely, so instead of going to the database you can implement your own custom logic and send a response using `actions.response({ body, status })`.
 
-Your callback function can return the following things:
+To let Temba handle the original request normally, just don't return anything.
 
-- `void`: Temba will just save the request body as-is. An example of this is when you have validated the request body and everything looks fine.
-- `object`: Return an object if you want to change the request body. Temba will save the returned object instead of the original request body.
-- Throw an `Error` if you want to stop processing the request any further and return a `500 Internal Server Error` response. Or throw the custom `TembaError` to provide a status code.
-
-Example:
+Examples:
 
 ```js
 const config = {
   requestInterceptor: {
-    post: ({ headers, resource, id, body }) => {      
-      // Add a genre to Star Trek films:
-      if (resource === 'movies' && body.title.startsWith('Star Trek'))
-        return { ...body, genre: 'Science Fiction' }
-
-      // Throw a regular error for a 500 Internal Server Error status code
-      if (resource === 'foobar') {
-        throw new Error('Something went foobar')
+    post: ({ resource, body, actions }) => {
+      
+      // 1. Update the request body
+      // Add a genre to Star Trek films before saving
+      if (resource === 'movies' && body.title.startsWith('Star Trek')) {
+        const newBody = { ...body, genre: 'Science Fiction' }
+        return actions.setRequestBody(newBody)
       }
 
-      // Throw a custom error to specify the status code
+      // 2. Overrule the processing
+      // Return a 400 Bad Request for Pokemons
       if (resource === 'pokemons') {
-        throw new TembaError('You are not allowed to create new Pokemons', 400)
+        return actions.response({ 
+          status: 400, 
+          body: { error: 'You are not allowed to create new Pokemons' } 
+        })
       }
 
+      // 3. Continue as-is
       // If you don't return anything, the original request will just be used.
     },
   },
 }
-
-const server = await create(config)
 ```
 
 ### Response body interception
