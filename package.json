@@ -10,6 +10,7 @@
   "scripts": {
     "test": "npm test -w packages/temba",
     "lint": "npm run lint -w packages/temba",
-    "check": "npm run lint && npm test"
+    "check": "npm run lint && npm test",
+    "deploy:docs": "cd docs && USE_SSH=true npm run deploy"
   }
 }
