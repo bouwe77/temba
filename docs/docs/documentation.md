@@ -18,7 +18,7 @@ Data is kept **in memory**, but you can also store it in a **JSON file** or **Mo
 
 ## Table of contents
 
-[Temba?](#temba-1)
+[Temba?](#temba)
 
 [Getting Started](#getting-started)
 
@@ -125,7 +125,7 @@ Temba supports JSON only.
 
 Request bodies sent with a `POST`, `PATCH`, and `PUT` requests are valid when the request body is either empty, or when it's valid formatted JSON. If you send a request with invalid formatted JSON, a `400 Bad Request` response is returned.
 
-Any valid formatted JSON is accepted and stored. If you want to validate or even change the JSON in the request bodies, check out [JSON Schema request body validation](#json-schema-request-body-validation) and the [`requestInterceptor`](#request-validation-or-mutation).
+Any valid formatted JSON is accepted and stored. If you want to validate or even change the JSON in the request bodies, check out [JSON Schema request body validation](#json-schema-request-body-validation) and the [`requestInterceptor`](#intercepting-requests).
 
 IDs are auto generated when creating resources, unless you specify an ID in the `POST` request URL.
 
