@@ -68,12 +68,14 @@ run_cmd "cd packages/cli && npm publish && cd ../.."
 echo "📚 Updating examples..."
 run_cmd "node update-version.js $NEXT_VERSION examples $( [ "$DRY_RUN" = true ] && echo "--dry-run" )"
 
-# 6. Documentation (Docusaurus Native Way)
-echo "📝 Deploying Docs to temba-docs repo..."
+# 6. Documentation
+echo "📝 Updating Docs version and deploying..."
+# Update the docs package.json version so Docusaurus config can read it
+run_cmd "node update-version.js $NEXT_VERSION docs $( [ "$DRY_RUN" = true ] && echo "--dry-run" )"
+
 if [ "$DRY_RUN" = true ]; then
   echo "[DRY RUN] Would run: cd docs && USE_SSH=true npm run deploy"
 else
-  # This command builds and pushes directly to the repo specified in docusaurus.config.ts
   cd docs
   USE_SSH=true npm run deploy
   cd ..
@@ -87,7 +89,7 @@ run_cmd "git commit -m \"$NEXT_VERSION\""
 if [ "$DRY_RUN" = false ]; then
   echo "🌍 Opening GitHub to finalize release notes..."
   open "https://github.com/bouwe77/temba/releases/new?tag=$NEXT_VERSION&title=$NEXT_VERSION"
-  echo "✅ Done! All packages updated and docs deployed natively."
+  echo "✅ Done! All packages updated and docs deployed."
 else
   echo "🏁 Dry run complete. No changes were made."
 fi
