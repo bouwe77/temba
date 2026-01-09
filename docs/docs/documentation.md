@@ -153,7 +153,7 @@ const config = {
   connectionString: 'data.json',
 }
 const server = await create(config)
-````
+```
 
 All resources are stored in a single JSON file with the structure:
 ```json
