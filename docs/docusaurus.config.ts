@@ -2,6 +2,8 @@ import { themes as prismThemes } from 'prism-react-renderer'
 import type { Config } from '@docusaurus/types'
 import type * as Preset from '@docusaurus/preset-classic'
 
+import packageJson from './package.json'
+
 const config: Config = {
   title: 'Temba',
   tagline: 'Create a simple REST API with zero coding in less than 30 seconds (seriously)',
@@ -20,6 +22,10 @@ const config: Config = {
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
+
+  customFields: {
+    libVersion: packageJson.version,
+  },
 
   i18n: {
     defaultLocale: 'en',
@@ -59,7 +65,7 @@ const config: Config = {
 
   themeConfig: {
     navbar: {
-      title: 'Temba',
+      title: `Temba v${packageJson.version}`,
       logo: {
         alt: 'Temba Logo',
         src: 'img/logo.svg',
