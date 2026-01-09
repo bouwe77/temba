@@ -134,10 +134,11 @@ type UserConfig = {
   port?: number
   schemas?: ConfiguredSchemas
   allowDeleteCollection?: boolean
-  etagsEnabled?: boolean
+  etags?: boolean
   openapi?: boolean | Record<string, unknown>
   webSocket?: boolean
   isTesting?: boolean
+  implementations?: Implementations
 }
 ```
 
