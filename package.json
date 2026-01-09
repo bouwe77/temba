@@ -11,6 +11,7 @@
     "test": "npm test -w packages/temba",
     "lint": "npm run lint -w packages/temba",
     "check": "npm run lint && npm test",
-    "deploy:docs": "cd docs && USE_SSH=true npm run deploy"
+    "docs:deploy": "cd docs && USE_SSH=true npm run deploy",
+    "docs:preview": "npm run start -w docs"
   }
 }

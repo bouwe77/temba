@@ -101,4 +101,33 @@ const createServer = async (userConfig?: UserConfig) => {
   }
 }
 
+/**
+ * Creates a Temba REST API server with the specified configuration.
+ * 
+ * Temba provides a zero-configuration REST API that supports CRUD operations
+ * for any resource. Data can be stored in-memory, in JSON files, or in MongoDB.
+ * 
+ * @param userConfig - Optional configuration object to customize the server behavior
+ * @returns A promise that resolves to an object containing:
+ *   - `start()`: Function to start the HTTP server
+ *   - `server`: The underlying Node.js HTTP server instance
+ * 
+ * @example
+ * ```typescript
+ * // Create a basic server with default settings
+ * const server = await create();
+ * server.start();
+ * 
+ * // Create a server with custom configuration
+ * const server = await create({
+ *   port: 3000,
+ *   resources: ['movies', 'actors'],
+ *   connectionString: 'mongodb://localhost:27017/mydb'
+ * });
+ * server.start();
+ * ```
+ */
 export const create = (userConfig?: UserConfig) => createServer(userConfig)
+
+// Export the main UserConfig type for TypeScript users
+export type { UserConfig } from './config'
