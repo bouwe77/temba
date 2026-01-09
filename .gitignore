@@ -11,6 +11,9 @@ api-for-quick-testing
 .docusaurus
 .cache-loader
 
+# TypeDoc generated API documentation
+docs/docs/api
+
 .DS_Store
 .env.local
 .env.development.local

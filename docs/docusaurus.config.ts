@@ -7,13 +7,16 @@ const config: Config = {
   tagline: 'Create a simple REST API with zero coding in less than 30 seconds (seriously)',
   favicon: 'img/favicon.ico',
 
+  // The URL where your site is hosted
   url: 'https://temba.bouwe.io',
   baseUrl: '/',
 
   // GitHub pages deployment config.
-  // If you aren't using GitHub pages, you don't need these.
+  // These settings tell 'npm run deploy' where to push the build output.
   organizationName: 'bouwe77',
   projectName: 'temba-docs',
+  deploymentBranch: 'main',
+  trailingSlash: false,
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -29,12 +32,28 @@ const config: Config = {
       {
         docs: {
           sidebarPath: './sidebars.ts',
+          // Points to the source repo so people can contribute to the docs
           editUrl: 'https://github.com/bouwe77/temba/tree/main/docs/',
         },
         theme: {
           customCss: './src/css/custom.css',
         },
       } satisfies Preset.Options,
+    ],
+  ],
+
+  plugins: [
+    [
+      'docusaurus-plugin-typedoc',
+      {
+        entryPoints: ['../packages/temba/src/index.ts'],
+        tsconfig: '../packages/temba/tsconfig.json',
+        out: 'docs/api',
+        sidebar: {
+          autoConfiguration: true,
+          pretty: true,
+        },
+      },
     ],
   ],
 
