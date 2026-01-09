@@ -38,6 +38,21 @@ const config: Config = {
     ],
   ],
 
+  plugins: [
+    [
+      'docusaurus-plugin-typedoc',
+      {
+        entryPoints: ['../packages/temba/src/index.ts'],
+        tsconfig: '../packages/temba/tsconfig.json',
+        out: 'docs/api',
+        sidebar: {
+          autoConfiguration: true,
+          pretty: true,
+        },
+      },
+    ],
+  ],
+
   themeConfig: {
     navbar: {
       title: 'Temba',
