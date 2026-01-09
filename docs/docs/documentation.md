@@ -1,7 +1,7 @@
 ---
 id: documentation
 title: Documentation
-sidebar_position: 2
+sidebar_position: 1
 ---
 
 # Documentation
@@ -144,7 +144,7 @@ Temba inspects the `connectionString` value to decide which adapter to use:
 1. **MongoDB**: Starts with `"mongodb"` → MongoDB database
 2. **Single JSON file**: Ends with `".json"` → Single file for all resources
 3. **Directory of JSON files**: Matches `/^[a-zA-Z0-9_-]+$/` → Folder with one file per resource
-4. **Fallback**: Any other value → Logs warning and uses in-memory storage
+4. **Fallback**: Any other value → In-memory storage
 
 #### JSON file
 
@@ -191,8 +191,6 @@ const server = await create(config)
 
 For every resource you use in your requests, a collection is created in the database. However, not until you actually create a resource with a `POST`.
 
-**MongoDB detection:** Any `connectionString` starting with `"mongodb"` (e.g., `mongodb://`, `mongodb+srv://`) triggers the MongoDB adapter.
-
 ### OpenAPI specification
 
 OpenAPI support in Temba is enabled by default, automatically generating both JSON and YAML specifications that accurately reflect your configured resources and settings. 
@@ -236,15 +234,13 @@ const config = {
 const server = await create(config)
 ```
 
-**Important behaviors:**
+Notes:
 
 * Only alphanumeric characters are kept—special characters are stripped. For example, `apiPrefix: 'api/v1'` becomes `'apiv1'`.
 * After configuring the `apiPrefix`, requests to the root URL (e.g., `http://localhost:8362/`) will return:
   * `404 Not Found` on `GET` requests
   * `405 Method Not Allowed` for any other HTTP method
 * The new root becomes `/api` (or whatever your prefix is), which returns an informational page.
-
-**Reserved paths:** With or without `apiPrefix`, avoid naming resources `"openapi"` as it conflicts with the OpenAPI documentation routes.
 
 ### Static assets
 
@@ -286,8 +282,6 @@ When both `staticFolder` and API routes are configured, Temba processes requests
 | `staticFolder: 'build'`, `apiPrefix: 'v1'` | `GET /movies` | Tries to serve `build/movies` as static file |
 
 **Key takeaway:** Static files **never** conflict with API routes when `apiPrefix` is set, because they're checked only when the request path doesn't start with the API prefix.
-
-**Source:** See `packages/temba/src/index.ts` lines 58-74 and `packages/temba/src/config/index.ts` lines 94-100.
 
 ### JSON Schema request body validation
 
@@ -540,11 +534,9 @@ type Item = {
 **Important Notes:**
 
 * The interceptor is called **only for successful responses** (HTTP 200 OK)
-* The `body` parameter is **not a deep copy**—it's the actual data object from the database. Avoid mutating nested objects unless you intend to modify the stored data. Use spread operators (`{...body}`) or `structuredClone(body)` to create a safe copy.
+* The `body` parameter is the actual data object from the database. 
 * The function can be **async** (return a Promise)
 * You can differentiate between single-item and collection requests by checking for the presence of `id` or by checking `Array.isArray(body)`
-
-**Source:** See `packages/temba/src/responseBodyInterceptor/types.ts` and `packages/temba/src/requestHandlers/get.ts` lines 60-81.
 
 **Example with Type Safety:**
 
@@ -604,7 +596,7 @@ Once enabled, the WebSocket server is available at the same host and port as you
 
 Once connected, whenever a resource is changed via a `POST`, `PUT`, `PATCH`, or `DELETE` request a message will be sent.
 
-The broadcast message is a JSON object containing the name of the resource, the type of change (`"CREATE"`, `"UPDATE"`, `"DELETE"`, or "DELETE_ALL"), and the updated resource object:
+The broadcast message is a JSON object containing the name of the resource, the type of change (`"CREATE"`, `"UPDATE"`, `"DELETE"`, or `"DELETE_ALL"`), and the updated resource object:
 
 ```json
 {
@@ -709,125 +701,6 @@ These are all the possible settings:
 | `schema`                  | See [JSON Schema request body validation](#json-schema-request-body-validation)              | `null`        |
 | `staticFolder`            | See [Static assets](#static-assets)                                                          | `null`        |
 | `webSocket`               | See [WebSockets](#websockets)                                                                | `false`       |
-
-### Configuration Interface
-
-For LLM and TypeScript tooling, here is the exact configuration interface:
-
-```typescript
-// User-facing configuration (all fields optional)
-type UserConfig = {
-  resources?: (string | { resourcePath: string; singularName: string; pluralName: string })[]
-  staticFolder?: string
-  apiPrefix?: string
-  connectionString?: string
-  delay?: number
-  requestInterceptor?: {
-    get?: (request: { headers: IncomingHttpHeaders; resource: string; id: string | null }, actions: Actions) => void | InterceptorAction | Promise<void | InterceptorAction>
-    post?: (request: { headers: IncomingHttpHeaders; resource: string; id: string | null; body: object | string | Buffer | null }, actions: Actions) => void | InterceptorAction | Promise<void | InterceptorAction>
-    put?: (request: { headers: IncomingHttpHeaders; resource: string; id: string; body: object | string | Buffer | null }, actions: Actions) => void | InterceptorAction | Promise<void | InterceptorAction>
-    patch?: (request: { headers: IncomingHttpHeaders; resource: string; id: string; body: object | string | Buffer | null }, actions: Actions) => void | InterceptorAction | Promise<void | InterceptorAction>
-    delete?: (request: { headers: IncomingHttpHeaders; resource: string; id: string | null }, actions: Actions) => void | InterceptorAction | Promise<void | InterceptorAction>
-  }
-  responseBodyInterceptor?: (info: { resource: string; body: Item; id: string } | { resource: string; body: Item[] }) => unknown | Promise<unknown>
-  returnNullFields?: boolean
-  port?: number
-  schemas?: {
-    [resource: string]: {
-      post?: object  // JSON Schema object
-      put?: object   // JSON Schema object
-      patch?: object // JSON Schema object
-    }
-  }
-  allowDeleteCollection?: boolean
-  etags?: boolean
-  openapi?: boolean | object  // If object, must conform to OpenAPIObject from openapi3-ts
-  webSocket?: boolean
-}
-
-// Actions available in requestInterceptor
-type Actions = {
-  setRequestBody: (body: unknown) => SetRequestBodyAction
-  response: (options?: { body?: unknown; status?: number }) => ResponseAction
-}
-
-// Item type (stored data)
-type Item = {
-  id: string
-  [key: string]: unknown
-}
-```
-
-**Important Type Details:**
-
-* **`requestInterceptor`**: Each method receives a request object and an `actions` object. Return `void` to continue normally, or return an `InterceptorAction` to modify behavior.
-* **`responseBodyInterceptor`**: The `body` parameter is the actual data object/array retrieved from the database. It is **not a deep copy**—modifications to nested objects will affect the stored data. To avoid side effects, clone before modifying.
-* **`openapi`**: When set to an object, it must follow the [OpenAPI 3.1 specification](https://github.com/metadevpro/openapi3-ts). Temba deep-merges your object into the auto-generated spec.
-* **`delay`**: Must be a number between 0 and 99999 milliseconds.
-
-### Connection String Logic
-
-The `connectionString` configuration determines the data storage backend. Temba uses the following logic to detect the type:
-
-**Decision Tree:**
-
-1. **If `connectionString` is `null` or not provided:**
-   * → In-memory storage (data lost on restart)
-
-2. **If `connectionString` starts with `"mongodb"`:**
-   * → MongoDB adapter
-   * Example: `"mongodb://localhost:27017/myDatabase"`
-   * Temba creates a collection per resource on-demand
-
-3. **If `connectionString` ends with `".json"`:**
-   * → Single JSON file adapter
-   * Example: `"data.json"`
-   * All resources stored in one file as `{ "movies": [...], "actors": [...] }`
-
-4. **If `connectionString` matches `/^[a-zA-Z0-9_-]+$/` (alphanumeric, underscore, hyphen only):**
-   * → Directory-based JSON adapter
-   * Example: `"data"` or `"my_data"`
-   * Each resource stored in `data/movies.json`, `data/actors.json`, etc.
-
-5. **Otherwise:**
-   * → Logs a warning and falls back to in-memory storage
-
-**Source:** See `packages/temba/src/data/queries.ts` lines 5-18.
-
-### Reserved Routes and Routing Constraints
-
-Temba reserves certain routes for internal functionality. Avoid naming your resources with these paths to prevent conflicts:
-
-**Reserved Routes (when `apiPrefix` is not set or is `"api"`):**
-
-* `/openapi` or `/api/openapi` — Interactive HTML documentation
-* `/openapi.json` or `/api/openapi.json` — OpenAPI spec in JSON format
-* `/openapi.yaml` or `/api/openapi.yaml` — OpenAPI spec in YAML format
-* `/openapi.html` or `/api/openapi.html` — Interactive HTML documentation (same as `/openapi`)
-* `/ws` — WebSocket endpoint (when `webSocket: true`)
-
-**Routing Precedence (Middleware Order):**
-
-When a request comes in, Temba processes it in this order:
-
-1. **OPTIONS requests** → Returns `204 No Content` immediately
-2. **Static folder** (if configured and request path doesn't start with `apiPrefix + '/'`)
-   * Example: With `staticFolder: 'build'` and no `apiPrefix`, `/index.html` serves from `build/index.html`
-3. **Root URL** (e.g., `/` or `/api` if `apiPrefix` is set)
-   * Returns informational HTML page
-4. **OpenAPI paths** (if `openapi` is enabled)
-   * Matches `/openapi`, `/openapi.json`, `/openapi.yaml`, `/openapi.html` (or with `apiPrefix`)
-5. **API resources** (if path starts with `rootPath` where `rootPath = apiPrefix || ''`)
-   * Your REST resources (e.g., `/movies`, `/api/movies`)
-6. **404 Not Found** for everything else
-
-**Source:** See `packages/temba/src/index.ts` lines 54-75.
-
-**Key Implications:**
-
-* If `staticFolder` is configured **without** an `apiPrefix`, static files take precedence over API routes. To avoid conflicts, Temba automatically sets `apiPrefix` to `"api"` when `staticFolder` is configured.
-* You **cannot** create a resource named `"openapi"` when `apiPrefix` is not set, as it conflicts with the OpenAPI endpoint.
-* The `/ws` path is always reserved for WebSocket connections when enabled, regardless of `apiPrefix`.
 
 ## Under the hood
 
