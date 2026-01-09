@@ -25,6 +25,13 @@ const updatePackageJson = (folder) => {
     const packageJson = JSON.parse(fileContent)
     let updated = false
 
+    // 1. Update the package's own version
+    if (packageJson.version !== versionNumber) {
+      packageJson.version = versionNumber
+      updated = true
+    }
+
+    // 2. Update dependencies on 'temba'
     ;['dependencies', 'devDependencies'].forEach((depType) => {
       if (packageJson[depType] && 'temba' in packageJson[depType]) {
         packageJson[depType].temba = versionNumber
@@ -34,10 +41,10 @@ const updatePackageJson = (folder) => {
 
     if (updated) {
       if (isDryRun) {
-        console.log(`[DRY RUN] Would update ${packageJsonPath} to temba@${versionNumber}`)
+        console.log(`[DRY RUN] Would update ${packageJsonPath} to version ${versionNumber}`)
       } else {
         fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n')
-        console.log(`✅ Updated ${packageJsonPath} to temba@${versionNumber}`)
+        console.log(`✅ Updated ${packageJsonPath} to version ${versionNumber}`)
       }
       return true
     }
