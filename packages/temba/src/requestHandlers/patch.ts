@@ -5,8 +5,8 @@ import type { ValidateFunctionPerResource } from '../schema/types'
 import type { PatchRequest } from './types'
 import type { Queries } from '../data/types'
 import type { RequestInterceptor } from '../requestInterceptor/types'
-import { TembaError } from '../requestInterceptor/TembaError'
 import { etag } from '../etags/etags'
+import type { BroadcastFunction } from '../websocket/websocket'
 
 export const createPatchRoutes = (
   queries: Queries,
@@ -14,60 +14,77 @@ export const createPatchRoutes = (
   returnNullFields: boolean,
   schemas: ValidateFunctionPerResource | null,
   etagsEnabled: boolean,
+  broadcast: BroadcastFunction | null,
 ) => {
   const handlePatch = async (req: PatchRequest) => {
-    try {
-      const { headers, body, resource, id } = req
+    const { headers, resource, id } = req
+    let { body } = req
 
-      const validationResult = validate(body, schemas?.[resource])
-      if (validationResult.isValid === false) {
-        return { statusCode: 400, body: { message: validationResult.errorMessage } }
-      }
+    const validationResult = validate(body, schemas?.[resource])
+    if (validationResult.isValid === false) {
+      return { statusCode: 400, body: { message: validationResult.errorMessage } }
+    }
 
-      let body2 = body
-      if (requestInterceptor?.patch) {
-        try {
-          body2 = await interceptPatchRequest(requestInterceptor.patch, headers, resource, id, body)
-        } catch (error: unknown) {
+    if (requestInterceptor?.patch) {
+      try {
+        const interceptResult = await interceptPatchRequest(
+          requestInterceptor.patch,
+          headers,
+          resource,
+          id,
+          body,
+        )
+
+        if (interceptResult.type === 'response') {
           return {
-            statusCode: error instanceof TembaError ? error.statusCode : 500,
-            body: { message: (error as Error).message },
+            statusCode: interceptResult.status,
+            body: interceptResult.body,
           }
         }
+
+        body = interceptResult.body ?? body
+      } catch (error: unknown) {
+        return {
+          statusCode: 500,
+          body: { message: (error as Error).message },
+        }
+      }
+    }
+
+    let item = await queries.getById({ resource, id })
+
+    if (!item)
+      return {
+        statusCode: 404,
+        body: {
+          message: `ID '${id}' not found`,
+        },
       }
 
-      let item = await queries.getById({ resource, id })
-
-      if (!item)
+    if (etagsEnabled) {
+      const itemEtag = etag(JSON.stringify(item))
+      if (req.etag !== itemEtag) {
         return {
-          statusCode: 404,
+          statusCode: 412,
           body: {
-            message: `ID '${id}' not found`,
+            message: 'Precondition failed',
           },
         }
-
-      if (etagsEnabled) {
-        const itemEtag = etag(JSON.stringify(item))
-        if (req.etag !== itemEtag) {
-          return {
-            statusCode: 412,
-            body: {
-              message: 'Precondition failed',
-            },
-          }
-        }
       }
+    }
 
-      item = { ...item, ...(body2 as object), id }
+    item = { ...item, ...(body as object), id }
 
-      const updatedItem = await queries.update({ resource, item })
+    const updatedItem = await queries.update({ resource, item })
 
-      return {
-        statusCode: 200,
-        body: returnNullFields ? updatedItem : removeNullFields(updatedItem),
-      }
-    } catch (error: unknown) {
-      return { statusCode: 500, body: { message: (error as Error).message } }
+    // Broadcast to WebSocket clients if enabled
+    if (broadcast) {
+      broadcast(resource, 'UPDATE', updatedItem)
+    }
+
+    return {
+      statusCode: 200,
+      body: returnNullFields ? updatedItem : removeNullFields(updatedItem),
     }
   }
 

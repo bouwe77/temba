@@ -12,11 +12,12 @@ const defaultConfig: Config = {
   requestInterceptor: null,
   responseBodyInterceptor: null,
   returnNullFields: true,
-  port: 3000,
+  port: 8362,
   schemas: null,
   allowDeleteCollection: false,
   etagsEnabled: false,
   openapi: true,
+  webSocket: false,
 
   isTesting: false,
   implementations: null,
@@ -45,6 +46,7 @@ test('No config returns default config', () => {
   expect(initializedConfig.allowDeleteCollection).toBe(defaultConfig.allowDeleteCollection)
   expect(initializedConfig.etagsEnabled).toBe(defaultConfig.etagsEnabled)
   expect(initializedConfig.openapi).toBe(defaultConfig.openapi)
+  expect(initializedConfig.webSocket).toBe(defaultConfig.webSocket)
   expect(initializedConfig.isTesting).toBe(defaultConfig.isTesting)
   expect(initializedConfig.implementations).toBe(defaultConfig.implementations)
 })
@@ -94,6 +96,7 @@ test('Full user config overrides all defaults', () => {
     allowDeleteCollection: true,
     etags: true,
     openapi: true,
+    webSocket: true,
     isTesting: true,
     implementations: {
       getStaticFileFromDisk: () =>
@@ -119,6 +122,7 @@ test('Full user config overrides all defaults', () => {
   expect(config.allowDeleteCollection).toBe(true)
   expect(config.etagsEnabled).toBe(true)
   expect(config.openapi).toBe(true)
+  expect(config.webSocket).toBe(true)
 
   expect(config.isTesting).toBe(true)
   expect(config.implementations).not.toBeNull()
@@ -149,6 +153,7 @@ test('Partial user config applies those, but leaves the rest at default', () => 
   expect(config.allowDeleteCollection).toBe(defaultConfig.allowDeleteCollection)
   expect(config.etagsEnabled).toBe(defaultConfig.etagsEnabled)
   expect(config.openapi).toBe(defaultConfig.openapi)
+  expect(config.webSocket).toBe(defaultConfig.webSocket)
   expect(config.isTesting).toBe(defaultConfig.isTesting)
   expect(config.implementations).toBe(defaultConfig.implementations)
 })
@@ -206,4 +211,47 @@ test("An empty apiPrefix defaults to 'api' when staticFolder is set", () => {
   })
 
   expect(config.apiPrefix).toBe('api')
+})
+
+test('apiPrefix with only special characters is ignored (remains null)', () => {
+  const config = initConfig({
+    // This resolves to "" and should be ignored
+    apiPrefix: '/_/',
+  })
+
+  // It remains the default (null) instead of becoming ""
+  expect(config.apiPrefix).toBeNull()
+})
+
+test('staticFolder with only special characters is ignored', () => {
+  const config = initConfig({
+    // This resolves to "" and should be ignored
+    staticFolder: './_/',
+  })
+
+  expect(config.staticFolder).toBeNull()
+  // Since staticFolder was ignored, it never triggered the "api" default
+  expect(config.apiPrefix).toBeNull()
+})
+
+test('Invalid apiPrefix does NOT overwrite the default "api" set by staticFolder', () => {
+  const config = initConfig({
+    staticFolder: 'public', // Sets apiPrefix to 'api'
+    apiPrefix: '/_/', // Invalid input
+  })
+
+  expect(config.staticFolder).toBe('public')
+  // The invalid input is ignored, preserving the 'api' default
+  expect(config.apiPrefix).toBe('api')
+})
+
+test('Valid apiPrefix correctly overrides the "api" default', () => {
+  const config = initConfig({
+    staticFolder: 'public', // Sets apiPrefix to 'api'
+    apiPrefix: 'v1', // Valid input
+  })
+
+  expect(config.staticFolder).toBe('public')
+  // The valid input overwrites 'api'
+  expect(config.apiPrefix).toBe('v1')
 })

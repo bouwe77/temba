@@ -8,14 +8,27 @@ import type {
   InterceptedReturnValue,
 } from './types'
 import type { Body } from '../requestHandlers/types'
+import {
+  createActions,
+  isInterceptorAction,
+  isSetRequestBodyAction,
+  isResponseAction,
+} from './interceptorActions'
+
+// Result type for interceptor processing
+export type InterceptResult =
+  | { type: 'continue'; body?: Body }
+  | { type: 'response'; status: number; body?: Body }
 
 export const interceptGetRequest = async (
   intercept: InterceptedGetRequest,
   headers: IncomingHttpHeaders,
   resource: string,
   id: string | null,
-) => {
-  await intercept({ headers, resource, id })
+): Promise<InterceptResult> => {
+  const actions = createActions()
+  const result = await intercept({ headers, resource, id }, actions)
+  return processInterceptResult(result)
 }
 
 export const interceptPostRequest = async (
@@ -24,9 +37,10 @@ export const interceptPostRequest = async (
   resource: string,
   id: string | null,
   body: Body,
-) => {
-  const intercepted = await intercept({ headers, resource, body, id })
-  return interceptRequest(intercepted, body)
+): Promise<InterceptResult> => {
+  const actions = createActions()
+  const result = await intercept({ headers, resource, body, id }, actions)
+  return processInterceptResult(result, body)
 }
 
 export const interceptPutRequest = async (
@@ -35,9 +49,10 @@ export const interceptPutRequest = async (
   resource: string,
   id: string,
   body: Body,
-) => {
-  const intercepted = await intercept({ headers, resource, id, body })
-  return interceptRequest(intercepted, body)
+): Promise<InterceptResult> => {
+  const actions = createActions()
+  const result = await intercept({ headers, resource, id, body }, actions)
+  return processInterceptResult(result, body)
 }
 
 export const interceptPatchRequest = interceptPutRequest
@@ -47,18 +62,36 @@ export const interceptDeleteRequest = async (
   headers: IncomingHttpHeaders,
   resource: string,
   id: string | null,
-) => {
-  await intercept({ headers, resource, id })
+): Promise<InterceptResult> => {
+  const actions = createActions()
+  const result = await intercept({ headers, resource, id }, actions)
+  return processInterceptResult(result)
 }
 
-const interceptRequest = (intercepted: InterceptedReturnValue, body: Body) => {
-  if (!intercepted && typeof body === 'object') return body
+// Process the interceptor return value and convert to InterceptResult
+const processInterceptResult = (
+  intercepted: InterceptedReturnValue,
+  originalBody?: Body,
+): InterceptResult => {
+  // If void/undefined, continue with original body
+  if (intercepted === undefined) {
+    return { type: 'continue', body: originalBody }
+  }
 
-  // The request body was replaced by an object
-  if (intercepted && typeof intercepted === 'object' && !Array.isArray(intercepted))
-    return intercepted
+  // If it's an interceptor action, process it
+  if (isInterceptorAction(intercepted)) {
+    if (isSetRequestBodyAction(intercepted)) {
+      return { type: 'continue', body: intercepted.body as Body }
+    }
 
-  // The request body was replaced by something else than an object.
-  // This is not supported, so we return the original request body.
-  return body
+    if (isResponseAction(intercepted)) {
+      return { type: 'response', status: intercepted.status, body: intercepted.body as Body }
+    }
+  }
+
+  // Legacy behavior removed - plain objects are no longer supported
+  // If we get here, the return value is invalid (e.g., plain object, number, string, boolean, etc.)
+  // We treat it as void and continue with the original body
+  // Developers should use actions.setRequestBody() or actions.response() instead
+  return { type: 'continue', body: originalBody }
 }

@@ -5,19 +5,19 @@ import { createResourceHandler } from './resourceHandler'
 import { handleNotFound, sendErrorResponse } from './responseHandler'
 import { getHttpLogger, initLogger } from './log/logger'
 import { createOpenApiHandler, getOpenApiPaths } from './openapi'
-import { TembaError as TembaErrorInternal } from './requestInterceptor/TembaError'
 import { handleStaticFolder } from './staticFolder/staticFolder'
 import { getDefaultImplementations } from './implementations'
 import { createRootUrlHandler } from './root/root'
 import { sendResponse } from './responseHandler'
 import { createQueries } from './data/queries'
 import { compileSchemas } from './schema/compile'
+import { createWebSocketServer, type BroadcastFunction } from './websocket/websocket'
 
 const removePendingAndTrailingSlashes = (url?: string) => (url ? url.replace(/^\/+|\/+$/g, '') : '')
 
 const handleOptionsRequest = (res: ServerResponse<IncomingMessage>) =>
   sendResponse(res)({
-    statusCode: 200,
+    statusCode: 204,
   })
 
 const createServer = async (userConfig?: UserConfig) => {
@@ -28,10 +28,21 @@ const createServer = async (userConfig?: UserConfig) => {
   const { log, logLevel } = initLogger(process.env.LOG_LEVEL)
   const queries = createQueries(config.connectionString, log)
   const schemas = compileSchemas(config.schemas)
-  const handleResource = await createResourceHandler(queries, schemas, config)
   const httpLogger = getHttpLogger(logLevel)
 
-  const server = httpCreateServer((req, res) => {
+  // Create the server first without the request handler
+  const server = httpCreateServer()
+
+  // Initialize WebSocket server if enabled (must be after server creation)
+  const broadcast: BroadcastFunction | null = config.webSocket
+    ? createWebSocketServer(server)
+    : null
+
+  // Now create the resource handler with the broadcast function
+  const handleResource = await createResourceHandler(queries, schemas, config, broadcast)
+
+  // Set up the request handler
+  server.on('request', (req, res) => {
     const implementations = getDefaultImplementations(config)
 
     httpLogger(req, res, (err) => {
@@ -74,6 +85,7 @@ const createServer = async (userConfig?: UserConfig) => {
 
   return {
     start: () => {
+      // Do not start the server if isTesting is true as supertest starts and stops the server itself.
       if (config.isTesting) {
         log.error('⛔️ Server not started. Remove or disable isTesting from your config.')
         return
@@ -84,11 +96,38 @@ const createServer = async (userConfig?: UserConfig) => {
       })
       return server
     },
-    // Expose the http server    for testing purposes only, e.g. usage with supertest.
-    server: config.isTesting ? server : undefined,
+    // Expose the http server
+    server,
   }
 }
 
+/**
+ * Creates a Temba REST API server with the specified configuration.
+ * 
+ * Temba provides a zero-configuration REST API that supports CRUD operations
+ * for any resource. Data can be stored in-memory, in JSON files, or in MongoDB.
+ * 
+ * @param userConfig - Optional configuration object to customize the server behavior
+ * @returns A promise that resolves to an object containing:
+ *   - `start()`: Function to start the HTTP server
+ *   - `server`: The underlying Node.js HTTP server instance
+ * 
+ * @example
+ * ```typescript
+ * // Create a basic server with default settings
+ * const server = await create();
+ * server.start();
+ * 
+ * // Create a server with custom configuration
+ * const server = await create({
+ *   port: 3000,
+ *   resources: ['movies', 'actors'],
+ *   connectionString: 'mongodb://localhost:27017/mydb'
+ * });
+ * server.start();
+ * ```
+ */
 export const create = (userConfig?: UserConfig) => createServer(userConfig)
 
-export const TembaError = TembaErrorInternal
+// Export the main UserConfig type for TypeScript users
+export type { UserConfig } from './config'

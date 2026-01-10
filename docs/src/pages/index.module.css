@@ -22,3 +22,17 @@
   align-items: center;
   justify-content: center;
 }
+
+.docsButton {
+  background: var(--ifm-color-primary-darkest); /* #b21945 */
+  color: #fff;
+  font-weight: 600; /* semibold */
+}
+
+.docsButton:hover {
+  background: var(--ifm-color-primary-darker); /* #cc1c4f */
+}
+
+.docsButton:focus {
+  box-shadow: 0 0 0 3px var(--ifm-color-primary-lightest); /* #ec789a */
+}

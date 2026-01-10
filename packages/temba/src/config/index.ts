@@ -30,6 +30,7 @@ export type Config = {
   allowDeleteCollection: boolean
   etagsEnabled: boolean
   openapi: OpenApiConfig
+  webSocket: boolean
 
   isTesting: boolean
   implementations: Implementations | null
@@ -51,6 +52,7 @@ export type UserConfig = {
   allowDeleteCollection?: boolean
   etags?: boolean
   openapi?: OpenApiConfig
+  webSocket?: boolean
 
   // Use isTesting when running tests that don't require a started server.
   isTesting?: boolean
@@ -68,11 +70,12 @@ const defaultConfig: Config = {
   requestInterceptor: null,
   responseBodyInterceptor: null,
   returnNullFields: true,
-  port: 3000,
+  port: 8362,
   schemas: null,
   allowDeleteCollection: false,
   etagsEnabled: false,
   openapi: true,
+  webSocket: false,
 
   isTesting: false,
   implementations: null,
@@ -89,7 +92,6 @@ export const initConfig = (userConfig?: UserConfig): Config => {
   }
 
   if (userConfig.staticFolder) {
-    //TODO define/what happens when the replace results in an empty string
     const staticFolder = userConfig.staticFolder.replace(/[^a-zA-Z0-9]/g, '')
     if (staticFolder.length > 0) {
       config.staticFolder = staticFolder
@@ -99,10 +101,13 @@ export const initConfig = (userConfig?: UserConfig): Config => {
   }
 
   if (userConfig.apiPrefix) {
-    //TODO define/what happens when the replace results in an empty string
-    config.apiPrefix = userConfig.apiPrefix.replace(/[^a-zA-Z0-9]/g, '')
+    const cleanPrefix = userConfig.apiPrefix.replace(/[^a-zA-Z0-9]/g, '')
+    // Only apply if the result is a valid string.
+    // This prevents overwriting the 'api' default if the user input was invalid.
+    if (cleanPrefix.length > 0) {
+      config.apiPrefix = cleanPrefix
+    }
   }
-
   if (userConfig.connectionString && userConfig.connectionString.length > 0) {
     config.connectionString = userConfig.connectionString
   }
@@ -183,6 +188,10 @@ export const initConfig = (userConfig?: UserConfig): Config => {
 
   if (!isUndefined(userConfig.openapi)) {
     config.openapi = userConfig.openapi
+  }
+
+  if (!isUndefined(userConfig.webSocket)) {
+    config.webSocket = userConfig.webSocket
   }
 
   return config
