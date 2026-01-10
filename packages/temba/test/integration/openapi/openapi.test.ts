@@ -824,3 +824,102 @@ test('When etag is enabled the ETag header and If-None-Match parameter are speci
   const patch = response.body.paths['/actors/{actorId}']['patch']
   expect(patch.responses['200'].headers.ETag).toEqual(etagHeaderSchema)
 })
+
+test('When webSocket is enabled the WebSocket documentation is included', async () => {
+  const tembaServer = await createServer({
+    openapi: true,
+    resources: ['actors'],
+    webSocket: true,
+  })
+
+  const response = await request(tembaServer).get('/openapi.json')
+  expectSuccess(response)
+
+  // Verify /ws path exists
+  expect(response.body.paths['/ws']).toBeDefined()
+  const wsPath = response.body.paths['/ws']['get']
+  expect(wsPath.summary).toEqual('WebSocket Real-time Feed')
+  expect(wsPath.description).toEqual(
+    'Establish a WebSocket connection to receive real-time updates. Handshake requires an HTTP GET with an Upgrade header.',
+  )
+  expect(wsPath.operationId).toEqual('connectWebSocket')
+  expect(wsPath.responses['101']).toBeDefined()
+  expect(wsPath.responses['101'].description).toEqual('Switching Protocols')
+  expect(wsPath.tags).toEqual(['API'])
+
+  // Verify WebSocketMessage schema exists
+  expect(response.body.components.schemas['WebSocketMessage']).toBeDefined()
+  const wsMessageSchema = response.body.components.schemas['WebSocketMessage']
+  expect(wsMessageSchema.type).toEqual('object')
+  expect(wsMessageSchema.required).toEqual(['resource', 'action'])
+  expect(wsMessageSchema.properties.resource).toEqual({ type: 'string' })
+  expect(wsMessageSchema.properties.action).toEqual({
+    type: 'string',
+    enum: ['CREATE', 'UPDATE', 'DELETE', 'DELETE_ALL'],
+  })
+  expect(wsMessageSchema.oneOf).toBeDefined()
+  expect(wsMessageSchema.oneOf.length).toEqual(2)
+
+  // Verify mutation methods mention WebSocket broadcasts
+  const post = response.body.paths['/actors']['post']
+  expect(post.description).toContain('Successful requests broadcast a message to the /ws WebSocket feed.')
+
+  const postWithId = response.body.paths['/actors/{actorId}']['post']
+  expect(postWithId.description).toContain('Successful requests broadcast a message to the /ws WebSocket feed.')
+
+  const put = response.body.paths['/actors/{actorId}']['put']
+  expect(put.description).toContain('Successful requests broadcast a message to the /ws WebSocket feed.')
+
+  const patch = response.body.paths['/actors/{actorId}']['patch']
+  expect(patch.description).toContain('Successful requests broadcast a message to the /ws WebSocket feed.')
+
+  const deleteById = response.body.paths['/actors/{actorId}']['delete']
+  expect(deleteById.description).toContain('Successful requests broadcast a message to the /ws WebSocket feed.')
+})
+
+test('When webSocket is disabled the WebSocket documentation is not included', async () => {
+  const tembaServer = await createServer({
+    openapi: true,
+    resources: ['actors'],
+    webSocket: false,
+  })
+
+  const response = await request(tembaServer).get('/openapi.json')
+  expectSuccess(response)
+
+  // Verify /ws path does not exist
+  expect(response.body.paths['/ws']).toBeUndefined()
+
+  // Verify WebSocketMessage schema does not exist
+  expect(response.body.components?.schemas?.['WebSocketMessage']).toBeUndefined()
+
+  // Verify mutation methods do NOT mention WebSocket broadcasts
+  const post = response.body.paths['/actors']['post']
+  expect(post.description).not.toContain('WebSocket')
+
+  const put = response.body.paths['/actors/{actorId}']['put']
+  expect(put.description).not.toContain('WebSocket')
+
+  const patch = response.body.paths['/actors/{actorId}']['patch']
+  expect(patch.description).not.toContain('WebSocket')
+
+  const deleteById = response.body.paths['/actors/{actorId}']['delete']
+  expect(deleteById.description).not.toContain('WebSocket')
+})
+
+test('When webSocket is enabled and allowDeleteCollection is true, DELETE collection mentions WebSocket broadcast', async () => {
+  const tembaServer = await createServer({
+    openapi: true,
+    resources: ['actors'],
+    webSocket: true,
+    allowDeleteCollection: true,
+  })
+
+  const response = await request(tembaServer).get('/openapi.json')
+  expectSuccess(response)
+
+  // Verify DELETE collection mentions WebSocket broadcasts
+  const deleteAll = response.body.paths['/actors']['delete']
+  expect(deleteAll.description).toContain('Delete all actors.')
+  expect(deleteAll.description).toContain('Successful requests broadcast a message to the /ws WebSocket feed.')
+})
