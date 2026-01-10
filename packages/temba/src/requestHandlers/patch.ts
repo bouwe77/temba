@@ -51,7 +51,7 @@ export const createPatchRoutes = (
       }
     }
 
-    let item = await queries.getById(resource, id)
+    let item = await queries.getById({ resource, id })
 
     if (!item)
       return {
@@ -75,7 +75,7 @@ export const createPatchRoutes = (
 
     item = { ...item, ...(body as object), id }
 
-    const updatedItem = await queries.update(resource, item)
+    const updatedItem = await queries.update({ resource, item })
 
     // Broadcast to WebSocket clients if enabled
     if (broadcast) {

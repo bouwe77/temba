@@ -12,4 +12,4 @@ export type InterceptedResponse =
       resource: string
     }
 
-export type ResponseBodyInterceptor = (info: InterceptedResponse) => MaybePromise<unknown>
+export type ResponseBodyInterceptor = (response: InterceptedResponse) => MaybePromise<unknown>
