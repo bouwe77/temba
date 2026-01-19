@@ -38,6 +38,21 @@ plugins: [
 ],
 ```
 
+## Example Output
+
+After building, your HTML pages will include meta tags like this:
+
+```html
+<head>
+  <!-- ... other meta tags ... -->
+  <link rel="alternate" type="text/markdown" href="/docs/documentation.md">
+</head>
+```
+
+And the corresponding Markdown file will be accessible:
+- HTML: `https://temba.bouwe.io/docs/documentation`
+- Markdown: `https://temba.bouwe.io/docs/documentation.md`
+
 ## Testing
 
 After building the site, you can verify the plugin works:
@@ -54,6 +69,20 @@ curl http://localhost:8000/docs/documentation.md
 
 # Test meta tag injection
 curl http://localhost:8000/docs/documentation.html | grep "text/markdown"
+```
+
+Expected output:
+```bash
+# Markdown content
+---
+id: documentation
+title: Documentation
+---
+# Documentation
+...
+
+# Meta tag
+<link rel="alternate" type="text/markdown" href="/docs/documentation.md">
 ```
 
 ## Benefits
