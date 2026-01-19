@@ -96,6 +96,8 @@ module.exports = function (context, options) {
             const linkTag = `<link rel="alternate" type="text/markdown" href="${route}.md">`;
             
             // Insert the link tag in the <head> section, right before </head>
+            // Note: This is safe for Docusaurus-generated HTML which is well-formed
+            // and doesn't have </head> in comments or scripts
             html = html.replace('</head>', `${linkTag}\n</head>`);
             
             // Write back the modified HTML
