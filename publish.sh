@@ -51,7 +51,7 @@ if [ "$DRY_RUN" = false ]; then
     npm version $TYPE --no-git-tag-version
     echo "export const version = '$NEXT_VERSION';" > ./src/version.ts
     npm run build
-    npm publish ./dist/src
+    npm publish
     cd ../..
 else
     echo "[DRY RUN] Bump version, build, and publish temba"
