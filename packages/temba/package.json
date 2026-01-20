@@ -3,9 +3,14 @@
   "version": "0.51.1",
   "description": "Create a simple REST API with zero coding in less than 30 seconds (seriously).",
   "type": "module",
-  "main": "dist/src/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
-    "build": "rm -rf dist && tsc && tsc-alias && cp package.json ../../README.md ./dist/src",
+    "build": "rm -rf dist && tsc && tsc-alias && cp ../../README.md .",
     "test": "vitest",
     "test:watch": "vitest --watch",
     "lint": "eslint . && tsc --noEmit",
@@ -52,5 +57,8 @@
     "morgan": "1.10.1",
     "openapi3-ts": "4.5.0",
     "ws": "^8.19.0"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "^4.53.2"
   }
 }
