@@ -97,8 +97,10 @@ export default function createJsonQueries({ filename }: JsonConfig) {
 
   async function update(resource: string, item: Item) {
     const data = await readAll(resource)
-    const next = [...data.filter((r) => r.id !== item.id), { ...item } satisfies Item]
-    await writeAll(resource, next)
+    const next = data.map((r) => 
+      r.id === item.id ? { ...item } satisfies Item : r
+    )
+    await writeAll(resource, next)    
     return next.find((r) => r.id === item.id)!
   }
 
