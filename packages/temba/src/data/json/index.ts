@@ -1,16 +1,34 @@
 import type { Item, ItemWithoutId, Queries } from '../types'
 import { Low, type Adapter, Memory } from 'lowdb'
-import { JSONFile } from 'lowdb/node'
+import { TextFile } from 'lowdb/node'
 import { promises as fs } from 'node:fs'
 import { join } from 'node:path'
 import type { PathLike } from 'node:fs'
+
+class PrettyJsonFile<T> {
+  private adapter: TextFile
+  
+  constructor(filename: string) {
+    this.adapter = new TextFile(filename)
+  }
+
+  async read(): Promise<T | null> {
+    const data = await this.adapter.read()
+    return data === null ? null : JSON.parse(data) as T
+  }
+
+  async write(obj: T): Promise<void> {
+    await this.adapter.write(JSON.stringify(obj, null, 2))
+  }
+}
+
 
 const getInMemoryDb = <Data>(defaultData: Data): Promise<Low<Data>> => {
   return getJsonDb(new Memory<Data>(), defaultData)
 }
 
 const getFileDb = async <Data>(filename: PathLike, defaultData: Data): Promise<Low<Data>> => {
-  return await getJsonDb(new JSONFile<Data>(filename), defaultData)
+  return await getJsonDb(new PrettyJsonFile<Data>(filename as string), defaultData)
 }
 
 const getJsonDb = async <Data>(adapter: Adapter<Data>, defaultData: Data): Promise<Low<Data>> => {
