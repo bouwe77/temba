@@ -15,7 +15,7 @@ export const createGetRoutes = (
   etagsEnabled: boolean,
 ) => {
   const handleGet = async (req: GetRequest) => {
-    const { headers, resource, id, ifNoneMatchEtag } = req
+    const { headers, resource, id, ifNoneMatchEtag, method, filter } = req
 
     const responseOk = (body: Body) => {
       if (!etagsEnabled) return { statusCode: 200, body }
@@ -26,7 +26,7 @@ export const createGetRoutes = (
         : { statusCode: 200, body, headers: { etag } }
     }
 
-    if (req.method === 'get' && requestInterceptor?.get) {
+    if (method === 'get' && requestInterceptor?.get) {
       try {
         const interceptResult = await interceptGetRequest(
           requestInterceptor.get,
@@ -51,7 +51,7 @@ export const createGetRoutes = (
     }
 
     if (id) {
-      const item = await queries.getById(resource, id)
+      const item = await queries.getById({ resource, id })
 
       if (!item) {
         return { statusCode: 404 }
@@ -74,7 +74,9 @@ export const createGetRoutes = (
       return responseOk(theItem)
     }
 
-    const items = await queries.getAll(resource)
+    const items = filter
+      ? await queries.getByFilter({ resource, filter })
+      : await queries.getAll({ resource })
 
     const theItems = responseBodyInterceptor
       ? await interceptResponseBody(responseBodyInterceptor, { resource, body: items })

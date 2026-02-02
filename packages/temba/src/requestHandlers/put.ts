@@ -51,7 +51,7 @@ export const createPutRoutes = (
       }
     }
 
-    let item = await queries.getById(resource, id)
+    let item = await queries.getById({ resource, id })
 
     if (!item)
       return {
@@ -75,7 +75,7 @@ export const createPutRoutes = (
 
     item = { ...(body as object), id }
 
-    const replacedItem = await queries.replace(resource, item)
+    const replacedItem = await queries.replace({ resource, item })
 
     // Broadcast to WebSocket clients if enabled
     if (broadcast) {

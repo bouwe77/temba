@@ -4,6 +4,8 @@ import { TextFile } from 'lowdb/node'
 import { promises as fs } from 'node:fs'
 import { join } from 'node:path'
 import type { PathLike } from 'node:fs'
+import type { Filter } from '../../filtering/filter'
+import { makePredicate } from './filtering'
 
 class PrettyJsonFile<T> {
   private adapter: TextFile
@@ -68,6 +70,7 @@ export default function createJsonQueries({ filename }: JsonConfig) {
     await fs.mkdir(filename as string, { recursive: true })
     ensuredDir = true
   }
+
   const getResourceDb = (resource: string) => {
     let db = resourceDbs.get(resource)
     if (!db) {
@@ -94,16 +97,31 @@ export default function createJsonQueries({ filename }: JsonConfig) {
     })
   }
 
-  async function getAll(resource: string) {
+  async function getAll({ resource }: { resource: string }) {
     return await readAll(resource)
   }
 
-  async function getById(resource: string, id: string) {
+  async function getByFilter({ resource, filter }: { resource: string; filter: Filter }) {
+    const data = await readAll(resource)
+    const pred = makePredicate(filter)
+
+    return data.filter((item) => pred(item))
+  }
+
+  async function getById({ resource, id }: { resource: string; id: string }) {
     const data = await readAll(resource)
     return data.find((x) => x.id === id) || null
   }
 
-  async function create(resource: string, id: string | null, item: ItemWithoutId) {
+  async function create({
+    resource,
+    id,
+    item,
+  }: {
+    resource: string
+    id: string | null
+    item: ItemWithoutId
+  }) {
     const data = await readAll(resource)
     const itemWithId = {
       ...item,
@@ -113,7 +131,7 @@ export default function createJsonQueries({ filename }: JsonConfig) {
     return itemWithId
   }
 
-  async function update(resource: string, item: Item) {
+  async function update({ resource, item }: { resource: string; item: Item }) {
     const data = await readAll(resource)
     const next = data.map((r) => 
       r.id === item.id ? { ...item } satisfies Item : r
@@ -122,28 +140,39 @@ export default function createJsonQueries({ filename }: JsonConfig) {
     return next.find((r) => r.id === item.id)!
   }
 
-  async function replace(resource: string, item: Item) {
-    return update(resource, item)
+  async function replace(query: { resource: string; item: Item }) {
+    return update(query)
   }
 
-  async function deleteById(resource: string, id: string) {
+  async function deleteById({ resource, id }: { resource: string; id: string }) {
     const data = await readAll(resource)
     const next = data.filter((r) => r.id !== id)
     await writeAll(resource, next)
   }
 
-  async function deleteAll(resource: string) {
+  async function deleteAll({ resource }: { resource: string }) {
     await writeAll(resource, [])
+  }
+
+  async function deleteByFilter({ resource, filter }: { resource: string; filter: Filter }) {
+    const data = await readAll(resource)
+    const pred = makePredicate(filter)
+
+    const next = data.filter((item) => !pred(item))
+
+    await writeAll(resource, next)
   }
 
   const fileQueries: Queries = {
     getAll,
+    getByFilter,
     getById,
     create,
     update,
     replace,
     deleteById,
     deleteAll,
+    deleteByFilter,
   }
 
   return fileQueries

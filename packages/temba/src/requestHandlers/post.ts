@@ -51,7 +51,7 @@ export const createPostRoutes = (
     }
 
     if (id) {
-      const item = await queries.getById(resource, id)
+      const item = await queries.getById({ resource, id })
 
       if (item)
         return {
@@ -62,7 +62,7 @@ export const createPostRoutes = (
         }
     }
 
-    const newItem = await queries.create(resource, id, body as ItemWithoutId)
+    const newItem = await queries.create({ resource, id, item: body as ItemWithoutId })
 
     // Broadcast to WebSocket clients if enabled
     if (broadcast) {
