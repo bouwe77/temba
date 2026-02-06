@@ -1,6 +1,6 @@
-import { WebSocketServer, WebSocket } from 'ws'
 import type { Server as HttpServer, IncomingMessage } from 'http'
 import { parse } from 'url'
+import { WebSocket, WebSocketServer } from 'ws'
 
 export type BroadcastAction = 'CREATE' | 'UPDATE' | 'DELETE' | 'DELETE_ALL'
 

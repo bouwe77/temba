@@ -49,7 +49,7 @@ echo "📦 Processing Temba library..."
 if [ "$DRY_RUN" = false ]; then
     cd packages/temba
     npm version $TYPE --no-git-tag-version
-    echo "export const version = '$NEXT_VERSION';" > ./src/version.ts
+    echo "export const version = '$NEXT_VERSION'" > ./src/version.ts
     npm run build
     npm publish ./dist/src
     cd ../..

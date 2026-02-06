@@ -1,16 +1,15 @@
+import type { IncomingMessage, ServerResponse } from 'http'
 import { createServer as httpCreateServer } from 'node:http'
 import { initConfig, type UserConfig } from './config'
-import type { IncomingMessage, ServerResponse } from 'http'
-import { createResourceHandler } from './resourceHandler'
-import { handleNotFound, sendErrorResponse } from './responseHandler'
+import { createQueries } from './data/queries'
+import { getDefaultImplementations } from './implementations'
 import { getHttpLogger, initLogger } from './log/logger'
 import { createOpenApiHandler, getOpenApiPaths } from './openapi'
-import { handleStaticFolder } from './staticFolder/staticFolder'
-import { getDefaultImplementations } from './implementations'
+import { createResourceHandler } from './resourceHandler'
+import { handleNotFound, sendErrorResponse, sendResponse } from './responseHandler'
 import { createRootUrlHandler } from './root/root'
-import { sendResponse } from './responseHandler'
-import { createQueries } from './data/queries'
 import { compileSchemas } from './schema/compile'
+import { handleStaticFolder } from './staticFolder/staticFolder'
 import { createWebSocketServer, type BroadcastFunction } from './websocket/websocket'
 
 const removePendingAndTrailingSlashes = (url?: string) => (url ? url.replace(/^\/+|\/+$/g, '') : '')
@@ -103,28 +102,28 @@ const createServer = async (userConfig?: UserConfig) => {
 
 /**
  * Creates a Temba REST API server with the specified configuration.
- * 
+ *
  * Temba provides a zero-configuration REST API that supports CRUD operations
  * for any resource. Data can be stored in-memory, in JSON files, or in MongoDB.
- * 
+ *
  * @param userConfig - Optional configuration object to customize the server behavior
  * @returns A promise that resolves to an object containing:
  *   - `start()`: Function to start the HTTP server
  *   - `server`: The underlying Node.js HTTP server instance
- * 
+ *
  * @example
  * ```typescript
  * // Create a basic server with default settings
- * const server = await create();
- * server.start();
- * 
+ * const server = await create()
+ * server.start()
+ *
  * // Create a server with custom configuration
  * const server = await create({
  *   port: 3000,
  *   resources: ['movies', 'actors'],
  *   connectionString: 'mongodb://localhost:27017/mydb'
- * });
- * server.start();
+ * })
+ * server.start()
  * ```
  */
 export const create = (userConfig?: UserConfig) => createServer(userConfig)

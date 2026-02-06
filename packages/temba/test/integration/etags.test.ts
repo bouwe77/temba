@@ -1,5 +1,5 @@
-import { test, expect, describe } from 'vitest'
 import request from 'supertest'
+import { describe, expect, test } from 'vitest'
 import { createServer } from './createServer'
 import { expectSuccess } from './helpers'
 

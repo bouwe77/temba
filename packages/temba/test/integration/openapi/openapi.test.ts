@@ -1,7 +1,7 @@
-import { describe, test, expect } from 'vitest'
 import request from 'supertest'
-import { expectSuccess } from '../helpers'
+import { describe, expect, test } from 'vitest'
 import { createServer } from '../createServer'
+import { expectSuccess } from '../helpers'
 
 /*
   Tests OpenAPI documentation.

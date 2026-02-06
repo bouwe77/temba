@@ -1,12 +1,12 @@
+import type { Config } from '../config'
+import type { Queries } from '../data/types'
+import type { CompiledSchemas } from '../schema/types'
+import type { BroadcastFunction } from '../websocket/websocket'
+import { createDeleteRoutes } from './delete'
 import { createGetRoutes } from './get'
+import { createPatchRoutes } from './patch'
 import { createPostRoutes } from './post'
 import { createPutRoutes } from './put'
-import { createPatchRoutes } from './patch'
-import { createDeleteRoutes } from './delete'
-import type { Config } from '../config'
-import type { CompiledSchemas } from '../schema/types'
-import type { Queries } from '../data/types'
-import type { BroadcastFunction } from '../websocket/websocket'
 
 // Wrapper to handle errors for all request handlers
 const withErrorHandling = <TArgs extends unknown[], TReturn>(
@@ -72,13 +72,7 @@ export const getRequestHandler = async (
   )
 
   const handleDelete = withErrorHandling(
-    createDeleteRoutes(
-      queries,
-      allowDeleteCollection,
-      requestInterceptor,
-      etagsEnabled,
-      broadcast,
-    ),
+    createDeleteRoutes(queries, allowDeleteCollection, requestInterceptor, etagsEnabled, broadcast),
   )
 
   return {
