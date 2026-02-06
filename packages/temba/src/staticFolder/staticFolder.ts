@@ -1,10 +1,14 @@
-import type { IncomingMessage, ServerResponse } from 'http'
-import { handleMethodNotAllowed, handleNotFound, sendErrorResponse } from '../responseHandler'
-import type { Config } from '../config'
-import path from 'node:path'
 import { promises as fs } from 'fs'
+import type { IncomingMessage, ServerResponse } from 'http'
 import mime from 'mime/lite'
-import { sendResponse } from '../responseHandler'
+import path from 'node:path'
+import type { Config } from '../config'
+import {
+  handleMethodNotAllowed,
+  handleNotFound,
+  sendErrorResponse,
+  sendResponse,
+} from '../responseHandler'
 
 export type StaticFileInfo = {
   content: Buffer | string

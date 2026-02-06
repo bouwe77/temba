@@ -1,5 +1,12 @@
 import type { IncomingHttpHeaders } from 'http'
 
+import type { Body } from '../requestHandlers/types'
+import {
+  createActions,
+  isInterceptorAction,
+  isResponseAction,
+  isSetRequestBodyAction,
+} from './interceptorActions'
 import type {
   InterceptedDeleteRequest,
   InterceptedGetRequest,
@@ -7,13 +14,6 @@ import type {
   InterceptedPutRequest,
   InterceptedReturnValue,
 } from './types'
-import type { Body } from '../requestHandlers/types'
-import {
-  createActions,
-  isInterceptorAction,
-  isSetRequestBodyAction,
-  isResponseAction,
-} from './interceptorActions'
 
 // Result type for interceptor processing
 export type InterceptResult =

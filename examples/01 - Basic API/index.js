@@ -1,5 +1,5 @@
-import { create } from "temba";
+import { create } from 'temba'
 
-const server = await create();
+const server = await create()
 
-server.start();
+server.start()

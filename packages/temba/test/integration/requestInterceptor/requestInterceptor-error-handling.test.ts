@@ -1,7 +1,7 @@
-import { describe, test, expect, beforeAll } from 'vitest'
 import request from 'supertest'
-import { createServer } from '../createServer'
+import { beforeAll, describe, expect, test } from 'vitest'
 import type { RequestInterceptor } from '../../../src/requestInterceptor/types'
+import { createServer } from '../createServer'
 
 type ServerInstance = Awaited<ReturnType<typeof createServer>>
 type RequestFactory = Record<string, (url: string) => request.Test>

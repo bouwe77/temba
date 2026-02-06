@@ -1,7 +1,7 @@
+import { execSync } from 'child_process'
+import fs from 'fs-extra'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import fs from 'fs-extra'
-import { execSync } from 'child_process'
 
 export function create(projectName) {
   const templateFolder = path.resolve(

@@ -1,7 +1,7 @@
-import type { ConfiguredSchemas } from '../schema/types'
+import type { Implementations } from '../implementations'
 import type { RequestInterceptor } from '../requestInterceptor/types'
 import type { ResponseBodyInterceptor } from '../responseBodyInterceptor/types'
-import type { Implementations } from '../implementations'
+import type { ConfiguredSchemas } from '../schema/types'
 
 type ResourcePath = string
 
