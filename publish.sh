@@ -18,6 +18,28 @@ if [ "$DRY_RUN" = false ] && [ -n "$(git status --porcelain)" ]; then
   exit 1
 fi
 
+# --- NPM LOGIN CHECK ---
+echo "👤 Checking NPM login status..."
+# We redirect output to /dev/null because we just care about the exit code for now
+if npm whoami &> /dev/null; then
+  echo "✅ Logged in as $(npm whoami)"
+else
+  echo "⚠️  Not logged in to NPM."
+  if [ "$DRY_RUN" = false ]; then
+    echo "🔐 Initiating login..."
+    npm login
+    
+    # Check if login succeeded
+    if [ $? -ne 0 ]; then
+      echo "❌ Login failed or was cancelled. Exiting."
+      exit 1
+    fi
+    echo "✅ Login successful!"
+  else
+    echo "[DRY RUN] Would run: npm login"
+  fi
+fi
+
 # --- SAFETY CHECK ---
 echo "🔍 Running pre-publish checks (lint & test)..."
 if [ "$DRY_RUN" = false ]; then
@@ -46,16 +68,10 @@ run_cmd() {
 
 # 3. Process Temba Library
 echo "📦 Processing Temba library..."
-if [ "$DRY_RUN" = false ]; then
-    cd packages/temba
-    npm version $TYPE --no-git-tag-version
-    echo "export const version = '$NEXT_VERSION'" > ./src/version.ts
-    npm run build
-    npm publish ./dist/src
-    cd ../..
-else
-    echo "[DRY RUN] Bump version, build, and publish temba"
-fi
+run_cmd "npm version $TYPE -w packages/temba --no-git-tag-version"
+run_cmd "bash -c \"echo 'export const version = \\\"$NEXT_VERSION\\\"' > packages/temba/src/version.ts\""
+run_cmd "npm run build -w packages/temba"
+run_cmd "npm publish packages/temba/dist/src"
 
 # 4. Process CLI
 echo "💻 Processing CLI..."
@@ -72,14 +88,7 @@ run_cmd "node update-version.js $NEXT_VERSION examples $( [ "$DRY_RUN" = true ] 
 echo "📝 Updating Docs version and deploying..."
 # Update the docs package.json version so Docusaurus config can read it
 run_cmd "node update-version.js $NEXT_VERSION docs $( [ "$DRY_RUN" = true ] && echo "--dry-run" )"
-
-if [ "$DRY_RUN" = true ]; then
-  echo "[DRY RUN] Would run: cd docs && USE_SSH=true npm run deploy"
-else
-  cd docs
-  USE_SSH=true npm run deploy
-  cd ..
-fi
+run_cmd "npm run docs:deploy"
 
 # 7. Wrap up
 echo "🔗 Finalizing Git..."
