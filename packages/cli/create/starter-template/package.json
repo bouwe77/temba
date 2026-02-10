@@ -5,7 +5,7 @@
     "start": "node --watch src/server.js"
   },
   "dependencies": {
-    "temba": "0.53.1"
+    "temba": "0.53.2"
   },
-  "version": "0.53.1"
+  "version": "0.53.2"
 }
