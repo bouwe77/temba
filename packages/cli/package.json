@@ -1,6 +1,6 @@
 {
   "name": "temba-cli",
-  "version": "0.53.0",
+  "version": "0.53.2",
   "description": "CLI for scaffolding and managing Temba APIs",
   "author": "Bouwe (https://bouwe.io)",
   "bin": {
@@ -12,6 +12,6 @@
     "create/"
   ],
   "dependencies": {
-    "fs-extra": "^11.3.0"
+    "fs-extra": "11.3.3"
   }
 }
