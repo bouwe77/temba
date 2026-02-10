@@ -3,6 +3,9 @@
   "version": "0.53.3",
   "description": "CLI for scaffolding and managing Temba APIs",
   "author": "Bouwe (https://bouwe.io)",
+  "scripts": {
+    "update": "npx -y jelmerro/nus"
+  },
   "bin": {
     "temba": "./cli.js"
   },
