@@ -18,6 +18,26 @@ if [ "$DRY_RUN" = false ] && [ -n "$(git status --porcelain)" ]; then
   exit 1
 fi
 
+# --- NPM LOGIN CHECK ---
+echo "👤 Checking NPM login status..."
+if npm whoami &> /dev/null; then
+  echo "✅ Logged in as $(npm whoami)"
+else
+  echo "⚠️  Not logged in to NPM."
+  if [ "$DRY_RUN" = false ]; then
+    echo "🔐 Initiating login..."
+    npm login
+    
+    if [ $? -ne 0 ]; then
+      echo "❌ Login failed or was cancelled. Exiting."
+      exit 1
+    fi
+    echo "✅ Login successful!"
+  else
+    echo "[DRY RUN] Would run: npm login"
+  fi
+fi
+
 # --- SAFETY CHECK ---
 echo "🔍 Running pre-publish checks (lint & test)..."
 if [ "$DRY_RUN" = false ]; then
