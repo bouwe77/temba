@@ -1,10 +1,10 @@
 {
   "name": "examples",
-  "version": "0.53.5",
+  "version": "0.53.6",
   "author": "Bouwe (https://bouwe.io)",
   "license": "ISC",
   "private": "true",
   "dependencies": {
-    "temba": "0.53.5"
+    "temba": "0.53.6"
   }
 }
