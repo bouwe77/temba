@@ -1,5 +1,5 @@
-import { describe, beforeEach, test, expect } from 'vitest'
 import request from 'supertest'
+import { beforeEach, describe, expect, test } from 'vitest'
 import { createServer } from './createServer'
 
 describe('responseBodyInterceptor unusual (but allowed) implementations', () => {

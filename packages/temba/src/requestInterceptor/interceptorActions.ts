@@ -34,7 +34,9 @@ export const isInterceptorAction = (value: unknown): value is InterceptorAction 
 }
 
 // Type guard for SetRequestBodyAction
-export const isSetRequestBodyAction = (action: InterceptorAction): action is SetRequestBodyAction => {
+export const isSetRequestBodyAction = (
+  action: InterceptorAction,
+): action is SetRequestBodyAction => {
   return action.type === 'setRequestBody'
 }
 

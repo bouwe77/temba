@@ -1,6 +1,6 @@
 import { type Db, connect } from '@rakered/mongo'
-import type { Item, ItemWithoutId, Queries } from '../types'
 import type { Logger } from '../../log/logger'
+import type { Item, ItemWithoutId, Queries } from '../types'
 
 let uri: string
 let db: Db

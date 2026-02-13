@@ -1,5 +1,5 @@
-import { test, expect } from 'vitest'
 import request from 'supertest'
+import { expect, test } from 'vitest'
 import { createServer } from './createServer'
 
 // The id is either expected or not allowed in URLs.

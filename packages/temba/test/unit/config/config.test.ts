@@ -1,6 +1,6 @@
-import { test, expect } from 'vitest'
-import { initConfig } from '../../../src/config'
+import { expect, test } from 'vitest'
 import type { Config } from '../../../src/config'
+import { initConfig } from '../../../src/config'
 
 const defaultConfig: Config = {
   resources: [],

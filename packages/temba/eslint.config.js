@@ -1,8 +1,8 @@
-import fs from 'node:fs'
 import js from '@eslint/js'
-import tseslint from 'typescript-eslint'
-import globals from 'globals'
 import eslintConfigPrettier from 'eslint-config-prettier'
+import globals from 'globals'
+import fs from 'node:fs'
+import tseslint from 'typescript-eslint'
 
 const gitignorePatterns = fs
   .readFileSync('../../.gitignore', 'utf8')

@@ -1,7 +1,7 @@
-import { test, expect, describe } from 'vitest'
 import request from 'supertest'
-import { createServer } from '../createServer'
+import { describe, expect, test } from 'vitest'
 import { RequestInterceptor } from '../../../src/requestInterceptor/types'
+import { createServer } from '../createServer'
 
 type Movie = { title: string }
 

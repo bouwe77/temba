@@ -1,7 +1,7 @@
-import { describe, test, expect, beforeAll, afterAll } from 'vitest'
-import { create } from '../../src/index'
-import WebSocket from 'ws'
 import type { Server } from 'http'
+import { afterAll, beforeAll, describe, expect, test } from 'vitest'
+import WebSocket from 'ws'
+import { create } from '../../src/index'
 
 describe('WebSocket broadcast feature', () => {
   let server: Server

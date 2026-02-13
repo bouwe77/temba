@@ -2,6 +2,12 @@
 
 Notes to self and contributors on how to develop and release Temba.
 
+This repo is a monorepo containing the workspaces `packages/cli`, `packages/temba`, `docs`, and `examples`.
+
+> [!IMPORTANT]
+> As this is a monorepo, all commands are always called from the monorepo root folder,
+> and never from a package subfolder.
+
 ## Testing & Linting
 
 You can run these commands directly from the root:
@@ -11,6 +17,12 @@ npm test          # Runs tests for the Temba library
 npm run lint      # Runs linting for the Temba library
 ```
 
+Or combine them in one go:
+
+```bash
+npm run check
+```
+
 ## Manual E2E testing
 
 If you want to spin up a real API to test the current state of your local Temba code:
@@ -18,6 +30,28 @@ If you want to spin up a real API to test the current state of your local Temba 
 ```bash
 ./create-api-for-quick-test.sh
 ```
+
+## Preview the docs
+
+To preview the docs on localhost run:
+
+```bash
+npm run docs:preview
+```
+
+## Update dependencies
+
+To update dependencies for all workspaces run:
+
+```
+npm run update
+```
+
+## Installing new dependencies
+
+
+npm install <package-name> -w <workspace-path>
+
 
 ## Publishing a new version
 

@@ -1,5 +1,5 @@
-import type { IncomingMessage, ServerResponse } from 'node:http'
 import morgan from 'morgan'
+import type { IncomingMessage, ServerResponse } from 'node:http'
 
 const logLevels = { debug: 0, info: 1, warn: 2, error: 3 } as const
 type LogLevel = keyof typeof logLevels

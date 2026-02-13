@@ -18,6 +18,26 @@ if [ "$DRY_RUN" = false ] && [ -n "$(git status --porcelain)" ]; then
   exit 1
 fi
 
+# --- NPM LOGIN CHECK ---
+echo "👤 Checking NPM login status..."
+if npm whoami &> /dev/null; then
+  echo "✅ Logged in as $(npm whoami)"
+else
+  echo "⚠️  Not logged in to NPM."
+  if [ "$DRY_RUN" = false ]; then
+    echo "🔐 Initiating login..."
+    npm login
+    
+    if [ $? -ne 0 ]; then
+      echo "❌ Login failed or was cancelled. Exiting."
+      exit 1
+    fi
+    echo "✅ Login successful!"
+  else
+    echo "[DRY RUN] Would run: npm login"
+  fi
+fi
+
 # --- SAFETY CHECK ---
 echo "🔍 Running pre-publish checks (lint & test)..."
 if [ "$DRY_RUN" = false ]; then
@@ -36,6 +56,7 @@ NEXT_VERSION=$(node -p "const [ma, mi, pa] = '$CURRENT_VERSION'.split('.').map(N
 
 echo "🚀 Releasing $NEXT_VERSION (from $CURRENT_VERSION)..."
 
+# Helper function to run commands or print them in dry-run
 run_cmd() {
   if [ "$DRY_RUN" = true ]; then
     echo "[DRY RUN] Would execute: $*"
@@ -46,23 +67,26 @@ run_cmd() {
 
 # 3. Process Temba Library
 echo "📦 Processing Temba library..."
-if [ "$DRY_RUN" = false ]; then
-    cd packages/temba
-    npm version $TYPE --no-git-tag-version
-    echo "export const version = '$NEXT_VERSION';" > ./src/version.ts
-    npm run build
-    npm publish
-    cd ../..
-else
-    echo "[DRY RUN] Bump version, build, and publish temba"
-fi
+
+# Updates package.json inside the workspace
+run_cmd "npm version $TYPE -w packages/temba --no-git-tag-version"
+
+# Update the version.ts file (Using bash -c to handle the redirect in eval)
+run_cmd "bash -c \"echo 'export const version = \\\"$NEXT_VERSION\\\"' > packages/temba/src/version.ts\""
+
+# Build the workspace
+run_cmd "npm run build -w packages/temba"
+
+# Publish the workspace root.
+# We use -w here to target the package root, relying on the 'files' whitelist in package.json.
+run_cmd "npm publish -w packages/temba"
 
 # 4. Process CLI
 echo "💻 Processing CLI..."
-run_cmd "cd packages/cli && npm version $NEXT_VERSION --no-git-tag-version && cd ../.."
+run_cmd "npm version $NEXT_VERSION -w packages/cli --no-git-tag-version"
 run_cmd "node update-version.js $NEXT_VERSION packages/cli $( [ "$DRY_RUN" = true ] && echo "--dry-run" )"
 run_cmd "node update-version.js $NEXT_VERSION packages/cli/create/starter-template $( [ "$DRY_RUN" = true ] && echo "--dry-run" )"
-run_cmd "cd packages/cli && npm publish && cd ../.."
+run_cmd "npm publish -w packages/cli"
 
 # 5. Update Examples
 echo "📚 Updating examples..."
@@ -70,16 +94,9 @@ run_cmd "node update-version.js $NEXT_VERSION examples $( [ "$DRY_RUN" = true ] 
 
 # 6. Documentation
 echo "📝 Updating Docs version and deploying..."
-# Update the docs package.json version so Docusaurus config can read it
 run_cmd "node update-version.js $NEXT_VERSION docs $( [ "$DRY_RUN" = true ] && echo "--dry-run" )"
 
-if [ "$DRY_RUN" = true ]; then
-  echo "[DRY RUN] Would run: cd docs && USE_SSH=true npm run deploy"
-else
-  cd docs
-  USE_SSH=true npm run deploy
-  cd ..
-fi
+run_cmd "npm run docs:deploy"
 
 # 7. Wrap up
 echo "🔗 Finalizing Git..."

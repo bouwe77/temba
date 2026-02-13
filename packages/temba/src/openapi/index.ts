@@ -1,9 +1,8 @@
-import type { Config } from '../config'
 import type { IncomingMessage, ServerResponse } from 'http'
-import { handleNotFound } from '../responseHandler'
-import { getSpec } from './spec'
+import type { Config } from '../config'
+import { handleNotFound, sendResponse } from '../responseHandler'
 import { getOpenApiHtml } from './html'
-import { sendResponse } from '../responseHandler'
+import { getSpec } from './spec'
 
 export const getOpenApiPaths = (rootPath: string) => {
   return [

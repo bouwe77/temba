@@ -32,9 +32,10 @@ const updatePackageJson = (folder) => {
     }
 
     // 2. Update dependencies on 'temba'
-    ;['dependencies', 'devDependencies'].forEach((depType) => {
-      if (packageJson[depType] && 'temba' in packageJson[depType]) {
-        packageJson[depType].temba = versionNumber
+    const targets = ['dependencies', 'devDependencies']
+    targets.forEach((type) => {
+      if (packageJson[type]?.['temba']) {
+        packageJson[type].temba = versionNumber
         updated = true
       }
     })
