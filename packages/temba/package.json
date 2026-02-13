@@ -10,7 +10,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "rm -rf dist && tsc && tsc-alias && cp ../../README.md .",
+    "build": "rm -rf dist tsconfig.tsbuildinfo && tsc && tsc-alias && cp ../../README.md .",
     "test": "vitest run",
     "test:watch": "vitest --watch",
     "lint": "eslint . && tsc --noEmit",
