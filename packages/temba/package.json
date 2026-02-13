@@ -1,11 +1,16 @@
 {
   "name": "temba",
-  "version": "0.53.4",
+  "version": "0.53.6",
   "description": "Create a simple REST API with zero coding in less than 30 seconds (seriously).",
   "type": "module",
-  "main": "dist/src/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
-    "build": "rm -rf dist && tsc && tsc-alias && cp package.json ../../README.md ./dist/src",
+    "build": "rm -rf dist tsconfig.tsbuildinfo && tsc && tsc-alias && cp ../../README.md .",
     "test": "vitest run",
     "test:watch": "vitest --watch",
     "lint": "eslint . && tsc --noEmit",

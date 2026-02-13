@@ -67,6 +67,7 @@ run_cmd() {
 
 # 3. Process Temba Library
 echo "📦 Processing Temba library..."
+
 # Updates package.json inside the workspace
 run_cmd "npm version $TYPE -w packages/temba --no-git-tag-version"
 
@@ -76,10 +77,9 @@ run_cmd "bash -c \"echo 'export const version = \\\"$NEXT_VERSION\\\"' > package
 # Build the workspace
 run_cmd "npm run build -w packages/temba"
 
-# Publish the specific build folder. 
-# Note: We don't use -w here because we are targeting a specific subfolder artifact.
-run_cmd "npm publish packages/temba/dist/src"
-
+# Publish the workspace root.
+# We use -w here to target the package root, relying on the 'files' whitelist in package.json.
+run_cmd "npm publish -w packages/temba"
 
 # 4. Process CLI
 echo "💻 Processing CLI..."
