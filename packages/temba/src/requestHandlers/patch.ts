@@ -1,12 +1,12 @@
-import { interceptPatchRequest } from '../requestInterceptor/interceptRequest'
-import { validate } from '../schema/validate'
-import { removeNullFields } from './utils'
-import type { ValidateFunctionPerResource } from '../schema/types'
-import type { PatchRequest } from './types'
 import type { Queries } from '../data/types'
-import type { RequestInterceptor } from '../requestInterceptor/types'
 import { etag } from '../etags/etags'
+import { interceptPatchRequest } from '../requestInterceptor/interceptRequest'
+import type { RequestInterceptor } from '../requestInterceptor/types'
+import type { ValidateFunctionPerResource } from '../schema/types'
+import { validate } from '../schema/validate'
 import type { BroadcastFunction } from '../websocket/websocket'
+import type { PatchRequest } from './types'
+import { removeNullFields } from './utils'
 
 export const createPatchRoutes = (
   queries: Queries,

@@ -1,0 +1,5 @@
+# Build output
+dist/
+
+# Generated README from monorepo root - copied during build, ignored in git, but included in NPM package via "files" directive
+README.md

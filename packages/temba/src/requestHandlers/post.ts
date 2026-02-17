@@ -1,12 +1,12 @@
 import { format } from 'url'
-import { interceptPostRequest } from '../requestInterceptor/interceptRequest'
-import { removeNullFields } from './utils'
-import { validate } from '../schema/validate'
-import type { ValidateFunctionPerResource } from '../schema/types'
-import type { PostRequest } from './types'
 import type { ItemWithoutId, Queries } from '../data/types'
+import { interceptPostRequest } from '../requestInterceptor/interceptRequest'
 import type { RequestInterceptor } from '../requestInterceptor/types'
+import type { ValidateFunctionPerResource } from '../schema/types'
+import { validate } from '../schema/validate'
 import type { BroadcastFunction } from '../websocket/websocket'
+import type { PostRequest } from './types'
+import { removeNullFields } from './utils'
 
 export const createPostRoutes = (
   queries: Queries,

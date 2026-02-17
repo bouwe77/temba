@@ -2,8 +2,8 @@ import type { Queries } from '../data/types'
 import { etag } from '../etags/etags'
 import { interceptDeleteRequest } from '../requestInterceptor/interceptRequest'
 import type { RequestInterceptor } from '../requestInterceptor/types'
-import type { DeleteRequest } from './types'
 import type { BroadcastFunction } from '../websocket/websocket'
+import type { DeleteRequest } from './types'
 
 export const createDeleteRoutes = (
   queries: Queries,

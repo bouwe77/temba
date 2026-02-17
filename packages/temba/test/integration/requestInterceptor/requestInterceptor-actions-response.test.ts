@@ -1,7 +1,7 @@
-import { describe, test, expect } from 'vitest'
 import request from 'supertest'
-import { createServer } from '../createServer'
+import { describe, expect, test } from 'vitest'
 import type { RequestInterceptor } from '../../../src/requestInterceptor/types'
+import { createServer } from '../createServer'
 
 describe('requestInterceptor with actions.response() for custom responses', () => {
   describe('POST interceptor returning custom responses', async () => {
@@ -36,9 +36,7 @@ describe('requestInterceptor with actions.response() for custom responses', () =
     })
 
     test('POST returns custom 200 response without saving to DB', async () => {
-      const response = await request(tembaServer)
-        .post('/custom-success')
-        .send({ title: 'Test' })
+      const response = await request(tembaServer).post('/custom-success').send({ title: 'Test' })
 
       expect(response.statusCode).toEqual(200)
       expect(response.body).toEqual({ result: 'custom', id: 'fake-id' })
@@ -93,9 +91,7 @@ describe('requestInterceptor with actions.response() for custom responses', () =
     const tembaServer = await createServer({ requestInterceptor })
 
     test('PUT returns 405 for protected resource', async () => {
-      const response = await request(tembaServer)
-        .put('/readonly/some-id')
-        .send({ title: 'Test' })
+      const response = await request(tembaServer).put('/readonly/some-id').send({ title: 'Test' })
 
       expect(response.statusCode).toEqual(405)
       expect(response.body).toEqual({ error: 'Method Not Allowed' })
@@ -176,9 +172,7 @@ describe('requestInterceptor with actions.response() for custom responses', () =
     const tembaServer = await createServer({ requestInterceptor })
 
     test('actions.response defaults to status 200', async () => {
-      const response = await request(tembaServer)
-        .post('/custom-body-only')
-        .send({ title: 'Test' })
+      const response = await request(tembaServer).post('/custom-body-only').send({ title: 'Test' })
 
       expect(response.statusCode).toEqual(200)
       expect(response.body).toEqual({ custom: true })

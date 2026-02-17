@@ -1,12 +1,12 @@
-import { interceptPutRequest } from '../requestInterceptor/interceptRequest'
-import { validate } from '../schema/validate'
-import { removeNullFields } from './utils'
-import type { ValidateFunctionPerResource } from '../schema/types'
-import type { PutRequest } from './types'
 import type { Queries } from '../data/types'
-import type { RequestInterceptor } from '../requestInterceptor/types'
 import { etag } from '../etags/etags'
+import { interceptPutRequest } from '../requestInterceptor/interceptRequest'
+import type { RequestInterceptor } from '../requestInterceptor/types'
+import type { ValidateFunctionPerResource } from '../schema/types'
+import { validate } from '../schema/validate'
 import type { BroadcastFunction } from '../websocket/websocket'
+import type { PutRequest } from './types'
+import { removeNullFields } from './utils'
 
 export const createPutRoutes = (
   queries: Queries,

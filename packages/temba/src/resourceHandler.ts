@@ -1,6 +1,10 @@
 import type { IncomingMessage, ServerResponse } from 'http'
+import { parse } from 'url'
+import type { Config } from './config'
+import type { Queries } from './data/types'
+import { isValidFilter, prepareFilter, type Filter } from './filtering/filter'
+import { parseQueryString } from './queryStrings/parseQueryString'
 import { getRequestHandler } from './requestHandlers'
-import { parseUrl } from './urls/urlParser'
 import type {
   Body,
   DeleteRequest,
@@ -10,13 +14,9 @@ import type {
   RequestInfo,
   TembaRequest,
 } from './requestHandlers/types'
-import type { Config } from './config'
 import { sendErrorResponse, sendResponse, type Response } from './responseHandler'
-import type { Queries } from './data/types'
 import type { CompiledSchemas } from './schema/types'
-import { parseQueryString } from './queryStrings/parseQueryString'
-import { isValidFilter, prepareFilter, type Filter } from './filtering/filter'
-import { parse } from 'url'
+import { parseUrl } from './urls/urlParser'
 import type { BroadcastFunction } from './websocket/websocket'
 
 type RequestValidationError = {

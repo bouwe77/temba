@@ -1,4 +1,4 @@
-import { test, expect } from 'vitest'
+import { expect, test } from 'vitest'
 import { parseUrl } from '../../../src/urls/urlParser'
 
 const resourceOnly = { resource: 'stuff', id: null }

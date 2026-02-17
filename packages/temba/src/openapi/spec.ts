@@ -1,13 +1,13 @@
 // Creates the OpenAPI spec in JSON or YAML format
 
+import deepmerge from 'deepmerge'
+import indefinite from 'indefinite'
 import {
   OpenApiBuilder,
   type ParameterObject,
   type RequestBodyObject,
   type SchemaObject,
 } from 'openapi3-ts/oas31'
-import indefinite from 'indefinite'
-import deepmerge from 'deepmerge'
 import type { Config } from '../config'
 
 type OpenApiFormat = 'json' | 'yaml'
