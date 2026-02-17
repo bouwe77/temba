@@ -59,14 +59,14 @@ describe('DELETE', () => {
 
   test('Delete using [eq] operator (strict exact match)', async () => {
     for (const queryString of [
-      'filter.name[eq]=Miep',
-      'filter.name=Miep', // default
-      'filter.name[eq]=Miep&filter.age[eq]=23', // multiple
+      'filter.name[eq]=Miep', // single [eq] filter
+      'filter.name=Miep', // default operator
+      'filter.name[eq]=Miep&filter.age[eq]=23', // multiple [eq] filters
     ]) {
       await createData(tembaServer, [
         { name: 'Piet', age: 24 },
         { name: 'Miep', age: 23 },
-        { name: 'miep', age: 99 }, // <-- Mixed casing variant
+        { name: 'miep', age: 99 }, // Mixed casing variant
       ])
 
       const deleteRes = await request(tembaServer).delete(resource).query(queryString)
@@ -77,7 +77,7 @@ describe('DELETE', () => {
       // We started with 3, deleted 1, should have 2 left
       expect(getRemaining.body.length).toEqual(2)
 
-      // Ensure 'Miep' is gone, but 'Piet' and 'miep' safely remain
+      // Ensure 'Miep' is gone, but 'Piet' and 'miep' still remain
       const remainingNames = getRemaining.body.map((item: { name: string }) => item.name).sort()
       expect(remainingNames).toEqual(['Piet', 'miep'].sort())
 
@@ -202,7 +202,7 @@ describe('Unhappy paths (400 Bad Request)', () => {
       expect(response.status).toBe(400)
     }
 
-    // CRITICAL: Ensure the data was NOT deleted when syntax was bad!
+    // Ensure the data was NOT deleted when syntax was bad!
     const getRemaining = await request(tembaServer).get(resource)
     expect(getRemaining.body.length).toEqual(1)
   })
@@ -222,7 +222,7 @@ describe('Unhappy paths (400 Bad Request)', () => {
 
     expect(response.status).toBe(400)
 
-    // CRITICAL: Ensure the item was NOT deleted
+    // Ensure the item was NOT deleted
     const getRemaining = await request(tembaServer).get(resource)
     expect(getRemaining.body.length).toEqual(1)
   })

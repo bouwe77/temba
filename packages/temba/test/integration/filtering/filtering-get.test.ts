@@ -68,15 +68,15 @@ describe('GET', () => {
     const data = [
       { name: 'Piet', age: 24, isActive: true },
       { name: 'Miep', age: 23, isActive: false },
-      { name: 'miep', age: 99, isActive: true }, // <-- Mixed casing variant
+      { name: 'miep', age: 99, isActive: true }, // Mixed casing variant
     ]
     await createData(tembaServer, data)
 
     // These should perfectly match ONLY the capitalized 'Miep'
     for (const queryString of [
-      'filter.name[eq]=Miep',
+      'filter.name[eq]=Miep', // single [eq] filter
       'filter.name=Miep', // No operator defaults to [eq]
-      'filter.name[eq]=Miep&filter.age[eq]=23',
+      'filter.name[eq]=Miep&filter.age[eq]=23', // multiple [eq] filters
     ]) {
       const getFilterResponse = await request(tembaServer).get(resource).query(queryString)
       expect(getFilterResponse.body.length).toEqual(1)
