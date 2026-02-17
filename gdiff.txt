@@ -1,0 +1,307 @@
+docs/docs/documentation.md --- 1/2 --- Text
+582                                                                               582 
+583 ## Filtering                                                                  583 ## Filtering
+584                                                                               584 
+585 Temba supports JSON:API style filtering on `GET` requests by appending square 585 Temba supports JSON:API style filtering on `GET` and `DELETE` collection requ
+... -bracket operators to your field names in the query string. Every filter expr ... ests by appending square-bracket operators to your field names in the query s
+... ession must start with the literal `filter` prefix. For example:              ... tring. Every filter expression must start with the exact, lowercase `filter` 
+...                                                                               ... prefix. For example:
+586                                                                               586 
+587 `GET /items?filter.price[gte]=10&filter.price[lte]=100`                       587 `GET /items?filter.price[gte]=10&filter.price[lte]=100`
+588                                                                               588 
+
+docs/docs/documentation.md --- 2/2 --- Text
+599 GET /users?filter.role[eq]=admin                                              599 GET /users?filter.role[eq]=admin
+600 ```                                                                           600 ```
+601                                                                               601 
+602 Invalid filter expressions (unknown fields or unsupported operators) are igno 602 **Note on validation:** Unknown field names are safely ignored (returning emp
+... red.                                                                          ... ty results). However, malformed expressions, incorrectly cased operators (e.g
+...                                                                               ... ., `[EQ]`), or unsupported operators will return a `400 Bad Request`.
+603                                                                               603 
+604 The following operators are supported:                                        604 The following operators are supported:
+605                                                                               605 
+606 | Operator       | Description                                   | Example    606 | Operator       | Description                                   | Example   
+...                                          |                                    ...                                          |
+607 | -------------- | --------------------------------------------- | ---------- 607 | -------------- | --------------------------------------------- | ----------
+... ---------------------------------------- |                                    ... ---------------------------------------- |
+608 | `[eq]`         | equals                                        | `?filter.n 608 | `[eq]`         | strict equals                                 | `?filter.n
+... ame[eq]=Alice` (or `?filter.name=Alice`) |                                    ... ame[eq]=Alice` (or `?filter.name=Alice`) |
+609 | `[ne]`         | not equals                                    | `?filter.s 609 | `[ieq]`        | case-insensitive equals                       | `?filter.n
+... tatus[ne]=archived`                      |                                    ... ame[ieq]=alice`                          |
+610 | `[exists]`     | field is present (`true`) or absent (`false`) | `?filter.e 610 | `[neq]`        | strict not equals                             | `?filter.s
+... mail[exists]=true`                       |                                    ... tatus[neq]=archived`                     |
+611 | `[gt]`         | greater than                                  | `?filter.a 611 | `[ineq]`       | case-insensitive not equals                   | `?filter.s
+... ge[gt]=18`                               |                                    ... tatus[ineq]=ARCHIVED`                    |
+612 | `[gte]`        | greater than or equal                         | `?filter.p ... 
+... rice[gte]=10`                            |                                    ... 
+613 | `[lt]`         | less than                                     | `?filter.s ... 
+... core[lt]=100`                            |                                    ... 
+614 | `[lte]`        | less than or equal                            | `?filter.p ... 
+... rice[lte]=100`                           |                                    ... 
+615 | `[in]`         | one of a list of values                       | `?filter.a ... 
+... ge[in]=18,21,65`                         |                                    ... 
+616 | `[nin]`        | not in a list of values                       | `?filter.s ... 
+... tatus[nin]=draft,pending`                |                                    ... 
+617 | `[regex]`      | full regular-expression match (URL-encode)    | `?filter.n ... 
+... ame[regex]=^A.*e$` → `%5E%A.*e%24`       |                                    ... 
+618 | `[contains]`   | substring match                               | `?filter.d ... 
+... escription[contains]=lorem`              |                                    ... 
+619 | `[startsWith]` | prefix match                                  | `?filter.u ... 
+... sername[startsWith]=admin`               |                                    ... 
+620 | `[endsWith]`   | suffix match                                  | `?filter.e ... 
+... mail[endsWith]=@example.com`             |                                    ... 
+621                                                                               612 
+622 ### WebSockets                                                                613 ### WebSockets
+623                                                                               614 
+
+packages/temba/test/integration/filtering.test.ts --- TypeScript
+  1 import { test, expect, describe } from 'vitest'
+  2 import request from 'supertest'
+  3 import { createServer } from './createServer'
+  4 import { expectSuccess } from './helpers'
+  5 import { Server } from 'http'
+  6 
+  7 /*
+  8     Tests filtering via query strings.
+  9 */
+ 10 
+ 11 const resource = '/items'
+ 12 
+ 13 async function createData(tembaServer: Server, data: object[]) {
+ 14   for (const item of data) {
+ 15     const res = await request(tembaServer)
+ 16       .post(resource)
+ 17       .send(item)
+ 18       .set('Accept', 'application/json')
+ 19     expectSuccess(res)
+ 20   }
+ 21 }
+ 22 
+ 23 describe('GET', () => {
+ 24   test('No filtering when "filter" or field name casing is incorrect', async () => {
+ 25     const tembaServer = await createServer()
+ 26 
+ 27     // Create 2 resources
+ 28     const data = [{ firstName: 'Piet' }, { fIrStNaMe: 'Kees' }, { firstName: 'Miep' }]
+ 29     await createData(tembaServer, data)
+ 30 
+ 31     // Get all resources without filtering
+ 32     const getAllResponse = await request(tembaServer).get(resource)
+ 33     expect(getAllResponse.body.length).toEqual(3)
+ 34     expect(getAllResponse.body.map((item: { firstName: string }) => item.firstName)).toEqual(
+ 35       data.map((item) => item.firstName),
+ 36     )
+ 37 
+ 38     // Unknown field names should not return any results
+ 39     const getUnknownFieldResponse = await request(tembaServer)
+ 40       .get(resource)
+ 41       .query('filter.unknownField[eq]=Miep')
+ 42     expect(getUnknownFieldResponse.body.length).toEqual(0)
+ 43 
+ 44     // Field names are case sensitive, so incorrect casing are considered unknown fields and should not return any results
+ 45     const getFilterResponse = await request(tembaServer)
+ 46       .get(resource)
+ 47       .query('filter.FIRSTname[eq]=Miep')
+ 48     expect(getFilterResponse.body.length).toEqual(0)
+ 49     expect(getFilterResponse.body.map((item: { name: string }) => item.name)).toEqual([])
+ 50 
+ 51     // The filter keyword is case sensitive and should be lowercase, so incorrect casing does not apply filtering
+ 52     const getFilterResponse2 = await request(tembaServer)
+ 53       .get(resource)
+ 54       .query('FILTER.firstName[eq]=Miep')
+ 55     expect(getFilterResponse2.body.length).toEqual(3)
+ 56 
+ 57     // Operator names are case sensitive and should be lowercase
+ 58     // I think it's a bug it does not return any results, but for now this is fine
+ 59     const getFilterResponse3 = await request(tembaServer)
+ 60       .get(resource)
+ 61       .query('filter.firstName[EQ]=Miep')
+ 62     expect(getFilterResponse3.body.length).toEqual(0)
+ 63 
+ 64     // If the same field name exists with different casing, it should return all results
+ 65     const getFilterResponse4 = await request(tembaServer)
+ 66       .get(resource)
+ 67       .query('filter.fIrStNaMe[eq]=Kees')
+ 68     console.dir(getFilterResponse4.body, { depth: null })
+ 69     expect(getFilterResponse4.body.length).toEqual(1)
+ 70     expect(getFilterResponse4.body[0].fIrStNaMe).toEqual('Kees')
+ 71   })
+ 72 
+ 73   test('Filter using [eq] operator', async () => {
+ 74     const tembaServer = await createServer()
+ 75 
+ 76     // Create 2 resources
+ 77     const data = [
+ 78       { name: 'Piet', age: 24, isActive: true },
+ 79       { name: 'Miep', age: 23, isActive: false },
+ 80     ]
+ 81     await createData(tembaServer, data)
+ 82 
+ 83     // Get all resources without filtering
+ 84     const getAllResponse = await request(tembaServer).get(resource)
+ 85     expect(getAllResponse.body.length).toEqual(2)
+ 86     expect(getAllResponse.body.map((item: { name: string }) => item.name)).toEqual(
+ 87       data.map((item) => item.name),
+ 88     )
+ 89 
+ 90     // Filter case-insensitive using [eq] operator
+ 91     for (const queryString of [
+ 92       'filter.name[eq]=Miep',
+ 93       'filter.name[eq]=miep',
+ 94       // No operator defaults to [eq]
+ 95       'filter.name=Miep',
+ 96       'filter.name=MIEP',
+ 97       // Multiple [eq] filters
+ 98       'filter.name[eq]=miep&filter.age[eq]=23',
+ 99       'filter.name[eq]=miep&filter.age[eq]=23&filter.isActive[eq]=false',
+100     ]) {
+101       const getFilterResponse = await request(tembaServer).get(resource).query(queryString)
+102       expect(getFilterResponse.body.length).toEqual(1)
+103       expect(getFilterResponse.body[0].name).toEqual('Miep')
+104     }
+105   })
+106 
+107   test('Empty filter value using [eq] operator', async () => {
+108     const tembaServer = await createServer()
+109 
+110     // Create 2 resources
+111     const data = [
+112       { name: 'Piet', age: 21 },
+113       { name: '', age: 77 },
+114     ]
+115     await createData(tembaServer, data)
+116 
+117     // Get all resources without filtering
+118     const getAllResponse = await request(tembaServer).get(resource)
+119     expect(getAllResponse.body.length).toEqual(2)
+120     expect(getAllResponse.body.map((item: { name: string }) => item.name)).toEqual(
+121       data.map((item) => item.name),
+122     )
+123 
+124     // Filter on an empty string using [eq] operator
+125     const getResponse = await request(tembaServer).get(resource).query('filter.name[eq]=')
+126     expect(getResponse.body.length).toEqual(1)
+127     expect(getResponse.body[0].name).toEqual('')
+128     expect(getResponse.body[0].age).toEqual(77)
+129   })
+130 
+131   test('Filter using [neq] operator', async () => {
+132     const tembaServer = await createServer()
+133 
+134     // Create 3 resources
+135     const data = [
+136       { name: 'Piet', isActive: true },
+137       { name: 'Miep', isActive: true },
+138       { name: '', isActive: false },
+139     ]
+140     await createData(tembaServer, data)
+141 
+142     // Get all resources without filtering
+143     const getAllResponse = await request(tembaServer).get(resource)
+144     expect(getAllResponse.body.length).toEqual(3)
+145     expect(getAllResponse.body.map((item: { name: string }) => item.name)).toEqual(
+146       data.map((item) => item.name),
+147     )
+148 
+149     // Filter case-insensitive using [neq] operator
+150     for (const queryString of ['filter.name[neq]=Miep', 'filter.name[neq]=miep']) {
+151       const getFilterResponse = await request(tembaServer).get(resource).query(queryString)
+152       expect(getFilterResponse.body.length).toEqual(2)
+153       expect(getFilterResponse.body.map((item: { name: string }) => item.name)).toEqual([
+154         'Piet',
+155         '',
+156       ])
+157     }
+158 
+159     // Filter using [neq] operator on non-empty string
+160     for (const queryString of ['filter.name[neq]=']) {
+161       const getFilterResponse2 = await request(tembaServer).get(resource).query(queryString)
+162       expect(getFilterResponse2.body.length).toEqual(2)
+163       expect(getFilterResponse2.body.map((item: { name: string }) => item.name)).toEqual([
+164         'Piet',
+165         'Miep',
+166       ])
+167     }
+168 
+169     // Filter using [neq] operator on boolean
+170     const getFilterResponse3 = await request(tembaServer)
+171       .get(resource)
+172       .query('filter.isActive[neq]=true')
+173     expect(getFilterResponse3.body.length).toEqual(1)
+174     expect(getFilterResponse3.body.map((item: { name: string }) => item.name)).toEqual([''])
+175   })
+176 
+177   test("Filter on both [eq] and [neq] operators that don't give any results", async () => {
+178     const tembaServer = await createServer()
+179 
+180     // Create 2 resources
+181     const data = [
+182       { name: 'Piet', age: 23, isActive: true },
+183       { name: 'Miep', age: 45, isActive: false },
+184     ]
+185     await createData(tembaServer, data)
+186 
+187     // Get all resources without filtering
+188     const getAllResponse = await request(tembaServer).get(resource)
+189     expect(getAllResponse.body.length).toEqual(2)
+190     expect(getAllResponse.body.map((item: { name: string }) => item.name)).toEqual(
+191       data.map((item) => item.name),
+192     )
+193 
+194     // Filter using [eq] and [neq] operators that don't give any results
+195     for (const queryString of [
+196       'filter.name=Piet&filter.name[neq]=PIET',
+197       'filter.name[eq]=Piet&filter.age[eq]=45',
+198       'filter.name[eq]=Miep&filter.age[neq]=45',
+199       'filter.name[eq]=Miep&filter.name[eq]=miep',
+200       'filter.name[eq]=Miep&filter.name=miep',
+201       'filter.name[eq]=Miep&filter.isActive[neq]=false',
+202       'filter.name[eq]=Miep&filter.age[eq]=21&filter.isActive[neq]=true',
+203     ]) {
+204       const getResponse = await request(tembaServer).get(resource).query(queryString)
+205       expect(getResponse.body.length).toEqual(0)
+206     }
+207   })
+208 })
+209 
+210 describe('DELETE', () => {
+211   test.each([
+212     'filter.name[eq]=Miep',
+213     'filter.name[eq]=miep',
+214     // No operator defaults to [eq]
+215     'filter.name=Miep',
+216     'filter.name=MIEP',
+217     // Multiple [eq] filters
+218     'filter.name[eq]=miep&filter.age[eq]=23',
+219     'filter.name[eq]=miep&filter.age[eq]=23&filter.isActive[eq]=false',
+220   ])('Filter using [eq] operator', async (queryString: string) => {
+221     const tembaServer = await createServer({
+222       allowDeleteCollection: true,
+223     })
+224 
+225     // Create 2 resources
+226     const data = [
+227       { name: 'Piet', age: 24, isActive: true },
+228       { name: 'Miep', age: 23, isActive: false },
+229     ]
+230     await createData(tembaServer, data)
+231 
+232     // Get all resources
+233     const getAllResponse = await request(tembaServer).get(resource)
+234     expect(getAllResponse.body.length).toEqual(2)
+235     expect(getAllResponse.body.map((item: { name: string }) => item.name)).toEqual(
+236       data.map((item) => item.name),
+237     )
+238 
+239     // Delete with case-insensitive filter using [eq] operator
+240     const deleteFilterResponse = await request(tembaServer).delete(resource).query(queryString)
+241     expectSuccess(deleteFilterResponse)
+242 
+243     // Get all resources
+244     const getRemaining = await request(tembaServer).get(resource)
+245     expect(getRemaining.body.length).toEqual(1)
+246     expect(getRemaining.body.map((item: { name: string }) => item.name)).toEqual(['Piet'])
+247   })
+248 })
+249 
+

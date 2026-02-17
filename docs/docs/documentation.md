@@ -582,7 +582,7 @@ For updating or deleting items with a `PUT`, `PATCH`, or `DELETE`, after enablin
 
 ## Filtering
 
-Temba supports JSON:API style filtering on `GET` requests by appending square-bracket operators to your field names in the query string. Every filter expression must start with the literal `filter` prefix. For example:
+Temba supports JSON:API style filtering on `GET` and `DELETE` collection requests by appending square-bracket operators to your field names in the query string. Every filter expression must start with the exact, lowercase `filter` prefix. For example:
 
 `GET /items?filter.price[gte]=10&filter.price[lte]=100`
 
@@ -599,25 +599,16 @@ GET /users?filter.role=admin
 GET /users?filter.role[eq]=admin
 ```
 
-Invalid filter expressions (unknown fields or unsupported operators) are ignored.
+**Note on validation:** Unknown field names are safely ignored (returning empty results). However, malformed expressions, incorrectly cased operators (e.g., `[EQ]`), or unsupported operators will return a `400 Bad Request`.
 
 The following operators are supported:
 
 | Operator       | Description                                   | Example                                            |
 | -------------- | --------------------------------------------- | -------------------------------------------------- |
-| `[eq]`         | equals                                        | `?filter.name[eq]=Alice` (or `?filter.name=Alice`) |
-| `[ne]`         | not equals                                    | `?filter.status[ne]=archived`                      |
-| `[exists]`     | field is present (`true`) or absent (`false`) | `?filter.email[exists]=true`                       |
-| `[gt]`         | greater than                                  | `?filter.age[gt]=18`                               |
-| `[gte]`        | greater than or equal                         | `?filter.price[gte]=10`                            |
-| `[lt]`         | less than                                     | `?filter.score[lt]=100`                            |
-| `[lte]`        | less than or equal                            | `?filter.price[lte]=100`                           |
-| `[in]`         | one of a list of values                       | `?filter.age[in]=18,21,65`                         |
-| `[nin]`        | not in a list of values                       | `?filter.status[nin]=draft,pending`                |
-| `[regex]`      | full regular-expression match (URL-encode)    | `?filter.name[regex]=^A.*e$` → `%5E%A.*e%24`       |
-| `[contains]`   | substring match                               | `?filter.description[contains]=lorem`              |
-| `[startsWith]` | prefix match                                  | `?filter.username[startsWith]=admin`               |
-| `[endsWith]`   | suffix match                                  | `?filter.email[endsWith]=@example.com`             |
+| `[eq]`         | strict equals                                 | `?filter.name[eq]=Alice` (or `?filter.name=Alice`) |
+| `[ieq]`        | case-insensitive equals                       | `?filter.name[ieq]=alice`                          |
+| `[neq]`        | strict not equals                             | `?filter.status[neq]=archived`                     |
+| `[ineq]`       | case-insensitive not equals                   | `?filter.status[ineq]=ARCHIVED`                    |
 
 ### WebSockets
 
