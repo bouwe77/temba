@@ -6,7 +6,7 @@ import { createServer } from '../createServer'
 import { expectSuccess } from '../helpers'
 
 /*
-    Tests filtering via query strings.
+    Tests filtering DELETE requests via query strings.
 */
 
 const resource = '/items'
