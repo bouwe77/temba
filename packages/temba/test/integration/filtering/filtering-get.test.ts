@@ -6,7 +6,7 @@ import { createServer } from '../createServer'
 import { expectSuccess } from '../helpers'
 
 /*
-    Tests filtering via query strings.
+    Tests filtering GET requests via query strings.
 */
 
 const resource = '/items'
@@ -112,14 +112,21 @@ describe('GET', () => {
     ]
     await createData(tembaServer, data)
 
-    for (const queryString of ['filter.name[neq]=Miep', 'filter.name[neq]=miep']) {
-      const getFilterResponse = await request(tembaServer).get(resource).query(queryString)
-      expect(getFilterResponse.body.length).toEqual(2)
-      expect(getFilterResponse.body.map((item: { name: string }) => item.name)).toEqual([
-        'Piet',
-        '',
-      ])
-    }
+    // Case sensitive filter for not finding 'Miep'
+    let queryString = 'filter.name[neq]=Miep'
+    const getFilterResponse = await request(tembaServer).get(resource).query(queryString)
+    expect(getFilterResponse.body.length).toEqual(2)
+    expect(getFilterResponse.body.map((item: { name: string }) => item.name)).toEqual(['Piet', ''])
+
+    // Case sensitive filter for not finding 'miep' should return all 3 items since 'miep' doesn't match any name
+    queryString = 'filter.name[neq]=miep'
+    const getFilterResponse2 = await request(tembaServer).get(resource).query(queryString)
+    expect(getFilterResponse2.body.length).toEqual(3)
+    expect(getFilterResponse2.body.map((item: { name: string }) => item.name)).toEqual([
+      'Piet',
+      'Miep',
+      '',
+    ])
 
     // Filter using [neq] operator on boolean
     const getFilterResponse3 = await request(tembaServer)

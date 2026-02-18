@@ -9,7 +9,20 @@ import {
 const operatorFns: Record<Operator, (a: unknown, b: string) => boolean> = {
   eq: (a, b) => {
     if (typeof a === 'string') {
-      return a.localeCompare(b, undefined, { sensitivity: 'accent' }) === 0
+      return a === b
+    }
+    if (typeof a === 'number') {
+      return a === Number(b)
+    }
+    if (typeof a === 'boolean') {
+      return a === (b.toLowerCase() === 'true')
+    }
+    return a === b
+  },
+
+  ieq: (a, b) => {
+    if (typeof a === 'string') {
+      return a.toLowerCase() === b.toLowerCase()
     }
     if (typeof a === 'number') {
       return a === Number(b)
@@ -22,7 +35,20 @@ const operatorFns: Record<Operator, (a: unknown, b: string) => boolean> = {
 
   neq: (a, b) => {
     if (typeof a === 'string') {
-      return a.localeCompare(b, undefined, { sensitivity: 'accent' }) !== 0
+      return a !== b
+    }
+    if (typeof a === 'number') {
+      return a !== Number(b)
+    }
+    if (typeof a === 'boolean') {
+      return a !== (b.toLowerCase() === 'true')
+    }
+    return a !== b
+  },
+
+  ineq: (a, b) => {
+    if (typeof a === 'string') {
+      return a.toLowerCase() !== b.toLowerCase()
     }
     if (typeof a === 'number') {
       return a !== Number(b)
