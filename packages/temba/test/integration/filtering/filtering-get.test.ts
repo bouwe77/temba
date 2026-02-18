@@ -202,6 +202,7 @@ describe('GET', () => {
       .get(resource)
       .query('filter.name[eq]=Piet&limit=1&sort=age')
 
+    expect(getResponse.body.length).toBeGreaterThan(0)
     expect(getResponse.body.every((item: { name: string }) => item.name === 'Piet')).toBe(true)
   })
 
@@ -247,6 +248,34 @@ describe('GET', () => {
     expect(res2.body.length).toEqual(2)
     expect(res2.body.map((item: { name: string }) => item.name).sort()).toEqual(['Bob', 'Charlie'])
   })
+
+  test('Filter on a field that only exists on some items', async () => {
+    const data = [
+      { name: 'Piet', age: 24 },
+      { name: 'Miep' }, // no age field
+    ]
+    await createData(tembaServer, data)
+
+    const getResponse = await request(tembaServer).get(resource).query('filter.age[eq]=24')
+    expect(getResponse.body.length).toEqual(1)
+    expect(getResponse.body[0].name).toEqual('Piet')
+  })
+})
+
+describe('HEAD', () => {
+  test('HEAD with valid filter returns 200', async () => {
+    await createData(tembaServer, [{ name: 'Piet' }, { name: 'Miep' }])
+
+    const response = await request(tembaServer).head(resource).query('filter.name[eq]=Piet')
+    expect(response.status).toBe(200)
+  })
+
+  test('HEAD with valid filter that matches nothing still returns 200', async () => {
+    await createData(tembaServer, [{ name: 'Piet' }])
+
+    const response = await request(tembaServer).head(resource).query('filter.name[eq]=Unknown')
+    expect(response.status).toBe(200)
+  })
 })
 
 describe('Unhappy paths (400 Bad Request)', () => {
@@ -263,6 +292,34 @@ describe('Unhappy paths (400 Bad Request)', () => {
 
       expect(response.status).toBe(400)
     }
+  })
+
+  test('Returns 400 Bad Request for HEAD request with malformed filter', async () => {
+    const badRequests = [
+      'FILTER.name[eq]=Piet',
+      'filter.name[EQ]=Piet',
+      'filter.name[invalid]=Piet',
+      'filter.name[eq=Piet',
+    ]
+
+    for (const queryString of badRequests) {
+      const response = await request(tembaServer).head(resource).query(queryString)
+      expect(response.status).toBe(400)
+    }
+  })
+
+  test('Returns 400 Bad Request when attempting to filter a single-resource HEAD by ID', async () => {
+    const data = [{ name: 'Piet' }]
+    await createData(tembaServer, data)
+
+    const getAllResponse = await request(tembaServer).get(resource)
+    const itemId = getAllResponse.body[0].id
+
+    const response = await request(tembaServer)
+      .head(`${resource}/${itemId}`)
+      .query('filter.name[eq]=Piet')
+
+    expect(response.status).toBe(400)
   })
 
   test('Returns 400 Bad Request when attempting to filter a single-resource GET by ID', async () => {

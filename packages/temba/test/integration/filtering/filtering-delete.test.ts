@@ -90,7 +90,8 @@ describe('DELETE', () => {
     await createData(tembaServer, [{ name: 'Miep' }])
 
     // Try to delete with wrong casing using strict [eq]
-    await request(tembaServer).delete(resource).query('filter.name[eq]=miep')
+    const deleteRes = await request(tembaServer).delete(resource).query('filter.name[eq]=miep')
+    expect(deleteRes.status).toBe(204)
 
     // Ensure it was NOT deleted
     const getRemaining = await request(tembaServer).get(resource)
@@ -183,6 +184,20 @@ describe('DELETE', () => {
     const getRemaining = await request(tembaServer).get(resource)
     expect(getRemaining.body.length).toEqual(1)
     expect(getRemaining.body[0].name).toEqual('Bob')
+  })
+
+  test('Filter on a field that only exists on some items deletes only matching items', async () => {
+    await createData(tembaServer, [
+      { name: 'Piet', age: 24 },
+      { name: 'Miep' }, // no age field
+    ])
+
+    const deleteRes = await request(tembaServer).delete(resource).query('filter.age[eq]=24')
+    expectSuccess(deleteRes)
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].name).toEqual('Miep')
   })
 })
 
