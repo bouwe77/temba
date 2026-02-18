@@ -2,7 +2,7 @@ import type { IncomingMessage, ServerResponse } from 'http'
 import { parse } from 'url'
 import type { Config } from './config'
 import type { Queries } from './data/types'
-import { isValidFilter, prepareFilter, type Filter } from './filtering/filter'
+import { prepareFilter, validateFilter, type Filter } from './filtering/filter'
 import { parseQueryString } from './queryStrings/parseQueryString'
 import { getRequestHandler } from './requestHandlers'
 import type {
@@ -44,18 +44,27 @@ const validateIdInRequestBodyNotAllowed = (requestInfo: RequestInfo) => {
     : requestInfo
 }
 
-const getFilter = (queryString: string | null) => {
+const hasMalformedBrackets = (queryString: string): boolean => {
+  let depth = 0
+  for (const char of queryString) {
+    if (char === '[') depth++
+    else if (char === ']') depth--
+    if (depth < 0) return true
+  }
+  return depth !== 0
+}
+
+const getFilter = (queryString: string | null): Filter | null | 'invalid' => {
   if (!queryString) return null
 
-  let filter: Filter | null = null
+  if (hasMalformedBrackets(queryString)) return 'invalid'
+
   const parsedQueryString = parseQueryString(queryString)
+  const result = validateFilter(parsedQueryString)
 
-  const maybeFilter: unknown = parsedQueryString
-  if (isValidFilter(maybeFilter)) {
-    filter = prepareFilter(maybeFilter)
-  }
-
-  return filter
+  if (result === 'valid') return prepareFilter(parsedQueryString as Filter)
+  if (result === 'invalid') return 'invalid'
+  return null
 }
 
 const convertToGetRequest = (requestInfo: RequestInfo) => {

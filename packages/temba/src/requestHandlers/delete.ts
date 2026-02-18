@@ -15,6 +15,9 @@ export const createDeleteRoutes = (
   const handleDelete = async (req: DeleteRequest) => {
     const { headers, resource, id, filter } = req
 
+    if (filter === 'invalid') return { statusCode: 400, body: { message: 'Malformed filter expression' } }
+    if (id && filter) return { statusCode: 400, body: { message: 'Filtering on a resource by ID is not supported' } }
+
     if (requestInterceptor?.delete) {
       try {
         const interceptResult = await interceptDeleteRequest(

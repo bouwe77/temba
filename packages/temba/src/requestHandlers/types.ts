@@ -30,7 +30,7 @@ export type GetRequest = TembaRequest & {
   id: string | null
   method: 'get' | 'head'
   ifNoneMatchEtag: string | null
-  filter: Filter | null
+  filter: Filter | null | 'invalid'
 }
 
 export type PostRequest = TembaRequest & {
@@ -51,5 +51,5 @@ export type PatchRequest = PutRequest
 export type DeleteRequest = TembaRequest & {
   id: string | null
   etag: string | null
-  filter: Filter | null
+  filter: Filter | null | 'invalid'
 }

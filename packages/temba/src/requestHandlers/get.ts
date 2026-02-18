@@ -17,6 +17,9 @@ export const createGetRoutes = (
   const handleGet = async (req: GetRequest) => {
     const { headers, resource, id, ifNoneMatchEtag, method, filter } = req
 
+    if (filter === 'invalid') return { statusCode: 400, body: { message: 'Malformed filter expression' } }
+    if (id && filter) return { statusCode: 400, body: { message: 'Filtering on a resource by ID is not supported' } }
+
     const responseOk = (body: Body) => {
       if (!etagsEnabled) return { statusCode: 200, body }
 
