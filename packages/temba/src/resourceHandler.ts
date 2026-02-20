@@ -1,6 +1,9 @@
 import type { IncomingMessage, ServerResponse } from 'http'
+import { parse } from 'url'
 import type { Config } from './config'
 import type { Queries } from './data/types'
+import { prepareFilter, validateFilter, type Filter } from './filtering/filter'
+import { parseQueryString } from './queryStrings/parseQueryString'
 import { getRequestHandler } from './requestHandlers'
 import type {
   Body,
@@ -41,6 +44,29 @@ const validateIdInRequestBodyNotAllowed = (requestInfo: RequestInfo) => {
     : requestInfo
 }
 
+const hasMalformedBrackets = (queryString: string): boolean => {
+  let depth = 0
+  for (const char of queryString) {
+    if (char === '[') depth++
+    else if (char === ']') depth--
+    if (depth < 0) return true
+  }
+  return depth !== 0
+}
+
+const getFilter = (queryString: string | null): Filter | null | 'invalid' => {
+  if (!queryString) return null
+
+  if (hasMalformedBrackets(queryString)) return 'invalid'
+
+  const parsedQueryString = parseQueryString(queryString)
+  const result = validateFilter(parsedQueryString)
+
+  if (result === 'valid') return prepareFilter(parsedQueryString as Filter)
+  if (result === 'invalid') return 'invalid'
+  return null
+}
+
 const convertToGetRequest = (requestInfo: RequestInfo) => {
   return {
     headers: requestInfo.headers,
@@ -48,6 +74,7 @@ const convertToGetRequest = (requestInfo: RequestInfo) => {
     resource: requestInfo.resource,
     method: requestInfo.method.toUpperCase() === 'HEAD' ? 'head' : 'get',
     ifNoneMatchEtag: requestInfo.ifNoneMatchEtag,
+    filter: getFilter(requestInfo.queryString),
   } satisfies GetRequest
 }
 
@@ -80,6 +107,7 @@ const convertToDeleteRequest = (requestInfo: RequestInfo) => {
     id: requestInfo.id,
     resource: requestInfo.resource,
     etag: requestInfo.etag ?? null,
+    filter: getFilter(requestInfo.queryString),
   } satisfies DeleteRequest
 }
 
@@ -117,6 +145,11 @@ export const createResourceHandler = async (
     })
   }
 
+  const getQueryString = (req: IncomingMessage): string | null => {
+    const parsedUrl = parse(req.url || '', true)
+    return parsedUrl.search || null
+  }
+
   const parseRequest = async (req: IncomingMessage) => {
     const urlInfo = getUrlInfo(req.url ?? '')
 
@@ -141,6 +174,7 @@ export const createResourceHandler = async (
       headers: req.headers,
       etag: req.headers['if-match'] ?? null,
       ifNoneMatchEtag: req.headers['if-none-match'] ?? null,
+      queryString: getQueryString(req),
     } satisfies RequestInfo
   }
 

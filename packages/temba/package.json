@@ -1,6 +1,6 @@
 {
   "name": "temba",
-  "version": "0.54.0",
+  "version": "0.55.0",
   "description": "Create a simple REST API with zero coding in less than 30 seconds (seriously).",
   "type": "module",
   "main": "dist/index.js",
@@ -55,6 +55,7 @@
     "lowdb": "7.0.1",
     "mime": "4.1.0",
     "morgan": "1.10.1",
+    "@types/qs": "^6.14.0",
     "openapi3-ts": "4.5.0",
     "ws": "8.19.0"
   }

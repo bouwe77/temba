@@ -2,11 +2,11 @@ import type { InterceptedResponse, ResponseBodyInterceptor } from './types'
 
 export const interceptResponseBody = async (
   interceptor: ResponseBodyInterceptor,
-  info: InterceptedResponse,
+  response: InterceptedResponse,
 ) => {
-  if (!interceptor) return info.body
+  if (!interceptor) return response.body
 
-  const intercepted = await interceptor(info)
+  const intercepted = await interceptor(response)
 
-  return intercepted ? intercepted : info.body
+  return intercepted ? intercepted : response.body
 }
