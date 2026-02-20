@@ -71,7 +71,6 @@ const config: Config = {
         src: 'img/logo.svg',
       },
       items: [
-        { to: '/docs/documentation', label: 'Documentation', position: 'left' },
         {
           href: 'https://github.com/bouwe77/temba',
           label: 'GitHub',
@@ -86,8 +85,12 @@ const config: Config = {
           title: 'On this site',
           items: [
             {
-              label: 'Documentation',
-              to: '/docs/documentation',
+              label: 'Getting Started',
+              to: '/docs/getting-started',
+            },
+            {
+              label: 'Docs',
+              to: '/docs/overview',
             },
           ],
         },

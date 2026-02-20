@@ -5,7 +5,19 @@ const typedocSidebar = require('./docs/api/typedoc-sidebar.cjs')
 
 const sidebars: SidebarsConfig = {
   tembaSidebar: [
-    'documentation',
+    'getting-started',
+    'overview',
+    'data-persistency',
+    'openapi',
+    'resources',
+    'api-prefix',
+    'static-assets',
+    'schema-validation',
+    'request-interceptor',
+    'response-interceptor',
+    'etags',
+    'filtering',
+    'websockets',
     {
       type: 'category',
       label: 'Recipes',
