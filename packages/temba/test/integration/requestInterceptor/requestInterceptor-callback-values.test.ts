@@ -12,7 +12,10 @@ import { createServer } from '../createServer'
 type MyBody = { name: string }
 
 const requestInterceptor = {
-  get: ({ headers, resource, id }, actions) => {
+  get: (request, actions) => {
+    if (request.type !== 'resource')
+      return actions.response({ status: 400, body: { message: 'type is not resource' } })
+    const { headers, resource, id } = request
     if (headers['x-foo'] !== 'GET')
       return actions.response({ status: 400, body: { message: 'header is not GET' } })
     if (resource !== 'get-stuff')
@@ -74,10 +77,11 @@ describe('Request is correctly passed through to the requestInterceptor callback
     expect(getResponse.body).toEqual({ message: 'GET is OK' })
   })
 
-  test('HEAD requests have no specific implementation, so will not go through a requestInterceptor', async () => {
-    const headResponse = await request(tembaServer).head('/head-stuff')
-    expect(headResponse.status).toBe(200)
-    expect(headResponse.body).toEqual({})
+  test('HEAD requests go through the GET requestInterceptor', async () => {
+    // HEAD /head-stuff hits the get interceptor with type 'resource' and resource 'head-stuff'.
+    // The header check passes (x-foo is 'GET'), but resource is not 'get-stuff', so it returns 400.
+    const headResponse = await request(tembaServer).head('/head-stuff').set('x-foo', 'GET')
+    expect(headResponse.status).toBe(400)
   })
 
   test('POST - requestInterceptor callback function', async () => {

@@ -1,51 +1,66 @@
 import type { IncomingHttpHeaders } from 'http'
 import type { Body } from '../requestHandlers/types'
 import type { MaybePromise } from '../types'
-import type { Actions, InterceptorAction } from './interceptorActions'
+import type { InterceptorAction, NonResourceActions, ResourceActions } from './interceptorActions'
 
-type InterceptedResource = {
+// Request type discriminator values
+export type ResourceRequestType = 'resource'
+export type NonResourceRequestType = 'root' | 'openapi' | 'static'
+export type RequestType = ResourceRequestType | NonResourceRequestType
+
+// Non-resource request — type only + headers
+type InterceptedNonResourceRequest = {
+  type: NonResourceRequestType
   headers: IncomingHttpHeaders
-  resource: string
 }
 
-type WithMaybeId = InterceptedResource & {
+// Resource request base — type + headers + resource + id
+type InterceptedResourceRequest = {
+  type: ResourceRequestType
+  headers: IncomingHttpHeaders
+  resource: string
   id: string | null
 }
 
-type WithBody = InterceptedResource & {
+type WithBody = InterceptedResourceRequest & {
   body: Body
 }
 
-type WithIdAndBody = InterceptedResource & {
+type WithIdAndBody = InterceptedResourceRequest & {
   id: string
   body: Body
 }
 
-type WithBodyAndMaybeId = WithBody & {
-  id: string | null
-}
-
 export type InterceptedReturnValue = void | InterceptorAction
 
+// GET: fires for both resource and non-resource requests
 export type InterceptedGetRequest = (
-  request: WithMaybeId,
-  actions: Actions,
+  request: InterceptedResourceRequest | InterceptedNonResourceRequest,
+  actions: ResourceActions | NonResourceActions,
 ) => MaybePromise<InterceptedReturnValue>
+
+// POST: resource only
 export type InterceptedPostRequest = (
-  request: WithBodyAndMaybeId,
-  actions: Actions,
+  request: WithBody,
+  actions: ResourceActions,
 ) => MaybePromise<InterceptedReturnValue>
+
+// PATCH: resource only (id always present)
 export type InterceptedPatchRequest = (
   request: WithIdAndBody,
-  actions: Actions,
+  actions: ResourceActions,
 ) => MaybePromise<InterceptedReturnValue>
+
+// PUT: resource only (id always present)
 export type InterceptedPutRequest = (
   request: WithIdAndBody,
-  actions: Actions,
+  actions: ResourceActions,
 ) => MaybePromise<InterceptedReturnValue>
+
+// DELETE: resource only
 export type InterceptedDeleteRequest = (
-  request: WithMaybeId,
-  actions: Actions,
+  request: InterceptedResourceRequest,
+  actions: ResourceActions,
 ) => MaybePromise<InterceptedReturnValue>
 
 export type RequestInterceptor = {

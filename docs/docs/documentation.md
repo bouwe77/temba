@@ -337,16 +337,18 @@ If a request is not valid according to the schema, a `400 Bad Request` response 
 
 ### Intercepting requests
 
-In addition to (or instead of) validating the request using JSON Schema, you can intercept the request before it is persisted using the requestInterceptor setting.
+With the `requestInterceptor` setting you can intercept requests before Temba handles them. This lets you inspect or modify a request, or overrule Temba's response entirely — for any kind of request Temba handles.
 
-This allows you to update the request body before saving, or overrule the processing entirely to handle the response yourself.
+The interceptor is organised per HTTP method (`get`, `post`, `put`, `patch`, `delete`). Each configured method callback is called when a matching request comes in, whether it targets a resource (e.g. `GET /movies`) or a non-resource route such as the API root URL, an OpenAPI endpoint, or a static file.
 
 ```js
 const config = {
   requestInterceptor: {
-    // Intercept POST requests
-    post: ({ headers, resource, id, body }, actions) => {
-      // Return an instruction here...
+    get: ({ type, headers, resource, id }, actions) => {
+      // Called for ALL GET requests, resource and non-resource alike
+    },
+    post: ({ type, headers, resource, id, body }, actions) => {
+      // Called for POST requests to resources
     },
   },
 }
@@ -354,101 +356,112 @@ const config = {
 const server = await create(config)
 ```
 
+**The `type` discriminator:**
+
+Every request object has a `type` field indicating what kind of request is being intercepted: `'resource'`, `'root'`, `'openapi'`, or `'static'`. Use it to branch your logic and determine which other fields are available.
+
 **Function Signatures:**
 
 Each interceptor method receives two parameters:
 
-1. **Request object** with properties depending on the HTTP method:
-2. **Actions object** for returning instructions
+1. **Request object** — properties vary by method and request type
+2. **Actions object** — for returning instructions
 
 ```typescript
-// GET and DELETE interceptors
+// GET interceptor — fires for resource and non-resource requests
 get?: (
-  request: { 
-    headers: IncomingHttpHeaders
-    resource: string
-    id: string | null  // null for collection requests
-  },
-  actions: Actions
+  request:
+    | { type: 'resource'; headers: IncomingHttpHeaders; resource: string; id: string | null }
+    | { type: 'root' | 'openapi' | 'static'; headers: IncomingHttpHeaders },
+  actions: ResourceActions | NonResourceActions
 ) => void | InterceptorAction | Promise<void | InterceptorAction>
 
+// DELETE interceptor — fires for resource requests only
 delete?: (
-  request: { 
-    headers: IncomingHttpHeaders
-    resource: string
-    id: string | null  // null for collection deletions
-  },
-  actions: Actions
+  request: { type: 'resource'; headers: IncomingHttpHeaders; resource: string; id: string | null },
+  actions: ResourceActions
 ) => void | InterceptorAction | Promise<void | InterceptorAction>
 
-// POST interceptor
+// POST interceptor — fires for resource requests only
 post?: (
-  request: {
-    headers: IncomingHttpHeaders
-    resource: string
-    id: string | null  // null when ID is auto-generated, string when provided in URL
-    body: object | string | Buffer | null
-  },
-  actions: Actions
+  request: { type: 'resource'; headers: IncomingHttpHeaders; resource: string; id: string | null; body: object | string | Buffer | null },
+  actions: ResourceActions
 ) => void | InterceptorAction | Promise<void | InterceptorAction>
 
-// PUT and PATCH interceptors
+// PUT interceptor — fires for resource requests only
 put?: (
-  request: {
-    headers: IncomingHttpHeaders
-    resource: string
-    id: string  // Always present (required for PUT/PATCH)
-    body: object | string | Buffer | null
-  },
-  actions: Actions
+  request: { type: 'resource'; headers: IncomingHttpHeaders; resource: string; id: string; body: object | string | Buffer | null },
+  actions: ResourceActions
 ) => void | InterceptorAction | Promise<void | InterceptorAction>
 
+// PATCH interceptor — fires for resource requests only
 patch?: (
-  request: {
-    headers: IncomingHttpHeaders
-    resource: string
-    id: string  // Always present (required for PUT/PATCH)
-    body: object | string | Buffer | null
-  },
-  actions: Actions
+  request: { type: 'resource'; headers: IncomingHttpHeaders; resource: string; id: string; body: object | string | Buffer | null },
+  actions: ResourceActions
 ) => void | InterceptorAction | Promise<void | InterceptorAction>
 ```
 
 **Actions API:**
 
+The available actions depend on the request type. For resource requests, both actions are available. For non-resource requests (when `type` is `'root'`, `'openapi'`, or `'static'`), only `response` is available — `setRequestBody` does not apply because there is nothing to persist.
+
+After checking `request.type`, TypeScript will narrow the `actions` type accordingly.
+
 ```typescript
-type Actions = {
-  // Modify the request body before it's saved to the database
+// Available for resource requests
+type ResourceActions = {
+  // Modify the request body before it's saved
   setRequestBody: (body: unknown) => SetRequestBodyAction
-  
   // Return a custom response, bypassing normal Temba processing
-  response: (options?: { 
-    body?: unknown    // Response body (will be JSON-stringified)
-    status?: number   // HTTP status code (default: 200)
-  }) => ResponseAction
+  response: (options?: { body?: unknown; status?: number }) => ResponseAction
+}
+
+// Available for non-resource requests (root, openapi, static)
+type NonResourceActions = {
+  // Return a custom response, bypassing normal Temba processing
+  response: (options?: { body?: unknown; status?: number }) => ResponseAction
 }
 ```
 
 **Return Values:**
 
 * **`void` or no return:** Temba continues with normal processing
-* **`actions.setRequestBody(newBody)`:** The modified body is saved to the database
+* **`actions.setRequestBody(newBody)`:** The modified body is saved (resource requests only)
 * **`actions.response({ body, status })`:** Temba skips normal processing and sends your response immediately
 
 **Important Notes:**
 
 * All interceptor functions can be **async** (return a Promise)
-* The `body` parameter is the raw request body (after JSON parsing if `Content-Type: application/json`)
-* Interceptors run **before** JSON Schema validation (if configured)
-* You can access request headers for authentication, content negotiation, etc.
+* Non-resource requests (`'root'`, `'openapi'`, `'static'`) only ever appear in the `get` callback, because those routes only support `GET` — other methods return `405 Method Not Allowed` before the interceptor is called
+* The interceptor is **not** called for WebSocket upgrade requests or OPTIONS (CORS preflight) requests
+* For resource requests, the interceptor runs **before** JSON Schema validation (if configured)
+* The `body` parameter is the parsed JSON request body
 
 **Examples:**
 
 ```js
 const config = {
   requestInterceptor: {
+    // Intercept all GET requests
+    get: ({ type, resource, id, headers }, actions) => {
+
+      // Branch on type to handle resource vs non-resource requests
+      if (type === 'resource') {
+        // resource and id are available here
+        if (resource === 'movies' && id === null) {
+          // e.g. do something specific for GET /movies
+        }
+      } else {
+        // type is 'root', 'openapi', or 'static'
+        // Only actions.response() is available here
+        if (type === 'openapi') {
+          // e.g. do something specific for GET /openapi.json etc.
+        }
+      }
+    },
+
     post: ({ resource, body }, actions) => {
-      
+
       // 1. Update the request body
       // Add a genre to Star Trek films before saving
       if (resource === 'movies' && body.title.startsWith('Star Trek')) {
@@ -645,19 +658,20 @@ const config = {
   openapi: true,
   port: 4321,
   requestInterceptor: {
-    get: ({ headers, resource, id }) => {
-      //...
+    get: ({ type, headers, resource, id }) => {
+      // type is 'resource', 'root', 'openapi', or 'static'
+      // resource and id are only present when type === 'resource'
     },
-    post: ({ headers, resource, id, body }) => {
+    post: ({ type, headers, resource, id, body }) => {
       // Validate, or even change the request body
     },
-    put: ({ headers, resource, id, body }) => {
+    put: ({ type, headers, resource, id, body }) => {
       // Validate, or even change the request body
     },
-    patch: ({ headers, resource, id, body }) => {
+    patch: ({ type, headers, resource, id, body }) => {
       // Validate, or even change the request body
     },
-    delete: ({ headers, resource, id }) => {
+    delete: ({ type, headers, resource, id }) => {
       //...
     },
   },

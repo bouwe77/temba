@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { Config } from '../config'
-import { handleMethodNotAllowed, sendResponse } from '../responseHandler'
+import { sendResponse } from '../responseHandler'
 import { version } from '../version'
 import { getHtml } from './html'
 
@@ -36,8 +36,6 @@ const html = (res: ServerResponse<IncomingMessage>, config: Config) => {
 
 export const createRootUrlHandler =
   (config: Config) => (req: IncomingMessage, res: ServerResponse<IncomingMessage>) => {
-    if (req.method !== 'GET') return handleMethodNotAllowed(res)
-
     if (req.headers.accept?.includes('text/html')) return html(res, config)
 
     return text(res)
