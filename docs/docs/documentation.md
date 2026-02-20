@@ -593,7 +593,7 @@ After enabling etags, every `GET` request will return an `etag` response header,
 
 For updating or deleting items with a `PUT`, `PATCH`, or `DELETE`, after enabling etags, these requests are _required_ to provide an `If-Match` header with the etag. Only if the etag represents the latest version of the resource the update is made, otherwise the server responds with a `412 Precondition Failed` status code.
 
-## Filtering
+### Filtering
 
 Temba supports JSON:API style filtering on `GET` and `DELETE` collection requests by appending square-bracket operators to your field names in the query string. Every filter expression must start with the exact, lowercase `filter` prefix. For example:
 
