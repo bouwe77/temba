@@ -5,8 +5,9 @@ import { createQueries } from './data/queries'
 import { getDefaultImplementations } from './implementations'
 import { getHttpLogger, initLogger } from './log/logger'
 import { createOpenApiHandler, getOpenApiPaths } from './openapi'
+import { interceptNonResourceGetRequest } from './requestInterceptor/interceptRequest'
 import { createResourceHandler } from './resourceHandler'
-import { handleNotFound, sendErrorResponse, sendResponse } from './responseHandler'
+import { handleMethodNotAllowed, handleNotFound, sendErrorResponse, sendResponse } from './responseHandler'
 import { createRootUrlHandler } from './root/root'
 import { compileSchemas } from './schema/compile'
 import { handleStaticFolder } from './staticFolder/staticFolder'
@@ -55,6 +56,21 @@ const createServer = async (userConfig?: UserConfig) => {
         }
 
         if (config.staticFolder && !`${requestUrl}/`.startsWith(config.apiPrefix + '/')) {
+          // Only GET and HEAD are supported for static files
+          if (req.method !== 'GET' && req.method !== 'HEAD') return handleMethodNotAllowed(res)
+
+          // Run interceptor before serving static file
+          if (config.requestInterceptor?.get) {
+            const interceptResult = await interceptNonResourceGetRequest(
+              config.requestInterceptor.get,
+              req.headers,
+              'static',
+            )
+            if (interceptResult.type === 'response') {
+              return sendResponse(res)({ statusCode: interceptResult.status, body: interceptResult.body })
+            }
+          }
+
           handleStaticFolder(
             req,
             res,
@@ -64,9 +80,40 @@ const createServer = async (userConfig?: UserConfig) => {
               ),
           )
         } else if (requestUrl === rootPath) {
+          // Only GET is supported for the root URL
+          if (req.method !== 'GET') return handleMethodNotAllowed(res)
+
+          // Run interceptor before serving root URL
+          if (config.requestInterceptor?.get) {
+            const interceptResult = await interceptNonResourceGetRequest(
+              config.requestInterceptor.get,
+              req.headers,
+              'root',
+            )
+            if (interceptResult.type === 'response') {
+              return sendResponse(res)({ statusCode: interceptResult.status, body: interceptResult.body })
+            }
+          }
+
           createRootUrlHandler(config)(req, res)
         } else if (openapiPaths.includes(requestUrl)) {
-          createOpenApiHandler(config, requestUrl, req.headers.host || '')(res)
+          // Only GET is supported for OpenAPI endpoints (method guard is inside the handler)
+          // Run interceptor before the handler so it only fires for valid GET requests
+          if (req.method !== 'GET') return handleMethodNotAllowed(res)
+
+          // Run interceptor before serving OpenAPI
+          if (config.requestInterceptor?.get) {
+            const interceptResult = await interceptNonResourceGetRequest(
+              config.requestInterceptor.get,
+              req.headers,
+              'openapi',
+            )
+            if (interceptResult.type === 'response') {
+              return sendResponse(res)({ statusCode: interceptResult.status, body: interceptResult.body })
+            }
+          }
+
+          createOpenApiHandler(config, requestUrl, req.headers.host || '')(req, res)
         } else if (requestUrl.startsWith(rootPath)) {
           await handleResource(req, res)
         } else {

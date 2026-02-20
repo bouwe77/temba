@@ -49,7 +49,9 @@ describe('requestInterceptor with actions.response() for custom responses', () =
 
   describe('GET interceptor returning custom responses', async () => {
     const requestInterceptor: RequestInterceptor = {
-      get: ({ resource, id }, actions) => {
+      get: (request, actions) => {
+        if (request.type !== 'resource') return
+        const { resource, id } = request
         if (resource === 'cached' && id === 'cached-id') {
           return actions.response({
             status: 200,

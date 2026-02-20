@@ -26,7 +26,7 @@ export const createGetRoutes = (
         : { statusCode: 200, body, headers: { etag } }
     }
 
-    if (req.method === 'get' && requestInterceptor?.get) {
+    if ((req.method === 'get' || req.method === 'head') && requestInterceptor?.get) {
       try {
         const interceptResult = await interceptGetRequest(
           requestInterceptor.get,
