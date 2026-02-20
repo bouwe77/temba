@@ -21,7 +21,7 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'Recipes',
-      items: ['recipes/jwt-auth'],
+      items: ['recipes/jwt-auth', 'recipes/serving-a-frontend'],
       collapsed: false,
     },
     {
