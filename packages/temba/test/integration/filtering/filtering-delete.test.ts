@@ -210,6 +210,7 @@ describe('Unhappy paths (400 Bad Request)', () => {
       'filter.name[EQ]=Piet', // Bad operator casing
       'filter.name[invalid]=Piet', // Unsupported operator
       'filter.name[eq=Piet', // Malformed brackets
+      'filter.name[eq]=Piet&filter.name[eq]=Miep', // Repeated param produces array RHS
     ]
 
     for (const queryString of badRequests) {

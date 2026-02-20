@@ -62,7 +62,9 @@ const hasValidOperators = (node: Record<string, unknown>, depth: number): boolea
       if (depth > 1 && !supportedOperators.includes(key as Operator)) {
         return false
       }
-    } else if (isObject(value) && !Array.isArray(value)) {
+    } else if (Array.isArray(value)) {
+      return false
+    } else if (isObject(value)) {
       if (!hasValidOperators(value, depth + 1)) {
         return false
       }

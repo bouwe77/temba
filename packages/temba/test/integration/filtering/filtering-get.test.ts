@@ -144,11 +144,8 @@ describe('GET', () => {
     await createData(tembaServer, data)
 
     for (const queryString of [
-      'filter.name=Piet&filter.name[neq]=PIET',
       'filter.name[eq]=Piet&filter.age[eq]=45',
       'filter.name[eq]=Miep&filter.age[neq]=45',
-      'filter.name[eq]=Miep&filter.name[eq]=miep',
-      'filter.name[eq]=Miep&filter.name=miep',
       'filter.name[eq]=Miep&filter.isActive[neq]=false',
       'filter.name[eq]=Miep&filter.age[eq]=21&filter.isActive[neq]=true',
     ]) {
@@ -285,6 +282,8 @@ describe('Unhappy paths (400 Bad Request)', () => {
       'filter.firstName[EQ]=Miep', // Bad operator casing
       'filter.firstName[invalid]=Miep', // Unsupported operator
       'filter.firstName[eq=Miep', // Malformed brackets
+      'filter.firstName[eq]=Miep&filter.firstName[eq]=Kees', // Repeated param produces array RHS
+      'filter.name=Piet&filter.name[neq]=PIET', // Mixed bare+bracket on same field produces array RHS
     ]
 
     for (const queryString of badRequests) {
