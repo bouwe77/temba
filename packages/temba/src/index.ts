@@ -126,7 +126,7 @@ const createServer = async (userConfig?: UserConfig) => {
             }
           }
 
-          createOpenApiHandler(config, requestUrl, req.headers.host || '')(req, res)
+          createOpenApiHandler(config, requestUrl, req.headers.host || '')(res)
         } else if (requestUrl.startsWith(rootPath)) {
           await handleResource(req, res)
         } else {
