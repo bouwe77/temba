@@ -4,7 +4,6 @@ import mime from 'mime/lite'
 import path from 'node:path'
 import type { Config } from '../config'
 import {
-  handleMethodNotAllowed,
   handleNotFound,
   sendErrorResponse,
   sendResponse,
@@ -22,15 +21,11 @@ const parseError = (e: unknown) => {
   return 'UnknownError'
 }
 
-const allowedMethods = ['GET', 'HEAD']
-
 export const handleStaticFolder = async (
   req: IncomingMessage,
   res: ServerResponse<IncomingMessage>,
   getStaticFileFromDisk: () => Promise<StaticFileInfo>,
 ) => {
-  if (!req.method || !allowedMethods.includes(req.method)) return handleMethodNotAllowed(res)
-
   try {
     const staticContent = await getStaticFileFromDisk()
     sendResponse(res)({

@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'http'
 import type { Config } from '../config'
-import { handleMethodNotAllowed, handleNotFound, sendResponse } from '../responseHandler'
+import { handleNotFound, sendResponse } from '../responseHandler'
 import { getOpenApiHtml } from './html'
 import { getSpec } from './spec'
 
@@ -14,9 +14,7 @@ export const getOpenApiPaths = (rootPath: string) => {
 }
 
 export const createOpenApiHandler = (config: Config, requestUrl: string, requestHost: string) => {
-  const openApiHandler = async (req: IncomingMessage, res: ServerResponse<IncomingMessage>) => {
-    if (req.method !== 'GET') return handleMethodNotAllowed(res)
-
+  const openApiHandler = async (_req: IncomingMessage, res: ServerResponse<IncomingMessage>) => {
     if (!config.openapi) {
       return handleNotFound(res)
     }
