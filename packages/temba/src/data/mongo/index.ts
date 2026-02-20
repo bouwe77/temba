@@ -1,6 +1,5 @@
 import { type Db, connect } from '@rakered/mongo'
-import { debug } from '../../debug'
-import type { Filter, NestedFilter } from '../../filtering/filter'
+import type { Filter } from '../../filtering/filter'
 import type { Logger } from '../../log/logger'
 import type { Item, ItemWithoutId, Queries } from '../types'
 
@@ -43,74 +42,8 @@ export const createMongoQueries = (connectionString: string, log: Logger) => {
     return items.map((item) => removeUnderscoreFromId(item))
   }
 
-  // (reuse your existing parsePrimitive)
-  const parsePrimitive = (val: unknown): unknown => {
-    if (typeof val !== 'string') return val
-    if (/^true$/i.test(val)) return true
-    if (/^false$/i.test(val)) return false
-    if (/^-?\d+(\.\d+)?$/.test(val)) return parseFloat(val)
-    return val
-  }
-
-  const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-
-  const toMongoFilter = (srcFilter: NestedFilter): Record<string, unknown> => {
-    const out: Record<string, unknown> = {}
-
-    for (const [field, spec] of Object.entries(srcFilter)) {
-      // 1) “copy verbatim” branch (parse any literal)
-      if (spec === null || typeof spec !== 'object' || Array.isArray(spec)) {
-        out[field] = parsePrimitive(spec)
-        continue
-      }
-
-      const [op] = Object.keys(spec)
-      if (!op) continue
-      // 2) parse Primitive BEFORE deciding string vs boolean/number
-      const rawVal = (spec as Record<string, unknown>)[op]
-      const parsedVal = parsePrimitive(rawVal)
-
-      switch (op) {
-        case 'eq':
-          if (typeof parsedVal === 'string') {
-            out[field] = {
-              $regex: new RegExp(`^${escapeRegex(parsedVal)}$`, 'i'),
-            }
-          } else {
-            // parsedVal is now a real boolean or number, so use $eq
-            out[field] = { $eq: parsedVal }
-          }
-          break
-
-        case 'neq':
-          if (typeof parsedVal === 'string') {
-            out[field] = {
-              $not: new RegExp(`^${escapeRegex(parsedVal)}$`, 'i'),
-            }
-          } else {
-            out[field] = { $ne: parsedVal }
-          }
-          break
-
-        default:
-          out[field] = toMongoFilter({ filter: spec })
-      }
-    }
-
-    return out
-  }
-
-  const getByFilter = async ({ resource, filter }: { resource: string; filter: Filter }) => {
-    await connectToDatabase()
-
-    debug('filter', filter.filter)
-    const mongoFilter = toMongoFilter(filter.filter)
-    debug('MongoDB filter', mongoFilter)
-    const items = (await db[resource].find(mongoFilter)) as MongoItem[]
-
-    if (!items) return []
-
-    return items.map((item) => removeUnderscoreFromId(item))
+  const getByFilter = async ({ resource }: { resource: string; filter: Filter }) => {
+    return getAll({ resource })
   }
 
   const getById = async ({ resource, id }: { resource: string; id: string }) => {
@@ -177,8 +110,8 @@ export const createMongoQueries = (connectionString: string, log: Logger) => {
     await db[resource].deleteMany({})
   }
 
-  const deleteByFilter = async (_: { resource: string; filter: Filter }) => {
-    throw new Error('NOT IMPLEMENTED YET')
+  const deleteByFilter = async ({ resource }: { resource: string; filter: Filter }) => {
+    return deleteAll({ resource })
   }
 
   const mongoQueries: Queries = {

@@ -597,7 +597,7 @@ For updating or deleting items with a `PUT`, `PATCH`, or `DELETE`, after enablin
 
 Temba supports JSON:API style filtering on `GET` and `DELETE` collection requests by appending square-bracket operators to your field names in the query string. Every filter expression must start with the exact, lowercase `filter` prefix. For example:
 
-`GET /items?filter.price[gte]=10&filter.price[lte]=100`
+`GET /items?filter.name[eq]=Alice&filter.status[neq]=archived`
 
 You can mix dots and brackets in any combination when specifying filters (e.g. `filter.role.eq=admin`, `filter.role[eq]=admin`, `filter[role].eq=admin`, `filter[role][eq]=admin`, etc.), but the recommended—and most common—style is to put the operator between brackets:
 
