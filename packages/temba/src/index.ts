@@ -7,7 +7,12 @@ import { getHttpLogger, initLogger } from './log/logger'
 import { createOpenApiHandler, getOpenApiPaths } from './openapi'
 import { interceptNonResourceGetRequest } from './requestInterceptor/interceptRequest'
 import { createResourceHandler } from './resourceHandler'
-import { handleMethodNotAllowed, handleNotFound, sendErrorResponse, sendResponse } from './responseHandler'
+import {
+  handleMethodNotAllowed,
+  handleNotFound,
+  sendErrorResponse,
+  sendResponse,
+} from './responseHandler'
 import { createRootUrlHandler } from './root/root'
 import { compileSchemas } from './schema/compile'
 import { handleStaticFolder } from './staticFolder/staticFolder'
@@ -67,7 +72,10 @@ const createServer = async (userConfig?: UserConfig) => {
               'static',
             )
             if (interceptResult.type === 'response') {
-              return sendResponse(res)({ statusCode: interceptResult.status, body: interceptResult.body })
+              return sendResponse(res)({
+                statusCode: interceptResult.status,
+                body: interceptResult.body,
+              })
             }
           }
 
@@ -91,14 +99,16 @@ const createServer = async (userConfig?: UserConfig) => {
               'root',
             )
             if (interceptResult.type === 'response') {
-              return sendResponse(res)({ statusCode: interceptResult.status, body: interceptResult.body })
+              return sendResponse(res)({
+                statusCode: interceptResult.status,
+                body: interceptResult.body,
+              })
             }
           }
 
           createRootUrlHandler(config)(req, res)
         } else if (openapiPaths.includes(requestUrl)) {
-          // Only GET is supported for OpenAPI endpoints (method guard is inside the handler)
-          // Run interceptor before the handler so it only fires for valid GET requests
+          // Only GET is supported for the OpenAPI URL
           if (req.method !== 'GET') return handleMethodNotAllowed(res)
 
           // Run interceptor before serving OpenAPI
@@ -109,7 +119,10 @@ const createServer = async (userConfig?: UserConfig) => {
               'openapi',
             )
             if (interceptResult.type === 'response') {
-              return sendResponse(res)({ statusCode: interceptResult.status, body: interceptResult.body })
+              return sendResponse(res)({
+                statusCode: interceptResult.status,
+                body: interceptResult.body,
+              })
             }
           }
 

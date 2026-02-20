@@ -14,7 +14,7 @@ export const getOpenApiPaths = (rootPath: string) => {
 }
 
 export const createOpenApiHandler = (config: Config, requestUrl: string, requestHost: string) => {
-  const openApiHandler = async (_req: IncomingMessage, res: ServerResponse<IncomingMessage>) => {
+  const openApiHandler = async (res: ServerResponse<IncomingMessage>) => {
     if (!config.openapi) {
       return handleNotFound(res)
     }
