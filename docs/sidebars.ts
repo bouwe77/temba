@@ -8,6 +8,12 @@ const sidebars: SidebarsConfig = {
     'documentation',
     {
       type: 'category',
+      label: 'Recipes',
+      items: ['recipes/jwt-auth'],
+      collapsed: false,
+    },
+    {
+      type: 'category',
       label: 'API Reference',
       items: typedocSidebar,
       collapsed: false,

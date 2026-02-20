@@ -15,10 +15,15 @@ export const createGetRoutes = (
   etagsEnabled: boolean,
 ) => {
   const handleGet = async (req: GetRequest) => {
-    const { headers, resource, id, ifNoneMatchEtag, method, filter } = req
+    const { headers, resource, id, ifNoneMatchEtag, filter } = req
 
-    if (filter === 'invalid') return { statusCode: 400, body: { message: 'Malformed filter expression' } }
-    if (id && filter) return { statusCode: 400, body: { message: 'Filtering on a resource by ID is not supported' } }
+    if (filter === 'invalid')
+      return { statusCode: 400, body: { message: 'Malformed filter expression' } }
+    if (id && filter)
+      return {
+        statusCode: 400,
+        body: { message: 'Filtering on a resource by ID is not supported' },
+      }
 
     const responseOk = (body: Body) => {
       if (!etagsEnabled) return { statusCode: 200, body }
@@ -29,7 +34,7 @@ export const createGetRoutes = (
         : { statusCode: 200, body, headers: { etag } }
     }
 
-    if (method === 'get' && requestInterceptor?.get) {
+    if (requestInterceptor?.get) {
       try {
         const interceptResult = await interceptGetRequest(
           requestInterceptor.get,

@@ -64,16 +64,31 @@ const createResponseAction = (options?: { body?: unknown; status?: number }): Re
   }
 }
 
-// Actions object that gets injected into interceptor callbacks
-export type Actions = {
+// Actions available for resource requests (setRequestBody + response)
+export type ResourceActions = {
   setRequestBody: (body: unknown) => SetRequestBodyAction
   response: (options?: { body?: unknown; status?: number }) => ResponseAction
 }
 
-// Factory to create the actions object
-export const createActions = (): Actions => {
+// Actions available for non-resource requests (response only)
+export type NonResourceActions = {
+  response: (options?: { body?: unknown; status?: number }) => ResponseAction
+}
+
+// Internal alias — resource actions is a superset, used where either is accepted
+export type Actions = ResourceActions
+
+// Factory to create the full resource actions object
+export const createActions = (): ResourceActions => {
   return {
     setRequestBody: createSetRequestBodyAction,
+    response: createResponseAction,
+  }
+}
+
+// Factory to create the non-resource actions object (response only)
+export const createNonResourceActions = (): NonResourceActions => {
+  return {
     response: createResponseAction,
   }
 }

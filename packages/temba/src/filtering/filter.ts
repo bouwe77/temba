@@ -50,7 +50,6 @@ const addDefaultEqOperatorWhenNoOperator = (raw: RawFilter): Filter => {
 }
 
 const isObject = (x: unknown): x is Record<string, unknown> => typeof x === 'object' && x !== null
-const hasFilterProp = (x: unknown): x is { filter: unknown } => isObject(x) && 'filter' in x
 
 /**
  * Walks the filter object recursively. At depth > 1 (inside a field's value),
