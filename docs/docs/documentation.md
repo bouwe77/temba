@@ -16,18 +16,6 @@ An **OpenAPI specification** is generated and enabled by default, providing **in
 
 Data is kept **in memory**, but you can also store it in a **JSON file** or **MongoDB database**.
 
-## Table of contents
-
-[Temba?](#temba)
-
-[Getting Started](#getting-started)
-
-[What Temba does](#what-temba-does)
-
-[Usage](#usage)
-
-[Config settings overview](#config-settings-overview)
-
 ## Temba?
 
 > _"Temba, at REST"_
