@@ -95,7 +95,7 @@ const server = await create({
 })
 ```
 
-If you use the `staticFolder` setting to serve a frontend at `/` (with the API under `/api`), the login form can live in your frontend bundle and call `POST /api/login` — handled entirely by Temba as shown above.
+If you use the `staticFolder` setting to serve a frontend at `/` (with the API under `apiPrefix` `/api`), the login form can live in your frontend bundle and call `POST /api/login` — handled entirely by Temba as shown above.
 
 The only thing that lives outside Temba is the logic itself: a token signing library, a user database, or an external auth service. These are just functions you bring in and call from within your interceptor.
 
