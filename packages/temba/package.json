@@ -12,6 +12,7 @@
   "scripts": {
     "build": "rm -rf dist tsconfig.tsbuildinfo && tsc && tsc-alias && cp ../../README.md .",
     "test": "vitest run",
+    "test:mongodb": "TEMBA_MONGODB_BASE_URI=mongodb://localhost:27017 vitest run test/integration/crud.test.ts",
     "test:watch": "vitest --watch",
     "lint": "eslint . && tsc --noEmit",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
