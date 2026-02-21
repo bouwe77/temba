@@ -24,6 +24,7 @@ export const teardown = async () => {
 }
 
 declare module 'vitest' {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   export interface ProvidedContext {
     mongoUri: string
   }
