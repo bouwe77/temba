@@ -3,9 +3,6 @@ import type { Filter } from '../../filtering/filter'
 import type { Logger } from '../../log/logger'
 import type { Item, ItemWithoutId, Queries } from '../types'
 
-let uri: string
-let db: Db
-
 type MongoItem = {
   _id: string
   [key: string]: unknown
@@ -16,14 +13,19 @@ const removeUnderscoreFromId = ({ _id: id, ...updatedItem }: MongoItem): Item =>
   ...updatedItem,
 })
 
-export const createMongoQueries = (connectionString: string, log: Logger) => {
-  uri = connectionString
+export const createMongoQueries = (connectionString: string, log: Logger, isTesting = false) => {
+  let db: Db | undefined
+
+  // In test mode each server instance gets its own collection namespace so
+  // tests that create multiple servers don't share state in MongoDB.
+  const collectionSuffix = isTesting ? `_${Date.now()}_${Math.random().toString(36).slice(2, 7)}` : ''
+  const collectionName = (resource: string) => `${resource}${collectionSuffix}`
 
   const connectToDatabase = async () => {
     if (!db) {
       log.debug('Connecting to MongoDB...')
       try {
-        db = await connect(uri)
+        db = await connect(connectionString)
         log.debug('Connected to MongoDB!')
       } catch (error) {
         log.debug('Error connecting to MongoDB')
@@ -35,7 +37,7 @@ export const createMongoQueries = (connectionString: string, log: Logger) => {
   const getAll = async ({ resource }: { resource: string }) => {
     await connectToDatabase()
 
-    const items = (await db[resource].find({})) as MongoItem[]
+    const items = (await db![collectionName(resource)].find({})) as MongoItem[]
 
     if (!items) return []
 
@@ -49,7 +51,7 @@ export const createMongoQueries = (connectionString: string, log: Logger) => {
   const getById = async ({ resource, id }: { resource: string; id: string }) => {
     await connectToDatabase()
 
-    const item = await db[resource].findOne({ _id: id })
+    const item = await db![collectionName(resource)].findOne({ _id: id })
 
     if (!item) return null
 
@@ -67,7 +69,7 @@ export const createMongoQueries = (connectionString: string, log: Logger) => {
   }) => {
     await connectToDatabase()
 
-    const createdItem = await db[resource].insertOne(id ? { ...item, _id: id } : item)
+    const createdItem = await db![collectionName(resource)].insertOne(id ? { ...item, _id: id } : item)
 
     return removeUnderscoreFromId(createdItem.ops[0])
   }
@@ -77,7 +79,7 @@ export const createMongoQueries = (connectionString: string, log: Logger) => {
 
     const { id, ...itemWithoutId } = item
 
-    const updatedItem = await db[resource].findOneAndUpdate(
+    const updatedItem = await db![collectionName(resource)].findOneAndUpdate(
       { _id: id },
       { $set: itemWithoutId },
       { returnOriginal: false },
@@ -91,7 +93,7 @@ export const createMongoQueries = (connectionString: string, log: Logger) => {
 
     const { id, ...itemWithoutId } = item
 
-    const replacedItem = await db[resource].findOneAndReplace({ _id: id }, itemWithoutId, {
+    const replacedItem = await db![collectionName(resource)].findOneAndReplace({ _id: id }, itemWithoutId, {
       returnOriginal: false,
     })
 
@@ -101,13 +103,13 @@ export const createMongoQueries = (connectionString: string, log: Logger) => {
   const deleteById = async ({ resource, id }: { resource: string; id: string }) => {
     await connectToDatabase()
 
-    await db[resource].deleteOne({ _id: id })
+    await db![collectionName(resource)].deleteOne({ _id: id })
   }
 
   const deleteAll = async ({ resource }: { resource: string }) => {
     await connectToDatabase()
 
-    await db[resource].deleteMany({})
+    await db![collectionName(resource)].deleteMany({})
   }
 
   const deleteByFilter = async ({ resource }: { resource: string; filter: Filter }) => {

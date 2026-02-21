@@ -23,6 +23,24 @@ Or combine them in one go:
 npm run check
 ```
 
+## MongoDB E2E testing
+
+To also run the integration tests against a real MongoDB, you need a local MongoDB
+instance running on the default port (27017), then run:
+
+```bash
+npm run test:mongodb
+```
+
+This creates a temporary database, runs all test files marked with `// @mongodb`,
+and drops the database when done.
+
+To mark a test file as relevant for MongoDB testing, add this comment at the top:
+
+```ts
+// @mongodb
+```
+
 ## Manual E2E testing
 
 If you want to spin up a real API to test the current state of your local Temba code:

@@ -31,7 +31,7 @@ const createServer = async (userConfig?: UserConfig) => {
   const rootPath = config.apiPrefix ? removePendingAndTrailingSlashes(config.apiPrefix) : ''
   const openapiPaths = getOpenApiPaths(rootPath)
   const { log, logLevel } = initLogger(process.env.LOG_LEVEL)
-  const queries = createQueries(config.connectionString, log)
+  const queries = createQueries(config.connectionString, log, config.isTesting)
   const schemas = compileSchemas(config.schemas)
   const httpLogger = getHttpLogger(logLevel)
 
