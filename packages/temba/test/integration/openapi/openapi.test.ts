@@ -48,6 +48,22 @@ describe.each(endpoints)('OpenAPI documentation', (path) => {
   })
 })
 
+describe.each(endpoints)('Query strings on OpenAPI endpoints', (path) => {
+  test(`GET ${'{path}'}?foo=bar is correctly routed to the OpenAPI handler`, async () => {
+    const tembaServer = await createServer({ openapi: true })
+    const response = await request(tembaServer).get(`${path}?foo=bar`)
+
+    expect(response.statusCode).toEqual(200)
+  })
+
+  test(`POST ${'{path}'}?foo=bar still returns 405 Method Not Allowed`, async () => {
+    const tembaServer = await createServer({ openapi: true })
+    const response = await request(tembaServer).post(`${path}?foo=bar`)
+
+    expect(response.statusCode).toEqual(405)
+  })
+})
+
 /*
   The body of the OpenAPI documentation is only tested for JSON, as we may assume that the YAML is correct if the JSON is correct.
 */

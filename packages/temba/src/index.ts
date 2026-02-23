@@ -53,7 +53,7 @@ const createServer = async (userConfig?: UserConfig) => {
     httpLogger(req, res, (err) => {
       if (err) return sendErrorResponse(res)
 
-      const requestUrl = removePendingAndTrailingSlashes(req.url)
+      const requestUrl = removePendingAndTrailingSlashes(req.url?.split('?')[0])
 
       const handleRequest = async () => {
         if (req.method === 'OPTIONS') {
