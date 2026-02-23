@@ -17,7 +17,7 @@ export const createPutRoutes = (
   broadcast: BroadcastFunction | null,
 ) => {
   const handlePut = async (req: PutRequest) => {
-    const { headers, resource, id } = req
+    const { headers, resource, id, url } = req
     let { body } = req
 
     const validationResult = validate(body, schemas?.[resource])
@@ -33,6 +33,7 @@ export const createPutRoutes = (
           resource,
           id,
           body,
+          url,
         )
 
         if (interceptResult.type === 'response') {

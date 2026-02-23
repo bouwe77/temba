@@ -229,3 +229,62 @@ describe('requestInterceptor headers are passed for non-resource requests', () =
     expect(response.body).toEqual({ token: 'abc123' })
   })
 })
+
+describe('requestInterceptor url is passed for non-resource requests', () => {
+  test('url is available in the interceptor for root URL requests', async () => {
+    const requestInterceptor: RequestInterceptor = {
+      get: ({ type, url }, actions) => {
+        if (type === 'root') return actions.response({ status: 200, body: { url } })
+      },
+    }
+    const tembaServer = await createServer({ requestInterceptor })
+
+    const response = await request(tembaServer).get('/')
+
+    expect(response.body.url).toMatch(/^http:\/\/127\.0\.0\.1:\d+\/$/)
+  })
+
+  test('url is available in the interceptor for openapi requests with a query string', async () => {
+    const requestInterceptor: RequestInterceptor = {
+      get: ({ type, url }, actions) => {
+        if (type === 'openapi') return actions.response({ status: 200, body: { url } })
+      },
+    }
+    const tembaServer = await createServer({ requestInterceptor })
+
+    // Note: query strings on non-resource routes such as /openapi.json are forwarded as-is in
+    // the url field even though the routing itself does not use them for matching.
+    const response = await request(tembaServer).get('/openapi.json')
+
+    expect(response.body.url).toMatch(/^http:\/\/127\.0\.0\.1:\d+\/openapi\.json$/)
+  })
+
+  test('url is available in the interceptor for openapi requests', async () => {
+    const requestInterceptor: RequestInterceptor = {
+      get: ({ type, url }, actions) => {
+        if (type === 'openapi') return actions.response({ status: 200, body: { url } })
+      },
+    }
+    const tembaServer = await createServer({ requestInterceptor })
+
+    const response = await request(tembaServer).get('/openapi.json')
+
+    expect(response.body.url).toMatch(/^http:\/\/127\.0\.0\.1:\d+\/openapi\.json$/)
+  })
+
+  test('url is available in the interceptor for static folder requests', async () => {
+    const requestInterceptor: RequestInterceptor = {
+      get: ({ type, url }, actions) => {
+        if (type === 'static') return actions.response({ status: 200, body: { url } })
+      },
+    }
+    const tembaServer = await createServer(
+      { staticFolder: 'dist', requestInterceptor },
+      { getStaticFileFromDisk },
+    )
+
+    const response = await request(tembaServer).get('/')
+
+    expect(response.body.url).toMatch(/^http:\/\/127\.0\.0\.1:\d+\/$/)
+  })
+})

@@ -14,10 +14,10 @@ The interceptor is organised per HTTP method (`get`, `post`, `put`, `patch`, `de
 ```js
 const config = {
   requestInterceptor: {
-    get: ({ type, headers, resource, id }, actions) => {
+    get: ({ type, headers, url, resource, id }, actions) => {
       // Called for ALL GET requests, resource and non-resource alike
     },
-    post: ({ type, headers, resource, id, body }, actions) => {
+    post: ({ type, headers, url, resource, id, body }, actions) => {
       // Called for POST requests to resources
     },
   },
@@ -41,32 +41,32 @@ Each interceptor method receives two parameters:
 // GET interceptor — fires for resource and non-resource requests
 get?: (
   request:
-    | { type: 'resource'; headers: IncomingHttpHeaders; resource: string; id: string | null }
-    | { type: 'root' | 'openapi' | 'static'; headers: IncomingHttpHeaders },
+    | { type: 'resource'; headers: IncomingHttpHeaders; url: string; resource: string; id: string | null }
+    | { type: 'root' | 'openapi' | 'static'; headers: IncomingHttpHeaders; url: string },
   actions: ResourceActions | NonResourceActions
 ) => void | InterceptorAction | Promise<void | InterceptorAction>
 
 // DELETE interceptor — fires for resource requests only
 delete?: (
-  request: { type: 'resource'; headers: IncomingHttpHeaders; resource: string; id: string | null },
+  request: { type: 'resource'; headers: IncomingHttpHeaders; url: string; resource: string; id: string | null },
   actions: ResourceActions
 ) => void | InterceptorAction | Promise<void | InterceptorAction>
 
 // POST interceptor — fires for resource requests only
 post?: (
-  request: { type: 'resource'; headers: IncomingHttpHeaders; resource: string; id: string | null; body: object | string | Buffer | null },
+  request: { type: 'resource'; headers: IncomingHttpHeaders; url: string; resource: string; id: string | null; body: object | string | Buffer | null },
   actions: ResourceActions
 ) => void | InterceptorAction | Promise<void | InterceptorAction>
 
 // PUT interceptor — fires for resource requests only
 put?: (
-  request: { type: 'resource'; headers: IncomingHttpHeaders; resource: string; id: string; body: object | string | Buffer | null },
+  request: { type: 'resource'; headers: IncomingHttpHeaders; url: string; resource: string; id: string; body: object | string | Buffer | null },
   actions: ResourceActions
 ) => void | InterceptorAction | Promise<void | InterceptorAction>
 
 // PATCH interceptor — fires for resource requests only
 patch?: (
-  request: { type: 'resource'; headers: IncomingHttpHeaders; resource: string; id: string; body: object | string | Buffer | null },
+  request: { type: 'resource'; headers: IncomingHttpHeaders; url: string; resource: string; id: string; body: object | string | Buffer | null },
   actions: ResourceActions
 ) => void | InterceptorAction | Promise<void | InterceptorAction>
 ```
@@ -106,6 +106,7 @@ type NonResourceActions = {
 * The interceptor is **not** called for WebSocket upgrade requests or OPTIONS (CORS preflight) requests
 * For resource requests, the interceptor runs **before** JSON Schema validation (if configured)
 * The `body` parameter is the parsed JSON request body
+* The `url` field is the full request URL including protocol, host, path, and query string — e.g. `http://localhost:3000/movies/123?genre=sci-fi`
 
 **Examples:**
 
@@ -113,7 +114,7 @@ type NonResourceActions = {
 const config = {
   requestInterceptor: {
     // Intercept all GET requests
-    get: ({ type, resource, id, headers }, actions) => {
+    get: ({ type, resource, id, headers, url }, actions) => {
 
       // Branch on type to handle resource vs non-resource requests
       if (type === 'resource') {

@@ -27,9 +27,10 @@ export const interceptGetRequest = async (
   headers: IncomingHttpHeaders,
   resource: string,
   id: string | null,
+  url: string,
 ): Promise<InterceptResult> => {
   const actions = createActions()
-  const result = await intercept({ type: 'resource', headers, resource, id }, actions)
+  const result = await intercept({ type: 'resource', headers, resource, id, url }, actions)
   return processInterceptResult(result)
 }
 
@@ -37,9 +38,10 @@ export const interceptNonResourceGetRequest = async (
   intercept: InterceptedGetRequest,
   headers: IncomingHttpHeaders,
   requestType: NonResourceRequestType,
+  url: string,
 ): Promise<InterceptResult> => {
   const actions = createNonResourceActions()
-  const result = await intercept({ type: requestType, headers }, actions)
+  const result = await intercept({ type: requestType, headers, url }, actions)
   return processInterceptResult(result)
 }
 
@@ -49,9 +51,10 @@ export const interceptPostRequest = async (
   resource: string,
   id: string | null,
   body: Body,
+  url: string,
 ): Promise<InterceptResult> => {
   const actions = createActions()
-  const result = await intercept({ type: 'resource', headers, resource, body, id }, actions)
+  const result = await intercept({ type: 'resource', headers, resource, body, id, url }, actions)
   return processInterceptResult(result, body)
 }
 
@@ -61,9 +64,10 @@ export const interceptPutRequest = async (
   resource: string,
   id: string,
   body: Body,
+  url: string,
 ): Promise<InterceptResult> => {
   const actions = createActions()
-  const result = await intercept({ type: 'resource', headers, resource, id, body }, actions)
+  const result = await intercept({ type: 'resource', headers, resource, id, body, url }, actions)
   return processInterceptResult(result, body)
 }
 
@@ -74,9 +78,10 @@ export const interceptDeleteRequest = async (
   headers: IncomingHttpHeaders,
   resource: string,
   id: string | null,
+  url: string,
 ): Promise<InterceptResult> => {
   const actions = createActions()
-  const result = await intercept({ type: 'resource', headers, resource, id }, actions)
+  const result = await intercept({ type: 'resource', headers, resource, id, url }, actions)
   return processInterceptResult(result)
 }
 

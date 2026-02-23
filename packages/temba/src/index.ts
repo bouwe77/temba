@@ -53,12 +53,16 @@ const createServer = async (userConfig?: UserConfig) => {
     httpLogger(req, res, (err) => {
       if (err) return sendErrorResponse(res)
 
-      const requestUrl = removePendingAndTrailingSlashes(req.url)
+      const requestUrl = removePendingAndTrailingSlashes(req.url?.split('?')[0])
 
       const handleRequest = async () => {
         if (req.method === 'OPTIONS') {
           return handleOptionsRequest(res)
         }
+
+        const protoHeader = req.headers['x-forwarded-proto']
+        const protocol = (Array.isArray(protoHeader) ? protoHeader[0] : protoHeader) ?? 'http'
+        const fullUrl = `${protocol}://${req.headers.host ?? ''}${req.url ?? ''}`
 
         if (config.staticFolder && !`${requestUrl}/`.startsWith(config.apiPrefix + '/')) {
           // Only GET and HEAD are supported for static files
@@ -70,6 +74,7 @@ const createServer = async (userConfig?: UserConfig) => {
               config.requestInterceptor.get,
               req.headers,
               'static',
+              fullUrl,
             )
             if (interceptResult.type === 'response') {
               return sendResponse(res)({
@@ -97,6 +102,7 @@ const createServer = async (userConfig?: UserConfig) => {
               config.requestInterceptor.get,
               req.headers,
               'root',
+              fullUrl,
             )
             if (interceptResult.type === 'response') {
               return sendResponse(res)({
@@ -117,6 +123,7 @@ const createServer = async (userConfig?: UserConfig) => {
               config.requestInterceptor.get,
               req.headers,
               'openapi',
+              fullUrl,
             )
             if (interceptResult.type === 'response') {
               return sendResponse(res)({

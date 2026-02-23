@@ -15,7 +15,7 @@ export const createGetRoutes = (
   etagsEnabled: boolean,
 ) => {
   const handleGet = async (req: GetRequest) => {
-    const { headers, resource, id, ifNoneMatchEtag, filter } = req
+    const { headers, resource, id, url, ifNoneMatchEtag, filter } = req
 
     if (filter === 'invalid')
       return { statusCode: 400, body: { message: 'Malformed filter expression' } }
@@ -41,6 +41,7 @@ export const createGetRoutes = (
           headers,
           resource,
           id,
+          url,
         )
 
         // If interceptor returned a response action, return immediately

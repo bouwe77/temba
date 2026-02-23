@@ -66,3 +66,15 @@ describe('Other methods', () => {
     expect(JSON.stringify(response.body)).toEqual('{}')
   })
 })
+
+describe('Query strings on root URL', () => {
+  test('GET /?foo=bar is correctly routed to the root handler', async () => {
+    const response = await request(tembaServer).get('/?foo=bar')
+    expect(response.statusCode).toEqual(200)
+  })
+
+  test('POST /?foo=bar still returns 405 Method Not Allowed', async () => {
+    const response = await request(tembaServer).post('/?foo=bar')
+    expect(response.statusCode).toEqual(405)
+  })
+})

@@ -72,6 +72,7 @@ const convertToGetRequest = (requestInfo: RequestInfo) => {
     headers: requestInfo.headers,
     id: requestInfo.id,
     resource: requestInfo.resource,
+    url: requestInfo.url,
     method: requestInfo.method.toUpperCase() === 'HEAD' ? 'head' : 'get',
     ifNoneMatchEtag: requestInfo.ifNoneMatchEtag,
     filter: getFilter(requestInfo.queryString),
@@ -83,6 +84,7 @@ const convertToPostRequest = (requestInfo: RequestInfo) => {
     headers: requestInfo.headers,
     id: requestInfo.id ?? null,
     resource: requestInfo.resource,
+    url: requestInfo.url,
     body: requestInfo.body ?? {},
     protocol: requestInfo.protocol,
     host: requestInfo.host,
@@ -94,6 +96,7 @@ const convertToPutRequest = (requestInfo: RequestInfo) => {
     headers: requestInfo.headers,
     id: requestInfo.id!,
     resource: requestInfo.resource,
+    url: requestInfo.url,
     body: requestInfo.body ?? {},
     etag: requestInfo.etag ?? null,
   } satisfies PutRequest
@@ -106,6 +109,7 @@ const convertToDeleteRequest = (requestInfo: RequestInfo) => {
     headers: requestInfo.headers,
     id: requestInfo.id,
     resource: requestInfo.resource,
+    url: requestInfo.url,
     etag: requestInfo.etag ?? null,
     filter: getFilter(requestInfo.queryString),
   } satisfies DeleteRequest
@@ -161,12 +165,14 @@ export const createResourceHandler = async (
     const host = req.headers.host || null
     const protoHeader = req.headers['x-forwarded-proto']
     const protocol = (Array.isArray(protoHeader) ? protoHeader[0] : protoHeader) ?? 'http'
+    const url = `${protocol}://${host ?? ''}${req.url ?? ''}`
 
     const body = await getBody(req)
 
     return {
       id: urlInfo.id,
       resource: urlInfo.resource,
+      url,
       body,
       host,
       protocol,
