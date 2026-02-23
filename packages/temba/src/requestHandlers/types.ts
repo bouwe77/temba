@@ -11,6 +11,7 @@ export type UrlInfo = {
 export type RequestInfo = {
   id: string | null
   resource: string
+  url: string
   body: Body | null
   host: string | null
   protocol: string | null
@@ -24,6 +25,7 @@ export type RequestInfo = {
 export type TembaRequest = {
   headers: IncomingHttpHeaders
   resource: string
+  url: string
 }
 
 export type GetRequest = TembaRequest & {

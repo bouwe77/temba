@@ -13,7 +13,7 @@ export const createDeleteRoutes = (
   broadcast: BroadcastFunction | null,
 ) => {
   const handleDelete = async (req: DeleteRequest) => {
-    const { headers, resource, id, filter } = req
+    const { headers, resource, id, url, filter } = req
 
     if (filter === 'invalid') return { statusCode: 400, body: { message: 'Malformed filter expression' } }
     if (id && filter) return { statusCode: 400, body: { message: 'Filtering on a resource by ID is not supported' } }
@@ -25,6 +25,7 @@ export const createDeleteRoutes = (
           headers,
           resource,
           id,
+          url,
         )
 
         // If interceptor returned a response action, return immediately

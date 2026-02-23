@@ -16,7 +16,7 @@ export const createPostRoutes = (
   broadcast: BroadcastFunction | null,
 ) => {
   const handlePost = async (req: PostRequest) => {
-    const { headers, protocol, host, resource, id } = req
+    const { headers, protocol, host, resource, id, url } = req
     let { body } = req
 
     const validationResult = validate(body, schemas[resource])
@@ -32,6 +32,7 @@ export const createPostRoutes = (
           resource,
           id,
           body,
+          url,
         )
 
         if (interceptResult.type === 'response') {

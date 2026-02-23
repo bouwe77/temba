@@ -17,7 +17,7 @@ export const createPatchRoutes = (
   broadcast: BroadcastFunction | null,
 ) => {
   const handlePatch = async (req: PatchRequest) => {
-    const { headers, resource, id } = req
+    const { headers, resource, id, url } = req
     let { body } = req
 
     const validationResult = validate(body, schemas?.[resource])
@@ -33,6 +33,7 @@ export const createPatchRoutes = (
           resource,
           id,
           body,
+          url,
         )
 
         if (interceptResult.type === 'response') {

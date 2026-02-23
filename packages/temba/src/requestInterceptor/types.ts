@@ -8,18 +8,20 @@ export type ResourceRequestType = 'resource'
 export type NonResourceRequestType = 'root' | 'openapi' | 'static'
 export type RequestType = ResourceRequestType | NonResourceRequestType
 
-// Non-resource request — type only + headers
+// Non-resource request — type only + headers + url
 type InterceptedNonResourceRequest = {
   type: NonResourceRequestType
   headers: IncomingHttpHeaders
+  url: string
 }
 
-// Resource request base — type + headers + resource + id
+// Resource request base — type + headers + resource + id + url
 type InterceptedResourceRequest = {
   type: ResourceRequestType
   headers: IncomingHttpHeaders
   resource: string
   id: string | null
+  url: string
 }
 
 type WithBody = InterceptedResourceRequest & {
