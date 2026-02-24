@@ -13,6 +13,7 @@
     "build": "rm -rf dist tsconfig.tsbuildinfo && tsc && tsc-alias && cp ../../README.md .",
     "test": "vitest run",
     "test:mongodb": "TEMBA_MONGODB_BASE_URI=mongodb://localhost:27017 vitest run",
+    "test:custom-server": "TEMBA_CUSTOM_SERVER=true vitest run",
     "test:watch": "vitest --watch",
     "lint": "eslint . && tsc --noEmit",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",

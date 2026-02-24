@@ -1,3 +1,4 @@
+// @custom-server
 import request from 'supertest'
 import { describe, expect, test } from 'vitest'
 import type { RequestInterceptor } from '../../../src/requestInterceptor/types'

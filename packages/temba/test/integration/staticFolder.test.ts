@@ -1,3 +1,4 @@
+// @custom-server
 import request from 'supertest'
 import { expect, test } from 'vitest'
 import { createServer } from './createServer'
