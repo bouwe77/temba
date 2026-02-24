@@ -40,7 +40,15 @@ export const handleStaticFolder = async (
 
 export const createGetStaticFileFromDisk = (config: Config) => {
   return async (filename: string): Promise<StaticFileInfo> => {
-    const filePath = path.join(config.staticFolder || '', filename)
+    const staticRoot = path.resolve(config.staticFolder || '')
+    const filePath = path.resolve(staticRoot, filename.startsWith('/') ? filename.slice(1) : filename)
+
+    if (!filePath.startsWith(staticRoot + path.sep) && filePath !== staticRoot) {
+      const error = new Error('Forbidden') as NodeJS.ErrnoException
+      error.code = 'ENOENT'
+      throw error
+    }
+
     const mimeType = mime.getType(filePath) || 'application/octet-stream'
     const isText = mimeType.startsWith('text/') || mimeType === 'application/json'
 
