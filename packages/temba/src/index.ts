@@ -1,4 +1,3 @@
-import type { IncomingMessage, ServerResponse } from 'http'
 import { createServer as httpCreateServer } from 'node:http'
 import { initConfig, type UserConfig } from './config'
 import { createQueries } from './data/queries'
@@ -141,11 +140,11 @@ const createServer = async (userConfig?: UserConfig) => {
       }
 
       const timeoutId = setTimeout(() => {
-        if (!res.headersSent) sendErrorResponse(res, 503, 'Request timed out')
+        if (!res.headersSent) sendErrorResponse(res, 503, 'Request timed out', config.cors)
       }, REQUEST_TIMEOUT_MS)
 
       handleRequest()
-        .catch(() => { if (!res.headersSent) sendErrorResponse(res) })
+        .catch(() => { if (!res.headersSent) sendErrorResponse(res, 500, 'Internal Server Error', config.cors) })
         .finally(() => clearTimeout(timeoutId))
     })
   })
