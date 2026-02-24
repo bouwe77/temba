@@ -72,7 +72,18 @@ const config = {
   allowDeleteCollection: true,
   apiPrefix: 'api',
   connectionString: 'mongodb://localhost:27017/myDatabase',
+<<<<<<< HEAD
+  cors: {
+    origin: 'https://myapp.com',
+    methods: 'GET, POST',
+    headers: 'Content-Type, Authorization',
+    credentials: true,
+    exposeHeaders: 'ETag, X-Token',
+    maxAge: 86400,
+  },
   delay: 500,
+=======
+>>>>>>> main
   etags: true,
   openapi: true,
   port: 4321,
@@ -123,7 +134,7 @@ These are all the possible settings:
 | `allowDeleteCollection`   | Whether a `DELETE` request on a collection is allowed to delete all items.                   | `false`       |
 | `apiPrefix`               | See [API prefix](/docs/api-prefix)                                                           | `null`        |
 | `connectionString`        | See [Data persistency](/docs/data-persistency)                                               | `null`        |
-| `delay`                   | The delay, in milliseconds, after processing the request before sending the response.        | `0`           |
+| `cors`                    | See [CORS](/docs/cors)                                                                       | `{ origin: '*', methods: 'GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS', headers: 'Content-Type, X-Token', credentials: false, exposeHeaders: null, maxAge: null }` |
 | `etags`                   | See [Caching and consistency with Etags](/docs/etags)                                        | `false`       |
 | `openapi`                 | Enable or disable OpenAPI, or supply your custom spec object to merge into the default spec. | `true`        |
 | `port`                    | The port your Temba server listens on                                                        | `8362`        |

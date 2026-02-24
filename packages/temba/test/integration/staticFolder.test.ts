@@ -1,6 +1,6 @@
 // @custom-server
 import request from 'supertest'
-import { expect, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { createServer } from './createServer'
 
 const getStaticFileFromDisk = async (
@@ -80,6 +80,36 @@ test('When reading static file errors, it returns a 500', async () => {
 
   const staticFolderResponse = await request(tembaServer).get('')
   expect(staticFolderResponse.status).toBe(500)
+})
+
+describe('Path traversal prevention', () => {
+  // The path traversal check in createGetStaticFileFromDisk throws an error
+  // with code 'ENOENT' when a traversal is detected. This ensures that
+  // the HTTP layer translates that into a 404 (not a 500 or any other status),
+  // so traversal attempts are indistinguishable from ordinary missing files.
+  const throwTraversalError = () => {
+    const error = new Error('Forbidden') as NodeJS.ErrnoException
+    error.code = 'ENOENT'
+    throw error
+  }
+
+  test('a path traversal attempt returns 404, not 500', async () => {
+    const tembaServer = await createServer(
+      { staticFolder: 'dist' },
+      { getStaticFileFromDisk: throwTraversalError },
+    )
+    const response = await request(tembaServer).get('/../../../etc/passwd')
+    expect(response.status).toBe(404)
+  })
+
+  test('a traversal via subdirectory hops returns 404, not 500', async () => {
+    const tembaServer = await createServer(
+      { staticFolder: 'dist' },
+      { getStaticFileFromDisk: throwTraversalError },
+    )
+    const response = await request(tembaServer).get('/subdir/../../etc/passwd')
+    expect(response.status).toBe(404)
+  })
 })
 
 test('Only GET method is allowed for static folder', async () => {

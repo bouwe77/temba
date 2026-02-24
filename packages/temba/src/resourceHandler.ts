@@ -128,12 +128,20 @@ export const createResourceHandler = async (
     return parseUrl(url)
   }
 
+  const MAX_BODY_SIZE = 1024 * 1024 // 1 MB
+
   const getBody = (request: IncomingMessage): Promise<Body | null> => {
     return new Promise((resolve, reject) => {
       const bodyParts: Buffer[] = []
+      let totalSize = 0
 
       request
         .on('data', (chunk: Buffer) => {
+          totalSize += chunk.length
+          if (totalSize > MAX_BODY_SIZE) {
+            reject(new Error('Payload Too Large'))
+            return
+          }
           bodyParts.push(chunk)
         })
         .on('end', () => {
@@ -167,7 +175,14 @@ export const createResourceHandler = async (
     const protocol = (Array.isArray(protoHeader) ? protoHeader[0] : protoHeader) ?? 'http'
     const url = `${protocol}://${host ?? ''}${req.url ?? ''}`
 
-    const body = await getBody(req)
+    let body: Body | null
+    try {
+      body = await getBody(req)
+    } catch (err: unknown) {
+      const message = (err as Error).message
+      if (message === 'Payload Too Large') return createError(413, message)
+      return createError(400, 'Invalid JSON')
+    }
 
     return {
       id: urlInfo.id,
@@ -209,7 +224,7 @@ export const createResourceHandler = async (
     const requestInfo = await parseRequest(httpRequest)
 
     if (isError(requestInfo)) {
-      return sendErrorResponse(httpResponse, requestInfo.statusCode, requestInfo.message)
+      return sendErrorResponse(httpResponse, requestInfo.statusCode, requestInfo.message, config.cors)
     }
 
     for (const validator of [validators].flat()) {
@@ -219,6 +234,7 @@ export const createResourceHandler = async (
           httpResponse,
           validationResult.statusCode,
           validationResult.message,
+          config.cors,
         )
       }
     }
@@ -226,7 +242,7 @@ export const createResourceHandler = async (
     const convertedRequest = convert(requestInfo)
 
     const response = await handleRequest(convertedRequest)
-    sendResponse(httpResponse)(response)
+    sendResponse(httpResponse, config.cors)(response)
   }
 
   const requestHandler = await getRequestHandler(queries, schemas, config, broadcast)

@@ -53,3 +53,8 @@ For a collection deletion (e.g., `DELETE /movies`), the action is `"DELETE_ALL"`
   "action": "DELETE_ALL"
 }
 ```
+
+## Limitations
+
+- **No authentication**: WebSocket connections bypass the `requestInterceptor`. Any client that can reach the `/ws` endpoint can connect. If you need to restrict access, do so at the network or reverse-proxy level.
+- **No connection limit**: Temba does not cap the number of simultaneous WebSocket connections. For local development and small projects this is fine, but keep it in mind if your deployment is publicly accessible.

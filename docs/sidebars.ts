@@ -23,6 +23,7 @@ const sidebars: SidebarsConfig = {
         'etags',
         'filtering',
         'websockets',
+        'cors',
       ],
       collapsed: false,
     },

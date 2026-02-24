@@ -15,6 +15,24 @@ type Resources = (ResourcePath | ExtendedResource)[]
 
 type OpenApiConfig = boolean | Record<string, unknown>
 
+export type CorsConfig = {
+  origin: string
+  methods: string
+  headers: string
+  credentials: boolean
+  exposeHeaders: string | null
+  maxAge: number | null
+}
+
+export type UserCorsConfig = {
+  origin?: string
+  methods?: string
+  headers?: string
+  credentials?: boolean
+  exposeHeaders?: string
+  maxAge?: number
+}
+
 export type Config = {
   validateResources: boolean
   resources: Resources
@@ -23,7 +41,6 @@ export type Config = {
   responseBodyInterceptor: ResponseBodyInterceptor | null
   staticFolder: string | null
   connectionString: string | null
-  delay: number
   returnNullFields: boolean
   port: number
   schemas: ConfiguredSchemas | null
@@ -31,6 +48,7 @@ export type Config = {
   etagsEnabled: boolean
   openapi: OpenApiConfig
   webSocket: boolean
+  cors: CorsConfig
 
   isTesting: boolean
   implementations: Implementations | null
@@ -43,7 +61,6 @@ export type UserConfig = {
   staticFolder?: string
   apiPrefix?: string
   connectionString?: string
-  delay?: number
   requestInterceptor?: RequestInterceptor
   responseBodyInterceptor?: ResponseBodyInterceptor
   returnNullFields?: boolean
@@ -53,6 +70,7 @@ export type UserConfig = {
   etags?: boolean
   openapi?: OpenApiConfig
   webSocket?: boolean
+  cors?: UserCorsConfig
 
   // Use isTesting when running tests that don't require a started server.
   isTesting?: boolean
@@ -66,7 +84,6 @@ const defaultConfig: Config = {
   staticFolder: null,
   apiPrefix: null,
   connectionString: null,
-  delay: 0,
   requestInterceptor: null,
   responseBodyInterceptor: null,
   returnNullFields: true,
@@ -76,6 +93,14 @@ const defaultConfig: Config = {
   etagsEnabled: false,
   openapi: true,
   webSocket: false,
+  cors: {
+    origin: '*',
+    methods: 'GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS',
+    headers: 'Content-Type, X-Token',
+    credentials: false,
+    exposeHeaders: null,
+    maxAge: null,
+  },
 
   isTesting: false,
   implementations: null,
@@ -110,16 +135,6 @@ export const initConfig = (userConfig?: UserConfig): Config => {
   }
   if (userConfig.connectionString && userConfig.connectionString.length > 0) {
     config.connectionString = userConfig.connectionString
-  }
-
-  if (
-    userConfig.delay &&
-    userConfig.delay !== 0 &&
-    typeof Number(userConfig.delay) === 'number' &&
-    Number(userConfig.delay) > 0 &&
-    Number(userConfig.delay) < 100000
-  ) {
-    config.delay = userConfig.delay
   }
 
   if (userConfig.requestInterceptor) {
@@ -192,6 +207,10 @@ export const initConfig = (userConfig?: UserConfig): Config => {
 
   if (!isUndefined(userConfig.webSocket)) {
     config.webSocket = userConfig.webSocket
+  }
+
+  if (userConfig.cors) {
+    config.cors = { ...config.cors, ...userConfig.cors }
   }
 
   return config

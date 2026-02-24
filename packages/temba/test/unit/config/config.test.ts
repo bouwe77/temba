@@ -8,7 +8,6 @@ const defaultConfig: Config = {
   staticFolder: null,
   apiPrefix: null,
   connectionString: null,
-  delay: 0,
   requestInterceptor: null,
   responseBodyInterceptor: null,
   returnNullFields: true,
@@ -18,6 +17,14 @@ const defaultConfig: Config = {
   etagsEnabled: false,
   openapi: true,
   webSocket: false,
+  cors: {
+    origin: '*',
+    methods: 'GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS',
+    headers: 'Content-Type, X-Token',
+    credentials: false,
+    exposeHeaders: null,
+    maxAge: null,
+  },
 
   isTesting: false,
   implementations: null,
@@ -31,7 +38,6 @@ test('No config returns default config', () => {
   expect(initializedConfig.staticFolder).toBe(defaultConfig.staticFolder)
   expect(initializedConfig.apiPrefix).toBe(defaultConfig.apiPrefix)
   expect(initializedConfig.connectionString).toBe(defaultConfig.connectionString)
-  expect(initializedConfig.delay).toBe(defaultConfig.delay)
   expect(initializedConfig.requestInterceptor?.get).toBe(defaultConfig.requestInterceptor?.get)
   expect(initializedConfig.requestInterceptor?.post).toBe(defaultConfig.requestInterceptor?.post)
   expect(initializedConfig.requestInterceptor?.patch).toBe(defaultConfig.requestInterceptor?.patch)
@@ -47,6 +53,7 @@ test('No config returns default config', () => {
   expect(initializedConfig.etagsEnabled).toBe(defaultConfig.etagsEnabled)
   expect(initializedConfig.openapi).toBe(defaultConfig.openapi)
   expect(initializedConfig.webSocket).toBe(defaultConfig.webSocket)
+  expect(initializedConfig.cors).toEqual(defaultConfig.cors)
   expect(initializedConfig.isTesting).toBe(defaultConfig.isTesting)
   expect(initializedConfig.implementations).toBe(defaultConfig.implementations)
 })
@@ -57,7 +64,6 @@ test('Full user config overrides all defaults', () => {
     staticFolder: 'build',
     apiPrefix: 'stuff',
     connectionString: 'mongodb://localhost:27017',
-    delay: 1000,
     requestInterceptor: {
       get: () => {
         // do nothing
@@ -97,6 +103,7 @@ test('Full user config overrides all defaults', () => {
     etags: true,
     openapi: true,
     webSocket: true,
+    cors: { origin: 'https://example.com' },
     isTesting: true,
     implementations: {
       getStaticFileFromDisk: () =>
@@ -109,7 +116,6 @@ test('Full user config overrides all defaults', () => {
   expect(config.staticFolder).toBe('build')
   expect(config.apiPrefix).toBe('stuff')
   expect(config.connectionString).toBe('mongodb://localhost:27017')
-  expect(config.delay).toBe(1000)
   expect(config.requestInterceptor!.get).toBeInstanceOf(Function)
   expect(config.requestInterceptor!.post).toBeInstanceOf(Function)
   expect(config.requestInterceptor!.patch).toBeInstanceOf(Function)
@@ -123,6 +129,14 @@ test('Full user config overrides all defaults', () => {
   expect(config.etagsEnabled).toBe(true)
   expect(config.openapi).toBe(true)
   expect(config.webSocket).toBe(true)
+  expect(config.cors).toEqual({
+    origin: 'https://example.com',
+    methods: 'GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS',
+    headers: 'Content-Type, X-Token',
+    credentials: false,
+    exposeHeaders: null,
+    maxAge: null,
+  })
 
   expect(config.isTesting).toBe(true)
   expect(config.implementations).not.toBeNull()
@@ -141,7 +155,6 @@ test('Partial user config applies those, but leaves the rest at default', () => 
   expect(config.staticFolder).toBe(defaultConfig.staticFolder)
   expect(config.apiPrefix).toBe(defaultConfig.apiPrefix)
   expect(config.connectionString).toBe(defaultConfig.connectionString)
-  expect(config.delay).toBe(defaultConfig.delay)
   expect(config.requestInterceptor?.get).toBe(defaultConfig.requestInterceptor?.get)
   expect(config.requestInterceptor?.post).toBe(defaultConfig.requestInterceptor?.post)
   expect(config.requestInterceptor?.patch).toBe(defaultConfig.requestInterceptor?.patch)
@@ -154,6 +167,7 @@ test('Partial user config applies those, but leaves the rest at default', () => 
   expect(config.etagsEnabled).toBe(defaultConfig.etagsEnabled)
   expect(config.openapi).toBe(defaultConfig.openapi)
   expect(config.webSocket).toBe(defaultConfig.webSocket)
+  expect(config.cors).toEqual(defaultConfig.cors)
   expect(config.isTesting).toBe(defaultConfig.isTesting)
   expect(config.implementations).toBe(defaultConfig.implementations)
 })
@@ -254,4 +268,49 @@ test('Valid apiPrefix correctly overrides the "api" default', () => {
   expect(config.staticFolder).toBe('public')
   // The valid input overwrites 'api'
   expect(config.apiPrefix).toBe('v1')
+})
+
+test('No cors config defaults to the built-in values', () => {
+  const config = initConfig()
+  expect(config.cors).toEqual({
+    origin: '*',
+    methods: 'GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS',
+    headers: 'Content-Type, X-Token',
+    credentials: false,
+    exposeHeaders: null,
+    maxAge: null,
+  })
+})
+
+test('Partial cors config merges with defaults', () => {
+  const config = initConfig({ cors: { origin: 'https://myapp.com' } })
+  expect(config.cors).toEqual({
+    origin: 'https://myapp.com',
+    methods: 'GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS',
+    headers: 'Content-Type, X-Token',
+    credentials: false,
+    exposeHeaders: null,
+    maxAge: null,
+  })
+})
+
+test('Full cors config is applied', () => {
+  const config = initConfig({
+    cors: {
+      origin: 'https://myapp.com',
+      methods: 'GET, POST',
+      headers: 'Content-Type, Authorization',
+      credentials: true,
+      exposeHeaders: 'ETag, X-Token',
+      maxAge: 86400,
+    },
+  })
+  expect(config.cors).toEqual({
+    origin: 'https://myapp.com',
+    methods: 'GET, POST',
+    headers: 'Content-Type, Authorization',
+    credentials: true,
+    exposeHeaders: 'ETag, X-Token',
+    maxAge: 86400,
+  })
 })

@@ -104,7 +104,7 @@ type NonResourceActions = {
 * All interceptor functions can be **async** (return a Promise)
 * Non-resource requests (`'root'`, `'openapi'`, `'static'`) only ever appear in the `get` callback, because those routes only support `GET` — other methods return `405 Method Not Allowed` before the interceptor is called
 * The interceptor is **not** called for WebSocket upgrade requests or OPTIONS (CORS preflight) requests
-* For resource requests, the interceptor runs **before** JSON Schema validation (if configured)
+* For resource requests, JSON Schema validation (if configured) runs **before** the interceptor
 * The `body` parameter is the parsed JSON request body
 * The `url` field is the full request URL including protocol, host, path, and query string — e.g. `http://localhost:3000/movies/123?genre=sci-fi`
 
