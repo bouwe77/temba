@@ -141,11 +141,7 @@ const createServer = async (userConfig?: UserConfig) => {
         }
       }
 
-      if (config.delay > 0) {
-        setTimeout(handleRequest, config.delay)
-      } else {
-        handleRequest()
-      }
+      handleRequest().catch(() => sendErrorResponse(res))
     })
   })
 

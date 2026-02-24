@@ -8,7 +8,6 @@ const defaultConfig: Config = {
   staticFolder: null,
   apiPrefix: null,
   connectionString: null,
-  delay: 0,
   requestInterceptor: null,
   responseBodyInterceptor: null,
   returnNullFields: true,
@@ -31,7 +30,6 @@ test('No config returns default config', () => {
   expect(initializedConfig.staticFolder).toBe(defaultConfig.staticFolder)
   expect(initializedConfig.apiPrefix).toBe(defaultConfig.apiPrefix)
   expect(initializedConfig.connectionString).toBe(defaultConfig.connectionString)
-  expect(initializedConfig.delay).toBe(defaultConfig.delay)
   expect(initializedConfig.requestInterceptor?.get).toBe(defaultConfig.requestInterceptor?.get)
   expect(initializedConfig.requestInterceptor?.post).toBe(defaultConfig.requestInterceptor?.post)
   expect(initializedConfig.requestInterceptor?.patch).toBe(defaultConfig.requestInterceptor?.patch)
@@ -57,7 +55,6 @@ test('Full user config overrides all defaults', () => {
     staticFolder: 'build',
     apiPrefix: 'stuff',
     connectionString: 'mongodb://localhost:27017',
-    delay: 1000,
     requestInterceptor: {
       get: () => {
         // do nothing
@@ -109,7 +106,6 @@ test('Full user config overrides all defaults', () => {
   expect(config.staticFolder).toBe('build')
   expect(config.apiPrefix).toBe('stuff')
   expect(config.connectionString).toBe('mongodb://localhost:27017')
-  expect(config.delay).toBe(1000)
   expect(config.requestInterceptor!.get).toBeInstanceOf(Function)
   expect(config.requestInterceptor!.post).toBeInstanceOf(Function)
   expect(config.requestInterceptor!.patch).toBeInstanceOf(Function)
@@ -141,7 +137,6 @@ test('Partial user config applies those, but leaves the rest at default', () => 
   expect(config.staticFolder).toBe(defaultConfig.staticFolder)
   expect(config.apiPrefix).toBe(defaultConfig.apiPrefix)
   expect(config.connectionString).toBe(defaultConfig.connectionString)
-  expect(config.delay).toBe(defaultConfig.delay)
   expect(config.requestInterceptor?.get).toBe(defaultConfig.requestInterceptor?.get)
   expect(config.requestInterceptor?.post).toBe(defaultConfig.requestInterceptor?.post)
   expect(config.requestInterceptor?.patch).toBe(defaultConfig.requestInterceptor?.patch)
