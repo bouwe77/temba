@@ -72,7 +72,6 @@ const config = {
   allowDeleteCollection: true,
   apiPrefix: 'api',
   connectionString: 'mongodb://localhost:27017/myDatabase',
-  delay: 500,
   etags: true,
   openapi: true,
   port: 4321,
@@ -123,7 +122,6 @@ These are all the possible settings:
 | `allowDeleteCollection`   | Whether a `DELETE` request on a collection is allowed to delete all items.                   | `false`       |
 | `apiPrefix`               | See [API prefix](/docs/api-prefix)                                                           | `null`        |
 | `connectionString`        | See [Data persistency](/docs/data-persistency)                                               | `null`        |
-| `delay`                   | The delay, in milliseconds, after processing the request before sending the response.        | `0`           |
 | `etags`                   | See [Caching and consistency with Etags](/docs/etags)                                        | `false`       |
 | `openapi`                 | Enable or disable OpenAPI, or supply your custom spec object to merge into the default spec. | `true`        |
 | `port`                    | The port your Temba server listens on                                                        | `8362`        |
