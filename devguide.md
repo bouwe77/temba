@@ -41,6 +41,22 @@ To mark a test file as relevant for MongoDB testing, add this comment at the top
 // @mongodb
 ```
 
+## Custom server E2E testing
+
+To run the integration tests against a custom HTTP server (i.e. Temba embedded inside a user-supplied server), run:
+
+```bash
+npm run test:custom-server -w packages/temba
+```
+
+This runs all test files marked with `// @custom-server`.
+
+To mark a test file as relevant for custom server testing, add this comment at the top:
+
+```ts
+// @custom-server
+```
+
 ## Manual E2E testing
 
 If you want to spin up a real API to test the current state of your local Temba code:
