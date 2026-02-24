@@ -6,7 +6,17 @@ sidebar_position: 3
 
 # Custom routes
 
-Temba's built-in routes always return JSON. If your API needs routes that return something else — an image, a PDF, a CSV export, an HTML page — you can combine Temba with your own Node.js HTTP server, all on a single port.
+Temba's built-in routes always return JSON. If your API needs routes that return something else (an image, a PDF, a CSV export), you can combine Temba with your own Node.js HTTP server, all on a single port.
+
+## Before reaching for this
+
+Check whether an existing Temba feature already covers your need:
+
+- **Serve HTML or a frontend app**: use [`staticFolder`](/docs/static-assets). See also the [Serving a Frontend](/docs/recipes/serving-a-frontend) recipe.
+- **Return a custom status code or body for a resource route**: use [`requestInterceptor`](/docs/request-interceptor) with `actions.response()`.
+- **Modify the JSON response body before it's sent**: use [`responseBodyInterceptor`](/docs/response-interceptor).
+
+Custom routes are the right tool when you need a response format that isn't JSON: binary data, CSV, plain text, etc.
 
 ## How it works
 
@@ -42,7 +52,7 @@ The key detail: do not call `temba.start()`. Temba will not listen on any port u
 
 ## Why this works
 
-`temba.server` is a standard Node.js `http.Server`. Its internal routing lives in a `request` event listener. Calling `emit('request', req, res)` fires that listener directly with the original request and response objects — no proxy, no extra overhead, no second port.
+`temba.server` is a standard Node.js `http.Server`. Its internal routing lives in a `request` event listener. Calling `emit('request', req, res)` fires that listener directly with the original request and response objects, with no proxy, no extra overhead, and no second port.
 
 ## URL structure
 
@@ -84,7 +94,7 @@ const temba = await create({ apiPrefix: 'api' })
 
 const server = createServer(async (req, res) => {
   if (req.method === 'GET' && req.url === '/logo.png') {
-    // custom route — no prefix needed
+    // custom route, no prefix needed
     res.writeHead(200, { 'Content-Type': 'image/png' })
     res.end(await readFile('./public/logo.png'))
     return
