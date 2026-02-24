@@ -155,3 +155,5 @@ const config = {
   },
 }
 ```
+
+If you need to return a non-JSON response (binary, CSV, plain text) rather than just a different JSON body or status code, see the [Custom routes](/docs/recipes/custom-routes) recipe.

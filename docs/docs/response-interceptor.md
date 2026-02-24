@@ -97,3 +97,5 @@ const config = {
   },
 }
 ```
+
+If you need to return a non-JSON format entirely, see the [Custom routes](/docs/recipes/custom-routes) recipe.
