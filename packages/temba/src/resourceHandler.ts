@@ -209,7 +209,7 @@ export const createResourceHandler = async (
     const requestInfo = await parseRequest(httpRequest)
 
     if (isError(requestInfo)) {
-      return sendErrorResponse(httpResponse, requestInfo.statusCode, requestInfo.message)
+      return sendErrorResponse(httpResponse, requestInfo.statusCode, requestInfo.message, config.cors)
     }
 
     for (const validator of [validators].flat()) {
@@ -219,6 +219,7 @@ export const createResourceHandler = async (
           httpResponse,
           validationResult.statusCode,
           validationResult.message,
+          config.cors,
         )
       }
     }
@@ -226,7 +227,7 @@ export const createResourceHandler = async (
     const convertedRequest = convert(requestInfo)
 
     const response = await handleRequest(convertedRequest)
-    sendResponse(httpResponse)(response)
+    sendResponse(httpResponse, config.cors)(response)
   }
 
   const requestHandler = await getRequestHandler(queries, schemas, config, broadcast)

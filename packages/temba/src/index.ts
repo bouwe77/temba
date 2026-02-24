@@ -13,17 +13,13 @@ import {
   sendErrorResponse,
   sendResponse,
 } from './responseHandler'
+import { handleOptionsRequest } from './requestHandlers/optionsHandler'
 import { createRootUrlHandler } from './root/root'
 import { compileSchemas } from './schema/compile'
 import { handleStaticFolder } from './staticFolder/staticFolder'
 import { createWebSocketServer, type BroadcastFunction } from './websocket/websocket'
 
 const removePendingAndTrailingSlashes = (url?: string) => (url ? url.replace(/^\/+|\/+$/g, '') : '')
-
-const handleOptionsRequest = (res: ServerResponse<IncomingMessage>) =>
-  sendResponse(res)({
-    statusCode: 204,
-  })
 
 const createServer = async (userConfig?: UserConfig) => {
   const config = initConfig(userConfig)
@@ -51,13 +47,13 @@ const createServer = async (userConfig?: UserConfig) => {
     const implementations = getDefaultImplementations(config)
 
     httpLogger(req, res, (err) => {
-      if (err) return sendErrorResponse(res)
+      if (err) return sendErrorResponse(res, 500, 'Internal Server Error', config.cors)
 
       const requestUrl = removePendingAndTrailingSlashes(req.url?.split('?')[0])
 
       const handleRequest = async () => {
         if (req.method === 'OPTIONS') {
-          return handleOptionsRequest(res)
+          return handleOptionsRequest(res, config.cors)
         }
 
         const protoHeader = req.headers['x-forwarded-proto']
@@ -66,7 +62,7 @@ const createServer = async (userConfig?: UserConfig) => {
 
         if (config.staticFolder && !`${requestUrl}/`.startsWith(config.apiPrefix + '/')) {
           // Only GET and HEAD are supported for static files
-          if (req.method !== 'GET' && req.method !== 'HEAD') return handleMethodNotAllowed(res)
+          if (req.method !== 'GET' && req.method !== 'HEAD') return handleMethodNotAllowed(res, config.cors)
 
           // Run interceptor before serving static file
           if (config.requestInterceptor?.get) {
@@ -77,7 +73,7 @@ const createServer = async (userConfig?: UserConfig) => {
               fullUrl,
             )
             if (interceptResult.type === 'response') {
-              return sendResponse(res)({
+              return sendResponse(res, config.cors)({
                 statusCode: interceptResult.status,
                 body: interceptResult.body,
               })
@@ -91,10 +87,11 @@ const createServer = async (userConfig?: UserConfig) => {
               await implementations.getStaticFileFromDisk(
                 req.url === '/' ? 'index.html' : req.url || 'index.html',
               ),
+            config.cors,
           )
         } else if (requestUrl === rootPath) {
           // Only GET is supported for the root URL
-          if (req.method !== 'GET') return handleMethodNotAllowed(res)
+          if (req.method !== 'GET') return handleMethodNotAllowed(res, config.cors)
 
           // Run interceptor before serving root URL
           if (config.requestInterceptor?.get) {
@@ -105,7 +102,7 @@ const createServer = async (userConfig?: UserConfig) => {
               fullUrl,
             )
             if (interceptResult.type === 'response') {
-              return sendResponse(res)({
+              return sendResponse(res, config.cors)({
                 statusCode: interceptResult.status,
                 body: interceptResult.body,
               })
@@ -115,7 +112,7 @@ const createServer = async (userConfig?: UserConfig) => {
           createRootUrlHandler(config)(req, res)
         } else if (openapiPaths.includes(requestUrl)) {
           // Only GET is supported for the OpenAPI URL
-          if (req.method !== 'GET') return handleMethodNotAllowed(res)
+          if (req.method !== 'GET') return handleMethodNotAllowed(res, config.cors)
 
           // Run interceptor before serving OpenAPI
           if (config.requestInterceptor?.get) {
@@ -126,7 +123,7 @@ const createServer = async (userConfig?: UserConfig) => {
               fullUrl,
             )
             if (interceptResult.type === 'response') {
-              return sendResponse(res)({
+              return sendResponse(res, config.cors)({
                 statusCode: interceptResult.status,
                 body: interceptResult.body,
               })
@@ -137,7 +134,7 @@ const createServer = async (userConfig?: UserConfig) => {
         } else if (requestUrl.startsWith(rootPath)) {
           await handleResource(req, res)
         } else {
-          handleNotFound(res)
+          handleNotFound(res, config.cors)
         }
       }
 

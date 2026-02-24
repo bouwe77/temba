@@ -15,6 +15,24 @@ type Resources = (ResourcePath | ExtendedResource)[]
 
 type OpenApiConfig = boolean | Record<string, unknown>
 
+export type CorsConfig = {
+  origin: string
+  methods: string
+  headers: string
+  credentials: boolean
+  exposeHeaders: string | null
+  maxAge: number | null
+}
+
+export type UserCorsConfig = {
+  origin?: string
+  methods?: string
+  headers?: string
+  credentials?: boolean
+  exposeHeaders?: string
+  maxAge?: number
+}
+
 export type Config = {
   validateResources: boolean
   resources: Resources
@@ -31,6 +49,7 @@ export type Config = {
   etagsEnabled: boolean
   openapi: OpenApiConfig
   webSocket: boolean
+  cors: CorsConfig
 
   isTesting: boolean
   implementations: Implementations | null
@@ -53,6 +72,7 @@ export type UserConfig = {
   etags?: boolean
   openapi?: OpenApiConfig
   webSocket?: boolean
+  cors?: UserCorsConfig
 
   // Use isTesting when running tests that don't require a started server.
   isTesting?: boolean
@@ -76,6 +96,14 @@ const defaultConfig: Config = {
   etagsEnabled: false,
   openapi: true,
   webSocket: false,
+  cors: {
+    origin: '*',
+    methods: 'GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS',
+    headers: 'Content-Type, X-Token',
+    credentials: false,
+    exposeHeaders: null,
+    maxAge: null,
+  },
 
   isTesting: false,
   implementations: null,
@@ -192,6 +220,10 @@ export const initConfig = (userConfig?: UserConfig): Config => {
 
   if (!isUndefined(userConfig.webSocket)) {
     config.webSocket = userConfig.webSocket
+  }
+
+  if (userConfig.cors) {
+    config.cors = { ...config.cors, ...userConfig.cors }
   }
 
   return config
