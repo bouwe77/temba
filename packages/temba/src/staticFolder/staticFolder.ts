@@ -2,7 +2,7 @@ import { promises as fs } from 'fs'
 import type { IncomingMessage, ServerResponse } from 'http'
 import mime from 'mime/lite'
 import path from 'node:path'
-import type { Config } from '../config'
+import type { Config, CorsConfig } from '../config'
 import {
   handleNotFound,
   sendErrorResponse,
@@ -25,16 +25,17 @@ export const handleStaticFolder = async (
   req: IncomingMessage,
   res: ServerResponse<IncomingMessage>,
   getStaticFileFromDisk: () => Promise<StaticFileInfo>,
+  cors: CorsConfig,
 ) => {
   try {
     const staticContent = await getStaticFileFromDisk()
-    sendResponse(res)({
+    sendResponse(res, cors)({
       statusCode: 200,
       contentType: staticContent.mimeType,
       body: staticContent.content,
     })
   } catch (e) {
-    return parseError(e) === 'NotFound' ? handleNotFound(res) : sendErrorResponse(res)
+    return parseError(e) === 'NotFound' ? handleNotFound(res, cors) : sendErrorResponse(res, 500, 'Internal Server Error', cors)
   }
 }
 

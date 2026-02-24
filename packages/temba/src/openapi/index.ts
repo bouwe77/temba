@@ -16,7 +16,7 @@ export const getOpenApiPaths = (rootPath: string) => {
 export const createOpenApiHandler = (config: Config, requestUrl: string, requestHost: string) => {
   const openApiHandler = async (res: ServerResponse<IncomingMessage>) => {
     if (!config.openapi) {
-      return handleNotFound(res)
+      return handleNotFound(res, config.cors)
     }
 
     const format =
@@ -35,7 +35,7 @@ export const createOpenApiHandler = (config: Config, requestUrl: string, request
     const body =
       format === 'html' ? getOpenApiHtml() : getSpec(config, { format, host: requestHost })
 
-    sendResponse(res)({
+    sendResponse(res, config.cors)({
       statusCode: 200,
       contentType: contentType,
       body,
