@@ -41,7 +41,6 @@ export type Config = {
   responseBodyInterceptor: ResponseBodyInterceptor | null
   staticFolder: string | null
   connectionString: string | null
-  delay: number
   returnNullFields: boolean
   port: number
   schemas: ConfiguredSchemas | null
@@ -62,7 +61,6 @@ export type UserConfig = {
   staticFolder?: string
   apiPrefix?: string
   connectionString?: string
-  delay?: number
   requestInterceptor?: RequestInterceptor
   responseBodyInterceptor?: ResponseBodyInterceptor
   returnNullFields?: boolean
@@ -86,7 +84,6 @@ const defaultConfig: Config = {
   staticFolder: null,
   apiPrefix: null,
   connectionString: null,
-  delay: 0,
   requestInterceptor: null,
   responseBodyInterceptor: null,
   returnNullFields: true,
@@ -138,16 +135,6 @@ export const initConfig = (userConfig?: UserConfig): Config => {
   }
   if (userConfig.connectionString && userConfig.connectionString.length > 0) {
     config.connectionString = userConfig.connectionString
-  }
-
-  if (
-    userConfig.delay &&
-    userConfig.delay !== 0 &&
-    typeof Number(userConfig.delay) === 'number' &&
-    Number(userConfig.delay) > 0 &&
-    Number(userConfig.delay) < 100000
-  ) {
-    config.delay = userConfig.delay
   }
 
   if (userConfig.requestInterceptor) {

@@ -42,6 +42,8 @@ const createServer = async (userConfig?: UserConfig) => {
   // Now create the resource handler with the broadcast function
   const handleResource = await createResourceHandler(queries, schemas, config, broadcast)
 
+  const REQUEST_TIMEOUT_MS = 30_000
+
   // Set up the request handler
   server.on('request', (req, res) => {
     const implementations = getDefaultImplementations(config)
@@ -138,11 +140,13 @@ const createServer = async (userConfig?: UserConfig) => {
         }
       }
 
-      if (config.delay > 0) {
-        setTimeout(handleRequest, config.delay)
-      } else {
-        handleRequest()
-      }
+      const timeoutId = setTimeout(() => {
+        if (!res.headersSent) sendErrorResponse(res, 503, 'Request timed out')
+      }, REQUEST_TIMEOUT_MS)
+
+      handleRequest()
+        .catch(() => { if (!res.headersSent) sendErrorResponse(res) })
+        .finally(() => clearTimeout(timeoutId))
     })
   })
 

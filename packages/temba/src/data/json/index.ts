@@ -1,5 +1,6 @@
 import { Low, Memory, type Adapter } from 'lowdb'
 import { TextFile } from 'lowdb/node'
+import { randomUUID } from 'node:crypto'
 import type { PathLike } from 'node:fs'
 import { promises as fs } from 'node:fs'
 import { join } from 'node:path'
@@ -62,6 +63,24 @@ export default function createJsonQueries({ filename }: JsonConfig) {
     return sharedDb
   }
 
+  // Per-resource write queue: serialises concurrent writes to the same resource
+  // to prevent read-modify-write races. Reads are not queued (they're safe to run
+  // concurrently) — only operations that call writeAll are enqueued.
+  const writeQueues = new Map<string, Promise<void>>()
+
+  const enqueueWrite = <T>(resource: string, fn: () => Promise<T>): Promise<T> => {
+    const previous = writeQueues.get(resource) ?? Promise.resolve()
+    let resolve!: (value: T) => void
+    let reject!: (reason: unknown) => void
+    const result = new Promise<T>((res, rej) => {
+      resolve = res
+      reject = rej
+    })
+    const next = previous.then(() => fn()).then(resolve, reject)
+    writeQueues.set(resource, next.then(() => {}, () => {}))
+    return result
+  }
+
   const resourceDbs = new Map<string, Promise<Low<{ [key: string]: Item[] }>>>()
   let ensuredDir = false
   const ensureDir = async () => {
@@ -121,20 +140,24 @@ export default function createJsonQueries({ filename }: JsonConfig) {
     id: string | null
     item: ItemWithoutId
   }) {
-    const data = await readAll(resource)
-    const itemWithId = {
-      ...item,
-      id: id || String(new Date().getTime()),
-    } satisfies Item
-    await writeAll(resource, [...data, itemWithId])
-    return itemWithId
+    return enqueueWrite(resource, async () => {
+      const data = await readAll(resource)
+      const itemWithId = {
+        ...item,
+        id: id || randomUUID(),
+      } satisfies Item
+      await writeAll(resource, [...data, itemWithId])
+      return itemWithId
+    })
   }
 
   async function update({ resource, item }: { resource: string; item: Item }) {
-    const data = await readAll(resource)
-    const next = data.map((r) => (r.id === item.id ? ({ ...item } satisfies Item) : r))
-    await writeAll(resource, next)
-    return next.find((r) => r.id === item.id)!
+    return enqueueWrite(resource, async () => {
+      const data = await readAll(resource)
+      const next = data.map((r) => (r.id === item.id ? ({ ...item } satisfies Item) : r))
+      await writeAll(resource, next)
+      return next.find((r) => r.id === item.id)!
+    })
   }
 
   async function replace(query: { resource: string; item: Item }) {
@@ -142,22 +165,26 @@ export default function createJsonQueries({ filename }: JsonConfig) {
   }
 
   async function deleteById({ resource, id }: { resource: string; id: string }) {
-    const data = await readAll(resource)
-    const next = data.filter((r) => r.id !== id)
-    await writeAll(resource, next)
+    return enqueueWrite(resource, async () => {
+      const data = await readAll(resource)
+      const next = data.filter((r) => r.id !== id)
+      await writeAll(resource, next)
+    })
   }
 
   async function deleteAll({ resource }: { resource: string }) {
-    await writeAll(resource, [])
+    return enqueueWrite(resource, async () => {
+      await writeAll(resource, [])
+    })
   }
 
   async function deleteByFilter({ resource, filter }: { resource: string; filter: Filter }) {
-    const data = await readAll(resource)
-    const pred = makePredicate(filter)
-
-    const next = data.filter((item) => !pred(item))
-
-    await writeAll(resource, next)
+    return enqueueWrite(resource, async () => {
+      const data = await readAll(resource)
+      const pred = makePredicate(filter)
+      const next = data.filter((item) => !pred(item))
+      await writeAll(resource, next)
+    })
   }
 
   const fileQueries: Queries = {
