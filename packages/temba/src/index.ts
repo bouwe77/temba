@@ -196,4 +196,39 @@ const createServer = async (userConfig?: UserConfig) => {
 export const create = (userConfig?: UserConfig) => createServer(userConfig)
 
 // Export the main UserConfig type for TypeScript users
-export type { UserConfig } from './config'
+export type { UserConfig, UserCorsConfig } from './config'
+
+// Request interceptor types
+export type {
+  RequestInterceptor,
+  InterceptedGetRequest,
+  InterceptedPostRequest,
+  InterceptedPatchRequest,
+  InterceptedPutRequest,
+  InterceptedDeleteRequest,
+  InterceptedReturnValue,
+  RequestType,
+  ResourceRequestType,
+  NonResourceRequestType,
+} from './requestInterceptor/types'
+
+// Interceptor action types
+export type {
+  ResourceActions,
+  NonResourceActions,
+  InterceptorAction,
+  SetRequestBodyAction,
+  ResponseAction,
+} from './requestInterceptor/interceptorActions'
+
+// Response body interceptor types
+export type { ResponseBodyInterceptor, InterceptedResponse } from './responseBodyInterceptor/types'
+
+// Schema validation types
+export type { ConfiguredSchemas } from './schema/types'
+
+// Data types
+export type { Item } from './data/types'
+
+// Utility types
+export type { MaybePromise } from './types'

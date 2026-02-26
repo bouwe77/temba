@@ -72,7 +72,6 @@ const config = {
   allowDeleteCollection: true,
   apiPrefix: 'api',
   connectionString: 'mongodb://localhost:27017/myDatabase',
-<<<<<<< HEAD
   cors: {
     origin: 'https://myapp.com',
     methods: 'GET, POST',
@@ -81,9 +80,6 @@ const config = {
     exposeHeaders: 'ETag, X-Token',
     maxAge: 86400,
   },
-  delay: 500,
-=======
->>>>>>> main
   etags: true,
   openapi: true,
   port: 4321,

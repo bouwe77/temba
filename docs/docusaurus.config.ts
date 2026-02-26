@@ -21,7 +21,12 @@ const config: Config = {
   trailingSlash: false,
 
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
+
+  markdown: {
+    hooks: {
+      onBrokenMarkdownLinks: 'warn',
+    },
+  },
 
   customFields: {
     libVersion: packageJson.version,
@@ -55,6 +60,7 @@ const config: Config = {
         entryPoints: ['../packages/temba/src/index.ts'],
         tsconfig: '../packages/temba/tsconfig.json',
         out: 'docs/api',
+        excludeInternal: true,
         sidebar: {
           autoConfiguration: true,
           pretty: true,
