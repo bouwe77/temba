@@ -86,6 +86,7 @@ echo "💻 Processing CLI..."
 run_cmd "npm version $NEXT_VERSION -w packages/cli --no-git-tag-version"
 run_cmd "node update-version.js $NEXT_VERSION packages/cli $( [ "$DRY_RUN" = true ] && echo "--dry-run" )"
 run_cmd "node update-version.js $NEXT_VERSION packages/cli/create/starter-template $( [ "$DRY_RUN" = true ] && echo "--dry-run" )"
+run_cmd "node update-version.js $NEXT_VERSION packages/cli/create/starter-template-ts $( [ "$DRY_RUN" = true ] && echo "--dry-run" )"
 run_cmd "npm publish -w packages/cli"
 
 # 5. Update Examples

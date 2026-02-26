@@ -25,8 +25,14 @@ This command will:
 
 * Create a new folder called `my-rest-api`
 * Install Temba as a dependency
-* Generate a `server.js` file
+* Generate a `server.js` or `server.ts` file
 * Automatically start your brand-new Temba API
+
+For a TypeScript project, add the `--ts` flag (requires Node 23+):
+
+```
+npx temba-cli create my-rest-api --ts
+```
 
 You'll see:
 
