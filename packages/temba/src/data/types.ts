@@ -5,8 +5,10 @@ export type Item = {
   [key: string]: unknown
 }
 
+/** @internal */
 export type ItemWithoutId = Omit<Item, 'id'>
 
+/** @internal */
 export type Queries = {
   getAll: (query: { resource: string }) => Promise<Item[]>
   getByFilter: (query: { resource: string; filter: Filter }) => Promise<Item[]>

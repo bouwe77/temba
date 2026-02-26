@@ -2,8 +2,10 @@ import type { Server as HttpServer, IncomingMessage } from 'http'
 import { parse } from 'url'
 import { WebSocket, WebSocketServer } from 'ws'
 
+/** @internal */
 export type BroadcastAction = 'CREATE' | 'UPDATE' | 'DELETE' | 'DELETE_ALL'
 
+/** @internal */
 export type BroadcastPayload =
   | {
       resource: string
@@ -15,6 +17,7 @@ export type BroadcastPayload =
       action: 'DELETE_ALL'
     }
 
+/** @internal */
 export type BroadcastFunction = (
   resource: string,
   action: BroadcastAction,
