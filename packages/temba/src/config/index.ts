@@ -15,6 +15,7 @@ type Resources = (ResourcePath | ExtendedResource)[]
 
 type OpenApiConfig = boolean | Record<string, unknown>
 
+/** @internal */
 export type CorsConfig = {
   origin: string
   methods: string
@@ -33,6 +34,7 @@ export type UserCorsConfig = {
   maxAge?: number
 }
 
+/** @internal */
 export type Config = {
   validateResources: boolean
   resources: Resources
@@ -54,6 +56,7 @@ export type Config = {
   implementations: Implementations | null
 }
 
+/** @internal */
 export type ConfigKey = keyof Config
 
 export type UserConfig = {

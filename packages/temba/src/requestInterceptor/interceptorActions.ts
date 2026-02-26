@@ -75,6 +75,7 @@ export type NonResourceActions = {
   response: (options?: { body?: unknown; status?: number }) => ResponseAction
 }
 
+/** @internal */
 // Internal alias — resource actions is a superset, used where either is accepted
 export type Actions = ResourceActions
 

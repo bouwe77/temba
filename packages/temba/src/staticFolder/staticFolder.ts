@@ -9,11 +9,13 @@ import {
   sendResponse,
 } from '../responseHandler'
 
+/** @internal */
 export type StaticFileInfo = {
   content: Buffer | string
   mimeType: string
 }
 
+/** @internal */
 export type GetStaticFileFromDisk = (filename: string) => Promise<StaticFileInfo>
 
 const parseError = (e: unknown) => {
