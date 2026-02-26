@@ -1,0 +1,14 @@
+{
+  "main": "src/server.ts",
+  "type": "module",
+  "engines": {
+    "node": ">=23"
+  },
+  "scripts": {
+    "start": "node --watch src/server.ts"
+  },
+  "dependencies": {
+    "temba": "0.59.0"
+  },
+  "version": "0.59.0"
+}
