@@ -2,7 +2,7 @@ type RawFilter = {
   filter: Record<string, unknown>
 }
 
-export const supportedOperators = ['eq', 'neq', 'ieq', 'ineq'] as const
+export const supportedOperators = ['eq', 'neq'] as const
 /** @internal */
 export type Operator = (typeof supportedOperators)[number]
 /** @internal */

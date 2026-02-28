@@ -1,6 +1,6 @@
 # 05 - Filtering
 
-Filter collections using JSON:API-style query strings. No configuration needed — filtering is built in.
+Filter collections using LHS bracket query strings. No configuration needed — filtering is built in.
 
 **Docs:** https://temba.bouwe.io/docs/filtering
 
@@ -18,8 +18,7 @@ POST http://localhost:8362/movies
 
 # Then filter
 GET http://localhost:8362/movies?filter.genre[eq]=sci-fi
-GET http://localhost:8362/movies?filter.genre[ieq]=SCI-FI
 GET http://localhost:8362/movies?filter.genre[neq]=drama
 ```
 
-Supported operators: `[eq]`, `[neq]`, `[ieq]` (case-insensitive), `[ineq]`
+Supported operators: `[eq]`, `[neq]`

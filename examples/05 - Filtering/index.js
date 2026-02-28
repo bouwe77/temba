@@ -2,9 +2,10 @@
 // Docs: https://temba.bouwe.io/docs/filtering
 //
 // No configuration needed — filtering is built into Temba.
-// Use JSON:API-style query strings to filter GET and DELETE requests.
+// Use LHS bracket query strings to filter GET and DELETE requests.
+// String matching is case-insensitive.
 //
-// Supported operators: [eq], [neq], [ieq] (case-insensitive), [ineq]
+// Supported operators: [eq], [neq]
 // Omitting the operator defaults to [eq].
 //
 // Try it — first add some data:
@@ -16,7 +17,6 @@
 //
 // Then filter:
 //   GET http://localhost:8362/movies?filter.genre[eq]=sci-fi
-//   GET http://localhost:8362/movies?filter.genre[ieq]=SCI-FI
 //   GET http://localhost:8362/movies?filter.genre[neq]=drama
 
 import { create } from 'temba'
