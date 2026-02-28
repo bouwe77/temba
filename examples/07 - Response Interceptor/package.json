@@ -1,12 +1,12 @@
 {
   "name": "temba-example-07-response-interceptor",
-  "version": "0.62.0",
+  "version": "0.63.0",
   "description": "Temba example: Transforming GET response bodies",
   "type": "module",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "temba": "0.62.0"
+    "temba": "0.63.0"
   }
 }
