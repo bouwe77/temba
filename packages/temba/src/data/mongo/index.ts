@@ -2,6 +2,7 @@ import { type Db, connect } from '@rakered/mongo'
 import type { Filter } from '../../filtering/filter'
 import type { Logger } from '../../log/logger'
 import type { Item, ItemWithoutId, Queries } from '../types'
+import { buildMongoQuery } from './filtering'
 
 type MongoItem = {
   _id: string
@@ -44,8 +45,15 @@ export const createMongoQueries = (connectionString: string, log: Logger, isTest
     return items.map((item) => removeUnderscoreFromId(item))
   }
 
-  const getByFilter = async ({ resource }: { resource: string; filter: Filter }) => {
-    return getAll({ resource })
+  const getByFilter = async ({ resource, filter }: { resource: string; filter: Filter }) => {
+    await connectToDatabase()
+
+    const mongoQuery = buildMongoQuery(filter)
+    const items = (await db![collectionName(resource)].find(mongoQuery)) as MongoItem[]
+
+    if (!items) return []
+
+    return items.map((item) => removeUnderscoreFromId(item))
   }
 
   const getById = async ({ resource, id }: { resource: string; id: string }) => {
@@ -112,8 +120,11 @@ export const createMongoQueries = (connectionString: string, log: Logger, isTest
     await db![collectionName(resource)].deleteMany({})
   }
 
-  const deleteByFilter = async ({ resource }: { resource: string; filter: Filter }) => {
-    return deleteAll({ resource })
+  const deleteByFilter = async ({ resource, filter }: { resource: string; filter: Filter }) => {
+    await connectToDatabase()
+
+    const mongoQuery = buildMongoQuery(filter)
+    await db![collectionName(resource)].deleteMany(mongoQuery)
   }
 
   const mongoQueries: Queries = {
