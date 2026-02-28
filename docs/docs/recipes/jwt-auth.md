@@ -132,3 +132,7 @@ function authInterceptor(request, actions) {
 - The `Authorization` header is available on all requests via `request.headers`.
 - Use `request.type` to distinguish between resource requests (`'resource'`) and non-resource requests (`'root'`, `'openapi'`, `'static'`) if you want to apply different rules — for example, to allow public access to the OpenAPI docs.
 - The interceptor is **not** called for `OPTIONS` (CORS preflight) requests, so those always pass through.
+
+---
+
+For a simpler, isolated look at `requestInterceptor`, see [example 06](https://github.com/bouwe77/temba/tree/main/examples/06%20-%20Request%20Interceptor) in the [Examples](/docs/examples) section.

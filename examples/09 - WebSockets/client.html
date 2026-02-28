@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Temba WebSocket Client</title>
+    <style>
+      body {
+        font-family: monospace;
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+      }
+      h1 {
+        font-size: 1.2rem;
+      }
+      #status {
+        margin-bottom: 1rem;
+        font-weight: bold;
+      }
+      #status.connected {
+        color: green;
+      }
+      #status.disconnected {
+        color: red;
+      }
+      #events {
+        border: 1px solid #ccc;
+        padding: 1rem;
+        height: 400px;
+        overflow-y: auto;
+        background: #f9f9f9;
+      }
+      .event {
+        margin-bottom: 0.5rem;
+        padding: 0.25rem 0.5rem;
+        background: #fff;
+        border-left: 3px solid #0070f3;
+      }
+      .ts {
+        color: #999;
+        font-size: 0.85em;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Temba WebSocket Client</h1>
+    <p id="status" class="disconnected">Disconnected</p>
+    <div id="events"></div>
+
+    <script>
+      const statusEl = document.getElementById('status')
+      const eventsEl = document.getElementById('events')
+
+      function connect() {
+        const ws = new WebSocket('ws://localhost:8362/ws')
+
+        ws.onopen = () => {
+          statusEl.textContent = 'Connected to ws://localhost:8362/ws'
+          statusEl.className = 'connected'
+        }
+
+        ws.onmessage = (event) => {
+          const data = JSON.parse(event.data)
+          const el = document.createElement('div')
+          el.className = 'event'
+          const ts = new Date().toLocaleTimeString()
+          el.innerHTML = `<span class="ts">[${ts}]</span> ${JSON.stringify(data, null, 2)}`
+          eventsEl.prepend(el)
+        }
+
+        ws.onclose = () => {
+          statusEl.textContent = 'Disconnected — retrying in 3s...'
+          statusEl.className = 'disconnected'
+          setTimeout(connect, 3000)
+        }
+
+        ws.onerror = () => {
+          ws.close()
+        }
+      }
+
+      connect()
+    </script>
+  </body>
+</html>

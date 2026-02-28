@@ -7,6 +7,7 @@ const sidebars: SidebarsConfig = {
   tembaSidebar: [
     'getting-started',
     'overview',
+    'examples',
     {
       type: 'category',
       label: 'Features',

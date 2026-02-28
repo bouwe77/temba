@@ -1,0 +1,12 @@
+{
+  "name": "temba-example-04-schema-validation",
+  "version": "1.0.0",
+  "description": "Temba example: JSON Schema request body validation",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "temba": "latest"
+  }
+}

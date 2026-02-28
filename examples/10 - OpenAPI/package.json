@@ -1,0 +1,12 @@
+{
+  "name": "temba-example-10-openapi",
+  "version": "1.0.0",
+  "description": "Temba example: Custom OpenAPI spec metadata",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "temba": "latest"
+  }
+}
