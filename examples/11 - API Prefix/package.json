@@ -1,12 +1,12 @@
 {
   "name": "temba-example-11-api-prefix",
-  "version": "1.0.0",
+  "version": "0.61.2",
   "description": "Temba example: Adding a path prefix to all API routes",
   "type": "module",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "temba": "latest"
+    "temba": "0.61.2"
   }
 }

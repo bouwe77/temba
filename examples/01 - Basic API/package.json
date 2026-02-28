@@ -1,12 +1,12 @@
 {
   "name": "temba-example-01-basic-api",
-  "version": "1.0.0",
+  "version": "0.61.2",
   "description": "Temba example: Basic API",
   "type": "module",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "temba": "latest"
+    "temba": "0.61.2"
   }
 }
