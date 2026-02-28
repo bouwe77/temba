@@ -24,11 +24,25 @@ const buildOperatorCondition = (op: Operator, raw: string): MongoCondition => {
     return { $eq: coerced }
   }
 
-  // neq
-  if (typeof coerced === 'string') {
-    return { $not: new RegExp(`^${escapeRegex(coerced)}$`, 'i') }
+  if (op === 'neq') {
+    if (typeof coerced === 'string') {
+      return { $not: new RegExp(`^${escapeRegex(coerced)}$`, 'i') }
+    }
+    return { $ne: coerced }
   }
-  return { $ne: coerced }
+
+  const str = String(coerced)
+
+  if (op === 'contains') {
+    return { $regex: new RegExp(escapeRegex(str), 'i') }
+  }
+
+  if (op === 'startsWith') {
+    return { $regex: new RegExp(`^${escapeRegex(str)}`, 'i') }
+  }
+
+  // endsWith
+  return { $regex: new RegExp(`${escapeRegex(str)}$`, 'i') }
 }
 
 const escapeRegex = (value: string): string =>

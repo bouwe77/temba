@@ -32,3 +32,6 @@ The following operators are supported:
 | -------------- | --------------------------------------------- | -------------------------------------------------- |
 | `[eq]`         | equals (case-insensitive)                     | `?filter.name[eq]=Alice` (or `?filter.name=Alice`) |
 | `[neq]`        | not equals (case-insensitive)                 | `?filter.status[neq]=archived`                     |
+| `[contains]`   | substring match (case-insensitive)            | `?filter.description[contains]=lorem`              |
+| `[startsWith]` | prefix match (case-insensitive)               | `?filter.username[startsWith]=admin`               |
+| `[endsWith]`   | suffix match (case-insensitive)               | `?filter.email[endsWith]=@example.com`             |
