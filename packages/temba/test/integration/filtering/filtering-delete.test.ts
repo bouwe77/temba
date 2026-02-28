@@ -1,3 +1,4 @@
+// @mongodb
 /* filtering-delete.test.ts */
 import { Server } from 'http'
 import request from 'supertest'
@@ -198,6 +199,28 @@ describe('DELETE', () => {
     const getRemaining = await request(tembaServer).get(resource)
     expect(getRemaining.body.length).toEqual(1)
     expect(getRemaining.body[0].name).toEqual('Miep')
+  })
+
+  test('Delete using [eq] operator on accented characters (byte-exact match)', async () => {
+    await createData(tembaServer, [{ name: 'Chloé' }, { name: 'Chloe' }])
+
+    // Only 'Chloé' (with accent) should be deleted — 'Chloe' (without) is a distinct value
+    await request(tembaServer).delete(resource).query('filter.name[eq]=Chloé')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].name).toEqual('Chloe')
+  })
+
+  test('Delete using [ieq] operator on accented characters (case-insensitive)', async () => {
+    await createData(tembaServer, [{ name: 'Chloé' }, { name: 'Other' }])
+
+    // Lowercase 'chloé' should match and delete stored 'Chloé'
+    await request(tembaServer).delete(resource).query('filter.name[ieq]=chloé')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].name).toEqual('Other')
   })
 })
 

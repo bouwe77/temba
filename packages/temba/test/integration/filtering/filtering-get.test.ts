@@ -1,3 +1,4 @@
+// @mongodb
 /* filtering-get.test.ts */
 import { Server } from 'http'
 import request from 'supertest'
@@ -35,8 +36,8 @@ describe('GET', () => {
     // Get all resources without filtering
     const getAllResponse = await request(tembaServer).get(resource)
     expect(getAllResponse.body.length).toEqual(3)
-    expect(getAllResponse.body.map((item: { firstName: string }) => item.firstName)).toEqual(
-      data.map((item) => item.firstName),
+    expect(getAllResponse.body).toEqual(
+      expect.arrayContaining(data.map((item) => expect.objectContaining(item))),
     )
   })
 
@@ -116,17 +117,17 @@ describe('GET', () => {
     let queryString = 'filter.name[neq]=Miep'
     const getFilterResponse = await request(tembaServer).get(resource).query(queryString)
     expect(getFilterResponse.body.length).toEqual(2)
-    expect(getFilterResponse.body.map((item: { name: string }) => item.name)).toEqual(['Piet', ''])
+    expect(getFilterResponse.body.map((item: { name: string }) => item.name)).toEqual(
+      expect.arrayContaining(['Piet', '']),
+    )
 
     // Case sensitive filter for not finding 'miep' should return all 3 items since 'miep' doesn't match any name
     queryString = 'filter.name[neq]=miep'
     const getFilterResponse2 = await request(tembaServer).get(resource).query(queryString)
     expect(getFilterResponse2.body.length).toEqual(3)
-    expect(getFilterResponse2.body.map((item: { name: string }) => item.name)).toEqual([
-      'Piet',
-      'Miep',
-      '',
-    ])
+    expect(getFilterResponse2.body.map((item: { name: string }) => item.name)).toEqual(
+      expect.arrayContaining(['Piet', 'Miep', '']),
+    )
 
     // Filter using [neq] operator on boolean
     const getFilterResponse3 = await request(tembaServer)
@@ -256,6 +257,46 @@ describe('GET', () => {
     const getResponse = await request(tembaServer).get(resource).query('filter.age[eq]=24')
     expect(getResponse.body.length).toEqual(1)
     expect(getResponse.body[0].name).toEqual('Piet')
+  })
+
+  test('Filter using [eq] operator on accented characters (byte-exact match)', async () => {
+    const data = [{ name: 'Chloé' }, { name: 'Chloe' }]
+    await createData(tembaServer, data)
+
+    // 'Chloé' (with accent) and 'Chloe' (without) are distinct byte sequences
+    const res = await request(tembaServer).get(resource).query('filter.name[eq]=Chloé')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].name).toEqual('Chloé')
+  })
+
+  test('Filter using [ieq] operator on accented characters (case-insensitive)', async () => {
+    const data = [{ name: 'Chloé' }, { name: 'Other' }]
+    await createData(tembaServer, data)
+
+    // Lowercase 'chloé' should match stored 'Chloé' case-insensitively
+    const res = await request(tembaServer).get(resource).query('filter.name[ieq]=chloé')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].name).toEqual('Chloé')
+  })
+
+  test('Filter using [ieq] operator on CJK characters (no case concept, behaves like [eq])', async () => {
+    const data = [{ name: '孫悟空' }, { name: 'Other' }]
+    await createData(tembaServer, data)
+
+    // CJK characters have no case — [ieq] degrades to an exact match
+    const res = await request(tembaServer).get(resource).query('filter.name[ieq]=孫悟空')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].name).toEqual('孫悟空')
+  })
+
+  test('Filter using [eq] operator with URL-encoded accented characters', async () => {
+    const data = [{ name: 'Chloé' }, { name: 'Chloe' }]
+    await createData(tembaServer, data)
+
+    // %C3%A9 is the UTF-8 percent-encoding of 'é'
+    const res = await request(tembaServer).get(resource).query('filter.name[eq]=Chlo%C3%A9')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].name).toEqual('Chloé')
   })
 })
 
