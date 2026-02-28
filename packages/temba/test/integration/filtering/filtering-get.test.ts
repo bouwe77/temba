@@ -28,7 +28,7 @@ beforeEach(async () => {
   tembaServer = await createServer()
 })
 
-describe('GET', () => {
+describe('String exact match operators: eq and neq', () => {
   test('No filtering when no filter is provided', async () => {
     const data = [{ firstName: 'Piet' }, { fIrStNaMe: 'Kees' }, { firstName: 'Miep' }]
     await createData(tembaServer, data)
@@ -316,5 +316,111 @@ describe('Unhappy paths (400 Bad Request)', () => {
       .query('filter.name[eq]=Piet')
 
     expect(response.status).toBe(400)
+  })
+})
+
+describe('String partial matching operators: startsWith, endsWith, contains', () => {
+  test('Filter using [contains] operator', async () => {
+    const data = [
+      { description: 'lorem ipsum dolor' },
+      { description: 'hello world' },
+      { description: 'Lorem Ipsum' },
+    ]
+    await createData(tembaServer, data)
+
+    // Case-insensitive substring match
+    const res = await request(tembaServer).get(resource).query('filter.description[contains]=lorem')
+    expect(res.body.length).toEqual(2)
+    expect(res.body.map((i: { description: string }) => i.description).sort()).toEqual([
+      'Lorem Ipsum',
+      'lorem ipsum dolor',
+    ])
+  })
+
+  test('Filter using [startsWith] operator', async () => {
+    const data = [
+      { username: 'admin_alice' },
+      { username: 'Admin_Bob' },
+      { username: 'user_charlie' },
+    ]
+    await createData(tembaServer, data)
+
+    // Case-insensitive prefix match
+    const res = await request(tembaServer).get(resource).query('filter.username[startsWith]=admin')
+    expect(res.body.length).toEqual(2)
+    expect(res.body.map((i: { username: string }) => i.username).sort()).toEqual([
+      'Admin_Bob',
+      'admin_alice',
+    ])
+  })
+
+  test('Filter using [endsWith] operator', async () => {
+    const data = [
+      { email: 'alice@example.com' },
+      { email: 'bob@example.com' },
+      { email: 'charlie@other.org' },
+    ]
+    await createData(tembaServer, data)
+
+    // Case-insensitive suffix match
+    const res = await request(tembaServer)
+      .get(resource)
+      .query('filter.email[endsWith]=@example.com')
+    expect(res.body.length).toEqual(2)
+    expect(res.body.map((i: { email: string }) => i.email).sort()).toEqual([
+      'alice@example.com',
+      'bob@example.com',
+    ])
+  })
+
+  test('[contains] is case-insensitive', async () => {
+    const data = [{ name: 'FooBar' }, { name: 'foobar' }, { name: 'baz' }]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.name[contains]=OOB')
+    expect(res.body.length).toEqual(2)
+  })
+
+  test('[startsWith] is case-insensitive', async () => {
+    const data = [{ name: 'FooBar' }, { name: 'foobar' }, { name: 'baz' }]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.name[startsWith]=FOO')
+    expect(res.body.length).toEqual(2)
+  })
+
+  test('[endsWith] is case-insensitive', async () => {
+    const data = [{ name: 'FooBar' }, { name: 'fooBAR' }, { name: 'baz' }]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.name[endsWith]=BAR')
+    expect(res.body.length).toEqual(2)
+  })
+
+  test('[contains] on a non-string field returns no results', async () => {
+    const data = [{ active: true }, { active: false }, { year: 2024 }]
+    await createData(tembaServer, data)
+
+    const boolRes = await request(tembaServer).get(resource).query('filter.active[contains]=rue')
+    expect(boolRes.body.length).toEqual(0)
+
+    const numRes = await request(tembaServer).get(resource).query('filter.year[contains]=202')
+    expect(numRes.body.length).toEqual(0)
+  })
+
+  test('[startsWith] returns no results when no match', async () => {
+    const data = [{ name: 'Alice' }, { name: 'Bob' }]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.name[startsWith]=xyz')
+    expect(res.body.length).toEqual(0)
+  })
+
+  test('[endsWith] returns no results when no match', async () => {
+    const data = [{ name: 'Alice' }, { name: 'Bob' }]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.name[endsWith]=xyz')
+    expect(res.body.length).toEqual(0)
   })
 })

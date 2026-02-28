@@ -28,7 +28,7 @@ beforeEach(async () => {
   tembaServer = await createServer({ allowDeleteCollection: true })
 })
 
-describe('DELETE', () => {
+describe('String exact match operators: eq and neq', () => {
   test('Delete with no filtering deletes everything', async () => {
     const data = [{ name: 'Piet' }, { name: 'Miep' }]
     await createData(tembaServer, data)
@@ -181,6 +181,165 @@ describe('DELETE', () => {
     const getRemaining = await request(tembaServer).get(resource)
     expect(getRemaining.body.length).toEqual(1)
     expect(getRemaining.body[0].name).toEqual('Chloe')
+  })
+
+  test('Delete using [eq] operator is case-insensitive', async () => {
+    await createData(tembaServer, [{ name: 'Piet' }, { name: 'Miep' }])
+
+    await request(tembaServer).delete(resource).query('filter.name[eq]=MIEP')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].name).toEqual('Piet')
+  })
+
+  test('Delete using [neq] operator is case-insensitive', async () => {
+    await createData(tembaServer, [{ name: 'Piet' }, { name: 'Miep' }])
+
+    await request(tembaServer).delete(resource).query('filter.name[neq]=MIEP')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].name).toEqual('Miep')
+  })
+
+  test('Delete using [neq] operator on boolean field', async () => {
+    await createData(tembaServer, [
+      { name: 'Piet', isActive: true },
+      { name: 'Miep', isActive: true },
+      { name: 'Kees', isActive: false },
+    ])
+
+    await request(tembaServer).delete(resource).query('filter.isActive[neq]=false')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].name).toEqual('Kees')
+  })
+
+  test('Delete using [eq] operator on CJK characters', async () => {
+    await createData(tembaServer, [{ name: '孫悟空' }, { name: 'Other' }])
+
+    await request(tembaServer).delete(resource).query('filter.name[eq]=孫悟空')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].name).toEqual('Other')
+  })
+
+  test('Delete using [eq] operator with URL-encoded accented characters', async () => {
+    await createData(tembaServer, [{ name: 'Chloé' }, { name: 'Chloe' }])
+
+    // %C3%A9 is the UTF-8 percent-encoding of 'é'
+    await request(tembaServer).delete(resource).query('filter.name[eq]=Chlo%C3%A9')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].name).toEqual('Chloe')
+  })
+})
+
+describe('String partial matching operators: startsWith, endsWith, contains', () => {
+  test('Delete using [contains] operator', async () => {
+    await createData(tembaServer, [
+      { description: 'lorem ipsum dolor' },
+      { description: 'hello world' },
+      { description: 'Lorem Ipsum' },
+    ])
+
+    await request(tembaServer).delete(resource).query('filter.description[contains]=lorem')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].description).toEqual('hello world')
+  })
+
+  test('[contains] is case-insensitive', async () => {
+    await createData(tembaServer, [{ name: 'FooBar' }, { name: 'foobar' }, { name: 'baz' }])
+
+    await request(tembaServer).delete(resource).query('filter.name[contains]=OOB')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].name).toEqual('baz')
+  })
+
+  test('Delete using [startsWith] operator', async () => {
+    await createData(tembaServer, [
+      { username: 'admin_alice' },
+      { username: 'Admin_Bob' },
+      { username: 'user_charlie' },
+    ])
+
+    await request(tembaServer).delete(resource).query('filter.username[startsWith]=admin')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].username).toEqual('user_charlie')
+  })
+
+  test('[startsWith] is case-insensitive', async () => {
+    await createData(tembaServer, [{ name: 'FooBar' }, { name: 'foobar' }, { name: 'baz' }])
+
+    await request(tembaServer).delete(resource).query('filter.name[startsWith]=FOO')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].name).toEqual('baz')
+  })
+
+  test('Delete using [endsWith] operator', async () => {
+    await createData(tembaServer, [
+      { email: 'alice@example.com' },
+      { email: 'bob@example.com' },
+      { email: 'charlie@other.org' },
+    ])
+
+    await request(tembaServer).delete(resource).query('filter.email[endsWith]=@example.com')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].email).toEqual('charlie@other.org')
+  })
+
+  test('[endsWith] is case-insensitive', async () => {
+    await createData(tembaServer, [{ name: 'FooBar' }, { name: 'fooBAR' }, { name: 'baz' }])
+
+    await request(tembaServer).delete(resource).query('filter.name[endsWith]=BAR')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].name).toEqual('baz')
+  })
+
+  test('[contains] on a non-string field deletes nothing', async () => {
+    await createData(tembaServer, [{ active: true }, { active: false }, { year: 2024 }])
+
+    await request(tembaServer).delete(resource).query('filter.active[contains]=rue')
+    const afterBool = await request(tembaServer).get(resource)
+    expect(afterBool.body.length).toEqual(3)
+
+    await request(tembaServer).delete(resource).query('filter.year[contains]=202')
+    const afterNum = await request(tembaServer).get(resource)
+    expect(afterNum.body.length).toEqual(3)
+  })
+
+  test('[startsWith] returns no results when no match (nothing deleted)', async () => {
+    await createData(tembaServer, [{ name: 'Alice' }, { name: 'Bob' }])
+
+    await request(tembaServer).delete(resource).query('filter.name[startsWith]=xyz')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(2)
+  })
+
+  test('[endsWith] returns no results when no match (nothing deleted)', async () => {
+    await createData(tembaServer, [{ name: 'Alice' }, { name: 'Bob' }])
+
+    await request(tembaServer).delete(resource).query('filter.name[endsWith]=xyz')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(2)
   })
 })
 

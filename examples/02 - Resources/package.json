@@ -1,12 +1,12 @@
 {
   "name": "temba-example-02-resources",
-  "version": "0.62.0",
+  "version": "0.63.0",
   "description": "Temba example: Allowlisting specific resources",
   "type": "module",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "temba": "0.62.0"
+    "temba": "0.63.0"
   }
 }
