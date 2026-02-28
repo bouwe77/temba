@@ -1,0 +1,12 @@
+{
+  "name": "temba-example-09-websockets",
+  "version": "1.0.0",
+  "description": "Temba example: Real-time WebSocket event broadcasting",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "temba": "latest"
+  }
+}

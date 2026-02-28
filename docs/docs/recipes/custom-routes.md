@@ -111,3 +111,7 @@ server.listen(8362)
 | `GET /logo.png` | Your custom handler |
 | `GET /api/movies` | Temba |
 | `POST /api/movies` | Temba |
+
+---
+
+For isolated, runnable examples of the features used here, see [example 11 (API Prefix)](https://github.com/bouwe77/temba/tree/main/examples/11%20-%20API%20Prefix) in the [Examples](/docs/examples) section.

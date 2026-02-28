@@ -1,0 +1,12 @@
+{
+  "name": "temba-example-08-etags",
+  "version": "1.0.0",
+  "description": "Temba example: ETag caching and optimistic concurrency",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "temba": "latest"
+  }
+}

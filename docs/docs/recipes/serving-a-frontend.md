@@ -104,3 +104,7 @@ const server = await create({
 ```
 
 Your frontend connects to `ws://localhost:8362/ws` (or your deployed URL) and receives a message whenever a resource is created, updated, or deleted — no polling needed. This is an easy way to make your app feel noticeably more dynamic, especially for collaborative or real-time use cases.
+
+---
+
+For isolated, runnable examples of the features used here, see [example 09 (WebSockets)](https://github.com/bouwe77/temba/tree/main/examples/09%20-%20WebSockets) and [example 11 (API Prefix)](https://github.com/bouwe77/temba/tree/main/examples/11%20-%20API%20Prefix) in the [Examples](/docs/examples) section.
