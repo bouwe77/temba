@@ -312,43 +312,16 @@ describe('String partial matching operators: startsWith, endsWith, contains', ()
     expect(getRemaining.body[0].name).toEqual('baz')
   })
 
-  test('[contains] on a number field coerces to string', async () => {
-    await createData(tembaServer, [{ year: 2024 }, { year: 2025 }, { year: 1999 }])
-
-    await request(tembaServer).delete(resource).query('filter.year[contains]=202')
-
-    const getRemaining = await request(tembaServer).get(resource)
-    expect(getRemaining.body.length).toEqual(1)
-    expect(getRemaining.body[0].year).toEqual(1999)
-  })
-
-  test('[startsWith] on a number field coerces to string', async () => {
-    await createData(tembaServer, [{ year: 2024 }, { year: 2025 }, { year: 1999 }])
-
-    await request(tembaServer).delete(resource).query('filter.year[startsWith]=202')
-
-    const getRemaining = await request(tembaServer).get(resource)
-    expect(getRemaining.body.length).toEqual(1)
-    expect(getRemaining.body[0].year).toEqual(1999)
-  })
-
-  test('[endsWith] on a number field coerces to string', async () => {
-    await createData(tembaServer, [{ year: 2024 }, { year: 2025 }, { year: 1999 }])
-
-    await request(tembaServer).delete(resource).query('filter.year[endsWith]=9')
-
-    const getRemaining = await request(tembaServer).get(resource)
-    expect(getRemaining.body.length).toEqual(2)
-    expect(getRemaining.body.map((i: { year: number }) => i.year).sort()).toEqual([2024, 2025])
-  })
-
-  test('[contains] on a boolean field deletes nothing', async () => {
-    await createData(tembaServer, [{ active: true }, { active: false }])
+  test('[contains] on a non-string field deletes nothing', async () => {
+    await createData(tembaServer, [{ active: true }, { active: false }, { year: 2024 }])
 
     await request(tembaServer).delete(resource).query('filter.active[contains]=rue')
+    const afterBool = await request(tembaServer).get(resource)
+    expect(afterBool.body.length).toEqual(3)
 
-    const getRemaining = await request(tembaServer).get(resource)
-    expect(getRemaining.body.length).toEqual(2)
+    await request(tembaServer).delete(resource).query('filter.year[contains]=202')
+    const afterNum = await request(tembaServer).get(resource)
+    expect(afterNum.body.length).toEqual(3)
   })
 
   test('[startsWith] returns no results when no match (nothing deleted)', async () => {

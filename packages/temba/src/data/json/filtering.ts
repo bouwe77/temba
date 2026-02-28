@@ -33,20 +33,11 @@ const operatorFns: Record<Operator, (a: unknown, b: string) => boolean> = {
     return a !== b
   },
 
-  contains: (a, b) => {
-    if (typeof a === 'boolean') return false
-    return String(a).toLowerCase().includes(b.toLowerCase())
-  },
+  contains: (a, b) => typeof a === 'string' && a.toLowerCase().includes(b.toLowerCase()),
 
-  startsWith: (a, b) => {
-    if (typeof a === 'boolean') return false
-    return String(a).toLowerCase().startsWith(b.toLowerCase())
-  },
+  startsWith: (a, b) => typeof a === 'string' && a.toLowerCase().startsWith(b.toLowerCase()),
 
-  endsWith: (a, b) => {
-    if (typeof a === 'boolean') return false
-    return String(a).toLowerCase().endsWith(b.toLowerCase())
-  },
+  endsWith: (a, b) => typeof a === 'string' && a.toLowerCase().endsWith(b.toLowerCase()),
 }
 
 const isOperatorObject = (obj: unknown): obj is OperatorObject => {

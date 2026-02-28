@@ -397,38 +397,15 @@ describe('String partial matching operators: startsWith, endsWith, contains', ()
     expect(res.body.length).toEqual(2)
   })
 
-  test('[contains] on a number field coerces to string', async () => {
-    const data = [{ year: 2024 }, { year: 2025 }, { year: 1999 }]
+  test('[contains] on a non-string field returns no results', async () => {
+    const data = [{ active: true }, { active: false }, { year: 2024 }]
     await createData(tembaServer, data)
 
-    const res = await request(tembaServer).get(resource).query('filter.year[contains]=202')
-    expect(res.body.length).toEqual(2)
-    expect(res.body.map((i: { year: number }) => i.year).sort()).toEqual([2024, 2025])
-  })
+    const boolRes = await request(tembaServer).get(resource).query('filter.active[contains]=rue')
+    expect(boolRes.body.length).toEqual(0)
 
-  test('[startsWith] on a number field coerces to string', async () => {
-    const data = [{ year: 2024 }, { year: 2025 }, { year: 1999 }]
-    await createData(tembaServer, data)
-
-    const res = await request(tembaServer).get(resource).query('filter.year[startsWith]=202')
-    expect(res.body.length).toEqual(2)
-  })
-
-  test('[endsWith] on a number field coerces to string', async () => {
-    const data = [{ year: 2024 }, { year: 2025 }, { year: 1999 }]
-    await createData(tembaServer, data)
-
-    const res = await request(tembaServer).get(resource).query('filter.year[endsWith]=9')
-    expect(res.body.length).toEqual(1)
-    expect(res.body[0].year).toEqual(1999)
-  })
-
-  test('[contains] on a boolean field returns no results', async () => {
-    const data = [{ active: true }, { active: false }]
-    await createData(tembaServer, data)
-
-    const res = await request(tembaServer).get(resource).query('filter.active[contains]=rue')
-    expect(res.body.length).toEqual(0)
+    const numRes = await request(tembaServer).get(resource).query('filter.year[contains]=202')
+    expect(numRes.body.length).toEqual(0)
   })
 
   test('[startsWith] returns no results when no match', async () => {
