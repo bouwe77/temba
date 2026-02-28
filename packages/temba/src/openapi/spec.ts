@@ -177,6 +177,52 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
     description: 'Shows information about the API',
   })
 
+  // Add WebSocket schema and path when WebSocket is enabled
+  if (config.webSocket) {
+    const webSocketMessageSchema: SchemaObject = {
+      type: 'object',
+      required: ['resource', 'action'],
+      properties: {
+        resource: { type: 'string' },
+        action: { type: 'string', enum: ['CREATE', 'UPDATE', 'DELETE', 'DELETE_ALL'] },
+      },
+      oneOf: [
+        {
+          description: 'Standard mutation events',
+          required: ['data'],
+          properties: {
+            action: { enum: ['CREATE', 'UPDATE', 'DELETE'] },
+            data: { type: 'object' },
+          },
+        },
+        {
+          description: 'Collection clear events',
+          properties: {
+            action: { const: 'DELETE_ALL' },
+          },
+          not: { required: ['data'] },
+        },
+      ],
+    }
+
+    builder.addSchema('WebSocketMessage', webSocketMessageSchema)
+
+    builder.addPath('/ws', {
+      get: {
+        summary: 'WebSocket Real-time Feed',
+        description:
+          'Establish a WebSocket connection to receive real-time updates. Handshake requires an HTTP GET with an Upgrade header.',
+        operationId: 'connectWebSocket',
+        responses: {
+          '101': {
+            description: 'Switching Protocols',
+          },
+        },
+        tags: ['API'],
+      },
+    })
+  }
+
   // GET on the root URL
   builder.addPath('/', {
     get: {
@@ -261,7 +307,7 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
       },
       post: {
         summary: `Create a new ${singularResourceLowerCase}`,
-        description: `Create a new ${singularResourceLowerCase}.`,
+        description: `Create a new ${singularResourceLowerCase}.${config.webSocket ? '\n\nSuccessful requests broadcast a message to the /ws WebSocket feed.' : ''}`,
         operationId: `create${singularResourceUpperCase}`,
         parameters: getPathParameters(config, resourceInfo),
         requestBody: getRequestBodySchema(postRequestSchema),
@@ -300,7 +346,7 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
       delete: {
         summary: `Delete all ${pluralResourceLowerCase}`,
         description: config.allowDeleteCollection
-          ? `Delete all ${pluralResourceLowerCase}.`
+          ? `Delete all ${pluralResourceLowerCase}.${config.webSocket ? '\n\nSuccessful requests broadcast a message to the /ws WebSocket feed.' : ''}`
           : 'Deleting whole collections is disabled. Enable by setting `allowDeleteCollection` to `true`.',
         operationId: `deleteAll${pluralResourceUpperCase}`,
         parameters: getPathParameters(config, resourceInfo),
@@ -373,7 +419,7 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
       },
       post: {
         summary: `Create a new ${singularResourceLowerCase} with id`,
-        description: `Create a new ${singularResourceLowerCase}, specifying your own id.`,
+        description: `Create a new ${singularResourceLowerCase}, specifying your own id.${config.webSocket ? '\n\nSuccessful requests broadcast a message to the /ws WebSocket feed.' : ''}`,
         operationId: `create${singularResourceUpperCase}WithId`,
         parameters: getPathParameters(config, resourceInfo, true),
         requestBody: {
@@ -446,7 +492,7 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
       },
       put: {
         summary: `Replace ${indefinite(singularResourceLowerCase)}`,
-        description: `Replace ${indefinite(singularResourceLowerCase)}.`,
+        description: `Replace ${indefinite(singularResourceLowerCase)}.${config.webSocket ? '\n\nSuccessful requests broadcast a message to the /ws WebSocket feed.' : ''}`,
         operationId: `replace${singularResourceUpperCase}`,
         parameters: getPathParameters(config, resourceInfo, true),
         requestBody: getRequestBodySchema(
@@ -495,7 +541,7 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
       },
       patch: {
         summary: `Update ${indefinite(singularResourceLowerCase)}`,
-        description: `Update ${indefinite(singularResourceLowerCase)}.`,
+        description: `Update ${indefinite(singularResourceLowerCase)}.${config.webSocket ? '\n\nSuccessful requests broadcast a message to the /ws WebSocket feed.' : ''}`,
         operationId: `update${singularResourceUpperCase}`,
         parameters: getPathParameters(config, resourceInfo, true),
         requestBody: getRequestBodySchema(
@@ -544,7 +590,7 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
       },
       delete: {
         summary: `Delete ${indefinite(singularResourceLowerCase)}`,
-        description: `Delete ${indefinite(singularResourceLowerCase)}.`,
+        description: `Delete ${indefinite(singularResourceLowerCase)}.${config.webSocket ? '\n\nSuccessful requests broadcast a message to the /ws WebSocket feed.' : ''}`,
         operationId: `delete${singularResourceUpperCase}`,
         parameters: getPathParameters(config, resourceInfo, true),
         responses: {
