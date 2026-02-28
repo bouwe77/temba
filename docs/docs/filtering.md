@@ -7,7 +7,7 @@ sidebar_position: 10
 
 # Filtering
 
-Temba supports JSON:API style filtering on `GET` and `DELETE` collection requests by appending square-bracket operators to your field names in the query string. Every filter expression must start with the exact, lowercase `filter` prefix. For example:
+Temba supports LHS bracket filtering on `GET` and `DELETE` collection requests by appending square-bracket operators to your field names in the query string. Every filter expression must start with the exact, lowercase `filter` prefix. String matching is case-insensitive. For example:
 
 `GET /items?filter.name[eq]=Alice&filter.status[neq]=archived`
 
@@ -30,7 +30,5 @@ The following operators are supported:
 
 | Operator       | Description                                   | Example                                            |
 | -------------- | --------------------------------------------- | -------------------------------------------------- |
-| `[eq]`         | strict equals                                 | `?filter.name[eq]=Alice` (or `?filter.name=Alice`) |
-| `[ieq]`        | case-insensitive equals                       | `?filter.name[ieq]=alice`                          |
-| `[neq]`        | strict not equals                             | `?filter.status[neq]=archived`                     |
-| `[ineq]`       | case-insensitive not equals                   | `?filter.status[ineq]=ARCHIVED`                    |
+| `[eq]`         | equals (case-insensitive)                     | `?filter.name[eq]=Alice` (or `?filter.name=Alice`) |
+| `[neq]`        | not equals (case-insensitive)                 | `?filter.status[neq]=archived`                     |

@@ -1,12 +1,12 @@
 {
   "name": "temba-example-03-data-persistency",
-  "version": "0.61.2",
+  "version": "0.62.0",
   "description": "Temba example: Persisting data to a JSON file",
   "type": "module",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "temba": "0.61.2"
+    "temba": "0.62.0"
   }
 }

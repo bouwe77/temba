@@ -58,45 +58,40 @@ describe('DELETE', () => {
     expect(getRemaining.body.length).toEqual(1)
   })
 
-  test('Delete using [eq] operator (strict exact match)', async () => {
+  test('Delete using [eq] operator (case-insensitive equals)', async () => {
     for (const queryString of [
       'filter.name[eq]=Miep', // single [eq] filter
       'filter.name=Miep', // default operator
-      'filter.name[eq]=Miep&filter.age[eq]=23', // multiple [eq] filters
+      'filter.name[eq]=miep', // different casing, still matches
     ]) {
       await createData(tembaServer, [
         { name: 'Piet', age: 24 },
         { name: 'Miep', age: 23 },
-        { name: 'miep', age: 99 }, // Mixed casing variant
       ])
 
       const deleteRes = await request(tembaServer).delete(resource).query(queryString)
       expectSuccess(deleteRes)
 
       const getRemaining = await request(tembaServer).get(resource)
-
-      // We started with 3, deleted 1, should have 2 left
-      expect(getRemaining.body.length).toEqual(2)
-
-      // Ensure 'Miep' is gone, but 'Piet' and 'miep' still remain
-      const remainingNames = getRemaining.body.map((item: { name: string }) => item.name).sort()
-      expect(remainingNames).toEqual(['Piet', 'miep'].sort())
+      expect(getRemaining.body.length).toEqual(1)
+      expect(getRemaining.body[0].name).toEqual('Piet')
 
       // Clean up before next loop iteration
       await request(tembaServer).delete(resource)
     }
   })
 
-  test('Delete using [eq] operator fails on case-mismatch (strict)', async () => {
-    await createData(tembaServer, [{ name: 'Miep' }])
+  test('Delete using [eq] operator with multiple filters', async () => {
+    await createData(tembaServer, [
+      { name: 'Piet', age: 24 },
+      { name: 'Miep', age: 23 },
+    ])
 
-    // Try to delete with wrong casing using strict [eq]
-    const deleteRes = await request(tembaServer).delete(resource).query('filter.name[eq]=miep')
-    expect(deleteRes.status).toBe(204)
+    await request(tembaServer).delete(resource).query('filter.name[eq]=Miep&filter.age[eq]=23')
 
-    // Ensure it was NOT deleted
     const getRemaining = await request(tembaServer).get(resource)
     expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].name).toEqual('Piet')
   })
 
   test('Empty filter value using [eq] operator', async () => {
@@ -164,29 +159,6 @@ describe('DELETE', () => {
     expect(getRemaining.body[0].name).toEqual('Miep')
   })
 
-  test('Delete using [ieq] operator (case-insensitive equals)', async () => {
-    await createData(tembaServer, [{ name: 'Alice' }, { name: 'bob' }])
-
-    await request(tembaServer).delete(resource).query('filter.name[ieq]=alice')
-    await request(tembaServer).delete(resource).query('filter.name[ieq]=BOB')
-
-    const getRemaining = await request(tembaServer).get(resource)
-    expect(getRemaining.body.length).toEqual(0)
-  })
-
-  test('Delete using [ineq] operator (case-insensitive not equals)', async () => {
-    await createData(tembaServer, [
-      { name: 'Alice', role: 'Admin' },
-      { name: 'Bob', role: 'USER' },
-    ])
-
-    await request(tembaServer).delete(resource).query('filter.role[ineq]=user')
-
-    const getRemaining = await request(tembaServer).get(resource)
-    expect(getRemaining.body.length).toEqual(1)
-    expect(getRemaining.body[0].name).toEqual('Bob')
-  })
-
   test('Filter on a field that only exists on some items deletes only matching items', async () => {
     await createData(tembaServer, [
       { name: 'Piet', age: 24 },
@@ -201,26 +173,14 @@ describe('DELETE', () => {
     expect(getRemaining.body[0].name).toEqual('Miep')
   })
 
-  test('Delete using [eq] operator on accented characters (byte-exact match)', async () => {
+  test('Delete using [eq] operator on accented characters', async () => {
     await createData(tembaServer, [{ name: 'Chloé' }, { name: 'Chloe' }])
 
-    // Only 'Chloé' (with accent) should be deleted — 'Chloe' (without) is a distinct value
     await request(tembaServer).delete(resource).query('filter.name[eq]=Chloé')
 
     const getRemaining = await request(tembaServer).get(resource)
     expect(getRemaining.body.length).toEqual(1)
     expect(getRemaining.body[0].name).toEqual('Chloe')
-  })
-
-  test('Delete using [ieq] operator on accented characters (case-insensitive)', async () => {
-    await createData(tembaServer, [{ name: 'Chloé' }, { name: 'Other' }])
-
-    // Lowercase 'chloé' should match and delete stored 'Chloé'
-    await request(tembaServer).delete(resource).query('filter.name[ieq]=chloé')
-
-    const getRemaining = await request(tembaServer).get(resource)
-    expect(getRemaining.body.length).toEqual(1)
-    expect(getRemaining.body[0].name).toEqual('Other')
   })
 })
 

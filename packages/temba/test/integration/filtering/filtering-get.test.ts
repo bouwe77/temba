@@ -65,31 +65,33 @@ describe('GET', () => {
     expect(getFilterResponse4.body[0].fIrStNaMe).toEqual('Kees')
   })
 
-  test('Filter using [eq] operator (strict exact match)', async () => {
+  test('Filter using [eq] operator (case-insensitive equals)', async () => {
     const data = [
       { name: 'Piet', age: 24, isActive: true },
       { name: 'Miep', age: 23, isActive: false },
-      { name: 'miep', age: 99, isActive: true }, // Mixed casing variant
+      { name: 'miep', age: 99, isActive: true },
     ]
     await createData(tembaServer, data)
 
-    // These should perfectly match ONLY the capitalized 'Miep'
+    // Both 'Miep' and 'miep' should match case-insensitively
     for (const queryString of [
-      'filter.name[eq]=Miep', // single [eq] filter
+      'filter.name[eq]=Miep',
       'filter.name=Miep', // No operator defaults to [eq]
-      'filter.name[eq]=Miep&filter.age[eq]=23', // multiple [eq] filters
+      'filter.name[eq]=miep',
     ]) {
       const getFilterResponse = await request(tembaServer).get(resource).query(queryString)
-      expect(getFilterResponse.body.length).toEqual(1)
-      expect(getFilterResponse.body[0].name).toEqual('Miep')
-      expect(getFilterResponse.body[0].age).toEqual(23)
+      expect(getFilterResponse.body.length).toEqual(2)
+      expect(getFilterResponse.body.map((item: { name: string }) => item.name).sort()).toEqual(
+        ['Miep', 'miep'].sort(),
+      )
     }
 
-    // This should perfectly match ONLY the lowercase 'miep'
-    const strictCheck = await request(tembaServer).get(resource).query('filter.name[eq]=miep')
-    expect(strictCheck.body.length).toEqual(1)
-    expect(strictCheck.body[0].name).toEqual('miep')
-    expect(strictCheck.body[0].age).toEqual(99)
+    // Multiple filters combined
+    const getFilterResponse = await request(tembaServer)
+      .get(resource)
+      .query('filter.name[eq]=Miep&filter.age[eq]=23')
+    expect(getFilterResponse.body.length).toEqual(1)
+    expect(getFilterResponse.body[0].name).toEqual('Miep')
   })
 
   test('Empty filter value using [eq] operator', async () => {
@@ -113,28 +115,20 @@ describe('GET', () => {
     ]
     await createData(tembaServer, data)
 
-    // Case sensitive filter for not finding 'Miep'
-    let queryString = 'filter.name[neq]=Miep'
+    // Case-insensitive filter for not finding 'Miep' (also excludes 'miep' variants)
+    const queryString = 'filter.name[neq]=Miep'
     const getFilterResponse = await request(tembaServer).get(resource).query(queryString)
     expect(getFilterResponse.body.length).toEqual(2)
     expect(getFilterResponse.body.map((item: { name: string }) => item.name)).toEqual(
       expect.arrayContaining(['Piet', '']),
     )
 
-    // Case sensitive filter for not finding 'miep' should return all 3 items since 'miep' doesn't match any name
-    queryString = 'filter.name[neq]=miep'
-    const getFilterResponse2 = await request(tembaServer).get(resource).query(queryString)
-    expect(getFilterResponse2.body.length).toEqual(3)
-    expect(getFilterResponse2.body.map((item: { name: string }) => item.name)).toEqual(
-      expect.arrayContaining(['Piet', 'Miep', '']),
-    )
-
     // Filter using [neq] operator on boolean
-    const getFilterResponse3 = await request(tembaServer)
+    const getFilterResponse2 = await request(tembaServer)
       .get(resource)
       .query('filter.isActive[neq]=true')
-    expect(getFilterResponse3.body.length).toEqual(1)
-    expect(getFilterResponse3.body.map((item: { name: string }) => item.name)).toEqual([''])
+    expect(getFilterResponse2.body.length).toEqual(1)
+    expect(getFilterResponse2.body.map((item: { name: string }) => item.name)).toEqual([''])
   })
 
   test("Filter on both [eq] and [neq] operators that don't give any results", async () => {
@@ -204,49 +198,6 @@ describe('GET', () => {
     expect(getResponse.body.every((item: { name: string }) => item.name === 'Piet')).toBe(true)
   })
 
-  test('Filter using [ieq] operator (case-insensitive equals)', async () => {
-    const data = [
-      { name: 'Alice', role: 'Admin' },
-      { name: 'bob', role: 'user' },
-      { name: 'Charlie', role: 'User' },
-    ]
-    await createData(tembaServer, data)
-
-    // Test lowercase query matching capitalized data
-    const res1 = await request(tembaServer).get(resource).query('filter.name[ieq]=alice')
-    expect(res1.body.length).toEqual(1)
-    expect(res1.body[0].name).toEqual('Alice')
-
-    // Test uppercase query matching lowercase data
-    const res2 = await request(tembaServer).get(resource).query('filter.name[ieq]=BOB')
-    expect(res2.body.length).toEqual(1)
-    expect(res2.body[0].name).toEqual('bob')
-
-    // Test matching multiple items with different casing
-    const res3 = await request(tembaServer).get(resource).query('filter.role[ieq]=USER')
-    expect(res3.body.length).toEqual(2)
-    expect(res3.body.map((item: { name: string }) => item.name).sort()).toEqual(['Charlie', 'bob'])
-  })
-
-  test('Filter using [ineq] operator (case-insensitive not equals)', async () => {
-    const data = [
-      { name: 'Alice', role: 'Admin' },
-      { name: 'Bob', role: 'USER' },
-      { name: 'Charlie', role: 'User' },
-    ]
-    await createData(tembaServer, data)
-
-    // Filter out 'user' regardless of casing
-    const res1 = await request(tembaServer).get(resource).query('filter.role[ineq]=user')
-    expect(res1.body.length).toEqual(1)
-    expect(res1.body[0].name).toEqual('Alice')
-
-    // Filter out 'Alice' using uppercase
-    const res2 = await request(tembaServer).get(resource).query('filter.name[ineq]=ALICE')
-    expect(res2.body.length).toEqual(2)
-    expect(res2.body.map((item: { name: string }) => item.name).sort()).toEqual(['Bob', 'Charlie'])
-  })
-
   test('Filter on a field that only exists on some items', async () => {
     const data = [
       { name: 'Piet', age: 24 },
@@ -259,32 +210,20 @@ describe('GET', () => {
     expect(getResponse.body[0].name).toEqual('Piet')
   })
 
-  test('Filter using [eq] operator on accented characters (byte-exact match)', async () => {
+  test('Filter using [eq] operator on accented characters', async () => {
     const data = [{ name: 'Chloé' }, { name: 'Chloe' }]
     await createData(tembaServer, data)
 
-    // 'Chloé' (with accent) and 'Chloe' (without) are distinct byte sequences
     const res = await request(tembaServer).get(resource).query('filter.name[eq]=Chloé')
     expect(res.body.length).toEqual(1)
     expect(res.body[0].name).toEqual('Chloé')
   })
 
-  test('Filter using [ieq] operator on accented characters (case-insensitive)', async () => {
-    const data = [{ name: 'Chloé' }, { name: 'Other' }]
-    await createData(tembaServer, data)
-
-    // Lowercase 'chloé' should match stored 'Chloé' case-insensitively
-    const res = await request(tembaServer).get(resource).query('filter.name[ieq]=chloé')
-    expect(res.body.length).toEqual(1)
-    expect(res.body[0].name).toEqual('Chloé')
-  })
-
-  test('Filter using [ieq] operator on CJK characters (no case concept, behaves like [eq])', async () => {
+  test('Filter using [eq] operator on CJK characters', async () => {
     const data = [{ name: '孫悟空' }, { name: 'Other' }]
     await createData(tembaServer, data)
 
-    // CJK characters have no case — [ieq] degrades to an exact match
-    const res = await request(tembaServer).get(resource).query('filter.name[ieq]=孫悟空')
+    const res = await request(tembaServer).get(resource).query('filter.name[eq]=孫悟空')
     expect(res.body.length).toEqual(1)
     expect(res.body[0].name).toEqual('孫悟空')
   })

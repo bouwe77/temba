@@ -18,21 +18,13 @@ const buildOperatorCondition = (op: Operator, raw: string): MongoCondition => {
   const coerced = coerceValue(raw)
 
   if (op === 'eq') {
-    return { $eq: coerced }
-  }
-
-  if (op === 'neq') {
-    return { $ne: coerced }
-  }
-
-  if (op === 'ieq') {
     if (typeof coerced === 'string') {
       return { $regex: new RegExp(`^${escapeRegex(coerced)}$`, 'i') }
     }
     return { $eq: coerced }
   }
 
-  // ineq
+  // neq
   if (typeof coerced === 'string') {
     return { $not: new RegExp(`^${escapeRegex(coerced)}$`, 'i') }
   }
