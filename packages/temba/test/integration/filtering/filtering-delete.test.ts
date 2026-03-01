@@ -343,6 +343,177 @@ describe('String partial matching operators: startsWith, endsWith, contains', ()
   })
 })
 
+describe('Number and date filtering ([gt], [gte], [lt], [lte])', () => {
+  test('Delete using [gt] operator on integers', async () => {
+    await createData(tembaServer, [
+      { name: 'Piet', age: 17 },
+      { name: 'Miep', age: 18 },
+      { name: 'Kees', age: 25 },
+    ])
+
+    await request(tembaServer).delete(resource).query('filter.age[gt]=18')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(2)
+    expect(getRemaining.body.map((item: { name: string }) => item.name).sort()).toEqual([
+      'Miep',
+      'Piet',
+    ])
+  })
+
+  test('Delete using [gte] operator on integers', async () => {
+    await createData(tembaServer, [
+      { name: 'Piet', age: 17 },
+      { name: 'Miep', age: 18 },
+      { name: 'Kees', age: 25 },
+    ])
+
+    await request(tembaServer).delete(resource).query('filter.age[gte]=18')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].name).toEqual('Piet')
+  })
+
+  test('Delete using [lt] operator on integers', async () => {
+    await createData(tembaServer, [
+      { name: 'Piet', age: 17 },
+      { name: 'Miep', age: 18 },
+      { name: 'Kees', age: 25 },
+    ])
+
+    await request(tembaServer).delete(resource).query('filter.age[lt]=18')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(2)
+    expect(getRemaining.body.map((item: { name: string }) => item.name).sort()).toEqual([
+      'Kees',
+      'Miep',
+    ])
+  })
+
+  test('Delete using [lte] operator on integers', async () => {
+    await createData(tembaServer, [
+      { name: 'Piet', age: 17 },
+      { name: 'Miep', age: 18 },
+      { name: 'Kees', age: 25 },
+    ])
+
+    await request(tembaServer).delete(resource).query('filter.age[lte]=18')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].name).toEqual('Kees')
+  })
+
+  test('Delete using [gt] and [lt] as a range query on the same field', async () => {
+    await createData(tembaServer, [
+      { name: 'Piet', age: 17 },
+      { name: 'Miep', age: 25 },
+      { name: 'Kees', age: 40 },
+    ])
+
+    await request(tembaServer).delete(resource).query('filter.age[gt]=18&filter.age[lt]=35')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(2)
+    expect(getRemaining.body.map((item: { name: string }) => item.name).sort()).toEqual([
+      'Kees',
+      'Piet',
+    ])
+  })
+
+  test('Delete using [lte] on decimal (float) values', async () => {
+    await createData(tembaServer, [
+      { product: 'Apple', price: 0.99 },
+      { product: 'Banana', price: 1.49 },
+      { product: 'Cherry', price: 2.99 },
+    ])
+
+    await request(tembaServer).delete(resource).query('filter.price[lte]=1.49')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].product).toEqual('Cherry')
+  })
+
+  test('Delete using [gt] on decimal (float) values', async () => {
+    await createData(tembaServer, [
+      { product: 'Apple', price: 0.99 },
+      { product: 'Banana', price: 1.49 },
+      { product: 'Cherry', price: 2.99 },
+    ])
+
+    await request(tembaServer).delete(resource).query('filter.price[gt]=1.49')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(2)
+    expect(getRemaining.body.map((item: { product: string }) => item.product).sort()).toEqual([
+      'Apple',
+      'Banana',
+    ])
+  })
+
+  test('Delete using [gt] on ISO 8601 date strings', async () => {
+    await createData(tembaServer, [
+      { name: 'Piet', birthday: '1990-05-15' },
+      { name: 'Miep', birthday: '2001-11-03' },
+      { name: 'Kees', birthday: '2010-07-22' },
+    ])
+
+    await request(tembaServer).delete(resource).query('filter.birthday[gt]=2000-01-01')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].name).toEqual('Piet')
+  })
+
+  test('Delete using [lte] on ISO 8601 date strings', async () => {
+    await createData(tembaServer, [
+      { name: 'Piet', birthday: '1990-05-15' },
+      { name: 'Miep', birthday: '2001-11-03' },
+      { name: 'Kees', birthday: '2010-07-22' },
+    ])
+
+    await request(tembaServer).delete(resource).query('filter.birthday[lte]=2001-11-03')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].name).toEqual('Kees')
+  })
+
+  test('Delete using [gt] and [lte] as a date range query', async () => {
+    await createData(tembaServer, [
+      { name: 'Piet', birthday: '1990-05-15' },
+      { name: 'Miep', birthday: '2001-11-03' },
+      { name: 'Kees', birthday: '2010-07-22' },
+    ])
+
+    await request(tembaServer)
+      .delete(resource)
+      .query('filter.birthday[gt]=1995-01-01&filter.birthday[lte]=2005-01-01')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(2)
+    expect(getRemaining.body.map((item: { name: string }) => item.name).sort()).toEqual([
+      'Kees',
+      'Piet',
+    ])
+  })
+
+  test('[gt] on a non-number, non-string field deletes nothing', async () => {
+    await createData(tembaServer, [
+      { name: 'Piet', score: null },
+      { name: 'Miep', score: null },
+    ])
+
+    await request(tembaServer).delete(resource).query('filter.score[gt]=0')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(2)
+  })
+})
+
 describe('Unhappy paths (400 Bad Request)', () => {
   test('Returns 400 Bad Request for malformed expressions and prevents deletion', async () => {
     await createData(tembaServer, [{ name: 'Piet' }])

@@ -38,6 +38,30 @@ const operatorFns: Record<Operator, (a: unknown, b: string) => boolean> = {
   startsWith: (a, b) => typeof a === 'string' && a.toLowerCase().startsWith(b.toLowerCase()),
 
   endsWith: (a, b) => typeof a === 'string' && a.toLowerCase().endsWith(b.toLowerCase()),
+
+  gt: (a, b) => {
+    if (typeof a === 'number') return a > Number(b)
+    if (typeof a === 'string') return a > b
+    return false
+  },
+
+  gte: (a, b) => {
+    if (typeof a === 'number') return a >= Number(b)
+    if (typeof a === 'string') return a >= b
+    return false
+  },
+
+  lt: (a, b) => {
+    if (typeof a === 'number') return a < Number(b)
+    if (typeof a === 'string') return a < b
+    return false
+  },
+
+  lte: (a, b) => {
+    if (typeof a === 'number') return a <= Number(b)
+    if (typeof a === 'string') return a <= b
+    return false
+  },
 }
 
 const isOperatorObject = (obj: unknown): obj is OperatorObject => {

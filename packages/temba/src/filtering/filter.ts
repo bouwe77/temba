@@ -2,18 +2,24 @@ type RawFilter = {
   filter: Record<string, unknown>
 }
 
-export const supportedOperators = ['eq', 'neq', 'contains', 'startsWith', 'endsWith'] as const
+export const supportedOperators = [
+  'eq',
+  'neq',
+  'contains',
+  'startsWith',
+  'endsWith',
+  'gt',
+  'gte',
+  'lt',
+  'lte',
+] as const
 /** @internal */
 export type Operator = (typeof supportedOperators)[number]
 /** @internal */
 export type OperatorMap = Record<Operator, string>
 
-type ExactlyOne<T> = {
-  [K in keyof T]: Pick<T, K> & Partial<Record<Exclude<keyof T, K>, never>>
-}[keyof T]
-
 /** @internal */
-export type OperatorObject = ExactlyOne<OperatorMap>
+export type OperatorObject = Partial<OperatorMap>
 
 /** @internal */
 export type NestedFilter = {
