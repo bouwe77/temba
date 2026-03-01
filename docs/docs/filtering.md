@@ -35,3 +35,17 @@ The following operators are supported:
 | `[contains]`   | substring match (case-insensitive, strings only) | `?filter.description[contains]=lorem`              |
 | `[startsWith]` | prefix match (case-insensitive, strings only)    | `?filter.username[startsWith]=admin`               |
 | `[endsWith]`   | suffix match (case-insensitive, strings only)    | `?filter.email[endsWith]=@example.com`             |
+| `[gt]`         | greater than                                  | `?filter.age[gt]=18`                               |
+| `[gte]`        | greater than or equal                         | `?filter.price[gte]=10`                            |
+| `[lt]`         | less than                                     | `?filter.score[lt]=100`                            |
+| `[lte]`        | less than or equal                            | `?filter.price[lte]=100`                           |
+
+`[eq]` and `[neq]` also work on **booleans** — use `"true"` or `"false"` as the filter value: `?filter.isActive[eq]=true`.
+
+The `[gt]`, `[gte]`, `[lt]`, and `[lte]` operators work on both **numbers** (integers and decimals) and **strings**. String comparisons are lexicographic, which means ISO 8601 date strings (e.g. `"2026-01-31"`) sort and compare correctly by date order. Multiple operators can be combined on the same field to express a range:
+
+```http
+GET /users?filter.age[gte]=18&filter.age[lt]=65
+GET /products?filter.price[gt]=9.99&filter.price[lte]=49.99
+GET /events?filter.date[gte]=2026-01-01&filter.date[lt]=2027-01-01
+```

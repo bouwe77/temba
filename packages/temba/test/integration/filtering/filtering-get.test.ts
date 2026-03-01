@@ -255,6 +255,157 @@ describe('HEAD', () => {
   })
 })
 
+describe('Number and date filtering ([gt], [gte], [lt], [lte])', () => {
+  test('Filter using [gt] operator on integers', async () => {
+    const data = [
+      { name: 'Piet', age: 17 },
+      { name: 'Miep', age: 18 },
+      { name: 'Kees', age: 25 },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.age[gt]=18')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].name).toEqual('Kees')
+  })
+
+  test('Filter using [gte] operator on integers', async () => {
+    const data = [
+      { name: 'Piet', age: 17 },
+      { name: 'Miep', age: 18 },
+      { name: 'Kees', age: 25 },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.age[gte]=18')
+    expect(res.body.length).toEqual(2)
+    expect(res.body.map((item: { name: string }) => item.name).sort()).toEqual(['Kees', 'Miep'])
+  })
+
+  test('Filter using [lt] operator on integers', async () => {
+    const data = [
+      { name: 'Piet', age: 17 },
+      { name: 'Miep', age: 18 },
+      { name: 'Kees', age: 25 },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.age[lt]=18')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].name).toEqual('Piet')
+  })
+
+  test('Filter using [lte] operator on integers', async () => {
+    const data = [
+      { name: 'Piet', age: 17 },
+      { name: 'Miep', age: 18 },
+      { name: 'Kees', age: 25 },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.age[lte]=18')
+    expect(res.body.length).toEqual(2)
+    expect(res.body.map((item: { name: string }) => item.name).sort()).toEqual(['Miep', 'Piet'])
+  })
+
+  test('Filter using [gt] and [lt] as a range query on the same field', async () => {
+    const data = [
+      { name: 'Piet', age: 17 },
+      { name: 'Miep', age: 25 },
+      { name: 'Kees', age: 40 },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer)
+      .get(resource)
+      .query('filter.age[gt]=18&filter.age[lt]=35')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].name).toEqual('Miep')
+  })
+
+  test('Filter using [lte] on decimal (float) values', async () => {
+    const data = [
+      { product: 'Apple', price: 0.99 },
+      { product: 'Banana', price: 1.49 },
+      { product: 'Cherry', price: 2.99 },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.price[lte]=1.49')
+    expect(res.body.length).toEqual(2)
+    expect(res.body.map((item: { product: string }) => item.product).sort()).toEqual([
+      'Apple',
+      'Banana',
+    ])
+  })
+
+  test('Filter using [gt] on decimal (float) values', async () => {
+    const data = [
+      { product: 'Apple', price: 0.99 },
+      { product: 'Banana', price: 1.49 },
+      { product: 'Cherry', price: 2.99 },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.price[gt]=1.49')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].product).toEqual('Cherry')
+  })
+
+  test('Filter using [gt] on ISO 8601 date strings', async () => {
+    const data = [
+      { name: 'Piet', birthday: '1990-05-15' },
+      { name: 'Miep', birthday: '2001-11-03' },
+      { name: 'Kees', birthday: '2010-07-22' },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.birthday[gt]=2000-01-01')
+    expect(res.body.length).toEqual(2)
+    expect(res.body.map((item: { name: string }) => item.name).sort()).toEqual(['Kees', 'Miep'])
+  })
+
+  test('Filter using [lte] on ISO 8601 date strings', async () => {
+    const data = [
+      { name: 'Piet', birthday: '1990-05-15' },
+      { name: 'Miep', birthday: '2001-11-03' },
+      { name: 'Kees', birthday: '2010-07-22' },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.birthday[lte]=2001-11-03')
+    expect(res.body.length).toEqual(2)
+    expect(res.body.map((item: { name: string }) => item.name).sort()).toEqual(['Miep', 'Piet'])
+  })
+
+  test('Filter using [gt] and [lte] as a date range query', async () => {
+    const data = [
+      { name: 'Piet', birthday: '1990-05-15' },
+      { name: 'Miep', birthday: '2001-11-03' },
+      { name: 'Kees', birthday: '2010-07-22' },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer)
+      .get(resource)
+      .query('filter.birthday[gt]=1995-01-01&filter.birthday[lte]=2005-01-01')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].name).toEqual('Miep')
+  })
+
+  test('[gt] operator on a non-number, non-string field returns no results', async () => {
+    const data = [
+      { name: 'Piet', score: null },
+      { name: 'Miep', score: null },
+    ]
+    await createData(tembaServer, data)
+
+    // null fields are not numbers or strings, so [gt] should return nothing
+    const res = await request(tembaServer).get(resource).query('filter.score[gt]=0')
+    expect(res.body.length).toEqual(0)
+  })
+})
+
 describe('Unhappy paths (400 Bad Request)', () => {
   test('Returns 400 Bad Request for malformed expressions', async () => {
     const badRequests = [

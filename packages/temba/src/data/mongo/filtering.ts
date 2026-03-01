@@ -41,12 +41,19 @@ const buildOperatorCondition = (op: Operator, raw: string): MongoCondition => {
     return { $regex: new RegExp(`^${escapeRegex(raw)}`, 'i') }
   }
 
-  // endsWith
-  return { $regex: new RegExp(`${escapeRegex(raw)}$`, 'i') }
+  if (op === 'endsWith') {
+    return { $regex: new RegExp(`${escapeRegex(raw)}$`, 'i') }
+  }
+
+  if (op === 'gt') return { $gt: coerced }
+  if (op === 'gte') return { $gte: coerced }
+  if (op === 'lt') return { $lt: coerced }
+
+  // lte
+  return { $lte: coerced }
 }
 
-const escapeRegex = (value: string): string =>
-  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+const escapeRegex = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
 const isOperatorObject = (obj: unknown): obj is OperatorObject =>
   obj !== null &&
