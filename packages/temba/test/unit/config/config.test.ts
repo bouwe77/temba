@@ -314,3 +314,51 @@ test('Full cors config is applied', () => {
     maxAge: 86400,
   })
 })
+
+test('connectionString as DataSourceConfig { type: memory } is passed through', () => {
+  const config = initConfig({ connectionString: { type: 'memory' } })
+  expect(config.connectionString).toEqual({ type: 'memory' })
+})
+
+test('connectionString as DataSourceConfig { type: file } is passed through', () => {
+  const config = initConfig({ connectionString: { type: 'file', filename: 'data.json' } })
+  expect(config.connectionString).toEqual({ type: 'file', filename: 'data.json' })
+})
+
+test('connectionString as DataSourceConfig { type: folder } is passed through', () => {
+  const config = initConfig({ connectionString: { type: 'folder', folder: 'mydata' } })
+  expect(config.connectionString).toEqual({ type: 'folder', folder: 'mydata' })
+})
+
+test('connectionString as DataSourceConfig { type: mongodb } with uri only is passed through', () => {
+  const config = initConfig({ connectionString: { type: 'mongodb', uri: 'mongodb://localhost:27017/mydb' } })
+  expect(config.connectionString).toEqual({ type: 'mongodb', uri: 'mongodb://localhost:27017/mydb' })
+})
+
+test('connectionString as DataSourceConfig { type: mongodb } with all options is passed through', () => {
+  const mongoConfig = {
+    type: 'mongodb' as const,
+    uri: 'mongodb://localhost:27017/mydb',
+    username: 'admin',
+    password: 'secret',
+    authSource: 'admin',
+    tls: true,
+    tlsCAFile: '/certs/ca.pem',
+    tlsCertificateKeyFile: '/certs/client.pem',
+    tlsAllowInvalidCertificates: false,
+    maxPoolSize: 10,
+    minPoolSize: 2,
+    serverSelectionTimeoutMS: 5000,
+    connectTimeoutMS: 3000,
+    replicaSet: 'rs0',
+    readPreference: 'secondary',
+    writeConcern: 'majority',
+  }
+  const config = initConfig({ connectionString: mongoConfig })
+  expect(config.connectionString).toEqual(mongoConfig)
+})
+
+test('connectionString as an empty string leaves it at null (unchanged default)', () => {
+  const config = initConfig({ connectionString: '' })
+  expect(config.connectionString).toBeNull()
+})

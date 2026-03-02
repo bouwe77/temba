@@ -5,6 +5,47 @@ import type { ConfiguredSchemas } from '../schema/types'
 
 type ResourcePath = string
 
+export type DataSourceConfig =
+  /** In-memory storage — data is lost on restart */
+  | { type: 'memory' }
+  /** Single JSON file on disk — all resources stored in one file */
+  | { type: 'file'; filename: string }
+  /** Folder of JSON files on disk — one file per resource */
+  | { type: 'folder'; folder: string }
+  /** MongoDB database */
+  | {
+      type: 'mongodb'
+      uri: string
+      /** Username for authentication (alternative to embedding in URI) */
+      username?: string
+      /** Password for authentication (alternative to embedding in URI) */
+      password?: string
+      /** Authentication database, defaults to 'admin' */
+      authSource?: string
+      /** Enable TLS/SSL */
+      tls?: boolean
+      /** Path to the CA certificate file */
+      tlsCAFile?: string
+      /** Path to the client certificate/key file */
+      tlsCertificateKeyFile?: string
+      /** Allow invalid TLS certificates (not recommended for production) */
+      tlsAllowInvalidCertificates?: boolean
+      /** Maximum number of connections in the connection pool */
+      maxPoolSize?: number
+      /** Minimum number of connections in the connection pool */
+      minPoolSize?: number
+      /** Timeout (ms) for server selection */
+      serverSelectionTimeoutMS?: number
+      /** Timeout (ms) for initial connection */
+      connectTimeoutMS?: number
+      /** Replica set name */
+      replicaSet?: string
+      /** Read preference (e.g. 'primary', 'secondary', 'nearest') */
+      readPreference?: string
+      /** Write concern (e.g. 'majority') */
+      writeConcern?: string
+    }
+
 type ExtendedResource = {
   resourcePath: ResourcePath
   singularName: string
@@ -42,7 +83,7 @@ export type Config = {
   requestInterceptor: RequestInterceptor | null
   responseBodyInterceptor: ResponseBodyInterceptor | null
   staticFolder: string | null
-  connectionString: string | null
+  connectionString: string | DataSourceConfig | null
   returnNullFields: boolean
   port: number
   schemas: ConfiguredSchemas | null
@@ -63,7 +104,7 @@ export type UserConfig = {
   resources?: Resources
   staticFolder?: string
   apiPrefix?: string
-  connectionString?: string
+  connectionString?: string | DataSourceConfig
   requestInterceptor?: RequestInterceptor
   responseBodyInterceptor?: ResponseBodyInterceptor
   returnNullFields?: boolean
@@ -136,7 +177,7 @@ export const initConfig = (userConfig?: UserConfig): Config => {
       config.apiPrefix = cleanPrefix
     }
   }
-  if (userConfig.connectionString && userConfig.connectionString.length > 0) {
+  if (userConfig.connectionString !== undefined && userConfig.connectionString !== '') {
     config.connectionString = userConfig.connectionString
   }
 
