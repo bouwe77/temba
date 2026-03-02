@@ -677,3 +677,100 @@ describe('Array/set operators: in and nin', () => {
     expect(res.body.length).toEqual(2)
   })
 })
+
+describe('Advanced operators: exists and regex', () => {
+  test('[exists]=true returns only items that have the field', async () => {
+    const data = [{ name: 'Alice', email: 'alice@example.com' }, { name: 'Bob' }]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.email[exists]=true')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].name).toEqual('Alice')
+  })
+
+  test('[exists]=false returns only items that do not have the field', async () => {
+    const data = [{ name: 'Alice', email: 'alice@example.com' }, { name: 'Bob' }]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.email[exists]=false')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].name).toEqual('Bob')
+  })
+
+  test('[exists]=true returns empty array when all items have the field', async () => {
+    const data = [{ name: 'Alice', email: 'alice@example.com' }, { name: 'Bob', email: 'bob@example.com' }]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.email[exists]=false')
+    expect(res.body.length).toEqual(0)
+  })
+
+  test('[exists]=false returns all items when none have the field', async () => {
+    const data = [{ name: 'Alice' }, { name: 'Bob' }]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.email[exists]=false')
+    expect(res.body.length).toEqual(2)
+  })
+
+  test('[regex] matches items where field value matches the pattern', async () => {
+    const data = [{ name: 'Alice' }, { name: 'Alicia' }, { name: 'Bob' }]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.name[regex]=^Al')
+    expect(res.body.length).toEqual(2)
+    expect(res.body.map((i: { name: string }) => i.name).sort()).toEqual(['Alice', 'Alicia'])
+  })
+
+  test('[regex] matches full patterns including anchors', async () => {
+    const data = [{ name: 'Alice' }, { name: 'Alicia' }, { name: 'Bob' }]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.name[regex]=^Alice$')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].name).toEqual('Alice')
+  })
+
+  test('[regex] is case-sensitive by default', async () => {
+    const data = [{ name: 'Alice' }, { name: 'alice' }, { name: 'Bob' }]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.name[regex]=^Alice$')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].name).toEqual('Alice')
+  })
+
+  test('[regex] returns no results when nothing matches', async () => {
+    const data = [{ name: 'Alice' }, { name: 'Bob' }]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.name[regex]=^Z')
+    expect(res.body.length).toEqual(0)
+  })
+
+  test('[regex] returns 400 for an invalid regular expression', async () => {
+    const data = [{ name: 'Alice' }]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.name[regex]=[invalid')
+    expect(res.status).toEqual(400)
+  })
+
+  test('[regex] with URL-encoded pattern works correctly', async () => {
+    const data = [{ name: 'Alice' }, { name: 'Alicia' }, { name: 'Bob' }]
+    await createData(tembaServer, data)
+
+    // ^Al.*e$ URL-encoded: %5EAl.*e%24
+    const res = await request(tembaServer).get(resource).query('filter.name[regex]=%5EAl.*e%24')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].name).toEqual('Alice')
+  })
+
+  test('[regex] does not match non-string fields', async () => {
+    const data = [{ name: 'Alice', age: 30 }, { name: 'Bob', age: 25 }]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.age[regex]=3')
+    expect(res.body.length).toEqual(0)
+  })
+})

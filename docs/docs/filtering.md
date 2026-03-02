@@ -41,8 +41,12 @@ The following operators are supported:
 | `[lte]`        | less than or equal                            | `?filter.price[lte]=100`                           |
 | `[in]`         | one of a list of values                       | `?filter.age[in]=18,21,65`                         |
 | `[nin]`        | not in a list of values                       | `?filter.status[nin]=draft,pending`                |
+| `[exists]`     | field is present (`true`) or absent (`false`) | `?filter.email[exists]=true`                       |
+| `[regex]`      | full regular-expression match (URL-encode special chars) | `?filter.name[regex]=^A.*e$` → `%5EA.*e%24` |
 
 `[eq]` and `[neq]` also work on **booleans** — use `"true"` or `"false"` as the filter value: `?filter.isActive[eq]=true`.
+
+`[regex]` matches string fields only (non-string fields return no results). The pattern is case-sensitive by default; use inline flags (e.g. `(?i)`) for case-insensitive matching. Special characters in the pattern must be URL-encoded (e.g. `^` → `%5E`, `$` → `%24`). An invalid regular expression returns a `400 Bad Request`.
 
 The `[gt]`, `[gte]`, `[lt]`, and `[lte]` operators work on both **numbers** (integers and decimals) and **strings**. String comparisons are lexicographic, which means ISO 8601 date strings (e.g. `"2026-01-31"`) sort and compare correctly by date order. Multiple operators can be combined on the same field to express a range:
 

@@ -50,6 +50,10 @@ const buildOperatorCondition = (op: Operator, raw: string): MongoCondition => {
   if (op === 'lt') return { $lt: coerced }
   if (op === 'lte') return { $lte: coerced }
 
+  if (op === 'exists') return { $exists: coerced }
+
+  if (op === 'regex') return { $regex: new RegExp(raw) }
+
   const values = raw.split(',').map((v) => v.trim())
   const coercedValues = values.map(coerceValue)
   const allStrings = coercedValues.every((v) => typeof v === 'string')
