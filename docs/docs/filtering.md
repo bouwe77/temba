@@ -39,6 +39,8 @@ The following operators are supported:
 | `[gte]`        | greater than or equal                         | `?filter.price[gte]=10`                            |
 | `[lt]`         | less than                                     | `?filter.score[lt]=100`                            |
 | `[lte]`        | less than or equal                            | `?filter.price[lte]=100`                           |
+| `[in]`         | one of a list of values                       | `?filter.age[in]=18,21,65`                         |
+| `[nin]`        | not in a list of values                       | `?filter.status[nin]=draft,pending`                |
 
 `[eq]` and `[neq]` also work on **booleans** — use `"true"` or `"false"` as the filter value: `?filter.isActive[eq]=true`.
 

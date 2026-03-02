@@ -62,6 +62,26 @@ const operatorFns: Record<Operator, (a: unknown, b: string) => boolean> = {
     if (typeof a === 'string') return a <= b
     return false
   },
+
+  in: (a, b) => {
+    const values = b.split(',').map((v) => v.trim())
+    return values.some((v) => {
+      if (typeof a === 'string') return a.toLowerCase() === v.toLowerCase()
+      if (typeof a === 'number') return a === Number(v)
+      if (typeof a === 'boolean') return a === (v.toLowerCase() === 'true')
+      return false
+    })
+  },
+
+  nin: (a, b) => {
+    const values = b.split(',').map((v) => v.trim())
+    return values.every((v) => {
+      if (typeof a === 'string') return a.toLowerCase() !== v.toLowerCase()
+      if (typeof a === 'number') return a !== Number(v)
+      if (typeof a === 'boolean') return a !== (v.toLowerCase() === 'true')
+      return true
+    })
+  },
 }
 
 const isOperatorObject = (obj: unknown): obj is OperatorObject => {

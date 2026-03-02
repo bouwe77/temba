@@ -48,9 +48,24 @@ const buildOperatorCondition = (op: Operator, raw: string): MongoCondition => {
   if (op === 'gt') return { $gt: coerced }
   if (op === 'gte') return { $gte: coerced }
   if (op === 'lt') return { $lt: coerced }
+  if (op === 'lte') return { $lte: coerced }
 
-  // lte
-  return { $lte: coerced }
+  const values = raw.split(',').map((v) => v.trim())
+  const coercedValues = values.map(coerceValue)
+  const allStrings = coercedValues.every((v) => typeof v === 'string')
+
+  if (op === 'in') {
+    if (allStrings) {
+      return { $in: coercedValues.map((v) => new RegExp(`^${escapeRegex(String(v))}$`, 'i')) }
+    }
+    return { $in: coercedValues }
+  }
+
+  // nin
+  if (allStrings) {
+    return { $nin: coercedValues.map((v) => new RegExp(`^${escapeRegex(String(v))}$`, 'i')) }
+  }
+  return { $nin: coercedValues }
 }
 
 const escapeRegex = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')

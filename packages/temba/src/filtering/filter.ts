@@ -12,6 +12,8 @@ export const supportedOperators = [
   'gte',
   'lt',
   'lte',
+  'in',
+  'nin',
 ] as const
 /** @internal */
 export type Operator = (typeof supportedOperators)[number]
