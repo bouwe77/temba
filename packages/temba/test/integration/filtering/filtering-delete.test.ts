@@ -556,3 +556,101 @@ describe('Unhappy paths (400 Bad Request)', () => {
     expect(getRemaining.body.length).toEqual(1)
   })
 })
+
+describe('Array/set operators: in and nin', () => {
+  test('Delete using [in] operator deletes items matching any of the listed string values', async () => {
+    await createData(tembaServer, [{ name: 'Piet' }, { name: 'Miep' }, { name: 'Kees' }])
+
+    await request(tembaServer).delete(resource).query('filter.name[in]=Piet,Kees')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].name).toEqual('Miep')
+  })
+
+  test('[in] is case-insensitive for strings', async () => {
+    await createData(tembaServer, [{ name: 'Piet' }, { name: 'Miep' }, { name: 'Kees' }])
+
+    await request(tembaServer).delete(resource).query('filter.name[in]=PIET,kees')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].name).toEqual('Miep')
+  })
+
+  test('Delete using [in] operator with a single value behaves like [eq]', async () => {
+    await createData(tembaServer, [{ name: 'Piet' }, { name: 'Miep' }])
+
+    await request(tembaServer).delete(resource).query('filter.name[in]=Miep')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].name).toEqual('Piet')
+  })
+
+  test('Delete using [in] operator on number values', async () => {
+    await createData(tembaServer, [
+      { name: 'Piet', age: 17 },
+      { name: 'Miep', age: 18 },
+      { name: 'Kees', age: 25 },
+    ])
+
+    await request(tembaServer).delete(resource).query('filter.age[in]=18,25')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].name).toEqual('Piet')
+  })
+
+  test('[in] with no matching values deletes nothing', async () => {
+    await createData(tembaServer, [{ name: 'Piet' }, { name: 'Miep' }])
+
+    await request(tembaServer).delete(resource).query('filter.name[in]=Alice,Bob')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(2)
+  })
+
+  test('Delete using [nin] operator deletes items not in the listed string values', async () => {
+    await createData(tembaServer, [{ name: 'Piet' }, { name: 'Miep' }, { name: 'Kees' }])
+
+    await request(tembaServer).delete(resource).query('filter.name[nin]=Piet,Kees')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(2)
+    expect(getRemaining.body.map((i: { name: string }) => i.name).sort()).toEqual(['Kees', 'Piet'])
+  })
+
+  test('[nin] is case-insensitive for strings', async () => {
+    await createData(tembaServer, [{ name: 'Piet' }, { name: 'Miep' }, { name: 'Kees' }])
+
+    await request(tembaServer).delete(resource).query('filter.name[nin]=PIET,kees')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(2)
+    expect(getRemaining.body.map((i: { name: string }) => i.name).sort()).toEqual(['Kees', 'Piet'])
+  })
+
+  test('Delete using [nin] operator on number values', async () => {
+    await createData(tembaServer, [
+      { name: 'Piet', age: 17 },
+      { name: 'Miep', age: 18 },
+      { name: 'Kees', age: 25 },
+    ])
+
+    await request(tembaServer).delete(resource).query('filter.age[nin]=18,25')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(2)
+    expect(getRemaining.body.map((i: { name: string }) => i.name).sort()).toEqual(['Kees', 'Miep'])
+  })
+
+  test('[nin] where no values are excluded deletes all items', async () => {
+    await createData(tembaServer, [{ name: 'Piet' }, { name: 'Miep' }])
+
+    await request(tembaServer).delete(resource).query('filter.name[nin]=Alice,Bob')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(0)
+  })
+})

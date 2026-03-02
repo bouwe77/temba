@@ -575,3 +575,105 @@ describe('String partial matching operators: startsWith, endsWith, contains', ()
     expect(res.body.length).toEqual(0)
   })
 })
+
+describe('Array/set operators: in and nin', () => {
+  test('Filter using [in] operator matches any of the listed string values (case-insensitive)', async () => {
+    const data = [{ name: 'Piet' }, { name: 'Miep' }, { name: 'Kees' }]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.name[in]=Piet,Kees')
+    expect(res.body.length).toEqual(2)
+    expect(res.body.map((i: { name: string }) => i.name).sort()).toEqual(['Kees', 'Piet'])
+  })
+
+  test('[in] is case-insensitive for strings', async () => {
+    const data = [{ name: 'Piet' }, { name: 'Miep' }, { name: 'Kees' }]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.name[in]=PIET,kees')
+    expect(res.body.length).toEqual(2)
+    expect(res.body.map((i: { name: string }) => i.name).sort()).toEqual(['Kees', 'Piet'])
+  })
+
+  test('Filter using [in] operator with a single value behaves like [eq]', async () => {
+    const data = [{ name: 'Piet' }, { name: 'Miep' }]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.name[in]=Miep')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].name).toEqual('Miep')
+  })
+
+  test('Filter using [in] operator on number values', async () => {
+    const data = [
+      { name: 'Piet', age: 17 },
+      { name: 'Miep', age: 18 },
+      { name: 'Kees', age: 25 },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.age[in]=18,25')
+    expect(res.body.length).toEqual(2)
+    expect(res.body.map((i: { name: string }) => i.name).sort()).toEqual(['Kees', 'Miep'])
+  })
+
+  test('Filter using [in] operator on boolean values', async () => {
+    const data = [
+      { name: 'Piet', isActive: true },
+      { name: 'Miep', isActive: false },
+      { name: 'Kees', isActive: true },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.isActive[in]=true')
+    expect(res.body.length).toEqual(2)
+    expect(res.body.map((i: { name: string }) => i.name).sort()).toEqual(['Kees', 'Piet'])
+  })
+
+  test('[in] returns no results when no values match', async () => {
+    const data = [{ name: 'Piet' }, { name: 'Miep' }]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.name[in]=Alice,Bob')
+    expect(res.body.length).toEqual(0)
+  })
+
+  test('Filter using [nin] operator excludes all listed string values', async () => {
+    const data = [{ name: 'Piet' }, { name: 'Miep' }, { name: 'Kees' }]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.name[nin]=Piet,Kees')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].name).toEqual('Miep')
+  })
+
+  test('[nin] is case-insensitive for strings', async () => {
+    const data = [{ name: 'Piet' }, { name: 'Miep' }, { name: 'Kees' }]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.name[nin]=PIET,kees')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].name).toEqual('Miep')
+  })
+
+  test('Filter using [nin] operator on number values', async () => {
+    const data = [
+      { name: 'Piet', age: 17 },
+      { name: 'Miep', age: 18 },
+      { name: 'Kees', age: 25 },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.age[nin]=18,25')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].name).toEqual('Piet')
+  })
+
+  test('[nin] where no values are excluded returns all items', async () => {
+    const data = [{ name: 'Piet' }, { name: 'Miep' }]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.name[nin]=Alice,Bob')
+    expect(res.body.length).toEqual(2)
+  })
+})
