@@ -1,4 +1,4 @@
-import { type Db, connect } from '@rakered/mongo'
+import { type Db, type Options as MongoClientOptions, connect } from '@rakered/mongo'
 import type { Filter } from '../../filtering/filter'
 import type { Logger } from '../../log/logger'
 import type { Item, ItemWithoutId, Queries } from '../types'
@@ -9,12 +9,52 @@ type MongoItem = {
   [key: string]: unknown
 }
 
+/** Options derived from a structured DataSourceConfig mongodb object (excluding `type` and `uri`). */
+export type MongoOptions = {
+  username?: string
+  password?: string
+  authSource?: string
+  tls?: boolean
+  tlsCAFile?: string
+  tlsCertificateKeyFile?: string
+  tlsAllowInvalidCertificates?: boolean
+  maxPoolSize?: number
+  minPoolSize?: number
+  serverSelectionTimeoutMS?: number
+  connectTimeoutMS?: number
+  replicaSet?: string
+  readPreference?: string
+  writeConcern?: string
+}
+
 const removeUnderscoreFromId = ({ _id: id, ...updatedItem }: MongoItem): Item => ({
   id,
   ...updatedItem,
 })
 
-export const createMongoQueries = (connectionString: string, log: Logger, isTesting = false) => {
+const buildMongoClientOptions = (options: MongoOptions): MongoClientOptions => {
+  const clientOptions: MongoClientOptions = {}
+
+  if (options.username !== undefined) clientOptions.auth = { username: options.username, password: options.password }
+  if (options.authSource !== undefined) clientOptions.authSource = options.authSource
+  if (options.tls !== undefined) clientOptions.tls = options.tls
+  if (options.tlsCAFile !== undefined) clientOptions.tlsCAFile = options.tlsCAFile
+  if (options.tlsCertificateKeyFile !== undefined) clientOptions.tlsCertificateKeyFile = options.tlsCertificateKeyFile
+  if (options.tlsAllowInvalidCertificates !== undefined)
+    clientOptions.tlsAllowInvalidCertificates = options.tlsAllowInvalidCertificates
+  if (options.maxPoolSize !== undefined) clientOptions.maxPoolSize = options.maxPoolSize
+  if (options.minPoolSize !== undefined) clientOptions.minPoolSize = options.minPoolSize
+  if (options.serverSelectionTimeoutMS !== undefined)
+    clientOptions.serverSelectionTimeoutMS = options.serverSelectionTimeoutMS
+  if (options.connectTimeoutMS !== undefined) clientOptions.connectTimeoutMS = options.connectTimeoutMS
+  if (options.replicaSet !== undefined) clientOptions.replicaSet = options.replicaSet
+  if (options.readPreference !== undefined) clientOptions.readPreference = options.readPreference as MongoClientOptions['readPreference']
+  if (options.writeConcern !== undefined) clientOptions.writeConcern = options.writeConcern
+
+  return clientOptions
+}
+
+export const createMongoQueries = (connectionString: string, log: Logger, isTesting = false, options?: MongoOptions) => {
   let db: Db | undefined
 
   // In test mode each server instance gets its own collection namespace so
@@ -26,7 +66,8 @@ export const createMongoQueries = (connectionString: string, log: Logger, isTest
     if (!db) {
       log.debug('Connecting to MongoDB...')
       try {
-        db = await connect(connectionString)
+        const clientOptions = options ? buildMongoClientOptions(options) : undefined
+        db = await connect(connectionString, clientOptions)
         log.debug('Connected to MongoDB!')
       } catch (error) {
         log.debug('Error connecting to MongoDB')

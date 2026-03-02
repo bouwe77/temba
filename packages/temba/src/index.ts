@@ -196,7 +196,7 @@ const createServer = async (userConfig?: UserConfig) => {
 export const create = (userConfig?: UserConfig) => createServer(userConfig)
 
 // Export the main UserConfig type for TypeScript users
-export type { UserConfig, UserCorsConfig } from './config'
+export type { UserConfig, UserCorsConfig, DataSourceConfig } from './config'
 
 // Request interceptor types
 export type {
