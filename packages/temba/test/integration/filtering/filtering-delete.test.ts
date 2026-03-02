@@ -654,3 +654,67 @@ describe('Array/set operators: in and nin', () => {
     expect(getRemaining.body.length).toEqual(0)
   })
 })
+
+describe('Advanced operators: exists and regex', () => {
+  test('[exists]=true deletes only items that have the field', async () => {
+    await createData(tembaServer, [
+      { name: 'Alice', email: 'alice@example.com' },
+      { name: 'Bob' },
+    ])
+
+    await request(tembaServer).delete(resource).query('filter.email[exists]=true')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].name).toEqual('Bob')
+  })
+
+  test('[exists]=false deletes only items that do not have the field', async () => {
+    await createData(tembaServer, [
+      { name: 'Alice', email: 'alice@example.com' },
+      { name: 'Bob' },
+    ])
+
+    await request(tembaServer).delete(resource).query('filter.email[exists]=false')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].name).toEqual('Alice')
+  })
+
+  test('[exists]=false deletes all items when none have the field', async () => {
+    await createData(tembaServer, [{ name: 'Alice' }, { name: 'Bob' }])
+
+    await request(tembaServer).delete(resource).query('filter.email[exists]=false')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(0)
+  })
+
+  test('[regex] deletes only items where field value matches the pattern', async () => {
+    await createData(tembaServer, [{ name: 'Alice' }, { name: 'Alicia' }, { name: 'Bob' }])
+
+    await request(tembaServer).delete(resource).query('filter.name[regex]=^Al')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].name).toEqual('Bob')
+  })
+
+  test('[regex] is case-sensitive by default', async () => {
+    await createData(tembaServer, [{ name: 'Alice' }, { name: 'alice' }, { name: 'Bob' }])
+
+    await request(tembaServer).delete(resource).query('filter.name[regex]=^Alice$')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(2)
+    expect(getRemaining.body.map((i: { name: string }) => i.name).sort()).toEqual(['Bob', 'alice'])
+  })
+
+  test('[regex] returns 400 for an invalid regular expression', async () => {
+    await createData(tembaServer, [{ name: 'Alice' }])
+
+    const res = await request(tembaServer).delete(resource).query('filter.name[regex]=[invalid')
+    expect(res.status).toEqual(400)
+  })
+})

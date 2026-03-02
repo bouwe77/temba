@@ -82,6 +82,10 @@ const operatorFns: Record<Operator, (a: unknown, b: string) => boolean> = {
       return true
     })
   },
+
+  exists: (a, b) => (b.toLowerCase() === 'true' ? a !== undefined : a === undefined),
+
+  regex: (a, b) => typeof a === 'string' && new RegExp(b).test(a),
 }
 
 const isOperatorObject = (obj: unknown): obj is OperatorObject => {

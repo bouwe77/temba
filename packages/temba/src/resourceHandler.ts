@@ -2,7 +2,7 @@ import type { IncomingMessage, ServerResponse } from 'http'
 import { parse } from 'url'
 import type { Config } from './config'
 import type { Queries } from './data/types'
-import { prepareFilter, validateFilter, type Filter } from './filtering/filter'
+import { prepareFilter, validateFilter, type Filter, type NestedFilter } from './filtering/filter'
 import { parseQueryString } from './queryStrings/parseQueryString'
 import { getRequestHandler } from './requestHandlers'
 import type {
@@ -54,6 +54,21 @@ const hasMalformedBrackets = (queryString: string): boolean => {
   return depth !== 0
 }
 
+const hasInvalidRegex = (node: NestedFilter): boolean => {
+  for (const [key, value] of Object.entries(node)) {
+    if (key === 'regex' && typeof value === 'string') {
+      try {
+        new RegExp(value)
+      } catch {
+        return true
+      }
+    } else if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+      if (hasInvalidRegex(value as NestedFilter)) return true
+    }
+  }
+  return false
+}
+
 const getFilter = (queryString: string | null): Filter | null | 'invalid' => {
   if (!queryString) return null
 
@@ -62,7 +77,11 @@ const getFilter = (queryString: string | null): Filter | null | 'invalid' => {
   const parsedQueryString = parseQueryString(queryString)
   const result = validateFilter(parsedQueryString)
 
-  if (result === 'valid') return prepareFilter(parsedQueryString as Filter)
+  if (result === 'valid') {
+    const prepared = prepareFilter(parsedQueryString as Filter)
+    if (hasInvalidRegex(prepared.filter)) return 'invalid'
+    return prepared
+  }
   if (result === 'invalid') return 'invalid'
   return null
 }
