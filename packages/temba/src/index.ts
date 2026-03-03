@@ -4,15 +4,17 @@ import { createQueries } from './data/queries'
 import { getDefaultImplementations } from './implementations'
 import { getHttpLogger, initLogger } from './log/logger'
 import { createOpenApiHandler, getOpenApiPaths } from './openapi'
+import { createRateLimiter } from './rateLimit/rateLimit'
+import { handleOptionsRequest } from './requestHandlers/optionsHandler'
 import { interceptNonResourceGetRequest } from './requestInterceptor/interceptRequest'
 import { createResourceHandler } from './resourceHandler'
 import {
   handleMethodNotAllowed,
   handleNotFound,
+  handleTooManyRequests,
   sendErrorResponse,
   sendResponse,
 } from './responseHandler'
-import { handleOptionsRequest } from './requestHandlers/optionsHandler'
 import { createRootUrlHandler } from './root/root'
 import { compileSchemas } from './schema/compile'
 import { handleStaticFolder } from './staticFolder/staticFolder'
@@ -41,10 +43,25 @@ const createServer = async (userConfig?: UserConfig) => {
   // Now create the resource handler with the broadcast function
   const handleResource = await createResourceHandler(queries, schemas, config, broadcast)
 
+  const checkRateLimit = config.rateLimit ? createRateLimiter(config.rateLimit) : null
+
   const REQUEST_TIMEOUT_MS = 30_000
 
   // Set up the request handler
   server.on('request', (req, res) => {
+    if (checkRateLimit) {
+      const ip =
+        config.rateLimit && config.rateLimit.trustProxy
+          ? (req.headers['x-forwarded-for']?.toString().split(',')[0]?.trim() ??
+            req.socket.remoteAddress ??
+            'unknown')
+          : (req.socket.remoteAddress ?? 'unknown')
+      const result = checkRateLimit(ip)
+      if (!result.allowed) {
+        return handleTooManyRequests(res, config.cors, result.retryAfter)
+      }
+    }
+
     const implementations = getDefaultImplementations(config)
 
     httpLogger(req, res, (err) => {
@@ -63,7 +80,8 @@ const createServer = async (userConfig?: UserConfig) => {
 
         if (config.staticFolder && !`${requestUrl}/`.startsWith(config.apiPrefix + '/')) {
           // Only GET and HEAD are supported for static files
-          if (req.method !== 'GET' && req.method !== 'HEAD') return handleMethodNotAllowed(res, config.cors)
+          if (req.method !== 'GET' && req.method !== 'HEAD')
+            return handleMethodNotAllowed(res, config.cors)
 
           // Run interceptor before serving static file
           if (config.requestInterceptor?.get) {
@@ -74,7 +92,10 @@ const createServer = async (userConfig?: UserConfig) => {
               fullUrl,
             )
             if (interceptResult.type === 'response') {
-              return sendResponse(res, config.cors)({
+              return sendResponse(
+                res,
+                config.cors,
+              )({
                 statusCode: interceptResult.status,
                 body: interceptResult.body,
               })
@@ -103,7 +124,10 @@ const createServer = async (userConfig?: UserConfig) => {
               fullUrl,
             )
             if (interceptResult.type === 'response') {
-              return sendResponse(res, config.cors)({
+              return sendResponse(
+                res,
+                config.cors,
+              )({
                 statusCode: interceptResult.status,
                 body: interceptResult.body,
               })
@@ -124,7 +148,10 @@ const createServer = async (userConfig?: UserConfig) => {
               fullUrl,
             )
             if (interceptResult.type === 'response') {
-              return sendResponse(res, config.cors)({
+              return sendResponse(
+                res,
+                config.cors,
+              )({
                 statusCode: interceptResult.status,
                 body: interceptResult.body,
               })
@@ -144,7 +171,9 @@ const createServer = async (userConfig?: UserConfig) => {
       }, REQUEST_TIMEOUT_MS)
 
       handleRequest()
-        .catch(() => { if (!res.headersSent) sendErrorResponse(res, 500, 'Internal Server Error', config.cors) })
+        .catch(() => {
+          if (!res.headersSent) sendErrorResponse(res, 500, 'Internal Server Error', config.cors)
+        })
         .finally(() => clearTimeout(timeoutId))
     })
   })
@@ -196,33 +225,33 @@ const createServer = async (userConfig?: UserConfig) => {
 export const create = (userConfig?: UserConfig) => createServer(userConfig)
 
 // Export the main UserConfig type for TypeScript users
-export type { UserConfig, UserCorsConfig, DataSourceConfig } from './config'
+export type { DataSourceConfig, UserConfig, UserCorsConfig, UserRateLimitConfig } from './config'
 
 // Request interceptor types
 export type {
-  RequestInterceptor,
-  InterceptedGetRequest,
-  InterceptedPostRequest,
-  InterceptedPatchRequest,
-  InterceptedPutRequest,
   InterceptedDeleteRequest,
+  InterceptedGetRequest,
+  InterceptedPatchRequest,
+  InterceptedPostRequest,
+  InterceptedPutRequest,
   InterceptedReturnValue,
+  NonResourceRequestType,
+  RequestInterceptor,
   RequestType,
   ResourceRequestType,
-  NonResourceRequestType,
 } from './requestInterceptor/types'
 
 // Interceptor action types
 export type {
-  ResourceActions,
-  NonResourceActions,
   InterceptorAction,
-  SetRequestBodyAction,
+  NonResourceActions,
+  ResourceActions,
   ResponseAction,
+  SetRequestBodyAction,
 } from './requestInterceptor/interceptorActions'
 
 // Response body interceptor types
-export type { ResponseBodyInterceptor, InterceptedResponse } from './responseBodyInterceptor/types'
+export type { InterceptedResponse, ResponseBodyInterceptor } from './responseBodyInterceptor/types'
 
 // Schema validation types
 export type { ConfiguredSchemas } from './schema/types'
