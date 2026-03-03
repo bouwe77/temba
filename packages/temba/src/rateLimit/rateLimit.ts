@@ -9,19 +9,29 @@ export type RateLimitResult =
   | { allowed: true }
   | { allowed: false; retryAfter: number }
 
-export type RateLimiter = (ip: string) => RateLimitResult
+export type RateLimiter = {
+  check: (ip: string) => RateLimitResult
+  stop: () => void
+}
 
 export const createRateLimiter = (config: RateLimitConfig): RateLimiter => {
   const windows = new Map<string, WindowEntry>()
 
-  setInterval(() => {
+  const timer = setInterval(() => {
     const now = Date.now()
     for (const [ip, entry] of windows) {
       if (now >= entry.resetAt) windows.delete(ip)
     }
   }, config.windowMs).unref()
 
-  return (ip: string): RateLimitResult => {
+  let stopped = false
+  const stop = () => {
+    if (stopped) return
+    stopped = true
+    clearInterval(timer)
+  }
+
+  const check = (ip: string): RateLimitResult => {
     const now = Date.now()
     const entry = windows.get(ip)
 
@@ -38,4 +48,6 @@ export const createRateLimiter = (config: RateLimitConfig): RateLimiter => {
     entry.count++
     return { allowed: true }
   }
+
+  return { check, stop }
 }

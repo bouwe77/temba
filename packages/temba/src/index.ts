@@ -43,20 +43,21 @@ const createServer = async (userConfig?: UserConfig) => {
   // Now create the resource handler with the broadcast function
   const handleResource = await createResourceHandler(queries, schemas, config, broadcast)
 
-  const checkRateLimit = config.rateLimit ? createRateLimiter(config.rateLimit) : null
+  const rateLimiter = config.rateLimit ? createRateLimiter(config.rateLimit) : null
+  server.on('close', () => rateLimiter?.stop())
 
   const REQUEST_TIMEOUT_MS = 30_000
 
   // Set up the request handler
   server.on('request', (req, res) => {
-    if (checkRateLimit) {
+    if (rateLimiter) {
       const ip =
         config.rateLimit && config.rateLimit.trustProxy
           ? (req.headers['x-forwarded-for']?.toString().split(',')[0]?.trim() ??
             req.socket.remoteAddress ??
             'unknown')
           : (req.socket.remoteAddress ?? 'unknown')
-      const result = checkRateLimit(ip)
+      const result = rateLimiter.check(ip)
       if (!result.allowed) {
         return handleTooManyRequests(res, config.cors, result.retryAfter)
       }
