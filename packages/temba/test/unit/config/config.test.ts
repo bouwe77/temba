@@ -17,6 +17,7 @@ const defaultConfig: Config = {
   etagsEnabled: false,
   openapi: true,
   webSocket: false,
+  rateLimit: { max: 100, windowMs: 60_000, trustProxy: false },
   cors: {
     origin: '*',
     methods: 'GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS',
@@ -53,6 +54,7 @@ test('No config returns default config', () => {
   expect(initializedConfig.etagsEnabled).toBe(defaultConfig.etagsEnabled)
   expect(initializedConfig.openapi).toBe(defaultConfig.openapi)
   expect(initializedConfig.webSocket).toBe(defaultConfig.webSocket)
+  expect(initializedConfig.rateLimit).toEqual(defaultConfig.rateLimit)
   expect(initializedConfig.cors).toEqual(defaultConfig.cors)
   expect(initializedConfig.isTesting).toBe(defaultConfig.isTesting)
   expect(initializedConfig.implementations).toBe(defaultConfig.implementations)
@@ -129,6 +131,7 @@ test('Full user config overrides all defaults', () => {
   expect(config.etagsEnabled).toBe(true)
   expect(config.openapi).toBe(true)
   expect(config.webSocket).toBe(true)
+  expect(config.rateLimit).toEqual({ max: 100, windowMs: 60_000, trustProxy: false })
   expect(config.cors).toEqual({
     origin: 'https://example.com',
     methods: 'GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS',
@@ -167,6 +170,7 @@ test('Partial user config applies those, but leaves the rest at default', () => 
   expect(config.etagsEnabled).toBe(defaultConfig.etagsEnabled)
   expect(config.openapi).toBe(defaultConfig.openapi)
   expect(config.webSocket).toBe(defaultConfig.webSocket)
+  expect(config.rateLimit).toEqual(defaultConfig.rateLimit)
   expect(config.cors).toEqual(defaultConfig.cors)
   expect(config.isTesting).toBe(defaultConfig.isTesting)
   expect(config.implementations).toBe(defaultConfig.implementations)

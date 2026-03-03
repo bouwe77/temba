@@ -57,6 +57,15 @@ type Resources = (ResourcePath | ExtendedResource)[]
 type OpenApiConfig = boolean | Record<string, unknown>
 
 /** @internal */
+export type RateLimitConfig = {
+  max: number
+  windowMs: number
+  trustProxy: boolean
+}
+
+export type UserRateLimitConfig = false | { max?: number; windowMs?: number; trustProxy?: boolean }
+
+/** @internal */
 export type CorsConfig = {
   origin: string
   methods: string
@@ -92,6 +101,7 @@ export type Config = {
   openapi: OpenApiConfig
   webSocket: boolean
   cors: CorsConfig
+  rateLimit: RateLimitConfig | false
 
   isTesting: boolean
   implementations: Implementations | null
@@ -115,6 +125,7 @@ export type UserConfig = {
   openapi?: OpenApiConfig
   webSocket?: boolean
   cors?: UserCorsConfig
+  rateLimit?: UserRateLimitConfig
 
   // Use isTesting when running tests that don't require a started server.
   isTesting?: boolean
@@ -137,6 +148,7 @@ const defaultConfig: Config = {
   etagsEnabled: false,
   openapi: true,
   webSocket: false,
+  rateLimit: { max: 100, windowMs: 60_000, trustProxy: false },
   cors: {
     origin: '*',
     methods: 'GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS',
@@ -255,6 +267,19 @@ export const initConfig = (userConfig?: UserConfig): Config => {
 
   if (userConfig.cors) {
     config.cors = { ...config.cors, ...userConfig.cors }
+  }
+
+  if (!isUndefined(userConfig.rateLimit)) {
+    if (userConfig.rateLimit === false) {
+      config.rateLimit = false
+    } else {
+      const defaults = config.rateLimit as RateLimitConfig
+      config.rateLimit = {
+        max: userConfig.rateLimit.max ?? defaults.max,
+        windowMs: userConfig.rateLimit.windowMs ?? defaults.windowMs,
+        trustProxy: userConfig.rateLimit.trustProxy ?? defaults.trustProxy,
+      }
+    }
   }
 
   return config

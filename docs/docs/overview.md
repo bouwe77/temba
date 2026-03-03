@@ -83,6 +83,11 @@ const config = {
   etags: true,
   openapi: true,
   port: 4321,
+  rateLimit: {
+    max: 100,
+    windowMs: 60_000,
+    trustProxy: false,
+  },
   requestInterceptor: {
     get: ({ type, headers, resource, id }) => {
       // type is 'resource', 'root', 'openapi', or 'static'
@@ -134,6 +139,7 @@ These are all the possible settings:
 | `etags`                   | See [Caching and consistency with Etags](/docs/etags)                                        | `false`       |
 | `openapi`                 | Enable or disable OpenAPI, or supply your custom spec object to merge into the default spec. | `true`        |
 | `port`                    | The port your Temba server listens on                                                        | `8362`        |
+| `rateLimit`               | See [Rate limiting](/docs/rate-limit)                                                        | `{ max: 100, windowMs: 60000, trustProxy: false }` |
 | `requestInterceptor`      | See [Intercepting requests](/docs/request-interceptor)                                       | `null`        |
 | `resources`               | See [Allowing specific resources only](/docs/resources)                                      | `[]`          |
 | `responseBodyInterceptor` | See [Response body interception](/docs/response-interceptor)                                 | `null`        |

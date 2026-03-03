@@ -25,6 +25,7 @@ const sidebars: SidebarsConfig = {
         'filtering',
         'websockets',
         'cors',
+        'rate-limit',
       ],
       collapsed: false,
     },

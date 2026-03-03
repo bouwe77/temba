@@ -66,3 +66,18 @@ export const handleMethodNotAllowed = (res: ServerResponse<IncomingMessage>, cor
 export const handleNotFound = (res: ServerResponse<IncomingMessage>, cors: CorsConfig) => {
   sendErrorResponse(res, 404, 'Not Found', cors)
 }
+
+export const handleTooManyRequests = (
+  res: ServerResponse<IncomingMessage>,
+  cors: CorsConfig,
+  retryAfter: number,
+) => {
+  sendResponse(
+    res,
+    cors,
+  )({
+    statusCode: 429,
+    headers: { 'Retry-After': String(retryAfter) },
+    body: { message: 'Too many requests' },
+  })
+}
