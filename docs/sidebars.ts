@@ -33,7 +33,7 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'Recipes',
       className: 'sidebar-section',
-      items: ['recipes/jwt-auth', 'recipes/serving-a-frontend', 'recipes/custom-routes'],
+      items: ['recipes/jwt-auth', 'recipes/serving-a-frontend', 'recipes/custom-routes', 'recipes/openapi-customization'],
       collapsed: false,
     },
     {
