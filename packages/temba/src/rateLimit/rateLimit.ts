@@ -14,6 +14,13 @@ export type RateLimiter = (ip: string) => RateLimitResult
 export const createRateLimiter = (config: RateLimitConfig): RateLimiter => {
   const windows = new Map<string, WindowEntry>()
 
+  setInterval(() => {
+    const now = Date.now()
+    for (const [ip, entry] of windows) {
+      if (now >= entry.resetAt) windows.delete(ip)
+    }
+  }, config.windowMs).unref()
+
   return (ip: string): RateLimitResult => {
     const now = Date.now()
     const entry = windows.get(ip)
