@@ -8,6 +8,14 @@ describe('Rate limiting is on by default', () => {
     const res = await request(server).get('/')
     expect(res.status).toBe(200)
   })
+
+  test('Default limit of 100 requests per minute is enforced', async () => {
+    const server = await createServer()
+    for (let i = 0; i < 100; i++) {
+      expect((await request(server).get('/')).status).toBe(200)
+    }
+    expect((await request(server).get('/')).status).toBe(429)
+  })
 })
 
 describe('Rate limit is enforced', () => {
