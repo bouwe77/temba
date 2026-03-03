@@ -840,3 +840,266 @@ test('When etag is enabled the ETag header and If-None-Match parameter are speci
   const patch = response.body.paths['/actors/{actorId}']['patch']
   expect(patch.responses['200'].headers.ETag).toEqual(etagHeaderSchema)
 })
+
+test('When etag is enabled, PUT, PATCH and DELETE by ID include If-Match parameter and 412 response', async () => {
+  const tembaServer = await createServer({
+    openapi: true,
+    resources: ['actors'],
+    etags: true,
+  })
+
+  const response = await request(tembaServer).get('/openapi.json')
+  expectSuccess(response)
+
+  const ifMatchParameter = {
+    name: 'If-Match',
+    in: 'header',
+    required: true,
+    schema: { type: 'string' },
+    description:
+      'The entity tag (ETag) of the resource. Required when ETags are enabled; the update or delete is only applied if this matches the current version.',
+  }
+
+  const preconditionFailedResponse = {
+    description:
+      'Precondition failed. The ETag does not match the current version of the resource.',
+  }
+
+  // PUT /actors/{actorId}
+  const put = response.body.paths['/actors/{actorId}']['put']
+  expect(put.parameters).toContainEqual(ifMatchParameter)
+  expect(put.responses['412'].description).toEqual(preconditionFailedResponse.description)
+
+  // PATCH /actors/{actorId}
+  const patch = response.body.paths['/actors/{actorId}']['patch']
+  expect(patch.parameters).toContainEqual(ifMatchParameter)
+  expect(patch.responses['412'].description).toEqual(preconditionFailedResponse.description)
+
+  // DELETE /actors/{actorId}
+  const deleteById = response.body.paths['/actors/{actorId}']['delete']
+  expect(deleteById.parameters).toContainEqual(ifMatchParameter)
+  expect(deleteById.responses['412'].description).toEqual(preconditionFailedResponse.description)
+})
+
+test('When etags are enabled but allowDeleteCollection is false, DELETE collection does not include If-Match or 412', async () => {
+  const tembaServer = await createServer({
+    openapi: true,
+    resources: ['actors'],
+    etags: true,
+    allowDeleteCollection: false,
+  })
+
+  const response = await request(tembaServer).get('/openapi.json')
+  expectSuccess(response)
+
+  const deleteAll = response.body.paths['/actors']['delete']
+  const hasIfMatch = (deleteAll.parameters ?? []).some((p: { name: string }) => p.name === 'If-Match')
+  expect(hasIfMatch).toBe(false)
+  expect(deleteAll.responses['412']).toBeUndefined()
+})
+
+test('When etags and allowDeleteCollection are both enabled, DELETE collection includes If-Match and 412', async () => {
+  const tembaServer = await createServer({
+    openapi: true,
+    resources: ['actors'],
+    etags: true,
+    allowDeleteCollection: true,
+  })
+
+  const response = await request(tembaServer).get('/openapi.json')
+  expectSuccess(response)
+
+  const ifMatchParameter = {
+    name: 'If-Match',
+    in: 'header',
+    required: true,
+    schema: { type: 'string' },
+    description:
+      'The entity tag (ETag) of the resource. Required when ETags are enabled; the update or delete is only applied if this matches the current version.',
+  }
+
+  const deleteAll = response.body.paths['/actors']['delete']
+  expect(deleteAll.parameters).toContainEqual(ifMatchParameter)
+  expect(deleteAll.responses['412']).toBeDefined()
+  expect(deleteAll.responses['412'].description).toContain('Precondition failed')
+})
+
+test('GET collection includes a filter deepObject query parameter', async () => {
+  const tembaServer = await createServer({
+    openapi: true,
+    resources: ['actors'],
+  })
+
+  const response = await request(tembaServer).get('/openapi.json')
+  expectSuccess(response)
+
+  const get = response.body.paths['/actors']['get']
+  const filterParam = (get.parameters ?? []).find((p: { name: string }) => p.name === 'filter')
+  expect(filterParam).toBeDefined()
+  expect(filterParam.in).toEqual('query')
+  expect(filterParam.required).toEqual(false)
+  expect(filterParam.style).toEqual('deepObject')
+  expect(filterParam.explode).toEqual(true)
+  expect(filterParam.schema.type).toEqual('object')
+})
+
+test('DELETE collection includes a filter deepObject query parameter', async () => {
+  const tembaServer = await createServer({
+    openapi: true,
+    resources: ['actors'],
+    allowDeleteCollection: true,
+  })
+
+  const response = await request(tembaServer).get('/openapi.json')
+  expectSuccess(response)
+
+  const deleteAll = response.body.paths['/actors']['delete']
+  const filterParam = (deleteAll.parameters ?? []).find((p: { name: string }) => p.name === 'filter')
+  expect(filterParam).toBeDefined()
+  expect(filterParam.in).toEqual('query')
+  expect(filterParam.style).toEqual('deepObject')
+})
+
+test('GET collection includes a 400 response for malformed filter expressions', async () => {
+  const tembaServer = await createServer({
+    openapi: true,
+    resources: ['actors'],
+  })
+
+  const response = await request(tembaServer).get('/openapi.json')
+  expectSuccess(response)
+
+  const get = response.body.paths['/actors']['get']
+  expect(get.responses['400']).toBeDefined()
+  expect(get.responses['400'].description).toContain('malformed')
+  expect(
+    get.responses['400'].content['application/json'].examples['MalformedFilter'].value.message,
+  ).toEqual('Malformed filter expression')
+})
+
+test('DELETE collection includes a 400 response for malformed filter expressions', async () => {
+  const tembaServer = await createServer({
+    openapi: true,
+    resources: ['actors'],
+    allowDeleteCollection: true,
+  })
+
+  const response = await request(tembaServer).get('/openapi.json')
+  expectSuccess(response)
+
+  const deleteAll = response.body.paths['/actors']['delete']
+  expect(deleteAll.responses['400']).toBeDefined()
+  expect(deleteAll.responses['400'].description).toContain('malformed')
+  expect(
+    deleteAll.responses['400'].content['application/json'].examples['MalformedFilter'].value
+      .message,
+  ).toEqual('Malformed filter expression')
+})
+
+test('DELETE collection (disabled) also includes a 400 response for malformed filter expressions', async () => {
+  const tembaServer = await createServer({
+    openapi: true,
+    resources: ['actors'],
+    allowDeleteCollection: false,
+  })
+
+  const response = await request(tembaServer).get('/openapi.json')
+  expectSuccess(response)
+
+  const deleteAll = response.body.paths['/actors']['delete']
+  expect(deleteAll.responses['400']).toBeDefined()
+  expect(
+    deleteAll.responses['400'].content['application/json'].examples['MalformedFilter'].value
+      .message,
+  ).toEqual('Malformed filter expression')
+})
+
+test('When webSocket is enabled the /ws path is present in the spec', async () => {
+  const tembaServer = await createServer({
+    openapi: true,
+    resources: ['actors'],
+    webSocket: true,
+  })
+
+  const response = await request(tembaServer).get('/openapi.json')
+  expectSuccess(response)
+
+  expect(response.body.paths['/ws']).toBeDefined()
+  const ws = response.body.paths['/ws']['get']
+  expect(ws).toBeDefined()
+  expect(ws.operationId).toEqual('connectWebSocket')
+  expect(ws.responses['101']).toBeDefined()
+  expect(ws.tags).toContain('WebSocket')
+})
+
+test('When webSocket is disabled the /ws path is absent from the spec', async () => {
+  const tembaServer = await createServer({
+    openapi: true,
+    resources: ['actors'],
+    webSocket: false,
+  })
+
+  const response = await request(tembaServer).get('/openapi.json')
+  expectSuccess(response)
+
+  expect(response.body.paths['/ws']).toBeUndefined()
+})
+
+
+test('When requestInterceptor is configured, info.description mentions it', async () => {
+  const tembaServer = await createServer({
+    openapi: true,
+    resources: ['actors'],
+    requestInterceptor: {
+      get: () => {},
+    },
+  })
+
+  const response = await request(tembaServer).get('/openapi.json')
+  expectSuccess(response)
+
+  expect(response.body.info.description).toContain('request interceptor')
+})
+
+test('When responseBodyInterceptor is configured, info.description mentions it', async () => {
+  const tembaServer = await createServer({
+    openapi: true,
+    resources: ['actors'],
+    responseBodyInterceptor: () => {},
+  })
+
+  const response = await request(tembaServer).get('/openapi.json')
+  expectSuccess(response)
+
+  expect(response.body.info.description).toContain('response body interceptor')
+})
+
+test('When neither interceptor is configured, info.description contains no interceptor notice', async () => {
+  const tembaServer = await createServer({
+    openapi: true,
+    resources: ['actors'],
+  })
+
+  const response = await request(tembaServer).get('/openapi.json')
+  expectSuccess(response)
+
+  expect(response.body.info.description).not.toContain('interceptor')
+})
+
+test('When both interceptors are configured, info.description mentions each separately', async () => {
+  const tembaServer = await createServer({
+    openapi: true,
+    resources: ['actors'],
+    requestInterceptor: {
+      post: () => {},
+    },
+    responseBodyInterceptor: () => {},
+  })
+
+  const response = await request(tembaServer).get('/openapi.json')
+  expectSuccess(response)
+
+  expect(response.body.info.description).toContain('request interceptor')
+  expect(response.body.info.description).toContain('response body interceptor')
+})
+

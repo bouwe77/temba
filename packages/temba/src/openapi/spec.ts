@@ -87,6 +87,78 @@ const getEtagHeader = () => ({
   },
 })
 
+/**
+ * Helper to define the If-Match header parameter for conditional write requests
+ */
+const getIfMatchParameter = (): ParameterObject => ({
+  name: 'If-Match',
+  in: 'header',
+  required: true,
+  schema: {
+    type: 'string',
+  },
+  description:
+    'The entity tag (ETag) of the resource. Required when ETags are enabled; the update or delete is only applied if this matches the current version.',
+})
+
+/**
+ * Query parameter for LHS bracket filtering on collection endpoints.
+ * Field names are user-defined so we use a free-form deepObject schema.
+ */
+const filterQueryParameter: ParameterObject = {
+  name: 'filter',
+  in: 'query',
+  required: false,
+  style: 'deepObject',
+  explode: true,
+  schema: {
+    type: 'object',
+    additionalProperties: {
+      type: 'string',
+    },
+  },
+  description:
+    'Filter results using LHS bracket syntax, e.g. `filter.name[eq]=Alice` or `filter.age[gt]=18`. ' +
+    'Supported operators: `eq`, `neq`, `contains`, `startsWith`, `endsWith`, `gt`, `gte`, `lt`, `lte`, `in`, `nin`, `exists`, `regex`. ' +
+    'Omitting the operator defaults to `eq`. String matching is case-insensitive.',
+}
+
+const malformedFilterResponse = {
+  '400': {
+    description: 'The filter expression is malformed.',
+    content: {
+      'application/json': {
+        schema: defaultErrorResponseBodySchema,
+        examples: {
+          MalformedFilter: {
+            value: {
+              message: 'Malformed filter expression',
+            },
+          },
+        },
+      },
+    },
+  },
+}
+
+const preconditionFailedResponse = {
+  '412': {
+    description: 'Precondition failed. The ETag does not match the current version of the resource.',
+    content: {
+      'application/json': {
+        schema: defaultErrorResponseBodySchema,
+        examples: {
+          PreconditionFailed: {
+            value: {
+              message: 'Precondition failed',
+            },
+          },
+        },
+      },
+    },
+  },
+}
+
 const getPathParameters = (config: Config, resourceInfo: ResourceInfo, id = false) => {
   const { resource, singularResourceLowerCase } = resourceInfo
 
@@ -156,6 +228,14 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
   if (!config.returnNullFields) {
     apiDescription += '\n\nAny fields with `null` values are omitted in all API responses.'
   }
+  if (config.requestInterceptor) {
+    apiDescription +=
+      '\n\nA request interceptor is configured. Some operations may return different status codes or response bodies than documented here.'
+  }
+  if (config.responseBodyInterceptor) {
+    apiDescription +=
+      '\n\nA response body interceptor is configured. GET response bodies may differ from the schemas documented here.'
+  }
 
   const builder = OpenApiBuilder.create()
     .addOpenApiVersion('3.1.0')
@@ -199,6 +279,52 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
     },
   })
 
+  if (config.webSocket) {
+    builder.addTag({
+      name: 'WebSocket',
+      description: 'Real-time updates via WebSocket',
+    })
+
+    builder.addPath('/ws', {
+      get: {
+        summary: 'WebSocket connection',
+        description:
+          'Connect to the WebSocket server to receive real-time broadcast messages whenever a resource is created, updated, or deleted.\n\n' +
+          'Use a WebSocket client and connect to `ws://<host>/ws` (or `wss://` for HTTPS hosts).\n\n' +
+          'Each broadcast message is a JSON object with the following shape:\n\n' +
+          '```json\n' +
+          '{ "resource": "movies", "action": "CREATE", "data": { "id": "123", ... } }\n' +
+          '```\n\n' +
+          'Possible `action` values: `"CREATE"`, `"UPDATE"`, `"DELETE"`, `"DELETE_ALL"`. ' +
+          'For `"DELETE_ALL"` the `data` property is omitted.',
+        operationId: 'connectWebSocket',
+        parameters: [
+          {
+            name: 'Connection',
+            in: 'header',
+            required: true,
+            schema: { type: 'string', enum: ['Upgrade'] },
+            description: 'Must be set to `Upgrade`.',
+          },
+          {
+            name: 'Upgrade',
+            in: 'header',
+            required: true,
+            schema: { type: 'string', enum: ['websocket'] },
+            description: 'Must be set to `websocket`.',
+          },
+        ],
+        responses: {
+          '101': {
+            description:
+              'Switching protocols — WebSocket connection established. The server will now push broadcast messages for all resource changes.',
+          },
+        },
+        tags: ['WebSocket'],
+      },
+    })
+  }
+
   resourceInfos.forEach((resourceInfo) => {
     const {
       resource,
@@ -229,7 +355,7 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
         description: `List all ${pluralResourceLowerCase}.`,
         summary: `List all ${pluralResourceLowerCase}`,
         operationId: `getAll${pluralResourceUpperCase}`,
-        parameters: getPathParameters(config, resourceInfo),
+        parameters: [...getPathParameters(config, resourceInfo), filterQueryParameter],
         responses: {
           '200': {
             description: `List of all ${pluralResourceLowerCase}.${nullFieldsRemark()}`,
@@ -243,6 +369,7 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
               },
             },
           },
+          ...malformedFilterResponse,
         },
         tags: [resourceInfo.tag.name],
       },
@@ -303,17 +430,24 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
           ? `Delete all ${pluralResourceLowerCase}.`
           : 'Deleting whole collections is disabled. Enable by setting `allowDeleteCollection` to `true`.',
         operationId: `deleteAll${pluralResourceUpperCase}`,
-        parameters: getPathParameters(config, resourceInfo),
+        parameters: [
+          ...getPathParameters(config, resourceInfo),
+          filterQueryParameter,
+          ...(config.etagsEnabled && config.allowDeleteCollection ? [getIfMatchParameter()] : []),
+        ],
         responses: config.allowDeleteCollection
           ? {
               '204': {
                 description: `All ${pluralResourceLowerCase} were deleted.`,
               },
+              ...malformedFilterResponse,
+              ...(config.etagsEnabled ? preconditionFailedResponse : {}),
             }
           : {
               '405': {
                 description: `Method not allowed`,
               },
+              ...malformedFilterResponse,
             },
         tags: [resourceInfo.tag.name],
       },
@@ -448,7 +582,10 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
         summary: `Replace ${indefinite(singularResourceLowerCase)}`,
         description: `Replace ${indefinite(singularResourceLowerCase)}.`,
         operationId: `replace${singularResourceUpperCase}`,
-        parameters: getPathParameters(config, resourceInfo, true),
+        parameters: [
+          ...getPathParameters(config, resourceInfo, true),
+          ...(config.etagsEnabled ? [getIfMatchParameter()] : []),
+        ],
         requestBody: getRequestBodySchema(
           config.schemas?.[resource as keyof typeof config.schemas]?.put as SchemaObject,
         ),
@@ -490,6 +627,7 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
               },
             },
           },
+          ...(config.etagsEnabled ? preconditionFailedResponse : {}),
         },
         tags: [resourceInfo.tag.name],
       },
@@ -497,7 +635,10 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
         summary: `Update ${indefinite(singularResourceLowerCase)}`,
         description: `Update ${indefinite(singularResourceLowerCase)}.`,
         operationId: `update${singularResourceUpperCase}`,
-        parameters: getPathParameters(config, resourceInfo, true),
+        parameters: [
+          ...getPathParameters(config, resourceInfo, true),
+          ...(config.etagsEnabled ? [getIfMatchParameter()] : []),
+        ],
         requestBody: getRequestBodySchema(
           config.schemas?.[resource as keyof typeof config.schemas]?.patch as SchemaObject,
         ),
@@ -539,6 +680,7 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
               },
             },
           },
+          ...(config.etagsEnabled ? preconditionFailedResponse : {}),
         },
         tags: [resourceInfo.tag.name],
       },
@@ -546,11 +688,15 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
         summary: `Delete ${indefinite(singularResourceLowerCase)}`,
         description: `Delete ${indefinite(singularResourceLowerCase)}.`,
         operationId: `delete${singularResourceUpperCase}`,
-        parameters: getPathParameters(config, resourceInfo, true),
+        parameters: [
+          ...getPathParameters(config, resourceInfo, true),
+          ...(config.etagsEnabled ? [getIfMatchParameter()] : []),
+        ],
         responses: {
           '204': {
             description: `The ${singularResourceLowerCase} was deleted.`,
           },
+          ...(config.etagsEnabled ? preconditionFailedResponse : {}),
         },
         tags: [resourceInfo.tag.name],
       },
