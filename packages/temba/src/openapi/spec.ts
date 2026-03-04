@@ -377,12 +377,13 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
         summary: `HTTP headers for all ${pluralResourceLowerCase}`,
         description: `Returns HTTP headers for all ${pluralResourceLowerCase}.`,
         operationId: `getAll${pluralResourceUpperCase}Headers`,
-        parameters: getPathParameters(config, resourceInfo),
+        parameters: [...getPathParameters(config, resourceInfo), filterQueryParameter],
         responses: {
           '200': {
             description: `HTTP headers for all ${pluralResourceLowerCase}.`,
             headers: responseHeaders,
           },
+          ...malformedFilterResponse,
         },
         tags: [resourceInfo.tag.name],
       },

@@ -72,7 +72,12 @@ const hasInvalidRegex = (node: NestedFilter): boolean => {
 const getFilter = (queryString: string | null): Filter | null | 'invalid' => {
   if (!queryString) return null
 
-  if (hasMalformedBrackets(queryString)) return 'invalid'
+  const filterOnly = queryString
+    .replace(/^\?/, '')
+    .split('&')
+    .filter((p) => p.startsWith('filter'))
+    .join('&')
+  if (hasMalformedBrackets(filterOnly)) return 'invalid'
 
   const parsedQueryString = parseQueryString(queryString)
   const result = validateFilter(parsedQueryString)

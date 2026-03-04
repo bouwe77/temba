@@ -718,3 +718,94 @@ describe('Advanced operators: exists and regex', () => {
     expect(res.status).toEqual(400)
   })
 })
+
+describe('Fix 1: Bracket validation scoped to filter.* params only', () => {
+  test('Unrelated query param with malformed brackets does NOT cause a 400', async () => {
+    await createData(tembaServer, [{ name: 'Piet' }])
+
+    // foo[bar=x has unbalanced brackets but no filter.* param at all
+    const res = await request(tembaServer).delete(resource).query('foo[bar=x')
+    expect(res.status).toBe(204)
+
+    // Data should still be gone (unfiltered delete succeeded)
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(0)
+  })
+
+  test('Malformed filter.* param still returns 400 and prevents deletion', async () => {
+    await createData(tembaServer, [{ name: 'Piet' }])
+
+    const res = await request(tembaServer).delete(resource).query('filter.name[eq=Piet')
+    expect(res.status).toBe(400)
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+  })
+
+  test('Malformed non-filter param alongside a valid filter does NOT cause a 400', async () => {
+    await createData(tembaServer, [{ name: 'Alice' }, { name: 'Bob' }])
+
+    const res = await request(tembaServer).delete(resource).query('foo[bar=x&filter.name[eq]=Alice')
+    expect(res.status).toBe(204)
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].name).toEqual('Bob')
+  })
+})
+
+describe('Fix 2: String fields are not coerced to numbers on [eq]', () => {
+  test('[eq] on a string field with a zero-padded value deletes only the exact match', async () => {
+    await createData(tembaServer, [{ code: '0012' }, { code: '12' }])
+
+    await request(tembaServer).delete(resource).query('filter.code[eq]=0012')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].code).toEqual('12')
+  })
+})
+
+describe('Fix 3: [exists] value validation', () => {
+  test('[exists] with an invalid value returns 400 and prevents deletion', async () => {
+    await createData(tembaServer, [{ name: 'Piet' }])
+
+    const res = await request(tembaServer).delete(resource).query('filter.name[exists]=maybe')
+    expect(res.status).toBe(400)
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+  })
+
+  test('[exists] with uppercase TRUE is accepted (case-insensitive)', async () => {
+    await createData(tembaServer, [
+      { name: 'Alice', email: 'a@example.com' },
+      { name: 'Bob' },
+    ])
+
+    const res = await request(tembaServer).delete(resource).query('filter.email[exists]=TRUE')
+    expect(res.status).toBe(204)
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].name).toEqual('Bob')
+  })
+
+  test('[exists]=true and [exists]=false still work correctly', async () => {
+    await createData(tembaServer, [
+      { name: 'Alice', email: 'a@example.com' },
+      { name: 'Bob' },
+    ])
+
+    await request(tembaServer).delete(resource).query('filter.email[exists]=true')
+
+    const afterTrue = await request(tembaServer).get(resource)
+    expect(afterTrue.body.length).toEqual(1)
+    expect(afterTrue.body[0].name).toEqual('Bob')
+
+    await request(tembaServer).delete(resource).query('filter.email[exists]=false')
+
+    const afterFalse = await request(tembaServer).get(resource)
+    expect(afterFalse.body.length).toEqual(0)
+  })
+})

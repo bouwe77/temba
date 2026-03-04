@@ -7,7 +7,7 @@ sidebar_position: 10
 
 # Filtering
 
-Temba supports LHS bracket filtering on `GET` and `DELETE` collection requests by appending square-bracket operators to your field names in the query string. Every filter expression must start with the exact, lowercase `filter` prefix. String matching is case-insensitive. For example:
+Temba supports LHS bracket filtering on `GET`, `HEAD`, and `DELETE` collection requests by appending square-bracket operators to your field names in the query string. Every filter expression must start with the exact, lowercase `filter` prefix. String matching is case-insensitive. For example:
 
 `GET /items?filter.name[eq]=Alice&filter.status[neq]=archived`
 

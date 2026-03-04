@@ -774,3 +774,67 @@ describe('Advanced operators: exists and regex', () => {
     expect(res.body.length).toEqual(0)
   })
 })
+
+describe('Fix 1: Bracket validation scoped to filter.* params only', () => {
+  test('Unrelated query param with malformed brackets does NOT cause a 400', async () => {
+    await createData(tembaServer, [{ name: 'Piet' }])
+
+    // foo[bar=x has unbalanced brackets but no filter.* param at all
+    const res = await request(tembaServer).get(resource).query('foo[bar=x')
+    expect(res.status).toBe(200)
+  })
+
+  test('Malformed filter.* param still returns 400', async () => {
+    const res = await request(tembaServer).get(resource).query('filter.name[eq=Alice')
+    expect(res.status).toBe(400)
+  })
+
+  test('Malformed non-filter param alongside a valid filter does NOT cause a 400', async () => {
+    await createData(tembaServer, [{ name: 'Alice' }, { name: 'Bob' }])
+
+    const res = await request(tembaServer).get(resource).query('foo[bar=x&filter.name[eq]=Alice')
+    expect(res.status).toBe(200)
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].name).toEqual('Alice')
+  })
+})
+
+describe('Fix 2: String fields are not coerced to numbers on [eq]', () => {
+  test('[eq] on a string field with a zero-padded value matches exactly', async () => {
+    await createData(tembaServer, [{ code: '0012' }, { code: '12' }])
+
+    const res = await request(tembaServer).get(resource).query('filter.code[eq]=0012')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].code).toEqual('0012')
+  })
+})
+
+describe('Fix 3: [exists] value validation', () => {
+  test('[exists] with an invalid value returns 400', async () => {
+    const res = await request(tembaServer).get(resource).query('filter.email[exists]=maybe')
+    expect(res.status).toBe(400)
+  })
+
+  test('[exists] with uppercase TRUE is accepted (case-insensitive)', async () => {
+    await createData(tembaServer, [{ name: 'Alice', email: 'a@example.com' }, { name: 'Bob' }])
+
+    const res = await request(tembaServer).get(resource).query('filter.email[exists]=TRUE')
+    expect(res.status).toBe(200)
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].name).toEqual('Alice')
+  })
+
+  test('[exists]=true and [exists]=false still work correctly', async () => {
+    await createData(tembaServer, [{ name: 'Alice', email: 'a@example.com' }, { name: 'Bob' }])
+
+    const trueRes = await request(tembaServer).get(resource).query('filter.email[exists]=true')
+    expect(trueRes.status).toBe(200)
+    expect(trueRes.body.length).toEqual(1)
+    expect(trueRes.body[0].name).toEqual('Alice')
+
+    const falseRes = await request(tembaServer).get(resource).query('filter.email[exists]=false')
+    expect(falseRes.status).toBe(200)
+    expect(falseRes.body.length).toEqual(1)
+    expect(falseRes.body[0].name).toEqual('Bob')
+  })
+})
