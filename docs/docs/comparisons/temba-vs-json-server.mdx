@@ -1,0 +1,386 @@
+---
+id: temba-vs-json-server
+title: Temba vs JSON Server
+sidebar_position: 1
+---
+
+import styles from './temba-vs-json-server.module.css'
+
+# Temba vs JSON Server
+
+This page compares feature coverage and behavior shape, not syntax.
+
+This comparison uses JSON Server version `v0.17.4`.
+
+## At a glance
+
+<div className={styles.legend}>
+  <span>✅ Built-in</span>
+  <span>❌ Not supported</span>
+  <span>🟡 Requires customization</span>
+  <span>❓ Unknown</span>
+</div>
+
+<table className={styles.table}>
+  <thead>
+    <tr>
+      <th>Feature</th>
+      <th>Temba</th>
+      <th>JSON Server</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr className={styles.rowA}>
+      <td>
+        <strong>Built on</strong>
+      </td>
+      <td>Node HTTP</td>
+      <td>Express</td>
+    </tr>
+    <tr className={styles.rowB}>
+      <td>
+        <strong>CRUD REST behavior</strong>
+      </td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+    </tr>
+    <tr className={`${styles.categoryRow}`}>
+      <td colSpan="3">
+        <strong>Resources</strong>
+      </td>
+    </tr>
+    <tr className={`${styles.subRow}`}>
+      <td>Plural resources</td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+    </tr>
+    <tr className={`${styles.subRow}`}>
+      <td>Single resources</td>
+      <td>
+        <span className={styles.mark}>❌</span>
+      </td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+    </tr>
+    <tr className={`${styles.subRow}`}>
+      <td>Nested (parent-child)</td>
+      <td>
+        <span className={styles.mark}>❌</span>
+      </td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+    </tr>
+    <tr className={`${styles.subRow}`}>
+      <td>Restrict resources</td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+      <td>
+        <span className={styles.mark}>❌</span>
+      </td>
+    </tr>
+    <tr className={`${styles.categoryRow}`}>
+      <td colSpan="3">
+        <strong>Data persistence</strong>
+      </td>
+    </tr>
+    <tr className={`${styles.subRow}`}>
+      <td>In-memory</td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+    </tr>
+    <tr className={`${styles.subRow}`}>
+      <td>Single JSON file</td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+    </tr>
+    <tr className={`${styles.subRow}`}>
+      <td>JSON file per resource</td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+      <td>
+        <span className={styles.mark}>❌</span>
+      </td>
+    </tr>
+    <tr className={`${styles.subRow}`}>
+      <td>MongoDB</td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+      <td>
+        <span className={styles.mark}>❌</span>
+      </td>
+    </tr>
+    <tr className={`${styles.categoryRow}`}>
+      <td colSpan="3">
+        <strong>Querying</strong>
+      </td>
+    </tr>
+    <tr className={`${styles.subRow}`}>
+      <td>Filtering</td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+    </tr>
+    <tr className={`${styles.subRow}`}>
+      <td>Sorting</td>
+      <td>
+        <span className={styles.mark}>❌</span>
+      </td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+    </tr>
+    <tr className={`${styles.subRow}`}>
+      <td>Pagination</td>
+      <td>
+        <span className={styles.mark}>❌</span>
+      </td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+    </tr>
+    <tr className={`${styles.subRow}`}>
+      <td>Slicing</td>
+      <td>
+        <span className={styles.mark}>❌</span>
+      </td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+    </tr>
+    <tr className={`${styles.subRow}`}>
+      <td>Full-text search</td>
+      <td>
+        <span className={styles.mark}>❌</span>
+      </td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+    </tr>
+    <tr className={styles.rowB}>
+      <td>
+        <strong>Autogenerate API docs (OpenAPI)</strong>
+      </td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+      <td>
+        <span className={styles.mark}>❌</span>
+      </td>
+    </tr>
+    <tr className={`${styles.categoryRow}`}>
+      <td colSpan="3">
+        <strong>Extensibility / customization</strong>
+      </td>
+    </tr>
+    <tr className={`${styles.subRow}`}>
+      <td>Middleware</td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+    </tr>
+    <tr className={`${styles.subRow}`}>
+      <td>Custom resource routes</td>
+      <td>
+        <span className={styles.mark}>❓</span>
+      </td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+    </tr>
+    <tr className={`${styles.subRow}`}>
+      <td>Other custom routes</td>
+      <td>
+        <span className={styles.mark}>🟡</span>
+      </td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+    </tr>
+    <tr className={`${styles.subRow}`}>
+      <td>Authentication</td>
+      <td>
+        <span className={styles.mark}>🟡</span>
+      </td>
+      <td>
+        <span className={styles.mark}>🟡</span>
+      </td>
+    </tr>
+    <tr className={`${styles.subRow}`}>
+      <td>Validation</td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+      <td>
+        <span className={styles.mark}>🟡</span>
+      </td>
+    </tr>
+    <tr className={`${styles.subRow}`}>
+      <td>Modify responses</td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+    </tr>
+    <tr className={styles.rowB}>
+      <td>
+        <strong>Realtime / events (WebSockets)</strong>
+      </td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+      <td>
+        <span className={styles.mark}>❌</span>
+      </td>
+    </tr>
+    <tr className={styles.rowA}>
+      <td>
+        <strong>Static hosting / routing</strong>
+      </td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+    </tr>
+    <tr className={`${styles.categoryRow}`}>
+      <td colSpan="3">
+        <strong>Configuration</strong>
+      </td>
+    </tr>
+    <tr className={`${styles.subRow}`}>
+      <td>Config file</td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+    </tr>
+    <tr className={`${styles.subRow}`}>
+      <td>CLI</td>
+      <td>
+        <span className={styles.mark}>❌</span>
+      </td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+    </tr>
+    <tr className={`${styles.categoryRow}`}>
+      <td colSpan="3">
+        <strong>Traffic controls &amp; HTTP semantics</strong>
+      </td>
+    </tr>
+    <tr className={`${styles.subRow}`}>
+      <td>Rate limiting</td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+      <td>
+        <span className={styles.mark}>🟡</span>
+      </td>
+    </tr>
+    <tr className={`${styles.subRow}`}>
+      <td>CORS</td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+    </tr>
+    <tr className={`${styles.subRow}`}>
+      <td>JSONP</td>
+      <td>
+        <span className={styles.mark}>❌</span>
+      </td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+    </tr>
+    <tr className={`${styles.subRow}`}>
+      <td>ETags</td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+      <td>
+        <span className={styles.mark}>🟡</span>
+      </td>
+    </tr>
+    <tr className={`${styles.subRow}`}>
+      <td>Read-only mode</td>
+      <td>
+        <span className={styles.mark}>❌</span>
+      </td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+    </tr>
+    <tr className={`${styles.subRow}`}>
+      <td>Response delay</td>
+      <td>
+        <span className={styles.mark}>🟡</span>
+      </td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+    </tr>
+    <tr className={`${styles.subRow}`}>
+      <td>Gzip</td>
+      <td>
+        <span className={styles.mark}>❌</span>
+      </td>
+      <td>
+        <span className={styles.mark}>✅</span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## When to pick which
+
+### 1) Quick mock API from a local data file
+
+Both tools are equally suitable here. JSON Server's CLI-first workflow makes it quick to get started with a local `db.json`, while Temba works just as well for spinning up a mock API with in-memory or file-based data.
+
+### 2) API-first development with stronger built-in API governance
+
+Temba is a strong fit when you want OpenAPI output, request validation, ETags, and rate limiting available as built-in documented features.
+
+### 3) Realtime updates and response customization hooks
+
+Temba is a strong fit when you want documented built-in WebSocket change events and dedicated request/response interception hooks.
+
+## Sources
+
+- [Temba docs](/docs)
+- [JSON Server docs](https://github.com/typicode/json-server/blob/v0.17.4/README.md)
