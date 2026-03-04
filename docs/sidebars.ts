@@ -38,6 +38,13 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: 'category',
+      label: 'Comparisons',
+      className: 'sidebar-section',
+      items: ['comparisons/temba-vs-json-server'],
+      collapsed: false,
+    },
+    {
+      type: 'category',
       label: 'API Reference',
       className: 'sidebar-section',
       items: typedocSidebar,
