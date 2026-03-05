@@ -67,6 +67,7 @@ const config: Config = {
         },
       },
     ],
+    './plugins/docusaurus-plugin-ai-docs',
   ],
 
   themeConfig: {
