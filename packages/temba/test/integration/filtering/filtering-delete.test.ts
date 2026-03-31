@@ -557,7 +557,7 @@ describe('Unhappy paths (400 Bad Request)', () => {
   })
 })
 
-describe('Array/set operators: in and nin', () => {
+describe('Array/set operators: in, nin and all', () => {
   test('Delete using [in] operator deletes items matching any of the listed string values', async () => {
     await createData(tembaServer, [{ name: 'Piet' }, { name: 'Miep' }, { name: 'Kees' }])
 
@@ -701,6 +701,111 @@ describe('Array/set operators: in and nin', () => {
     const getRemaining = await request(tembaServer).get(resource)
     expect(getRemaining.body.length).toEqual(1)
     expect(getRemaining.body[0].title).toEqual('Star Wars')
+  })
+
+  test('Delete using [all] operator deletes items whose array fields contain all listed values', async () => {
+    await createData(tembaServer, [
+      { title: 'Star Wars', genres: ['Action', 'Adventure', 'Fantasy', 'Sci-Fi'] },
+      { title: 'Rain Man', genres: ['Drama'] },
+      { title: 'O Brother, Where Art Thou?', genres: ['Adventure', 'Comedy', 'Crime'] },
+    ])
+
+    await request(tembaServer).delete(resource).query('filter.genres[all]=Adventure,Sci-Fi')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(2)
+    expect(getRemaining.body.map((i: { title: string }) => i.title).sort()).toEqual([
+      'O Brother, Where Art Thou?',
+      'Rain Man',
+    ])
+  })
+
+  test('[all] is order-independent when deleting array-valued fields', async () => {
+    await createData(tembaServer, [
+      { title: 'Star Wars', genres: ['Action', 'Adventure', 'Fantasy', 'Sci-Fi'] },
+      { title: 'O Brother, Where Art Thou?', genres: ['Adventure', 'Comedy', 'Crime'] },
+    ])
+
+    await request(tembaServer).delete(resource).query('filter.genres[all]=Sci-Fi,Adventure')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].title).toEqual('O Brother, Where Art Thou?')
+  })
+
+  test('[all] is case-insensitive for string array elements when deleting', async () => {
+    await createData(tembaServer, [
+      { title: 'Star Wars', genres: ['Action', 'Adventure', 'Fantasy', 'Sci-Fi'] },
+      { title: 'Rain Man', genres: ['Drama'] },
+    ])
+
+    await request(tembaServer).delete(resource).query('filter.genres[all]=adventure,sci-fi')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].title).toEqual('Rain Man')
+  })
+
+  test('Delete using [all] operator with a single value behaves like array contains value', async () => {
+    await createData(tembaServer, [
+      { title: 'Star Wars', genres: ['Action', 'Adventure', 'Fantasy', 'Sci-Fi'] },
+      { title: 'Rain Man', genres: ['Drama'] },
+    ])
+
+    await request(tembaServer).delete(resource).query('filter.genres[all]=Drama')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].title).toEqual('Star Wars')
+  })
+
+  test('[all] does not delete items missing one of the listed values', async () => {
+    await createData(tembaServer, [
+      { title: 'Star Wars', genres: ['Action', 'Adventure', 'Fantasy', 'Sci-Fi'] },
+      { title: 'O Brother, Where Art Thou?', genres: ['Adventure', 'Comedy', 'Crime'] },
+    ])
+
+    await request(tembaServer).delete(resource).query('filter.genres[all]=Adventure,Drama')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(2)
+  })
+
+  test('[all] does not match non-array fields when deleting', async () => {
+    await createData(tembaServer, [{ name: 'Star Wars' }, { name: 'Rain Man' }])
+
+    await request(tembaServer).delete(resource).query('filter.name[all]=Star Wars')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(2)
+  })
+
+  test('Delete using [all] operator on number array values', async () => {
+    await createData(tembaServer, [
+      { title: 'A', weekly: [1, 2, 3] },
+      { title: 'B', weekly: [2, 3] },
+      { title: 'C', weekly: [1, 4] },
+    ])
+
+    await request(tembaServer).delete(resource).query('filter.weekly[all]=2,3')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].title).toEqual('C')
+  })
+
+  test('Delete using [all] operator on boolean array values', async () => {
+    await createData(tembaServer, [
+      { title: 'A', flags: [true, false] },
+      { title: 'B', flags: [true] },
+      { title: 'C', flags: [false] },
+    ])
+
+    await request(tembaServer).delete(resource).query('filter.flags[all]=true,false')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(2)
+    expect(getRemaining.body.map((i: { title: string }) => i.title).sort()).toEqual(['B', 'C'])
   })
 
   test('[nin] where no values are excluded deletes all items', async () => {

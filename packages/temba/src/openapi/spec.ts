@@ -119,7 +119,7 @@ const filterQueryParameter: ParameterObject = {
   },
   description:
     'Filter results using LHS bracket syntax, e.g. `filter.name[eq]=Alice` or `filter.age[gt]=18`. ' +
-    'Supported operators: `eq`, `neq`, `contains`, `startsWith`, `endsWith`, `gt`, `gte`, `lt`, `lte`, `in`, `nin`, `exists`, `regex`. ' +
+    'Supported operators: `eq`, `neq`, `contains`, `startsWith`, `endsWith`, `gt`, `gte`, `lt`, `lte`, `in`, `nin`, `all`, `exists`, `regex`. ' +
     'Omitting the operator defaults to `eq`. String matching is case-insensitive.',
 }
 

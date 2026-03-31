@@ -576,7 +576,7 @@ describe('String partial matching operators: startsWith, endsWith, contains', ()
   })
 })
 
-describe('Array/set operators: in and nin', () => {
+describe('Array/set operators: in, nin and all', () => {
   test('Filter using [in] operator matches any of the listed string values (case-insensitive)', async () => {
     const data = [{ name: 'Piet' }, { name: 'Miep' }, { name: 'Kees' }]
     await createData(tembaServer, data)
@@ -724,6 +724,108 @@ describe('Array/set operators: in and nin', () => {
       'O Brother, Where Art Thou?',
       'Rain Man',
     ])
+  })
+
+  test('Filter using [all] operator matches array-valued fields containing all listed values', async () => {
+    const data = [
+      { title: 'Star Wars', genres: ['Action', 'Adventure', 'Fantasy', 'Sci-Fi'] },
+      { title: 'Rain Man', genres: ['Drama'] },
+      { title: 'O Brother, Where Art Thou?', genres: ['Adventure', 'Comedy', 'Crime'] },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer)
+      .get(resource)
+      .query('filter.genres[all]=Adventure,Sci-Fi')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].title).toEqual('Star Wars')
+  })
+
+  test('Filter using [all] operator is order-independent for array-valued fields', async () => {
+    const data = [
+      { title: 'Star Wars', genres: ['Action', 'Adventure', 'Fantasy', 'Sci-Fi'] },
+      { title: 'O Brother, Where Art Thou?', genres: ['Adventure', 'Comedy', 'Crime'] },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer)
+      .get(resource)
+      .query('filter.genres[all]=Sci-Fi,Adventure')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].title).toEqual('Star Wars')
+  })
+
+  test('[all] is case-insensitive for string array elements', async () => {
+    const data = [
+      { title: 'Star Wars', genres: ['Action', 'Adventure', 'Fantasy', 'Sci-Fi'] },
+      { title: 'Rain Man', genres: ['Drama'] },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer)
+      .get(resource)
+      .query('filter.genres[all]=adventure,sci-fi')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].title).toEqual('Star Wars')
+  })
+
+  test('Filter using [all] operator with a single value behaves like array contains value', async () => {
+    const data = [
+      { title: 'Star Wars', genres: ['Action', 'Adventure', 'Fantasy', 'Sci-Fi'] },
+      { title: 'Rain Man', genres: ['Drama'] },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.genres[all]=Drama')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].title).toEqual('Rain Man')
+  })
+
+  test('[all] returns no results when the array is missing one of the listed values', async () => {
+    const data = [
+      { title: 'Star Wars', genres: ['Action', 'Adventure', 'Fantasy', 'Sci-Fi'] },
+      { title: 'O Brother, Where Art Thou?', genres: ['Adventure', 'Comedy', 'Crime'] },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer)
+      .get(resource)
+      .query('filter.genres[all]=Adventure,Drama')
+    expect(res.body.length).toEqual(0)
+  })
+
+  test('[all] returns no results for non-array fields', async () => {
+    const data = [{ name: 'Star Wars' }, { name: 'Rain Man' }]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.name[all]=Star Wars')
+    expect(res.body.length).toEqual(0)
+  })
+
+  test('Filter using [all] operator on number array values', async () => {
+    const data = [
+      { title: 'A', weekly: [1, 2, 3] },
+      { title: 'B', weekly: [2, 3] },
+      { title: 'C', weekly: [1, 4] },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.weekly[all]=2,3')
+    expect(res.body.length).toEqual(2)
+    expect(res.body.map((i: { title: string }) => i.title).sort()).toEqual(['A', 'B'])
+  })
+
+  test('Filter using [all] operator on boolean array values', async () => {
+    const data = [
+      { title: 'A', flags: [true, false] },
+      { title: 'B', flags: [true] },
+      { title: 'C', flags: [false] },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.flags[all]=true,false')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].title).toEqual('A')
   })
 
   test('[nin] where no values are excluded returns all items', async () => {

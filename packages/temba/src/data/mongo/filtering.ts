@@ -3,14 +3,33 @@ import { supportedOperators } from '../../filtering/filter'
 
 type MongoCondition = Record<string, unknown>
 
+const coerceValue = (value: string): string | number | boolean => {
+  const asNumber = Number(value)
+  if (value !== '' && !isNaN(asNumber)) return asNumber
+
+  const lower = value.toLowerCase()
+  if (lower === 'true') return true
+  if (lower === 'false') return false
+
+  return value
+}
+
 const buildOperatorCondition = (op: Operator, raw: string): MongoCondition => {
+  const coerced = coerceValue(raw)
+
   // eq and neq use case-insensitive regex for string semantics
   if (op === 'eq') {
-    return { $regex: new RegExp(`^${escapeRegex(raw)}$`, 'i') }
+    if (typeof coerced === 'string') {
+      return { $regex: new RegExp(`^${escapeRegex(coerced)}$`, 'i') }
+    }
+    return { $eq: coerced }
   }
 
   if (op === 'neq') {
-    return { $not: new RegExp(`^${escapeRegex(raw)}$`, 'i') }
+    if (typeof coerced === 'string') {
+      return { $not: new RegExp(`^${escapeRegex(coerced)}$`, 'i') }
+    }
+    return { $ne: coerced }
   }
 
   // contains, startsWith, endsWith are string-only.
@@ -29,25 +48,40 @@ const buildOperatorCondition = (op: Operator, raw: string): MongoCondition => {
 
   // Range operators use raw string — lexicographic comparison as documented.
   // MongoDB's native BSON ordering handles numeric fields stored as numbers correctly.
-  if (op === 'gt') return { $gt: raw }
-  if (op === 'gte') return { $gte: raw }
-  if (op === 'lt') return { $lt: raw }
-  if (op === 'lte') return { $lte: raw }
+  if (op === 'gt') return { $gt: coerced }
+  if (op === 'gte') return { $gte: coerced }
+  if (op === 'lt') return { $lt: coerced }
+  if (op === 'lte') return { $lte: coerced }
 
   // exists value is guaranteed to be "true" or "false" by shared validation
-  if (op === 'exists') return { $exists: raw.toLowerCase() === 'true' }
+  if (op === 'exists') return { $exists: coerced }
 
   if (op === 'regex') return { $regex: new RegExp(raw) }
 
-  // in / nin: use raw string values for consistent string semantics
+  // in / nin / all: use case-insensitive regexes for all-string lists, otherwise coerce.
   const values = raw.split(',').map((v) => v.trim())
+  const coercedValues = values.map(coerceValue)
+  const allStrings = coercedValues.every((value) => typeof value === 'string')
 
   if (op === 'in') {
-    return { $in: values.map((v) => new RegExp(`^${escapeRegex(v)}$`, 'i')) }
+    if (allStrings) {
+      return { $in: coercedValues.map((v) => new RegExp(`^${escapeRegex(String(v))}$`, 'i')) }
+    }
+    return { $in: coercedValues }
+  }
+
+  if (op === 'all') {
+    if (allStrings) {
+      return { $all: coercedValues.map((v) => new RegExp(`^${escapeRegex(String(v))}$`, 'i')) }
+    }
+    return { $all: coercedValues }
   }
 
   // nin
-  return { $nin: values.map((v) => new RegExp(`^${escapeRegex(v)}$`, 'i')) }
+  if (allStrings) {
+    return { $nin: coercedValues.map((v) => new RegExp(`^${escapeRegex(String(v))}$`, 'i')) }
+  }
+  return { $nin: coercedValues }
 }
 
 const escapeRegex = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')

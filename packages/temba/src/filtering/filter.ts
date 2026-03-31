@@ -14,6 +14,7 @@ export const supportedOperators = [
   'lte',
   'in',
   'nin',
+  'all',
   'exists',
   'regex',
 ] as const
