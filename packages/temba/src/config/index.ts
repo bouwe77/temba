@@ -129,7 +129,7 @@ export type UserConfig = {
 
   // Use isTesting when running tests that don't require a started server.
   isTesting?: boolean
-  // Override implementation in when testing.
+  /** @internal Override implementations when testing. */
   implementations?: Implementations
 }
 

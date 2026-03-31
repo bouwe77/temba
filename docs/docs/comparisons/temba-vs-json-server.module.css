@@ -1,0 +1,52 @@
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.table thead tr {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: var(--ifm-table-head-background);
+}
+
+.table th {
+  padding: 0.6rem 1rem;
+  text-align: left;
+  border-bottom: 2px solid var(--ifm-table-border-color);
+}
+
+.table th:not(:first-child) {
+  text-align: center;
+  width: 18%;
+}
+
+.table td {
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--ifm-table-border-color);
+  vertical-align: middle;
+}
+
+.table td:not(:first-child) {
+  text-align: center;
+}
+
+.categoryRow td {
+  font-weight: bold;
+}
+
+.subRow td:first-child {
+  padding-left: 2rem;
+}
+
+.mark {
+  font-size: 1.1rem;
+}
+
+.legend {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
