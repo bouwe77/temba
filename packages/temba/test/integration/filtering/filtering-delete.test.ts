@@ -602,6 +602,50 @@ describe('Array/set operators: in and nin', () => {
     expect(getRemaining.body[0].name).toEqual('Piet')
   })
 
+  test('Delete using [in] operator deletes items when any array element matches', async () => {
+    await createData(tembaServer, [
+      { title: 'Star Wars', genres: ['Action', 'Adventure', 'Fantasy', 'Sci-Fi'] },
+      { title: 'Rain Man', genres: ['Drama'] },
+      { title: 'O Brother, Where Art Thou?', genres: ['Adventure', 'Comedy', 'Crime'] },
+    ])
+
+    await request(tembaServer).delete(resource).query('filter.genres[in]=Action')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(2)
+    expect(getRemaining.body.map((i: { title: string }) => i.title).sort()).toEqual([
+      'O Brother, Where Art Thou?',
+      'Rain Man',
+    ])
+  })
+
+  test('Delete using [in] operator on array-valued fields matches any listed value', async () => {
+    await createData(tembaServer, [
+      { title: 'Star Wars', genres: ['Action', 'Adventure', 'Fantasy', 'Sci-Fi'] },
+      { title: 'Rain Man', genres: ['Drama'] },
+      { title: 'O Brother, Where Art Thou?', genres: ['Adventure', 'Comedy', 'Crime'] },
+    ])
+
+    await request(tembaServer).delete(resource).query('filter.genres[in]=Action,Drama')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].title).toEqual('O Brother, Where Art Thou?')
+  })
+
+  test('[in] is case-insensitive for string array elements when deleting', async () => {
+    await createData(tembaServer, [
+      { title: 'Star Wars', genres: ['Action', 'Adventure', 'Fantasy', 'Sci-Fi'] },
+      { title: 'Rain Man', genres: ['Drama'] },
+    ])
+
+    await request(tembaServer).delete(resource).query('filter.genres[in]=action')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].title).toEqual('Rain Man')
+  })
+
   test('[in] with no matching values deletes nothing', async () => {
     await createData(tembaServer, [{ name: 'Piet' }, { name: 'Miep' }])
 
@@ -643,6 +687,20 @@ describe('Array/set operators: in and nin', () => {
     const getRemaining = await request(tembaServer).get(resource)
     expect(getRemaining.body.length).toEqual(2)
     expect(getRemaining.body.map((i: { name: string }) => i.name).sort()).toEqual(['Kees', 'Miep'])
+  })
+
+  test('Delete using [nin] operator keeps only items whose array fields contain a listed value', async () => {
+    await createData(tembaServer, [
+      { title: 'Star Wars', genres: ['Action', 'Adventure', 'Fantasy', 'Sci-Fi'] },
+      { title: 'Rain Man', genres: ['Drama'] },
+      { title: 'O Brother, Where Art Thou?', genres: ['Adventure', 'Comedy', 'Crime'] },
+    ])
+
+    await request(tembaServer).delete(resource).query('filter.genres[nin]=Action')
+
+    const getRemaining = await request(tembaServer).get(resource)
+    expect(getRemaining.body.length).toEqual(1)
+    expect(getRemaining.body[0].title).toEqual('Star Wars')
   })
 
   test('[nin] where no values are excluded deletes all items', async () => {

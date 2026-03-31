@@ -88,6 +88,39 @@ const operatorFns: Record<Operator, (a: unknown, b: string) => boolean> = {
   regex: (a, b) => typeof a === 'string' && new RegExp(b).test(a),
 }
 
+const matchesInList = (a: unknown, b: string) => {
+  const values = b.split(',').map((v) => v.trim())
+
+  return values.some((v) => {
+    if (typeof a === 'string') return a.toLowerCase() === v.toLowerCase()
+    if (typeof a === 'number') return a === Number(v)
+    if (typeof a === 'boolean') return a === (v.toLowerCase() === 'true')
+    return false
+  })
+}
+
+const matchesNinList = (a: unknown, b: string) => {
+  const values = b.split(',').map((v) => v.trim())
+
+  return values.every((v) => {
+    if (typeof a === 'string') return a.toLowerCase() !== v.toLowerCase()
+    if (typeof a === 'number') return a !== Number(v)
+    if (typeof a === 'boolean') return a !== (v.toLowerCase() === 'true')
+    return true
+  })
+}
+
+const evaluateOperator = (op: Operator, value: unknown, rhs: string) => {
+  if ((op === 'in' || op === 'nin') && Array.isArray(value)) {
+    const matcher = op === 'in' ? matchesInList : matchesNinList
+    return op === 'in'
+      ? value.some((item) => matcher(item, rhs))
+      : value.every((item) => matcher(item, rhs))
+  }
+
+  return operatorFns[op]?.(value, rhs) ?? false
+}
+
 const isOperatorObject = (obj: unknown): obj is OperatorObject => {
   return (
     obj !== null &&
@@ -103,7 +136,7 @@ const matchesFilter = (obj: Record<string, unknown>, spec: NestedFilter): boolea
     if (isOperatorObject(constraint)) {
       return (Object.keys(constraint) as Operator[]).every((op) => {
         const rhs = constraint[op]
-        return rhs !== undefined && operatorFns[op]?.(v, rhs)
+        return rhs !== undefined && evaluateOperator(op, v, rhs)
       })
     } else {
       if (typeof v !== 'object' || v === null) return false

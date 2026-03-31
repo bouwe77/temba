@@ -55,3 +55,5 @@ GET /users?filter.age[gte]=18&filter.age[lt]=65
 GET /products?filter.price[gt]=9.99&filter.price[lte]=49.99
 GET /events?filter.date[gte]=2026-01-01&filter.date[lt]=2027-01-01
 ```
+
+The `[in]` and `[nin]` operators also support array-valued fields. For arrays, Temba checks the individual elements of the field, so `?filter.genres[in]=Action` matches an item with `"genres": ["Action", "Adventure"]`, and `?filter.genres[nin]=Action` excludes it.

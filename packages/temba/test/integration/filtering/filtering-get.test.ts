@@ -630,6 +630,47 @@ describe('Array/set operators: in and nin', () => {
     expect(res.body.map((i: { name: string }) => i.name).sort()).toEqual(['Kees', 'Piet'])
   })
 
+  test('Filter using [in] operator matches array-valued fields when any element matches', async () => {
+    const data = [
+      { title: 'Star Wars', genres: ['Action', 'Adventure', 'Fantasy', 'Sci-Fi'] },
+      { title: 'Rain Man', genres: ['Drama'] },
+      { title: 'O Brother, Where Art Thou?', genres: ['Adventure', 'Comedy', 'Crime'] },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.genres[in]=Action')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].title).toEqual('Star Wars')
+  })
+
+  test('Filter using [in] operator on array-valued fields matches any listed value', async () => {
+    const data = [
+      { title: 'Star Wars', genres: ['Action', 'Adventure', 'Fantasy', 'Sci-Fi'] },
+      { title: 'Rain Man', genres: ['Drama'] },
+      { title: 'O Brother, Where Art Thou?', genres: ['Adventure', 'Comedy', 'Crime'] },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.genres[in]=Action,Drama')
+    expect(res.body.length).toEqual(2)
+    expect(res.body.map((i: { title: string }) => i.title).sort()).toEqual([
+      'Rain Man',
+      'Star Wars',
+    ])
+  })
+
+  test('[in] is case-insensitive for string array elements', async () => {
+    const data = [
+      { title: 'Star Wars', genres: ['Action', 'Adventure', 'Fantasy', 'Sci-Fi'] },
+      { title: 'Rain Man', genres: ['Drama'] },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.genres[in]=action')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].title).toEqual('Star Wars')
+  })
+
   test('[in] returns no results when no values match', async () => {
     const data = [{ name: 'Piet' }, { name: 'Miep' }]
     await createData(tembaServer, data)
@@ -667,6 +708,22 @@ describe('Array/set operators: in and nin', () => {
     const res = await request(tembaServer).get(resource).query('filter.age[nin]=18,25')
     expect(res.body.length).toEqual(1)
     expect(res.body[0].name).toEqual('Piet')
+  })
+
+  test('Filter using [nin] operator excludes array-valued fields with matching elements', async () => {
+    const data = [
+      { title: 'Star Wars', genres: ['Action', 'Adventure', 'Fantasy', 'Sci-Fi'] },
+      { title: 'Rain Man', genres: ['Drama'] },
+      { title: 'O Brother, Where Art Thou?', genres: ['Adventure', 'Comedy', 'Crime'] },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.genres[nin]=Action')
+    expect(res.body.length).toEqual(2)
+    expect(res.body.map((i: { title: string }) => i.title).sort()).toEqual([
+      'O Brother, Where Art Thou?',
+      'Rain Man',
+    ])
   })
 
   test('[nin] where no values are excluded returns all items', async () => {
