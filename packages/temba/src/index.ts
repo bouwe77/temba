@@ -68,7 +68,8 @@ const createServer = async (userConfig?: UserConfig) => {
     httpLogger(req, res, (err) => {
       if (err) return sendErrorResponse(res, 500, 'Internal Server Error', config.cors)
 
-      const requestUrl = removePendingAndTrailingSlashes(req.url?.split('?')[0])
+      const requestPath = req.url?.split('?')[0]
+      const requestUrl = removePendingAndTrailingSlashes(requestPath)
 
       const handleRequest = async () => {
         if (req.method === 'OPTIONS') {
@@ -108,7 +109,7 @@ const createServer = async (userConfig?: UserConfig) => {
             res,
             async () =>
               await implementations.getStaticFileFromDisk(
-                req.url === '/' ? 'index.html' : req.url || 'index.html',
+                requestPath === '/' ? 'index.html' : requestPath || 'index.html',
               ),
             config.cors,
           )
