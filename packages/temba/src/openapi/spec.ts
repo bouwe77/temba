@@ -119,7 +119,7 @@ const filterQueryParameter: ParameterObject = {
   },
   description:
     'Filter results using LHS bracket syntax, e.g. `filter.name[eq]=Alice` or `filter.age[gt]=18`. ' +
-    'Supported operators: `eq`, `neq`, `contains`, `startsWith`, `endsWith`, `gt`, `gte`, `lt`, `lte`, `in`, `nin`, `exists`, `regex`. ' +
+    'Supported operators: `eq`, `neq`, `contains`, `startsWith`, `endsWith`, `gt`, `gte`, `lt`, `lte`, `in`, `nin`, `all`, `exists`, `regex`. ' +
     'Omitting the operator defaults to `eq`. String matching is case-insensitive.',
 }
 
@@ -377,12 +377,13 @@ const buildOpenApiSpec = (config: Config, server: string, resourceInfos: Resourc
         summary: `HTTP headers for all ${pluralResourceLowerCase}`,
         description: `Returns HTTP headers for all ${pluralResourceLowerCase}.`,
         operationId: `getAll${pluralResourceUpperCase}Headers`,
-        parameters: getPathParameters(config, resourceInfo),
+        parameters: [...getPathParameters(config, resourceInfo), filterQueryParameter],
         responses: {
           '200': {
             description: `HTTP headers for all ${pluralResourceLowerCase}.`,
             headers: responseHeaders,
           },
+          ...malformedFilterResponse,
         },
         tags: [resourceInfo.tag.name],
       },

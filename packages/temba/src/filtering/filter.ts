@@ -14,6 +14,7 @@ export const supportedOperators = [
   'lte',
   'in',
   'nin',
+  'all',
   'exists',
   'regex',
 ] as const
@@ -75,6 +76,9 @@ const hasValidOperators = (node: Record<string, unknown>, depth: number): boolea
   for (const [key, value] of Object.entries(node)) {
     if (typeof value === 'string') {
       if (depth > 1 && !supportedOperators.includes(key as Operator)) {
+        return false
+      }
+      if (depth > 1 && key === 'exists' && !['true', 'false'].includes(value.toLowerCase())) {
         return false
       }
     } else if (Array.isArray(value)) {

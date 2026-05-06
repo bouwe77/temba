@@ -960,6 +960,20 @@ test('DELETE collection includes a filter deepObject query parameter', async () 
   expect(filterParam.style).toEqual('deepObject')
 })
 
+test('Filtering parameter description lists the all operator', async () => {
+  const tembaServer = await createServer({
+    openapi: true,
+    resources: ['actors'],
+  })
+
+  const response = await request(tembaServer).get('/openapi.json')
+  expectSuccess(response)
+
+  const get = response.body.paths['/actors']['get']
+  const filterParam = (get.parameters ?? []).find((p: { name: string }) => p.name === 'filter')
+  expect(filterParam.description).toContain('`all`')
+})
+
 test('GET collection includes a 400 response for malformed filter expressions', async () => {
   const tembaServer = await createServer({
     openapi: true,
@@ -1102,4 +1116,3 @@ test('When both interceptors are configured, info.description mentions each sepa
   expect(response.body.info.description).toContain('request interceptor')
   expect(response.body.info.description).toContain('response body interceptor')
 })
-
