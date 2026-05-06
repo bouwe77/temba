@@ -50,6 +50,27 @@ test('Returns static content and API routes have an "api" apiPrefix', async () =
   expect(resourceResponse.body).toEqual([])
 })
 
+test('Returns static index content when root URL has query string parameters', async () => {
+  const requestedFilenames: string[] = []
+  const tembaServer = await createServer(
+    {
+      staticFolder: 'dist',
+    },
+    {
+      getStaticFileFromDisk: async (filename) => {
+        requestedFilenames.push(filename)
+        return getStaticFileFromDisk(filename)
+      },
+    },
+  )
+
+  const staticFolderResponse = await request(tembaServer).get('/?foo=bar')
+  expect(staticFolderResponse.status).toBe(200)
+  expect(staticFolderResponse.text).toContain('<!DOCTYPE html>')
+  expect(staticFolderResponse.text).toContain('Hello, World!')
+  expect(requestedFilenames).toEqual(['index.html'])
+})
+
 test('When static file not found, it returns a 404', async () => {
   const tembaServer = await createServer(
     {
