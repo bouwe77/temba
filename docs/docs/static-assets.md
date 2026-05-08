@@ -5,9 +5,11 @@ sidebar_label: Static assets
 sidebar_position: 5
 ---
 
-# Static assets
+If you want to host static content, such as a web app that consumes your API, you can configure a `staticFolder`. This allows Temba to host your frontend assets alongside your API.
 
-If you want to host static assets, for example a web app consuming the API, you can configure a `staticFolder`:
+Configuring a `staticFolder` automatically sets the `apiPrefix` to `"api"`. This is a strict requirement to ensure that API requests and page navigation remain separate.
+
+To enable this, add the folder name to your configuration. Usually, this is the folder where your build process outputs files, like `dist` or `build`.
 
 ```js
 const config = {
@@ -16,32 +18,67 @@ const config = {
 const server = await create(config)
 ```
 
-With this setting, sending a `GET` request to the root URL returns the content from the `'./build'` folder in your project, for example an HTML page. Files are served relative to this folder (e.g., `/index.html` → `build/index.html`, `/css/style.css` → `build/css/style.css`).
+**Note** A physical `index.html` must exist in the `staticFolder`, otherwise a 404 is returned for any non-API request.
 
-**Automatic `apiPrefix` behavior:**
+As further explained below, by default Temba tries to resolve each request URL to a physical file first and otherwise generally serves `index.html`. This is called `"spa"` mode.
 
-To prevent conflicts between the API resources and the web app routes, configuring a `staticFolder` **automatically sets the `apiPrefix` to `"api"`**. Of course you can always change the `apiPrefix` to something else by explicitly setting it.
+If you want to only allow requests to actually existing files, and otherwise return a 404, use `"filesystem"` mode, by configuring `staticFolder` as an object:
 
-**Request routing order (precedence):**
+```js
+const config = {
+  staticFolder: {
+    path: 'build',
+    mode: 'filesystem',
+  },
+}
+const server = await create(config)
+```
 
-When both `staticFolder` and API routes are configured, Temba processes requests in this order:
+For most projects, this is all you need. You can probably stop reading here and just try it out. If your application has complex routing or want to understand exactly how requests are handled, the details are below.
 
-1. **Check if the request path starts with `apiPrefix + '/'`** (e.g., `/api/`)
-   * If yes → Route to API handler (resources, OpenAPI, root API page)
-   * If no → Continue to step 2
+---
 
-2. **Check if a static file exists** in the `staticFolder`
-   * If yes → Serve the static file
-   * If no → Return `404 Not Found`
+# How it works
 
-**Example scenarios:**
+## Request routing order
 
-| Configuration | Request | Result |
-|--------------|---------|--------|
-| `staticFolder: 'build'` | `GET /` | Serves `build/index.html` (if it exists) |
-| `staticFolder: 'build'` | `GET /about.html` | Serves `build/about.html` (if it exists) |
-| `staticFolder: 'build'` (auto-sets `apiPrefix: 'api'`) | `GET /api/movies` | API request to `/movies` resource |
-| `staticFolder: 'build'`, `apiPrefix: 'v1'` | `GET /v1/movies` | API request to `/movies` resource |
-| `staticFolder: 'build'`, `apiPrefix: 'v1'` | `GET /movies` | Tries to serve `build/movies` as static file |
+When you use a `staticFolder`, Temba processes every incoming request in a specific order of precedence. This ensures that your API works correctly and your static files are served efficiently.
 
-**Key takeaway:** Static files **never** conflict with API routes when `apiPrefix` is set, because they're checked only when the request path doesn't start with the API prefix.
+1. **API prefix check**<br/>If the request path starts with `/api/`, it is handled by the API. If the resource does not exist, Temba returns an API-flavored 404 error. Static files are never checked for these requests.
+
+2. **Physical file check**<br/>If the request is not for the API, Temba looks for a physical file in your `staticFolder` that matches the URL. If it finds one, it serves it.
+
+3. **SPA fallback logic**<br/>If no physical file exists, Temba determines if it should serve your `index.html` as a fallback. This happens only when:
+
+- The mode is set to `"spa"` (the default).
+- The request is a `GET` and the `Accept` header includes `text/html`.
+- **And** either the last segment of the URL contains no dot (e.g., `/dashboard`), or it is a path that explicitly requests HTML despite having a dot (e.g., `/user/john.doe`).
+
+Note: Requests for directories without a trailing slash (like `/admin`) will be automatically redirected to `/admin/` if an `index.html` is found in that directory.
+
+When these conditions are met, Temba searches for the nearest index.html by walking back through the URL path segments starting from the requested location.
+
+- **Direct match** It checks the requested directory for an `index.html`.
+- **Walk back** If not found, it moves up one directory level and checks again.
+- **Root fallback** This continues until it either finds an `index.html` or reaches the root of the `staticFolder`.
+
+4.  **404 not found**<br/>If none of the above conditions are met, the server returns a standard 404.
+
+## Single page application (SPA) support
+
+Temba natively supports client-side routing using the History API. This means you can use libraries like React Router or Vue Router with "clean" URLs without the page breaking on a refresh.
+
+By checking the `Accept` header and looking for dots in the URL, Temba intelligently decides when to send the user back to your `index.html` entry point and when to correctly report a missing asset.
+
+## Example scenarios
+
+The following examples assume that the staticFolder is configured as 'build'.
+
+| request                  | result                                                   |
+| :----------------------- | :------------------------------------------------------- |
+| `GET /`                  | serves `build/index.html`                                |
+| `GET /api/movies`        | API request for movies resource                          |
+| `GET /css/style.css`     | serves `build/css/style.css` (physical file check)       |
+| `GET /dashboard`         | no file found; serves `build/index.html` (SPA fallback)  |
+| `GET /user/john.doe`     | browser asks for HTML; serves `build/index.html`         |
+| `GET /missing-style.css` | no file found; dot detected in last segment; returns 404 |

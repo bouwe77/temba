@@ -17,7 +17,7 @@ import {
 } from './responseHandler'
 import { createRootUrlHandler } from './root/root'
 import { compileSchemas } from './schema/compile'
-import { handleStaticFolder } from './staticFolder/staticFolder'
+import { createStaticFolderHandler } from './staticFolder/staticFolder'
 import { createWebSocketServer, type BroadcastFunction } from './websocket/websocket'
 
 const removePendingAndTrailingSlashes = (url?: string) => (url ? url.replace(/^\/+|\/+$/g, '') : '')
@@ -42,6 +42,7 @@ const createServer = async (userConfig?: UserConfig) => {
 
   // Now create the resource handler with the broadcast function
   const handleResource = await createResourceHandler(queries, schemas, config, broadcast)
+  const handleStaticFolder = createStaticFolderHandler(log)
 
   const rateLimiter = config.rateLimit ? createRateLimiter(config.rateLimit) : null
   server.on('close', () => rateLimiter?.stop())
@@ -68,7 +69,7 @@ const createServer = async (userConfig?: UserConfig) => {
     httpLogger(req, res, (err) => {
       if (err) return sendErrorResponse(res, 500, 'Internal Server Error', config.cors)
 
-      const requestPath = req.url?.split('?')[0]
+      const [requestPath = '/', queryString = ''] = (req.url || '/').split('?')
       const requestUrl = removePendingAndTrailingSlashes(requestPath)
 
       const handleRequest = async () => {
@@ -105,12 +106,15 @@ const createServer = async (userConfig?: UserConfig) => {
           }
 
           handleStaticFolder(
-            req,
             res,
-            async () =>
-              await implementations.getStaticFileFromDisk(
-                requestPath === '/' ? 'index.html' : requestPath || 'index.html',
-              ),
+            {
+              method: req.method,
+              requestPath,
+              queryString,
+              accept: req.headers.accept,
+              staticFolder: config.staticFolder,
+              getStaticFileFromDisk: implementations.getStaticFileFromDisk,
+            },
             config.cors,
           )
         } else if (requestUrl === rootPath) {
@@ -173,7 +177,8 @@ const createServer = async (userConfig?: UserConfig) => {
       }, REQUEST_TIMEOUT_MS)
 
       handleRequest()
-        .catch(() => {
+        .catch((e) => {
+          log.error(e)
           if (!res.headersSent) sendErrorResponse(res, 500, 'Internal Server Error', config.cors)
         })
         .finally(() => clearTimeout(timeoutId))

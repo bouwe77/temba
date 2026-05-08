@@ -109,13 +109,13 @@ test('Full user config overrides all defaults', () => {
     isTesting: true,
     implementations: {
       getStaticFileFromDisk: () =>
-        Promise.resolve({ content: 'Hello, World!', mimeType: 'text/plain' }),
+        Promise.resolve({ content: Buffer.from('Hello, World!'), mimeType: 'text/plain' }),
     },
   })
 
   expect(config.resources).toEqual(['movies'])
   expect(config.validateResources).toBe(true)
-  expect(config.staticFolder).toBe('build')
+  expect(config.staticFolder).toEqual({ path: 'build', mode: 'spa' })
   expect(config.apiPrefix).toBe('stuff')
   expect(config.connectionString).toBe('mongodb://localhost:27017')
   expect(config.requestInterceptor!.get).toBeInstanceOf(Function)
@@ -218,7 +218,34 @@ test("Configuring staticFolder sets apiPrefix to 'api'", () => {
     staticFolder: 'dist',
   })
 
-  expect(config.staticFolder).toBe('dist')
+  expect(config.staticFolder).toEqual({ path: 'dist', mode: 'spa' })
+  expect(config.apiPrefix).toBe('api')
+})
+
+test('Configuring staticFolder with a path object defaults to spa mode', () => {
+  const config = initConfig({
+    staticFolder: { path: 'dist' },
+  } as never)
+
+  expect(config.staticFolder).toEqual({ path: 'dist', mode: 'spa' })
+  expect(config.apiPrefix).toBe('api')
+})
+
+test('Configuring staticFolder with filesystem mode preserves the mode', () => {
+  const config = initConfig({
+    staticFolder: { path: 'dist', mode: 'filesystem' },
+  } as never)
+
+  expect(config.staticFolder).toEqual({ path: 'dist', mode: 'filesystem' })
+  expect(config.apiPrefix).toBe('api')
+})
+
+test('Configuring staticFolder with spa mode preserves the mode', () => {
+  const config = initConfig({
+    staticFolder: { path: 'dist', mode: 'spa' },
+  } as never)
+
+  expect(config.staticFolder).toEqual({ path: 'dist', mode: 'spa' })
   expect(config.apiPrefix).toBe('api')
 })
 
@@ -258,7 +285,7 @@ test('Invalid apiPrefix does NOT overwrite the default "api" set by staticFolder
     apiPrefix: '/_/', // Invalid input
   })
 
-  expect(config.staticFolder).toBe('public')
+  expect(config.staticFolder).toEqual({ path: 'public', mode: 'spa' })
   // The invalid input is ignored, preserving the 'api' default
   expect(config.apiPrefix).toBe('api')
 })
@@ -269,7 +296,7 @@ test('Valid apiPrefix correctly overrides the "api" default', () => {
     apiPrefix: 'v1', // Valid input
   })
 
-  expect(config.staticFolder).toBe('public')
+  expect(config.staticFolder).toEqual({ path: 'public', mode: 'spa' })
   // The valid input overwrites 'api'
   expect(config.apiPrefix).toBe('v1')
 })
