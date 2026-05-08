@@ -26,30 +26,23 @@ export const createPutRoutes = (
     }
 
     if (requestInterceptor?.put) {
-      try {
-        const interceptResult = await interceptPutRequest(
-          requestInterceptor.put,
-          headers,
-          resource,
-          id,
-          body,
-          url,
-        )
+      const interceptResult = await interceptPutRequest(
+        requestInterceptor.put,
+        headers,
+        resource,
+        id,
+        body,
+        url,
+      )
 
-        if (interceptResult.type === 'response') {
-          return {
-            statusCode: interceptResult.status,
-            body: interceptResult.body,
-          }
-        }
-
-        body = interceptResult.body ?? body
-      } catch (error: unknown) {
+      if (interceptResult.type === 'response') {
         return {
-          statusCode: 500,
-          body: { message: (error as Error).message },
+          statusCode: interceptResult.status,
+          body: interceptResult.body,
         }
       }
+
+      body = interceptResult.body ?? body
     }
 
     let item = await queries.getById({ resource, id })

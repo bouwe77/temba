@@ -35,26 +35,19 @@ export const createGetRoutes = (
     }
 
     if (requestInterceptor?.get) {
-      try {
-        const interceptResult = await interceptGetRequest(
-          requestInterceptor.get,
-          headers,
-          resource,
-          id,
-          url,
-        )
+      const interceptResult = await interceptGetRequest(
+        requestInterceptor.get,
+        headers,
+        resource,
+        id,
+        url,
+      )
 
-        // If interceptor returned a response action, return immediately
-        if (interceptResult.type === 'response') {
-          return {
-            statusCode: interceptResult.status,
-            body: interceptResult.body,
-          }
-        }
-      } catch (error: unknown) {
+      // If interceptor returned a response action, return immediately
+      if (interceptResult.type === 'response') {
         return {
-          statusCode: 500,
-          body: { message: (error as Error).message },
+          statusCode: interceptResult.status,
+          body: interceptResult.body,
         }
       }
     }

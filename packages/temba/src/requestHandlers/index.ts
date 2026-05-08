@@ -1,5 +1,6 @@
 import type { Config } from '../config'
 import type { Queries } from '../data/types'
+import type { Logger } from '../log/logger'
 import type { CompiledSchemas } from '../schema/types'
 import type { BroadcastFunction } from '../websocket/websocket'
 import { createDeleteRoutes } from './delete'
@@ -11,11 +12,27 @@ import { createPutRoutes } from './put'
 // Wrapper to handle errors for all request handlers
 const withErrorHandling = <TArgs extends unknown[], TReturn>(
   handler: (...args: TArgs) => Promise<TReturn>,
+  log: Logger,
 ): ((...args: TArgs) => Promise<TReturn>) => {
   return async (...args: TArgs) => {
     try {
       return await handler(...args)
     } catch (error: unknown) {
+      const request = args[0]
+      const requestInfo =
+        request && typeof request === 'object' && 'resource' in request
+          ? [
+              'method' in request ? String(request.method).toUpperCase() : null,
+              String(request.resource),
+              'url' in request ? String(request.url) : null,
+            ]
+              .filter(Boolean)
+              .join(' ')
+          : ''
+
+      log.error(`Error handling request${requestInfo ? ` ${requestInfo}` : ''}`)
+      log.error(error)
+
       return { statusCode: 500, body: { message: (error as Error).message } } as TReturn
     }
   }
@@ -26,6 +43,7 @@ export const getRequestHandler = async (
   schemas: CompiledSchemas,
   config: Config,
   broadcast: BroadcastFunction | null,
+  log: Logger,
 ) => {
   const {
     requestInterceptor,
@@ -43,10 +61,12 @@ export const getRequestHandler = async (
       returnNullFields,
       etagsEnabled,
     ),
+    log,
   )
 
   const handlePost = withErrorHandling(
     createPostRoutes(queries, requestInterceptor, returnNullFields, schemas.post, broadcast),
+    log,
   )
 
   const handlePut = withErrorHandling(
@@ -58,6 +78,7 @@ export const getRequestHandler = async (
       etagsEnabled,
       broadcast,
     ),
+    log,
   )
 
   const handlePatch = withErrorHandling(
@@ -69,10 +90,12 @@ export const getRequestHandler = async (
       etagsEnabled,
       broadcast,
     ),
+    log,
   )
 
   const handleDelete = withErrorHandling(
     createDeleteRoutes(queries, allowDeleteCollection, requestInterceptor, etagsEnabled, broadcast),
+    log,
   )
 
   return {

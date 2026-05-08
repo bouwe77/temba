@@ -37,11 +37,11 @@ const createServer = async (userConfig?: UserConfig) => {
 
   // Initialize WebSocket server if enabled (must be after server creation)
   const broadcast: BroadcastFunction | null = config.webSocket
-    ? createWebSocketServer(server)
+    ? createWebSocketServer(server, log)
     : null
 
   // Now create the resource handler with the broadcast function
-  const handleResource = await createResourceHandler(queries, schemas, config, broadcast)
+  const handleResource = await createResourceHandler(queries, schemas, config, broadcast, log)
   const handleStaticFolder = createStaticFolderHandler(log)
 
   const rateLimiter = config.rateLimit ? createRateLimiter(config.rateLimit) : null
@@ -178,6 +178,7 @@ const createServer = async (userConfig?: UserConfig) => {
 
       handleRequest()
         .catch((e) => {
+          log.error(`Error handling ${req.method ?? 'UNKNOWN'} ${req.url ?? ''}`)
           log.error(e)
           if (!res.headersSent) sendErrorResponse(res, 500, 'Internal Server Error', config.cors)
         })
