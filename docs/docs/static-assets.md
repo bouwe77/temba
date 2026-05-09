@@ -9,7 +9,7 @@ If you want to host static content, such as a web app that consumes your API, yo
 
 Configuring a `staticFolder` automatically sets the `apiPrefix` to `"api"`. This is a strict requirement to ensure that API requests and page navigation remain separate.
 
-To enable this, add the folder name to your configuration. Usually, this is the folder where your build process outputs files, like `dist` or `build`.
+To enable static content, add the folder name to your configuration. Usually, this is the folder where your build process outputs files, like `dist` or `build`.
 
 ```js
 const config = {
@@ -34,7 +34,7 @@ const config = {
 const server = await create(config)
 ```
 
-For most projects, this is all you need. You can probably stop reading here and just try it out. If your application has complex routing or want to understand exactly how requests are handled, the details are below.
+For most projects, this is all you need to know about static content. If your application has complex routing or want to understand exactly how requests are handled, the details are below.
 
 ---
 
