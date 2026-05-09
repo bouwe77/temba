@@ -16,10 +16,10 @@ export type StaticFileInfo = {
 export type GetStaticFileFromDisk = (filename: string) => Promise<StaticFileInfo>
 
 type StaticFolderRequest = {
-  method: string | undefined
+  method?: string
   requestPath: string
   queryString: string
-  accept: string | undefined
+  accept?: string
   staticFolder: StaticFolderConfig
   getStaticFileFromDisk: GetStaticFileFromDisk
 }
@@ -54,7 +54,7 @@ const isPathInsideRoot = (root: string, filePath: string) =>
 const getPhysicalPath = (requestPath: string) =>
   requestPath === '/' ? 'index.html' : requestPath || 'index.html'
 
-const acceptsHtml = (accept: string | undefined) => accept?.includes('text/html') ?? false
+const acceptsHtml = (accept?: string) => accept?.includes('text/html') ?? false
 
 const tryGetStaticFileFromDisk = async (
   getStaticFileFromDisk: GetStaticFileFromDisk,
@@ -107,13 +107,17 @@ const resolveStaticFolderRequest = async (
     const physicalFile = await tryGetStaticFileFromDisk(getStaticFileFromDisk, physicalPath)
     if (physicalFile) return { type: 'file' as const, file: physicalFile }
 
-    if (staticFolder.mode === 'filesystem' || method !== 'GET' || !acceptsHtml(accept)) {
+    if (
+      staticFolder.mode === 'filesystem' ||
+      !['GET', 'HEAD'].includes(method ?? '') ||
+      !acceptsHtml(accept)
+    ) {
       return { type: 'notFound' as const }
-  }
+    }
 
-  const lastSegment = getLastSegment(requestPath)
-  const shouldCheckDirectoryIndex =
-    requestPath !== '/' && !requestPath.endsWith('/') && !lastSegment.includes('.')
+    const lastSegment = getLastSegment(requestPath)
+    const shouldCheckDirectoryIndex =
+      requestPath !== '/' && !requestPath.endsWith('/') && !lastSegment.includes('.')
 
     if (shouldCheckDirectoryIndex) {
       const directoryIndexPath = getDirectoryIndexPath(requestPath)
@@ -165,7 +169,7 @@ export const createStaticFolderHandler =
       )({
         statusCode: 200,
         contentType: result.file.mimeType,
-        body: result.file.content,
+        body: request.method === 'HEAD' ? undefined : result.file.content,
       })
     } catch (error) {
       log.info('Error handling static folder request on ' + request.requestPath)

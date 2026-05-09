@@ -18,7 +18,10 @@ const config = {
 const server = await create(config)
 ```
 
-**Note** A physical `index.html` must exist in the `staticFolder`, otherwise a 404 is returned for any non-API request.
+**Notes**
+
+- A physical `index.html` must exist in the `staticFolder`, otherwise a 404 is returned for any non-API request.
+- Only `GET` or `HEAD` requests are supported for static assets.
 
 As further explained below, by default Temba tries to resolve each request URL to a physical file first and otherwise generally serves `index.html`. This is called `"spa"` mode.
 
@@ -51,7 +54,7 @@ When you use a `staticFolder`, Temba processes every incoming request in a speci
 3. **SPA fallback logic**<br/>If no physical file exists, Temba determines if it should serve your `index.html` as a fallback. This happens only when:
 
 - The mode is set to `"spa"` (the default).
-- The request is a `GET` and the `Accept` header includes `text/html`.
+- The `Accept` header includes `text/html`.
 - **And** either the last segment of the URL contains no dot (e.g., `/dashboard`), or it is a path that explicitly requests HTML despite having a dot (e.g., `/user/john.doe`).
 
 Note: Requests for directories without a trailing slash (like `/admin`) will be automatically redirected to `/admin/` if an `index.html` is found in that directory.

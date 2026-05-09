@@ -163,6 +163,22 @@ describe('SPA static asset fallback', () => {
     expect(response.text).toContain('Hello, World!')
   })
 
+  test('serves index.html for a HEAD HTML route when the physical file does not exist', async () => {
+    const tembaServer = await createServer(
+      {
+        staticFolder: 'dist',
+      },
+      {
+        getStaticFileFromDisk,
+      },
+    )
+
+    const response = await request(tembaServer).head('/dashboard').set('Accept', 'text/html')
+
+    expect(response.status).toBe(200)
+    expect(JSON.stringify(response.body)).toBe('{}')
+  })
+
   test('serves index.html for a dotted route when the request accepts HTML', async () => {
     const tembaServer = await createServer(
       {
