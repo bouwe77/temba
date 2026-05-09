@@ -191,10 +191,9 @@ export const initConfig = (userConfig?: UserConfig): Config => {
       typeof userConfig.staticFolder === 'string'
         ? userConfig.staticFolder
         : userConfig.staticFolder.path
-    const staticFolder = staticFolderPath.replace(/[^a-zA-Z0-9]/g, '')
-    if (staticFolder.length > 0) {
+    if (staticFolderPath.trim().length > 0) {
       config.staticFolder = {
-        path: staticFolder,
+        path: staticFolderPath,
         mode:
           typeof userConfig.staticFolder === 'string'
             ? 'spa'

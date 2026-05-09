@@ -268,14 +268,33 @@ test('apiPrefix with only special characters is ignored (remains null)', () => {
   expect(config.apiPrefix).toBeNull()
 })
 
-test('staticFolder with only special characters is ignored', () => {
+test.each(['./dist', 'dist/client', 'my-app', './_/'])(
+  'staticFolder preserves filesystem path characters for %s',
+  (staticFolder) => {
+    const config = initConfig({
+      staticFolder,
+    })
+
+    expect(config.staticFolder).toEqual({ path: staticFolder, mode: 'spa' })
+    expect(config.apiPrefix).toBe('api')
+  },
+)
+
+test('staticFolder object preserves filesystem path characters and mode', () => {
   const config = initConfig({
-    // This resolves to "" and should be ignored
-    staticFolder: './_/',
+    staticFolder: { path: './dist/client', mode: 'filesystem' },
+  } as never)
+
+  expect(config.staticFolder).toEqual({ path: './dist/client', mode: 'filesystem' })
+  expect(config.apiPrefix).toBe('api')
+})
+
+test.each(['', '   '])('staticFolder ignores empty path %j', (staticFolder) => {
+  const config = initConfig({
+    staticFolder,
   })
 
   expect(config.staticFolder).toBeNull()
-  // Since staticFolder was ignored, it never triggered the "api" default
   expect(config.apiPrefix).toBeNull()
 })
 
