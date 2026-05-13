@@ -25,30 +25,23 @@ export const createPostRoutes = (
     }
 
     if (requestInterceptor?.post) {
-      try {
-        const interceptResult = await interceptPostRequest(
-          requestInterceptor.post,
-          headers,
-          resource,
-          id,
-          body,
-          url,
-        )
+      const interceptResult = await interceptPostRequest(
+        requestInterceptor.post,
+        headers,
+        resource,
+        id,
+        body,
+        url,
+      )
 
-        if (interceptResult.type === 'response') {
-          return {
-            statusCode: interceptResult.status,
-            body: interceptResult.body,
-          }
-        }
-
-        body = interceptResult.body ?? body
-      } catch (error: unknown) {
+      if (interceptResult.type === 'response') {
         return {
-          statusCode: 500,
-          body: { message: (error as Error).message },
+          statusCode: interceptResult.status,
+          body: interceptResult.body,
         }
       }
+
+      body = interceptResult.body ?? body
     }
 
     if (id) {

@@ -2,64 +2,222 @@ import { promises as fs } from 'fs'
 import type { IncomingMessage, ServerResponse } from 'http'
 import mime from 'mime/lite'
 import path from 'node:path'
-import type { Config, CorsConfig } from '../config'
-import {
-  handleNotFound,
-  sendErrorResponse,
-  sendResponse,
-} from '../responseHandler'
+import type { Config, CorsConfig, StaticFolderConfig } from '../config'
+import type { Logger } from '../log/logger'
+import { handleNotFound, sendErrorResponse, sendResponse } from '../responseHandler'
 
 /** @internal */
 export type StaticFileInfo = {
-  content: Buffer | string
+  content: Buffer
   mimeType: string
 }
 
 /** @internal */
 export type GetStaticFileFromDisk = (filename: string) => Promise<StaticFileInfo>
 
+type StaticFolderRequest = {
+  method?: string
+  requestPath: string
+  queryString: string
+  accept?: string
+  staticFolder: StaticFolderConfig
+  getStaticFileFromDisk: GetStaticFileFromDisk
+}
+
 const parseError = (e: unknown) => {
   if ((e as NodeJS.ErrnoException).code === 'ENOENT') return 'NotFound'
+  if ((e as NodeJS.ErrnoException).code === 'EISDIR') return 'NotFound'
   return 'UnknownError'
 }
 
-export const handleStaticFolder = async (
-  req: IncomingMessage,
-  res: ServerResponse<IncomingMessage>,
-  getStaticFileFromDisk: () => Promise<StaticFileInfo>,
-  cors: CorsConfig,
+const isNotFound = (e: unknown) => parseError(e) === 'NotFound'
+
+const createNotFoundError = () => {
+  const error = new Error('Not Found') as NodeJS.ErrnoException
+  error.code = 'ENOENT'
+  return error
+}
+
+const getLastSegment = (requestPath: string) => {
+  const parts = requestPath.split('/').filter(Boolean)
+  return parts[parts.length - 1] || ''
+}
+
+const getStaticFolderPath = (config: Config) => {
+  const staticFolder = config.staticFolder as Config['staticFolder'] | string
+  return typeof staticFolder === 'string' ? staticFolder : (staticFolder?.path ?? '')
+}
+
+const isPathInsideRoot = (root: string, filePath: string) =>
+  filePath === root || filePath.startsWith(root + path.sep)
+
+const getPhysicalPath = (requestPath: string) =>
+  requestPath === '/' ? 'index.html' : requestPath || 'index.html'
+
+const acceptsHtml = (accept?: string) => accept?.includes('text/html') ?? false
+
+const tryGetStaticFileFromDisk = async (
+  getStaticFileFromDisk: GetStaticFileFromDisk,
+  filename: string,
 ) => {
   try {
-    const staticContent = await getStaticFileFromDisk()
-    sendResponse(res, cors)({
-      statusCode: 200,
-      contentType: staticContent.mimeType,
-      body: staticContent.content,
-    })
+    return await getStaticFileFromDisk(filename)
   } catch (e) {
-    return parseError(e) === 'NotFound' ? handleNotFound(res, cors) : sendErrorResponse(res, 500, 'Internal Server Error', cors)
+    if (isNotFound(e)) return null
+    throw e
   }
 }
 
-export const createGetStaticFileFromDisk = (config: Config) => {
-  return async (filename: string): Promise<StaticFileInfo> => {
-    const staticRoot = path.resolve(config.staticFolder || '')
-    const filePath = path.resolve(staticRoot, filename.startsWith('/') ? filename.slice(1) : filename)
+const getDirectoryIndexPath = (requestPath: string) =>
+  `${requestPath.replace(/\/$/, '')}/index.html`
 
-    if (!filePath.startsWith(staticRoot + path.sep) && filePath !== staticRoot) {
-      const error = new Error('Forbidden') as NodeJS.ErrnoException
-      error.code = 'ENOENT'
-      throw error
+const getRedirectLocation = (requestPath: string, queryString: string) =>
+  `${requestPath}/${queryString ? `?${queryString}` : ''}`
+
+function* getIndexFallbackPaths(requestPath: string) {
+  const trimmedPath = requestPath.replace(/^\/+|\/+$/g, '')
+  if (!trimmedPath) {
+    yield 'index.html'
+    return
+  }
+
+  const segments = trimmedPath.split('/').filter(Boolean)
+  const directorySegments = requestPath.endsWith('/') ? segments : segments.slice(0, -1)
+
+  for (let i = directorySegments.length; i > 0; i -= 1) {
+    yield `/${directorySegments.slice(0, i).join('/')}/index.html`
+  }
+
+  yield 'index.html'
+}
+
+const resolveStaticFolderRequest = async (
+  {
+    method,
+    requestPath,
+    queryString,
+    accept,
+    staticFolder,
+    getStaticFileFromDisk,
+  }: StaticFolderRequest,
+  log: Logger,
+) => {
+  try {
+    const physicalPath = getPhysicalPath(requestPath)
+    const physicalFile = await tryGetStaticFileFromDisk(getStaticFileFromDisk, physicalPath)
+    if (physicalFile) return { type: 'file' as const, file: physicalFile }
+
+    if (
+      staticFolder.mode === 'filesystem' ||
+      !['GET', 'HEAD'].includes(method ?? '') ||
+      !acceptsHtml(accept)
+    ) {
+      return { type: 'notFound' as const }
     }
 
-    const mimeType = mime.getType(filePath) || 'application/octet-stream'
-    const isText = mimeType.startsWith('text/') || mimeType === 'application/json'
+    const lastSegment = getLastSegment(requestPath)
+    const shouldCheckDirectoryIndex =
+      requestPath !== '/' && !requestPath.endsWith('/') && !lastSegment.includes('.')
 
-    const content = await fs.readFile(filePath, isText ? 'utf8' : undefined)
+    if (shouldCheckDirectoryIndex) {
+      const directoryIndexPath = getDirectoryIndexPath(requestPath)
+      const directoryIndex = await tryGetStaticFileFromDisk(
+        getStaticFileFromDisk,
+        directoryIndexPath,
+      )
+      if (directoryIndex) {
+        return {
+          type: 'redirect' as const,
+          location: getRedirectLocation(requestPath, queryString),
+        }
+      }
+    }
+
+    for (const fallbackPath of getIndexFallbackPaths(requestPath)) {
+      const fallbackFile = await tryGetStaticFileFromDisk(getStaticFileFromDisk, fallbackPath)
+      if (fallbackFile) return { type: 'file' as const, file: fallbackFile }
+    }
+
+    return { type: 'notFound' as const }
+  } catch (error) {
+    log.info('Error resolving static folder request')
+    log.error(error)
+    throw error
+  }
+}
+
+export const createStaticFolderHandler =
+  (log: Logger) =>
+  async (res: ServerResponse<IncomingMessage>, request: StaticFolderRequest, cors: CorsConfig) => {
+    try {
+      const result = await resolveStaticFolderRequest(request, log)
+
+      if (result.type === 'notFound') return handleNotFound(res, cors)
+      if (result.type === 'redirect') {
+        return sendResponse(
+          res,
+          cors,
+        )({
+          statusCode: 301,
+          headers: { Location: result.location },
+        })
+      }
+
+      sendResponse(
+        res,
+        cors,
+      )({
+        statusCode: 200,
+        contentType: result.file.mimeType,
+        body: request.method === 'HEAD' ? undefined : result.file.content,
+      })
+    } catch (error) {
+      log.info('Error handling static folder request on ' + request.requestPath)
+      log.error(error)
+      return isNotFound(error)
+        ? handleNotFound(res, cors)
+        : sendErrorResponse(res, 500, 'Internal Server Error', cors)
+    }
+  }
+
+export const createGetStaticFileFromDisk = (config: Config) => {
+  const staticRoot = path.resolve(getStaticFolderPath(config))
+  let staticRootRealPathPromise: Promise<string> | null = null
+
+  const getStaticRootRealPath = () => {
+    staticRootRealPathPromise = staticRootRealPathPromise ?? fs.realpath(staticRoot)
+    return staticRootRealPathPromise
+  }
+
+  return async (filename: string): Promise<StaticFileInfo> => {
+    const filePath = path.resolve(
+      staticRoot,
+      filename.startsWith('/') ? filename.slice(1) : filename,
+    )
+
+    const [staticRootRealPath, fileRealPath] = await Promise.all([
+      getStaticRootRealPath(),
+      fs.realpath(filePath),
+    ])
+
+    if (!isPathInsideRoot(staticRootRealPath, fileRealPath)) throw createNotFoundError()
+
+    const mimeType = mime.getType(fileRealPath) || 'application/octet-stream'
+    let content: Buffer
+    try {
+      content = await fs.readFile(fileRealPath)
+    } catch (e) {
+      if ((e as NodeJS.ErrnoException).code === 'EISDIR') throw createNotFoundError()
+      throw e
+    }
 
     return {
       content,
       mimeType,
     }
+    // } catch (error) {
+    //   log.error('Error reading static file from disk', { error, filename })
+    //   throw error
+    // }
   }
 }

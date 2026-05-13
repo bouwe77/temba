@@ -1,5 +1,5 @@
 import request from 'supertest'
-import { beforeAll, describe, expect, test } from 'vitest'
+import { beforeAll, describe, expect, test, vi } from 'vitest'
 import type { RequestInterceptor } from '../../../src/requestInterceptor/types'
 import { createServer } from '../createServer'
 
@@ -44,17 +44,25 @@ describe('requestInterceptor error handling', () => {
     },
     { method: 'delete', path: '/movies/test-id', body: undefined, expectedError: 'DELETE error' },
   ])('$method interceptor exception returns 500', async ({ method, path, body, expectedError }) => {
+    const errorSpy = vi.spyOn(console, 'error')
     let req = createRequest(tembaServer)[method](path)
 
     if (body) req = req.send(body)
 
-    const response = await req
+    try {
+      const response = await req
 
-    expect(response.statusCode).toEqual(500)
-    expect(response.body).toEqual({ message: expectedError })
+      expect(response.statusCode).toEqual(500)
+      expect(response.body).toEqual({ message: expectedError })
+      expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('ERROR - Error handling request'))
+      expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining(expectedError))
+    } finally {
+      errorSpy.mockRestore()
+    }
   })
 
   test('Async interceptor exception returns 500', async () => {
+    const errorSpy = vi.spyOn(console, 'error')
     const asyncInterceptor: RequestInterceptor = {
       post: async () => {
         await new Promise((resolve) => setTimeout(resolve, 10))
@@ -63,13 +71,20 @@ describe('requestInterceptor error handling', () => {
     }
     const server = await createServer({ requestInterceptor: asyncInterceptor })
 
-    const response = await request(server).post('/movies').send({ title: 'Test' })
+    try {
+      const response = await request(server).post('/movies').send({ title: 'Test' })
 
-    expect(response.statusCode).toEqual(500)
-    expect(response.body).toEqual({ message: 'Async operation failed' })
+      expect(response.statusCode).toEqual(500)
+      expect(response.body).toEqual({ message: 'Async operation failed' })
+      expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('ERROR - Error handling request'))
+      expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('Async operation failed'))
+    } finally {
+      errorSpy.mockRestore()
+    }
   })
 
   test('TypeError in interceptor returns 500', async () => {
+    const errorSpy = vi.spyOn(console, 'error')
     const typeErrorInterceptor: RequestInterceptor = {
       // @ts-expect-error -- we want to test a runtime TypeError ---
       get: () => {
@@ -80,9 +95,15 @@ describe('requestInterceptor error handling', () => {
     }
     const server = await createServer({ requestInterceptor: typeErrorInterceptor })
 
-    const response = await request(server).get('/movies')
+    try {
+      const response = await request(server).get('/movies')
 
-    expect(response.statusCode).toEqual(500)
-    expect(response.body.message).toContain('Cannot read')
+      expect(response.statusCode).toEqual(500)
+      expect(response.body.message).toContain('Cannot read')
+      expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('ERROR - Error handling request'))
+      expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('Cannot read'))
+    } finally {
+      errorSpy.mockRestore()
+    }
   })
 })

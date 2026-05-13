@@ -1,5 +1,5 @@
 import request from 'supertest'
-import { beforeEach, describe, expect, test } from 'vitest'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { createServer } from './createServer'
 
 describe('responseBodyInterceptor unusual (but allowed) implementations', () => {
@@ -41,15 +41,22 @@ describe('responseBodyInterceptor unusual (but allowed) implementations', () => 
   )
 
   test('When responseBodyInterceptor throws an exception, return a 500 status with error details', async () => {
+    const errorSpy = vi.spyOn(console, 'error')
     const tembaServer = await createServer({
       responseBodyInterceptor: () => {
         throw new Error('Something went wrong')
       },
     })
 
-    const response = await request(tembaServer).get('/stuff')
-    expect(response.statusCode).toEqual(500)
-    expect(response.body.message).toEqual(`Something went wrong`)
+    try {
+      const response = await request(tembaServer).get('/stuff')
+      expect(response.statusCode).toEqual(500)
+      expect(response.body.message).toEqual(`Something went wrong`)
+      expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('ERROR - Error handling request'))
+      expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('Something went wrong'))
+    } finally {
+      errorSpy.mockRestore()
+    }
   })
 
   test('When responseBodyInterceptor does not return an object or array, still return the intercepted value', async () => {

@@ -3,6 +3,7 @@ import { parse } from 'url'
 import type { Config } from './config'
 import type { Queries } from './data/types'
 import { prepareFilter, validateFilter, type Filter, type NestedFilter } from './filtering/filter'
+import type { Logger } from './log/logger'
 import { parseQueryString } from './queryStrings/parseQueryString'
 import { getRequestHandler } from './requestHandlers'
 import type {
@@ -141,6 +142,7 @@ export const createResourceHandler = async (
   schemas: CompiledSchemas,
   config: Config,
   broadcast: BroadcastFunction | null,
+  log: Logger,
 ) => {
   const getUrlInfo = (baseUrl: string) => {
     const url = config.apiPrefix ? baseUrl.replace(config.apiPrefix, '') : baseUrl
@@ -264,7 +266,7 @@ export const createResourceHandler = async (
     sendResponse(httpResponse, config.cors)(response)
   }
 
-  const requestHandler = await getRequestHandler(queries, schemas, config, broadcast)
+  const requestHandler = await getRequestHandler(queries, schemas, config, broadcast, log)
 
   const getHandler = async (
     httpRequest: IncomingMessage,
