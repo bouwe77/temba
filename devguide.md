@@ -2,6 +2,12 @@
 
 Notes to self and contributors on how to develop and release Temba.
 
+This repo is a monorepo containing the workspaces `packages/cli`, `packages/temba`, `docs`, and `examples`.
+
+> [!IMPORTANT]
+> As this is a monorepo, all commands are always called from the monorepo root folder,
+> and never from a package subfolder.
+
 ## Testing & Linting
 
 You can run these commands directly from the root:
@@ -11,6 +17,46 @@ npm test          # Runs tests for the Temba library
 npm run lint      # Runs linting for the Temba library
 ```
 
+Or combine them in one go:
+
+```bash
+npm run check
+```
+
+## MongoDB E2E testing
+
+To also run the integration tests against a real MongoDB, you need a local MongoDB
+instance running on the default port (27017), then run:
+
+```bash
+npm run test:mongodb
+```
+
+This creates a temporary database, runs all test files marked with `// @mongodb`,
+and drops the database when done.
+
+To mark a test file as relevant for MongoDB testing, add this comment at the top:
+
+```ts
+// @mongodb
+```
+
+## Custom server E2E testing
+
+To run the integration tests against a custom HTTP server (i.e. Temba embedded inside a user-supplied server), run:
+
+```bash
+npm run test:custom-server -w packages/temba
+```
+
+This runs all test files marked with `// @custom-server`.
+
+To mark a test file as relevant for custom server testing, add this comment at the top:
+
+```ts
+// @custom-server
+```
+
 ## Manual E2E testing
 
 If you want to spin up a real API to test the current state of your local Temba code:
@@ -18,6 +64,28 @@ If you want to spin up a real API to test the current state of your local Temba 
 ```bash
 ./create-api-for-quick-test.sh
 ```
+
+## Preview the docs
+
+To preview the docs on localhost run:
+
+```bash
+npm run docs:preview
+```
+
+## Update dependencies
+
+To update dependencies for all workspaces run:
+
+```
+npm run update
+```
+
+## Installing new dependencies
+
+
+npm install <package-name> -w <workspace-path>
+
 
 ## Publishing a new version
 

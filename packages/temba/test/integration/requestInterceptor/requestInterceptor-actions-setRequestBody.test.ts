@@ -1,7 +1,7 @@
-import { describe, test, expect } from 'vitest'
 import request from 'supertest'
-import { createServer } from '../createServer'
+import { describe, expect, test } from 'vitest'
 import type { RequestInterceptor } from '../../../src/requestInterceptor/types'
+import { createServer } from '../createServer'
 
 describe('requestInterceptor with actions.setRequestBody() for overriding request bodies', async () => {
   const requestInterceptor: RequestInterceptor = {

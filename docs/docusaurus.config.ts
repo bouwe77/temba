@@ -1,6 +1,6 @@
-import { themes as prismThemes } from 'prism-react-renderer'
-import type { Config } from '@docusaurus/types'
 import type * as Preset from '@docusaurus/preset-classic'
+import type { Config } from '@docusaurus/types'
+import { themes as prismThemes } from 'prism-react-renderer'
 
 import packageJson from './package.json'
 
@@ -21,7 +21,12 @@ const config: Config = {
   trailingSlash: false,
 
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
+
+  markdown: {
+    hooks: {
+      onBrokenMarkdownLinks: 'warn',
+    },
+  },
 
   customFields: {
     libVersion: packageJson.version,
@@ -55,6 +60,7 @@ const config: Config = {
         entryPoints: ['../packages/temba/src/index.ts'],
         tsconfig: '../packages/temba/tsconfig.json',
         out: 'docs/api',
+        excludeInternal: true,
         sidebar: {
           autoConfiguration: true,
           pretty: true,
@@ -72,7 +78,6 @@ const config: Config = {
         src: 'img/logo.svg',
       },
       items: [
-        { to: '/docs/documentation', label: 'Documentation', position: 'left' },
         {
           href: 'https://github.com/bouwe77/temba',
           label: 'GitHub',
@@ -87,8 +92,12 @@ const config: Config = {
           title: 'On this site',
           items: [
             {
-              label: 'Documentation',
-              to: '/docs/documentation',
+              label: 'Getting Started',
+              to: '/docs/getting-started',
+            },
+            {
+              label: 'Docs',
+              to: '/docs/overview',
             },
           ],
         },

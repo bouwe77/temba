@@ -2,8 +2,8 @@ import type { Queries } from '../data/types'
 import { etag } from '../etags/etags'
 import { interceptDeleteRequest } from '../requestInterceptor/interceptRequest'
 import type { RequestInterceptor } from '../requestInterceptor/types'
-import type { DeleteRequest } from './types'
 import type { BroadcastFunction } from '../websocket/websocket'
+import type { DeleteRequest } from './types'
 
 export const createDeleteRoutes = (
   queries: Queries,
@@ -13,34 +13,36 @@ export const createDeleteRoutes = (
   broadcast: BroadcastFunction | null,
 ) => {
   const handleDelete = async (req: DeleteRequest) => {
-    const { headers, resource, id } = req
+    const { headers, resource, id, url, filter } = req
+
+    if (filter === 'invalid')
+      return { statusCode: 400, body: { message: 'Malformed filter expression' } }
+    if (id && filter)
+      return {
+        statusCode: 400,
+        body: { message: 'Filtering on a resource by ID is not supported' },
+    }
 
     if (requestInterceptor?.delete) {
-      try {
-        const interceptResult = await interceptDeleteRequest(
-          requestInterceptor.delete,
-          headers,
-          resource,
-          id,
-        )
+      const interceptResult = await interceptDeleteRequest(
+        requestInterceptor.delete,
+        headers,
+        resource,
+        id,
+        url,
+      )
 
-        // If interceptor returned a response action, return immediately
-        if (interceptResult.type === 'response') {
-          return {
-            statusCode: interceptResult.status,
-            body: interceptResult.body,
-          }
-        }
-      } catch (error: unknown) {
+      // If interceptor returned a response action, return immediately
+      if (interceptResult.type === 'response') {
         return {
-          statusCode: 500,
-          body: { message: (error as Error).message },
+          statusCode: interceptResult.status,
+          body: interceptResult.body,
         }
       }
     }
 
     if (id) {
-      const item = await queries.getById(resource, id)
+      const item = await queries.getById({ resource, id })
       if (item) {
         if (etagsEnabled) {
           const itemEtag = etag(JSON.stringify(item))
@@ -54,7 +56,7 @@ export const createDeleteRoutes = (
           }
         }
 
-        await queries.deleteById(resource, id)
+        await queries.deleteById({ resource, id })
 
         // Broadcast to WebSocket clients if enabled
         if (broadcast) {
@@ -78,7 +80,7 @@ export const createDeleteRoutes = (
       }
 
       if (etagsEnabled) {
-        const items = await queries.getAll(resource)
+        const items = await queries.getAll({ resource })
         const etagValue = etag(JSON.stringify(items))
         if (req.etag !== etagValue) {
           return {
@@ -90,7 +92,11 @@ export const createDeleteRoutes = (
         }
       }
 
-      await queries.deleteAll(resource)
+      if (filter) {
+        await queries.deleteByFilter({ resource, filter })
+      } else {
+        await queries.deleteAll({ resource })
+      }
 
       // Broadcast to WebSocket clients if enabled
       if (broadcast) {

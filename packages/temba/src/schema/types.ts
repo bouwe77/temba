@@ -10,16 +10,19 @@ type ConfiguredResourceSchema = {
   patch?: unknown
 }
 
+/** @internal */
 export type ValidateFunctionPerResource = {
   [resource: string]: ValidateFunction<unknown>
 }
 
+/** @internal */
 export type CompiledSchemas = {
   post: ValidateFunctionPerResource
   put: ValidateFunctionPerResource
   patch: ValidateFunctionPerResource
 }
 
+/** @internal */
 export type ValidationResult =
   | {
       isValid: false

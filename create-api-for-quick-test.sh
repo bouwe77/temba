@@ -9,8 +9,7 @@ mkdir api-for-quick-testing
 cd api-for-quick-testing
 
 # 3. Create index.js 
-# Path points to ../packages/temba/dist/src/index.js
-echo "import { create } from '../packages/temba/dist/src/index.js'
+echo "import { create } from '../packages/temba/dist/index.js'
 
 const server = await create({
   port: 4321,

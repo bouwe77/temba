@@ -1,9 +1,8 @@
-import type { Config } from '../config'
 import type { IncomingMessage, ServerResponse } from 'http'
-import { handleNotFound } from '../responseHandler'
-import { getSpec } from './spec'
+import type { Config } from '../config'
+import { handleNotFound, sendResponse } from '../responseHandler'
 import { getOpenApiHtml } from './html'
-import { sendResponse } from '../responseHandler'
+import { getSpec } from './spec'
 
 export const getOpenApiPaths = (rootPath: string) => {
   return [
@@ -17,7 +16,7 @@ export const getOpenApiPaths = (rootPath: string) => {
 export const createOpenApiHandler = (config: Config, requestUrl: string, requestHost: string) => {
   const openApiHandler = async (res: ServerResponse<IncomingMessage>) => {
     if (!config.openapi) {
-      return handleNotFound(res)
+      return handleNotFound(res, config.cors)
     }
 
     const format =
@@ -36,7 +35,7 @@ export const createOpenApiHandler = (config: Config, requestUrl: string, request
     const body =
       format === 'html' ? getOpenApiHtml() : getSpec(config, { format, host: requestHost })
 
-    sendResponse(res)({
+    sendResponse(res, config.cors)({
       statusCode: 200,
       contentType: contentType,
       body,

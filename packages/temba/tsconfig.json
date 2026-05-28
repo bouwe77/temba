@@ -17,6 +17,7 @@
     "module": "ES2015",
     "moduleResolution": "Bundler",
     "outDir": "dist",
+    "rootDir": "./src",
     "sourceMap": true,
 
     /* If your code doesn't run in the DOM: */

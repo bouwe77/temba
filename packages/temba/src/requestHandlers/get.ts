@@ -15,7 +15,15 @@ export const createGetRoutes = (
   etagsEnabled: boolean,
 ) => {
   const handleGet = async (req: GetRequest) => {
-    const { headers, resource, id, ifNoneMatchEtag } = req
+    const { headers, resource, id, url, ifNoneMatchEtag, filter } = req
+
+    if (filter === 'invalid')
+      return { statusCode: 400, body: { message: 'Malformed filter expression' } }
+    if (id && filter)
+      return {
+        statusCode: 400,
+        body: { message: 'Filtering on a resource by ID is not supported' },
+      }
 
     const responseOk = (body: Body) => {
       if (!etagsEnabled) return { statusCode: 200, body }
@@ -26,32 +34,26 @@ export const createGetRoutes = (
         : { statusCode: 200, body, headers: { etag } }
     }
 
-    if (req.method === 'get' && requestInterceptor?.get) {
-      try {
-        const interceptResult = await interceptGetRequest(
-          requestInterceptor.get,
-          headers,
-          resource,
-          id,
-        )
+    if (requestInterceptor?.get) {
+      const interceptResult = await interceptGetRequest(
+        requestInterceptor.get,
+        headers,
+        resource,
+        id,
+        url,
+      )
 
-        // If interceptor returned a response action, return immediately
-        if (interceptResult.type === 'response') {
-          return {
-            statusCode: interceptResult.status,
-            body: interceptResult.body,
-          }
-        }
-      } catch (error: unknown) {
+      // If interceptor returned a response action, return immediately
+      if (interceptResult.type === 'response') {
         return {
-          statusCode: 500,
-          body: { message: (error as Error).message },
+          statusCode: interceptResult.status,
+          body: interceptResult.body,
         }
       }
     }
 
     if (id) {
-      const item = await queries.getById(resource, id)
+      const item = await queries.getById({ resource, id })
 
       if (!item) {
         return { statusCode: 404 }
@@ -74,7 +76,9 @@ export const createGetRoutes = (
       return responseOk(theItem)
     }
 
-    const items = await queries.getAll(resource)
+    const items = filter
+      ? await queries.getByFilter({ resource, filter })
+      : await queries.getAll({ resource })
 
     const theItems = responseBodyInterceptor
       ? await interceptResponseBody(responseBodyInterceptor, { resource, body: items })

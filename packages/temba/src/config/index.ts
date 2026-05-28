@@ -1,9 +1,50 @@
-import type { ConfiguredSchemas } from '../schema/types'
+import type { Implementations } from '../implementations'
 import type { RequestInterceptor } from '../requestInterceptor/types'
 import type { ResponseBodyInterceptor } from '../responseBodyInterceptor/types'
-import type { Implementations } from '../implementations'
+import type { ConfiguredSchemas } from '../schema/types'
 
 type ResourcePath = string
+
+export type DataSourceConfig =
+  /** In-memory storage — data is lost on restart */
+  | { type: 'memory' }
+  /** Single JSON file on disk — all resources stored in one file */
+  | { type: 'file'; filename: string }
+  /** Folder of JSON files on disk — one file per resource */
+  | { type: 'folder'; folder: string }
+  /** MongoDB database */
+  | {
+      type: 'mongodb'
+      uri: string
+      /** Username for authentication (alternative to embedding in URI) */
+      username?: string
+      /** Password for authentication (alternative to embedding in URI) */
+      password?: string
+      /** Authentication database, defaults to 'admin' */
+      authSource?: string
+      /** Enable TLS/SSL */
+      tls?: boolean
+      /** Path to the CA certificate file */
+      tlsCAFile?: string
+      /** Path to the client certificate/key file */
+      tlsCertificateKeyFile?: string
+      /** Allow invalid TLS certificates (not recommended for production) */
+      tlsAllowInvalidCertificates?: boolean
+      /** Maximum number of connections in the connection pool */
+      maxPoolSize?: number
+      /** Minimum number of connections in the connection pool */
+      minPoolSize?: number
+      /** Timeout (ms) for server selection */
+      serverSelectionTimeoutMS?: number
+      /** Timeout (ms) for initial connection */
+      connectTimeoutMS?: number
+      /** Replica set name */
+      replicaSet?: string
+      /** Read preference (e.g. 'primary', 'secondary', 'nearest') */
+      readPreference?: string
+      /** Write concern (e.g. 'majority') */
+      writeConcern?: string
+    }
 
 type ExtendedResource = {
   resourcePath: ResourcePath
@@ -15,15 +56,57 @@ type Resources = (ResourcePath | ExtendedResource)[]
 
 type OpenApiConfig = boolean | Record<string, unknown>
 
+export type StaticFolderMode = 'spa' | 'filesystem'
+
+export type StaticFolderConfig = {
+  path: string
+  mode: StaticFolderMode
+}
+
+export type UserStaticFolderConfig =
+  | string
+  | {
+      path: string
+      mode?: StaticFolderMode
+    }
+
+/** @internal */
+export type RateLimitConfig = {
+  max: number
+  windowMs: number
+  trustProxy: boolean
+}
+
+export type UserRateLimitConfig = false | { max?: number; windowMs?: number; trustProxy?: boolean }
+
+/** @internal */
+export type CorsConfig = {
+  origin: string
+  methods: string
+  headers: string
+  credentials: boolean
+  exposeHeaders: string | null
+  maxAge: number | null
+}
+
+export type UserCorsConfig = {
+  origin?: string
+  methods?: string
+  headers?: string
+  credentials?: boolean
+  exposeHeaders?: string
+  maxAge?: number
+}
+
+/** @internal */
 export type Config = {
   validateResources: boolean
   resources: Resources
   apiPrefix: string | null
   requestInterceptor: RequestInterceptor | null
   responseBodyInterceptor: ResponseBodyInterceptor | null
-  staticFolder: string | null
-  connectionString: string | null
-  delay: number
+  staticFolder: StaticFolderConfig | null
+  connectionString: string | DataSourceConfig | null
   returnNullFields: boolean
   port: number
   schemas: ConfiguredSchemas | null
@@ -31,19 +114,21 @@ export type Config = {
   etagsEnabled: boolean
   openapi: OpenApiConfig
   webSocket: boolean
+  cors: CorsConfig
+  rateLimit: RateLimitConfig | false
 
   isTesting: boolean
   implementations: Implementations | null
 }
 
+/** @internal */
 export type ConfigKey = keyof Config
 
 export type UserConfig = {
   resources?: Resources
-  staticFolder?: string
+  staticFolder?: UserStaticFolderConfig
   apiPrefix?: string
-  connectionString?: string
-  delay?: number
+  connectionString?: string | DataSourceConfig
   requestInterceptor?: RequestInterceptor
   responseBodyInterceptor?: ResponseBodyInterceptor
   returnNullFields?: boolean
@@ -53,10 +138,12 @@ export type UserConfig = {
   etags?: boolean
   openapi?: OpenApiConfig
   webSocket?: boolean
+  cors?: UserCorsConfig
+  rateLimit?: UserRateLimitConfig
 
   // Use isTesting when running tests that don't require a started server.
   isTesting?: boolean
-  // Override implementation in when testing.
+  /** @internal Override implementations when testing. */
   implementations?: Implementations
 }
 
@@ -66,7 +153,6 @@ const defaultConfig: Config = {
   staticFolder: null,
   apiPrefix: null,
   connectionString: null,
-  delay: 0,
   requestInterceptor: null,
   responseBodyInterceptor: null,
   returnNullFields: true,
@@ -76,6 +162,15 @@ const defaultConfig: Config = {
   etagsEnabled: false,
   openapi: true,
   webSocket: false,
+  rateLimit: { max: 100, windowMs: 60_000, trustProxy: false },
+  cors: {
+    origin: '*',
+    methods: 'GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS',
+    headers: 'Content-Type, X-Token',
+    credentials: false,
+    exposeHeaders: null,
+    maxAge: null,
+  },
 
   isTesting: false,
   implementations: null,
@@ -92,9 +187,18 @@ export const initConfig = (userConfig?: UserConfig): Config => {
   }
 
   if (userConfig.staticFolder) {
-    const staticFolder = userConfig.staticFolder.replace(/[^a-zA-Z0-9]/g, '')
-    if (staticFolder.length > 0) {
-      config.staticFolder = staticFolder
+    const staticFolderPath =
+      typeof userConfig.staticFolder === 'string'
+        ? userConfig.staticFolder
+        : userConfig.staticFolder.path
+    if (staticFolderPath.trim().length > 0) {
+      config.staticFolder = {
+        path: staticFolderPath,
+        mode:
+          typeof userConfig.staticFolder === 'string'
+            ? 'spa'
+            : (userConfig.staticFolder.mode ?? 'spa'),
+      }
       // To make a clear distinction between static files and API routes
       config.apiPrefix = 'api'
     }
@@ -108,18 +212,8 @@ export const initConfig = (userConfig?: UserConfig): Config => {
       config.apiPrefix = cleanPrefix
     }
   }
-  if (userConfig.connectionString && userConfig.connectionString.length > 0) {
+  if (userConfig.connectionString !== undefined && userConfig.connectionString !== '') {
     config.connectionString = userConfig.connectionString
-  }
-
-  if (
-    userConfig.delay &&
-    userConfig.delay !== 0 &&
-    typeof Number(userConfig.delay) === 'number' &&
-    Number(userConfig.delay) > 0 &&
-    Number(userConfig.delay) < 100000
-  ) {
-    config.delay = userConfig.delay
   }
 
   if (userConfig.requestInterceptor) {
@@ -192,6 +286,23 @@ export const initConfig = (userConfig?: UserConfig): Config => {
 
   if (!isUndefined(userConfig.webSocket)) {
     config.webSocket = userConfig.webSocket
+  }
+
+  if (userConfig.cors) {
+    config.cors = { ...config.cors, ...userConfig.cors }
+  }
+
+  if (!isUndefined(userConfig.rateLimit)) {
+    if (userConfig.rateLimit === false) {
+      config.rateLimit = false
+    } else {
+      const defaults = config.rateLimit as RateLimitConfig
+      config.rateLimit = {
+        max: userConfig.rateLimit.max ?? defaults.max,
+        windowMs: userConfig.rateLimit.windowMs ?? defaults.windowMs,
+        trustProxy: userConfig.rateLimit.trustProxy ?? defaults.trustProxy,
+      }
+    }
   }
 
   return config

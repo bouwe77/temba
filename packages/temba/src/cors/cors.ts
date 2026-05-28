@@ -1,5 +1,23 @@
-export const setCorsHeaders = (res: { setHeader: (key: string, value: string) => void }) => {
-  res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS')
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Token')
+import type { CorsConfig } from '../config'
+
+export const getCorsHeaders = (cors: CorsConfig): Record<string, string> => {
+  const result: Record<string, string> = {
+    'Access-Control-Allow-Origin': cors.origin,
+    'Access-Control-Allow-Methods': cors.methods,
+    'Access-Control-Allow-Headers': cors.headers,
+  }
+
+  if (cors.credentials) {
+    result['Access-Control-Allow-Credentials'] = 'true'
+  }
+
+  if (cors.exposeHeaders !== null) {
+    result['Access-Control-Expose-Headers'] = cors.exposeHeaders
+  }
+
+  if (cors.maxAge !== null) {
+    result['Access-Control-Max-Age'] = String(cors.maxAge)
+  }
+
+  return result
 }

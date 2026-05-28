@@ -4,7 +4,10 @@ import {
   type GetStaticFileFromDisk,
 } from './staticFolder/staticFolder'
 
-// Defines the implementations that can be stubbed out for testing purposes.
+/**
+ * @internal
+ * Defines the implementations that can be stubbed out for testing purposes.
+ */
 export type Implementations = {
   getStaticFileFromDisk: GetStaticFileFromDisk
 }

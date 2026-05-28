@@ -1,5 +1,6 @@
-import { test, describe, expect } from 'vitest'
+// @custom-server
 import request from 'supertest'
+import { describe, expect, test } from 'vitest'
 import { createServer } from './createServer'
 
 /*
@@ -64,5 +65,17 @@ describe('Other methods', () => {
     const response = await request(tembaServer).options('/')
     expect(response.statusCode).toEqual(204)
     expect(JSON.stringify(response.body)).toEqual('{}')
+  })
+})
+
+describe('Query strings on root URL', () => {
+  test('GET /?foo=bar is correctly routed to the root handler', async () => {
+    const response = await request(tembaServer).get('/?foo=bar')
+    expect(response.statusCode).toEqual(200)
+  })
+
+  test('POST /?foo=bar still returns 405 Method Not Allowed', async () => {
+    const response = await request(tembaServer).post('/?foo=bar')
+    expect(response.statusCode).toEqual(405)
   })
 })

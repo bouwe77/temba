@@ -1,9 +1,12 @@
-import { WebSocketServer, WebSocket } from 'ws'
 import type { Server as HttpServer, IncomingMessage } from 'http'
 import { parse } from 'url'
+import { WebSocket, WebSocketServer } from 'ws'
+import type { Logger } from '../log/logger'
 
+/** @internal */
 export type BroadcastAction = 'CREATE' | 'UPDATE' | 'DELETE' | 'DELETE_ALL'
 
+/** @internal */
 export type BroadcastPayload =
   | {
       resource: string
@@ -15,13 +18,14 @@ export type BroadcastPayload =
       action: 'DELETE_ALL'
     }
 
+/** @internal */
 export type BroadcastFunction = (
   resource: string,
   action: BroadcastAction,
   data?: object | { id: string },
 ) => void
 
-export const createWebSocketServer = (httpServer: HttpServer): BroadcastFunction => {
+export const createWebSocketServer = (httpServer: HttpServer, log: Logger): BroadcastFunction => {
   const wss = new WebSocketServer({ noServer: true })
 
   // Handle upgrade requests
@@ -69,7 +73,8 @@ export const createWebSocketServer = (httpServer: HttpServer): BroadcastFunction
       })
     } catch (error) {
       // Log error but don't crash the server if data is non-serializable
-      console.error('Failed to stringify WebSocket payload:', error)
+      log.error('Failed to stringify WebSocket payload')
+      log.error(error)
     }
   }
 

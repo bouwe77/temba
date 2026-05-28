@@ -1,12 +1,12 @@
 import { format } from 'url'
-import { interceptPostRequest } from '../requestInterceptor/interceptRequest'
-import { removeNullFields } from './utils'
-import { validate } from '../schema/validate'
-import type { ValidateFunctionPerResource } from '../schema/types'
-import type { PostRequest } from './types'
 import type { ItemWithoutId, Queries } from '../data/types'
+import { interceptPostRequest } from '../requestInterceptor/interceptRequest'
 import type { RequestInterceptor } from '../requestInterceptor/types'
+import type { ValidateFunctionPerResource } from '../schema/types'
+import { validate } from '../schema/validate'
 import type { BroadcastFunction } from '../websocket/websocket'
+import type { PostRequest } from './types'
+import { removeNullFields } from './utils'
 
 export const createPostRoutes = (
   queries: Queries,
@@ -16,7 +16,7 @@ export const createPostRoutes = (
   broadcast: BroadcastFunction | null,
 ) => {
   const handlePost = async (req: PostRequest) => {
-    const { headers, protocol, host, resource, id } = req
+    const { headers, protocol, host, resource, id, url } = req
     let { body } = req
 
     const validationResult = validate(body, schemas[resource])
@@ -25,33 +25,27 @@ export const createPostRoutes = (
     }
 
     if (requestInterceptor?.post) {
-      try {
-        const interceptResult = await interceptPostRequest(
-          requestInterceptor.post,
-          headers,
-          resource,
-          id,
-          body,
-        )
+      const interceptResult = await interceptPostRequest(
+        requestInterceptor.post,
+        headers,
+        resource,
+        id,
+        body,
+        url,
+      )
 
-        if (interceptResult.type === 'response') {
-          return {
-            statusCode: interceptResult.status,
-            body: interceptResult.body,
-          }
-        }
-
-        body = interceptResult.body ?? body
-      } catch (error: unknown) {
+      if (interceptResult.type === 'response') {
         return {
-          statusCode: 500,
-          body: { message: (error as Error).message },
+          statusCode: interceptResult.status,
+          body: interceptResult.body,
         }
       }
+
+      body = interceptResult.body ?? body
     }
 
     if (id) {
-      const item = await queries.getById(resource, id)
+      const item = await queries.getById({ resource, id })
 
       if (item)
         return {
@@ -62,7 +56,7 @@ export const createPostRoutes = (
         }
     }
 
-    const newItem = await queries.create(resource, id, body as ItemWithoutId)
+    const newItem = await queries.create({ resource, id, item: body as ItemWithoutId })
 
     // Broadcast to WebSocket clients if enabled
     if (broadcast) {

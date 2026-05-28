@@ -1,6 +1,6 @@
-import { test, expect } from 'vitest'
-import { initConfig } from '../../../src/config'
+import { expect, test } from 'vitest'
 import type { Config } from '../../../src/config'
+import { initConfig } from '../../../src/config'
 
 const defaultConfig: Config = {
   resources: [],
@@ -8,7 +8,6 @@ const defaultConfig: Config = {
   staticFolder: null,
   apiPrefix: null,
   connectionString: null,
-  delay: 0,
   requestInterceptor: null,
   responseBodyInterceptor: null,
   returnNullFields: true,
@@ -18,6 +17,15 @@ const defaultConfig: Config = {
   etagsEnabled: false,
   openapi: true,
   webSocket: false,
+  rateLimit: { max: 100, windowMs: 60_000, trustProxy: false },
+  cors: {
+    origin: '*',
+    methods: 'GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS',
+    headers: 'Content-Type, X-Token',
+    credentials: false,
+    exposeHeaders: null,
+    maxAge: null,
+  },
 
   isTesting: false,
   implementations: null,
@@ -31,7 +39,6 @@ test('No config returns default config', () => {
   expect(initializedConfig.staticFolder).toBe(defaultConfig.staticFolder)
   expect(initializedConfig.apiPrefix).toBe(defaultConfig.apiPrefix)
   expect(initializedConfig.connectionString).toBe(defaultConfig.connectionString)
-  expect(initializedConfig.delay).toBe(defaultConfig.delay)
   expect(initializedConfig.requestInterceptor?.get).toBe(defaultConfig.requestInterceptor?.get)
   expect(initializedConfig.requestInterceptor?.post).toBe(defaultConfig.requestInterceptor?.post)
   expect(initializedConfig.requestInterceptor?.patch).toBe(defaultConfig.requestInterceptor?.patch)
@@ -47,6 +54,8 @@ test('No config returns default config', () => {
   expect(initializedConfig.etagsEnabled).toBe(defaultConfig.etagsEnabled)
   expect(initializedConfig.openapi).toBe(defaultConfig.openapi)
   expect(initializedConfig.webSocket).toBe(defaultConfig.webSocket)
+  expect(initializedConfig.rateLimit).toEqual(defaultConfig.rateLimit)
+  expect(initializedConfig.cors).toEqual(defaultConfig.cors)
   expect(initializedConfig.isTesting).toBe(defaultConfig.isTesting)
   expect(initializedConfig.implementations).toBe(defaultConfig.implementations)
 })
@@ -57,7 +66,6 @@ test('Full user config overrides all defaults', () => {
     staticFolder: 'build',
     apiPrefix: 'stuff',
     connectionString: 'mongodb://localhost:27017',
-    delay: 1000,
     requestInterceptor: {
       get: () => {
         // do nothing
@@ -97,19 +105,19 @@ test('Full user config overrides all defaults', () => {
     etags: true,
     openapi: true,
     webSocket: true,
+    cors: { origin: 'https://example.com' },
     isTesting: true,
     implementations: {
       getStaticFileFromDisk: () =>
-        Promise.resolve({ content: 'Hello, World!', mimeType: 'text/plain' }),
+        Promise.resolve({ content: Buffer.from('Hello, World!'), mimeType: 'text/plain' }),
     },
   })
 
   expect(config.resources).toEqual(['movies'])
   expect(config.validateResources).toBe(true)
-  expect(config.staticFolder).toBe('build')
+  expect(config.staticFolder).toEqual({ path: 'build', mode: 'spa' })
   expect(config.apiPrefix).toBe('stuff')
   expect(config.connectionString).toBe('mongodb://localhost:27017')
-  expect(config.delay).toBe(1000)
   expect(config.requestInterceptor!.get).toBeInstanceOf(Function)
   expect(config.requestInterceptor!.post).toBeInstanceOf(Function)
   expect(config.requestInterceptor!.patch).toBeInstanceOf(Function)
@@ -123,6 +131,15 @@ test('Full user config overrides all defaults', () => {
   expect(config.etagsEnabled).toBe(true)
   expect(config.openapi).toBe(true)
   expect(config.webSocket).toBe(true)
+  expect(config.rateLimit).toEqual({ max: 100, windowMs: 60_000, trustProxy: false })
+  expect(config.cors).toEqual({
+    origin: 'https://example.com',
+    methods: 'GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS',
+    headers: 'Content-Type, X-Token',
+    credentials: false,
+    exposeHeaders: null,
+    maxAge: null,
+  })
 
   expect(config.isTesting).toBe(true)
   expect(config.implementations).not.toBeNull()
@@ -141,7 +158,6 @@ test('Partial user config applies those, but leaves the rest at default', () => 
   expect(config.staticFolder).toBe(defaultConfig.staticFolder)
   expect(config.apiPrefix).toBe(defaultConfig.apiPrefix)
   expect(config.connectionString).toBe(defaultConfig.connectionString)
-  expect(config.delay).toBe(defaultConfig.delay)
   expect(config.requestInterceptor?.get).toBe(defaultConfig.requestInterceptor?.get)
   expect(config.requestInterceptor?.post).toBe(defaultConfig.requestInterceptor?.post)
   expect(config.requestInterceptor?.patch).toBe(defaultConfig.requestInterceptor?.patch)
@@ -154,6 +170,8 @@ test('Partial user config applies those, but leaves the rest at default', () => 
   expect(config.etagsEnabled).toBe(defaultConfig.etagsEnabled)
   expect(config.openapi).toBe(defaultConfig.openapi)
   expect(config.webSocket).toBe(defaultConfig.webSocket)
+  expect(config.rateLimit).toEqual(defaultConfig.rateLimit)
+  expect(config.cors).toEqual(defaultConfig.cors)
   expect(config.isTesting).toBe(defaultConfig.isTesting)
   expect(config.implementations).toBe(defaultConfig.implementations)
 })
@@ -200,7 +218,34 @@ test("Configuring staticFolder sets apiPrefix to 'api'", () => {
     staticFolder: 'dist',
   })
 
-  expect(config.staticFolder).toBe('dist')
+  expect(config.staticFolder).toEqual({ path: 'dist', mode: 'spa' })
+  expect(config.apiPrefix).toBe('api')
+})
+
+test('Configuring staticFolder with a path object defaults to spa mode', () => {
+  const config = initConfig({
+    staticFolder: { path: 'dist' },
+  } as never)
+
+  expect(config.staticFolder).toEqual({ path: 'dist', mode: 'spa' })
+  expect(config.apiPrefix).toBe('api')
+})
+
+test('Configuring staticFolder with filesystem mode preserves the mode', () => {
+  const config = initConfig({
+    staticFolder: { path: 'dist', mode: 'filesystem' },
+  } as never)
+
+  expect(config.staticFolder).toEqual({ path: 'dist', mode: 'filesystem' })
+  expect(config.apiPrefix).toBe('api')
+})
+
+test('Configuring staticFolder with spa mode preserves the mode', () => {
+  const config = initConfig({
+    staticFolder: { path: 'dist', mode: 'spa' },
+  } as never)
+
+  expect(config.staticFolder).toEqual({ path: 'dist', mode: 'spa' })
   expect(config.apiPrefix).toBe('api')
 })
 
@@ -223,14 +268,33 @@ test('apiPrefix with only special characters is ignored (remains null)', () => {
   expect(config.apiPrefix).toBeNull()
 })
 
-test('staticFolder with only special characters is ignored', () => {
+test.each(['./dist', 'dist/client', 'my-app', './_/'])(
+  'staticFolder preserves filesystem path characters for %s',
+  (staticFolder) => {
+    const config = initConfig({
+      staticFolder,
+    })
+
+    expect(config.staticFolder).toEqual({ path: staticFolder, mode: 'spa' })
+    expect(config.apiPrefix).toBe('api')
+  },
+)
+
+test('staticFolder object preserves filesystem path characters and mode', () => {
   const config = initConfig({
-    // This resolves to "" and should be ignored
-    staticFolder: './_/',
+    staticFolder: { path: './dist/client', mode: 'filesystem' },
+  } as never)
+
+  expect(config.staticFolder).toEqual({ path: './dist/client', mode: 'filesystem' })
+  expect(config.apiPrefix).toBe('api')
+})
+
+test.each(['', '   '])('staticFolder ignores empty path %j', (staticFolder) => {
+  const config = initConfig({
+    staticFolder,
   })
 
   expect(config.staticFolder).toBeNull()
-  // Since staticFolder was ignored, it never triggered the "api" default
   expect(config.apiPrefix).toBeNull()
 })
 
@@ -240,7 +304,7 @@ test('Invalid apiPrefix does NOT overwrite the default "api" set by staticFolder
     apiPrefix: '/_/', // Invalid input
   })
 
-  expect(config.staticFolder).toBe('public')
+  expect(config.staticFolder).toEqual({ path: 'public', mode: 'spa' })
   // The invalid input is ignored, preserving the 'api' default
   expect(config.apiPrefix).toBe('api')
 })
@@ -251,7 +315,100 @@ test('Valid apiPrefix correctly overrides the "api" default', () => {
     apiPrefix: 'v1', // Valid input
   })
 
-  expect(config.staticFolder).toBe('public')
+  expect(config.staticFolder).toEqual({ path: 'public', mode: 'spa' })
   // The valid input overwrites 'api'
   expect(config.apiPrefix).toBe('v1')
+})
+
+test('No cors config defaults to the built-in values', () => {
+  const config = initConfig()
+  expect(config.cors).toEqual({
+    origin: '*',
+    methods: 'GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS',
+    headers: 'Content-Type, X-Token',
+    credentials: false,
+    exposeHeaders: null,
+    maxAge: null,
+  })
+})
+
+test('Partial cors config merges with defaults', () => {
+  const config = initConfig({ cors: { origin: 'https://myapp.com' } })
+  expect(config.cors).toEqual({
+    origin: 'https://myapp.com',
+    methods: 'GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS',
+    headers: 'Content-Type, X-Token',
+    credentials: false,
+    exposeHeaders: null,
+    maxAge: null,
+  })
+})
+
+test('Full cors config is applied', () => {
+  const config = initConfig({
+    cors: {
+      origin: 'https://myapp.com',
+      methods: 'GET, POST',
+      headers: 'Content-Type, Authorization',
+      credentials: true,
+      exposeHeaders: 'ETag, X-Token',
+      maxAge: 86400,
+    },
+  })
+  expect(config.cors).toEqual({
+    origin: 'https://myapp.com',
+    methods: 'GET, POST',
+    headers: 'Content-Type, Authorization',
+    credentials: true,
+    exposeHeaders: 'ETag, X-Token',
+    maxAge: 86400,
+  })
+})
+
+test('connectionString as DataSourceConfig { type: memory } is passed through', () => {
+  const config = initConfig({ connectionString: { type: 'memory' } })
+  expect(config.connectionString).toEqual({ type: 'memory' })
+})
+
+test('connectionString as DataSourceConfig { type: file } is passed through', () => {
+  const config = initConfig({ connectionString: { type: 'file', filename: 'data.json' } })
+  expect(config.connectionString).toEqual({ type: 'file', filename: 'data.json' })
+})
+
+test('connectionString as DataSourceConfig { type: folder } is passed through', () => {
+  const config = initConfig({ connectionString: { type: 'folder', folder: 'mydata' } })
+  expect(config.connectionString).toEqual({ type: 'folder', folder: 'mydata' })
+})
+
+test('connectionString as DataSourceConfig { type: mongodb } with uri only is passed through', () => {
+  const config = initConfig({ connectionString: { type: 'mongodb', uri: 'mongodb://localhost:27017/mydb' } })
+  expect(config.connectionString).toEqual({ type: 'mongodb', uri: 'mongodb://localhost:27017/mydb' })
+})
+
+test('connectionString as DataSourceConfig { type: mongodb } with all options is passed through', () => {
+  const mongoConfig = {
+    type: 'mongodb' as const,
+    uri: 'mongodb://localhost:27017/mydb',
+    username: 'admin',
+    password: 'secret',
+    authSource: 'admin',
+    tls: true,
+    tlsCAFile: '/certs/ca.pem',
+    tlsCertificateKeyFile: '/certs/client.pem',
+    tlsAllowInvalidCertificates: false,
+    maxPoolSize: 10,
+    minPoolSize: 2,
+    serverSelectionTimeoutMS: 5000,
+    connectTimeoutMS: 3000,
+    replicaSet: 'rs0',
+    readPreference: 'secondary',
+    writeConcern: 'majority',
+  }
+  const config = initConfig({ connectionString: mongoConfig })
+  expect(config.connectionString).toEqual(mongoConfig)
+})
+
+test('connectionString as an empty string leaves it at null (unchanged default)', () => {
+  const config = initConfig({ connectionString: '' })
+  expect(config.connectionString).toBeNull()
 })

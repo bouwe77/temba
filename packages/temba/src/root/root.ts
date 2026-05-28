@@ -1,14 +1,13 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { handleMethodNotAllowed } from '../responseHandler'
-import { version } from '../version'
-import { getHtml } from './html'
 import type { Config } from '../config'
 import { sendResponse } from '../responseHandler'
+import { version } from '../version'
+import { getHtml } from './html'
 
 const title = 'My API'
 
-const text = (res: ServerResponse<IncomingMessage>) =>
-  sendResponse(res)({
+const text = (res: ServerResponse<IncomingMessage>, config: Config) =>
+  sendResponse(res, config.cors)({
     statusCode: 200,
     contentType: 'text/plain',
     body: `${title}\n\nPowered by Temba ${version}`,
@@ -28,7 +27,7 @@ const html = (res: ServerResponse<IncomingMessage>, config: Config) => {
     }),
   })
 
-  sendResponse(res)({
+  sendResponse(res, config.cors)({
     statusCode: 200,
     contentType: 'text/html',
     body: html,
@@ -37,9 +36,7 @@ const html = (res: ServerResponse<IncomingMessage>, config: Config) => {
 
 export const createRootUrlHandler =
   (config: Config) => (req: IncomingMessage, res: ServerResponse<IncomingMessage>) => {
-    if (req.method !== 'GET') return handleMethodNotAllowed(res)
-
     if (req.headers.accept?.includes('text/html')) return html(res, config)
 
-    return text(res)
+    return text(res, config)
   }

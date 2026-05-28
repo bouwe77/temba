@@ -1,7 +1,7 @@
-import { test, expect, describe } from 'vitest'
 import request from 'supertest'
-import { createServer } from '../createServer'
+import { describe, expect, test } from 'vitest'
 import { RequestInterceptor } from '../../../src/requestInterceptor/types'
+import { createServer } from '../createServer'
 
 type Movie = { title: string }
 
@@ -120,8 +120,9 @@ describe('requestInterceptor async support', () => {
     }
 
     const requestInterceptor: RequestInterceptor = {
-      get: async ({ resource }) => {
-        const hasAccess = await validateAccess(resource)
+      get: async (request) => {
+        if (request.type !== 'resource') return
+        const hasAccess = await validateAccess(request.resource)
         if (!hasAccess) {
           throw new Error('Access denied')
         }

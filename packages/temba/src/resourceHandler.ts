@@ -1,6 +1,11 @@
 import type { IncomingMessage, ServerResponse } from 'http'
+import { parse } from 'url'
+import type { Config } from './config'
+import type { Queries } from './data/types'
+import { prepareFilter, validateFilter, type Filter, type NestedFilter } from './filtering/filter'
+import type { Logger } from './log/logger'
+import { parseQueryString } from './queryStrings/parseQueryString'
 import { getRequestHandler } from './requestHandlers'
-import { parseUrl } from './urls/urlParser'
 import type {
   Body,
   DeleteRequest,
@@ -10,10 +15,9 @@ import type {
   RequestInfo,
   TembaRequest,
 } from './requestHandlers/types'
-import type { Config } from './config'
 import { sendErrorResponse, sendResponse, type Response } from './responseHandler'
-import type { Queries } from './data/types'
 import type { CompiledSchemas } from './schema/types'
+import { parseUrl } from './urls/urlParser'
 import type { BroadcastFunction } from './websocket/websocket'
 
 type RequestValidationError = {
@@ -41,13 +45,57 @@ const validateIdInRequestBodyNotAllowed = (requestInfo: RequestInfo) => {
     : requestInfo
 }
 
+const hasMalformedBrackets = (queryString: string): boolean => {
+  let depth = 0
+  for (const char of queryString) {
+    if (char === '[') depth++
+    else if (char === ']') depth--
+    if (depth < 0) return true
+  }
+  return depth !== 0
+}
+
+const hasInvalidRegex = (node: NestedFilter): boolean => {
+  for (const [key, value] of Object.entries(node)) {
+    if (key === 'regex' && typeof value === 'string') {
+      try {
+        new RegExp(value)
+      } catch {
+        return true
+      }
+    } else if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+      if (hasInvalidRegex(value as NestedFilter)) return true
+    }
+  }
+  return false
+}
+
+const getFilter = (queryString: string | null): Filter | null | 'invalid' => {
+  if (!queryString) return null
+
+  if (hasMalformedBrackets(queryString)) return 'invalid'
+
+  const parsedQueryString = parseQueryString(queryString)
+  const result = validateFilter(parsedQueryString)
+
+  if (result === 'valid') {
+    const prepared = prepareFilter(parsedQueryString as Filter)
+    if (hasInvalidRegex(prepared.filter)) return 'invalid'
+    return prepared
+  }
+  if (result === 'invalid') return 'invalid'
+  return null
+}
+
 const convertToGetRequest = (requestInfo: RequestInfo) => {
   return {
     headers: requestInfo.headers,
     id: requestInfo.id,
     resource: requestInfo.resource,
+    url: requestInfo.url,
     method: requestInfo.method.toUpperCase() === 'HEAD' ? 'head' : 'get',
     ifNoneMatchEtag: requestInfo.ifNoneMatchEtag,
+    filter: getFilter(requestInfo.queryString),
   } satisfies GetRequest
 }
 
@@ -56,6 +104,7 @@ const convertToPostRequest = (requestInfo: RequestInfo) => {
     headers: requestInfo.headers,
     id: requestInfo.id ?? null,
     resource: requestInfo.resource,
+    url: requestInfo.url,
     body: requestInfo.body ?? {},
     protocol: requestInfo.protocol,
     host: requestInfo.host,
@@ -67,6 +116,7 @@ const convertToPutRequest = (requestInfo: RequestInfo) => {
     headers: requestInfo.headers,
     id: requestInfo.id!,
     resource: requestInfo.resource,
+    url: requestInfo.url,
     body: requestInfo.body ?? {},
     etag: requestInfo.etag ?? null,
   } satisfies PutRequest
@@ -79,7 +129,9 @@ const convertToDeleteRequest = (requestInfo: RequestInfo) => {
     headers: requestInfo.headers,
     id: requestInfo.id,
     resource: requestInfo.resource,
+    url: requestInfo.url,
     etag: requestInfo.etag ?? null,
+    filter: getFilter(requestInfo.queryString),
   } satisfies DeleteRequest
 }
 
@@ -90,18 +142,27 @@ export const createResourceHandler = async (
   schemas: CompiledSchemas,
   config: Config,
   broadcast: BroadcastFunction | null,
+  log: Logger,
 ) => {
   const getUrlInfo = (baseUrl: string) => {
     const url = config.apiPrefix ? baseUrl.replace(config.apiPrefix, '') : baseUrl
     return parseUrl(url)
   }
 
+  const MAX_BODY_SIZE = 1024 * 1024 // 1 MB
+
   const getBody = (request: IncomingMessage): Promise<Body | null> => {
     return new Promise((resolve, reject) => {
       const bodyParts: Buffer[] = []
+      let totalSize = 0
 
       request
         .on('data', (chunk: Buffer) => {
+          totalSize += chunk.length
+          if (totalSize > MAX_BODY_SIZE) {
+            reject(new Error('Payload Too Large'))
+            return
+          }
           bodyParts.push(chunk)
         })
         .on('end', () => {
@@ -117,6 +178,11 @@ export const createResourceHandler = async (
     })
   }
 
+  const getQueryString = (req: IncomingMessage): string | null => {
+    const parsedUrl = parse(req.url || '', true)
+    return parsedUrl.search || null
+  }
+
   const parseRequest = async (req: IncomingMessage) => {
     const urlInfo = getUrlInfo(req.url ?? '')
 
@@ -128,12 +194,21 @@ export const createResourceHandler = async (
     const host = req.headers.host || null
     const protoHeader = req.headers['x-forwarded-proto']
     const protocol = (Array.isArray(protoHeader) ? protoHeader[0] : protoHeader) ?? 'http'
+    const url = `${protocol}://${host ?? ''}${req.url ?? ''}`
 
-    const body = await getBody(req)
+    let body: Body | null
+    try {
+      body = await getBody(req)
+    } catch (err: unknown) {
+      const message = (err as Error).message
+      if (message === 'Payload Too Large') return createError(413, message)
+      return createError(400, 'Invalid JSON')
+    }
 
     return {
       id: urlInfo.id,
       resource: urlInfo.resource,
+      url,
       body,
       host,
       protocol,
@@ -141,6 +216,7 @@ export const createResourceHandler = async (
       headers: req.headers,
       etag: req.headers['if-match'] ?? null,
       ifNoneMatchEtag: req.headers['if-none-match'] ?? null,
+      queryString: getQueryString(req),
     } satisfies RequestInfo
   }
 
@@ -169,7 +245,7 @@ export const createResourceHandler = async (
     const requestInfo = await parseRequest(httpRequest)
 
     if (isError(requestInfo)) {
-      return sendErrorResponse(httpResponse, requestInfo.statusCode, requestInfo.message)
+      return sendErrorResponse(httpResponse, requestInfo.statusCode, requestInfo.message, config.cors)
     }
 
     for (const validator of [validators].flat()) {
@@ -179,6 +255,7 @@ export const createResourceHandler = async (
           httpResponse,
           validationResult.statusCode,
           validationResult.message,
+          config.cors,
         )
       }
     }
@@ -186,10 +263,10 @@ export const createResourceHandler = async (
     const convertedRequest = convert(requestInfo)
 
     const response = await handleRequest(convertedRequest)
-    sendResponse(httpResponse)(response)
+    sendResponse(httpResponse, config.cors)(response)
   }
 
-  const requestHandler = await getRequestHandler(queries, schemas, config, broadcast)
+  const requestHandler = await getRequestHandler(queries, schemas, config, broadcast, log)
 
   const getHandler = async (
     httpRequest: IncomingMessage,

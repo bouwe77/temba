@@ -1,19 +1,21 @@
 import type { IncomingHttpHeaders } from 'http'
 
+import type { Body } from '../requestHandlers/types'
+import {
+  createActions,
+  createNonResourceActions,
+  isInterceptorAction,
+  isResponseAction,
+  isSetRequestBodyAction,
+} from './interceptorActions'
 import type {
   InterceptedDeleteRequest,
   InterceptedGetRequest,
   InterceptedPostRequest,
   InterceptedPutRequest,
   InterceptedReturnValue,
+  NonResourceRequestType,
 } from './types'
-import type { Body } from '../requestHandlers/types'
-import {
-  createActions,
-  isInterceptorAction,
-  isSetRequestBodyAction,
-  isResponseAction,
-} from './interceptorActions'
 
 // Result type for interceptor processing
 export type InterceptResult =
@@ -25,9 +27,21 @@ export const interceptGetRequest = async (
   headers: IncomingHttpHeaders,
   resource: string,
   id: string | null,
+  url: string,
 ): Promise<InterceptResult> => {
   const actions = createActions()
-  const result = await intercept({ headers, resource, id }, actions)
+  const result = await intercept({ type: 'resource', headers, resource, id, url }, actions)
+  return processInterceptResult(result)
+}
+
+export const interceptNonResourceGetRequest = async (
+  intercept: InterceptedGetRequest,
+  headers: IncomingHttpHeaders,
+  requestType: NonResourceRequestType,
+  url: string,
+): Promise<InterceptResult> => {
+  const actions = createNonResourceActions()
+  const result = await intercept({ type: requestType, headers, url }, actions)
   return processInterceptResult(result)
 }
 
@@ -37,9 +51,10 @@ export const interceptPostRequest = async (
   resource: string,
   id: string | null,
   body: Body,
+  url: string,
 ): Promise<InterceptResult> => {
   const actions = createActions()
-  const result = await intercept({ headers, resource, body, id }, actions)
+  const result = await intercept({ type: 'resource', headers, resource, body, id, url }, actions)
   return processInterceptResult(result, body)
 }
 
@@ -49,9 +64,10 @@ export const interceptPutRequest = async (
   resource: string,
   id: string,
   body: Body,
+  url: string,
 ): Promise<InterceptResult> => {
   const actions = createActions()
-  const result = await intercept({ headers, resource, id, body }, actions)
+  const result = await intercept({ type: 'resource', headers, resource, id, body, url }, actions)
   return processInterceptResult(result, body)
 }
 
@@ -62,9 +78,10 @@ export const interceptDeleteRequest = async (
   headers: IncomingHttpHeaders,
   resource: string,
   id: string | null,
+  url: string,
 ): Promise<InterceptResult> => {
   const actions = createActions()
-  const result = await intercept({ headers, resource, id }, actions)
+  const result = await intercept({ type: 'resource', headers, resource, id, url }, actions)
   return processInterceptResult(result)
 }
 
@@ -89,9 +106,6 @@ const processInterceptResult = (
     }
   }
 
-  // Legacy behavior removed - plain objects are no longer supported
-  // If we get here, the return value is invalid (e.g., plain object, number, string, boolean, etc.)
-  // We treat it as void and continue with the original body
-  // Developers should use actions.setRequestBody() or actions.response() instead
+  // Any other return value is treated as void — continue with the original body
   return { type: 'continue', body: originalBody }
 }

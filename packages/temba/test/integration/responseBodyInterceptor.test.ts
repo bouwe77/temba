@@ -1,5 +1,5 @@
-import { describe, beforeEach, test, expect } from 'vitest'
 import request from 'supertest'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { createServer } from './createServer'
 
 describe('responseBodyInterceptor unusual (but allowed) implementations', () => {
@@ -41,15 +41,22 @@ describe('responseBodyInterceptor unusual (but allowed) implementations', () => 
   )
 
   test('When responseBodyInterceptor throws an exception, return a 500 status with error details', async () => {
+    const errorSpy = vi.spyOn(console, 'error')
     const tembaServer = await createServer({
       responseBodyInterceptor: () => {
         throw new Error('Something went wrong')
       },
     })
 
-    const response = await request(tembaServer).get('/stuff')
-    expect(response.statusCode).toEqual(500)
-    expect(response.body.message).toEqual(`Something went wrong`)
+    try {
+      const response = await request(tembaServer).get('/stuff')
+      expect(response.statusCode).toEqual(500)
+      expect(response.body.message).toEqual(`Something went wrong`)
+      expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('ERROR - Error handling request'))
+      expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('Something went wrong'))
+    } finally {
+      errorSpy.mockRestore()
+    }
   })
 
   test('When responseBodyInterceptor does not return an object or array, still return the intercepted value', async () => {
@@ -68,14 +75,15 @@ describe('responseBodyInterceptor unusual (but allowed) implementations', () => 
     } = await request(tembaServer).post('/stuff').send({ name: 'newItem' })
 
     const response = await request(tembaServer).get('/stuff')
-    //TODO fix this test...
-    return
+
+    //TODO This test is fixed now, right?
+
     expect(response.statusCode).toEqual(200)
-    expect(response.body).toEqual('A string, instead of an array')
+    expect(response.text).toEqual('A string, instead of an array')
 
     const response2 = await request(tembaServer).get('/stuff/' + id)
     expect(response2.statusCode).toEqual(200)
-    expect(response2.body).toEqual('A string, instead of an object')
+    expect(response2.text).toEqual('A string, instead of an object')
   })
 })
 

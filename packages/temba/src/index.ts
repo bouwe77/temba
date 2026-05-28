@@ -1,24 +1,26 @@
 import { createServer as httpCreateServer } from 'node:http'
 import { initConfig, type UserConfig } from './config'
-import type { IncomingMessage, ServerResponse } from 'http'
-import { createResourceHandler } from './resourceHandler'
-import { handleNotFound, sendErrorResponse } from './responseHandler'
+import { createQueries } from './data/queries'
+import { getDefaultImplementations } from './implementations'
 import { getHttpLogger, initLogger } from './log/logger'
 import { createOpenApiHandler, getOpenApiPaths } from './openapi'
-import { handleStaticFolder } from './staticFolder/staticFolder'
-import { getDefaultImplementations } from './implementations'
+import { createRateLimiter } from './rateLimit/rateLimit'
+import { handleOptionsRequest } from './requestHandlers/optionsHandler'
+import { interceptNonResourceGetRequest } from './requestInterceptor/interceptRequest'
+import { createResourceHandler } from './resourceHandler'
+import {
+  handleMethodNotAllowed,
+  handleNotFound,
+  handleTooManyRequests,
+  sendErrorResponse,
+  sendResponse,
+} from './responseHandler'
 import { createRootUrlHandler } from './root/root'
-import { sendResponse } from './responseHandler'
-import { createQueries } from './data/queries'
 import { compileSchemas } from './schema/compile'
+import { createStaticFolderHandler } from './staticFolder/staticFolder'
 import { createWebSocketServer, type BroadcastFunction } from './websocket/websocket'
 
 const removePendingAndTrailingSlashes = (url?: string) => (url ? url.replace(/^\/+|\/+$/g, '') : '')
-
-const handleOptionsRequest = (res: ServerResponse<IncomingMessage>) =>
-  sendResponse(res)({
-    statusCode: 204,
-  })
 
 const createServer = async (userConfig?: UserConfig) => {
   const config = initConfig(userConfig)
@@ -26,7 +28,7 @@ const createServer = async (userConfig?: UserConfig) => {
   const rootPath = config.apiPrefix ? removePendingAndTrailingSlashes(config.apiPrefix) : ''
   const openapiPaths = getOpenApiPaths(rootPath)
   const { log, logLevel } = initLogger(process.env.LOG_LEVEL)
-  const queries = createQueries(config.connectionString, log)
+  const queries = createQueries(config.connectionString, log, config.isTesting)
   const schemas = compileSchemas(config.schemas)
   const httpLogger = getHttpLogger(logLevel)
 
@@ -35,51 +37,152 @@ const createServer = async (userConfig?: UserConfig) => {
 
   // Initialize WebSocket server if enabled (must be after server creation)
   const broadcast: BroadcastFunction | null = config.webSocket
-    ? createWebSocketServer(server)
+    ? createWebSocketServer(server, log)
     : null
 
   // Now create the resource handler with the broadcast function
-  const handleResource = await createResourceHandler(queries, schemas, config, broadcast)
+  const handleResource = await createResourceHandler(queries, schemas, config, broadcast, log)
+  const handleStaticFolder = createStaticFolderHandler(log)
+
+  const rateLimiter = config.rateLimit ? createRateLimiter(config.rateLimit) : null
+  server.on('close', () => rateLimiter?.stop())
+
+  const REQUEST_TIMEOUT_MS = 30_000
 
   // Set up the request handler
   server.on('request', (req, res) => {
+    if (rateLimiter) {
+      const ip =
+        config.rateLimit && config.rateLimit.trustProxy
+          ? (req.headers['x-forwarded-for']?.toString().split(',')[0]?.trim() ??
+            req.socket.remoteAddress ??
+            'unknown')
+          : (req.socket.remoteAddress ?? 'unknown')
+      const result = rateLimiter.check(ip)
+      if (!result.allowed) {
+        return handleTooManyRequests(res, config.cors, result.retryAfter)
+      }
+    }
+
     const implementations = getDefaultImplementations(config)
 
     httpLogger(req, res, (err) => {
-      if (err) return sendErrorResponse(res)
+      if (err) return sendErrorResponse(res, 500, 'Internal Server Error', config.cors)
 
-      const requestUrl = removePendingAndTrailingSlashes(req.url)
+      const [requestPath = '/', queryString = ''] = (req.url || '/').split('?')
+      const requestUrl = removePendingAndTrailingSlashes(requestPath)
 
       const handleRequest = async () => {
         if (req.method === 'OPTIONS') {
-          return handleOptionsRequest(res)
+          return handleOptionsRequest(res, config.cors)
         }
 
+        const protoHeader = req.headers['x-forwarded-proto']
+        const protocol = (Array.isArray(protoHeader) ? protoHeader[0] : protoHeader) ?? 'http'
+        const fullUrl = `${protocol}://${req.headers.host ?? ''}${req.url ?? ''}`
+
         if (config.staticFolder && !`${requestUrl}/`.startsWith(config.apiPrefix + '/')) {
+          // Only GET and HEAD are supported for static files
+          if (req.method !== 'GET' && req.method !== 'HEAD')
+            return handleMethodNotAllowed(res, config.cors)
+
+          // Run interceptor before serving static file
+          if (config.requestInterceptor?.get) {
+            const interceptResult = await interceptNonResourceGetRequest(
+              config.requestInterceptor.get,
+              req.headers,
+              'static',
+              fullUrl,
+            )
+            if (interceptResult.type === 'response') {
+              return sendResponse(
+                res,
+                config.cors,
+              )({
+                statusCode: interceptResult.status,
+                body: interceptResult.body,
+              })
+            }
+          }
+
           handleStaticFolder(
-            req,
             res,
-            async () =>
-              await implementations.getStaticFileFromDisk(
-                req.url === '/' ? 'index.html' : req.url || 'index.html',
-              ),
+            {
+              method: req.method,
+              requestPath,
+              queryString,
+              accept: req.headers.accept,
+              staticFolder: config.staticFolder,
+              getStaticFileFromDisk: implementations.getStaticFileFromDisk,
+            },
+            config.cors,
           )
         } else if (requestUrl === rootPath) {
+          // Only GET is supported for the root URL
+          if (req.method !== 'GET') return handleMethodNotAllowed(res, config.cors)
+
+          // Run interceptor before serving root URL
+          if (config.requestInterceptor?.get) {
+            const interceptResult = await interceptNonResourceGetRequest(
+              config.requestInterceptor.get,
+              req.headers,
+              'root',
+              fullUrl,
+            )
+            if (interceptResult.type === 'response') {
+              return sendResponse(
+                res,
+                config.cors,
+              )({
+                statusCode: interceptResult.status,
+                body: interceptResult.body,
+              })
+            }
+          }
+
           createRootUrlHandler(config)(req, res)
         } else if (openapiPaths.includes(requestUrl)) {
+          // Only GET is supported for the OpenAPI URL
+          if (req.method !== 'GET') return handleMethodNotAllowed(res, config.cors)
+
+          // Run interceptor before serving OpenAPI
+          if (config.requestInterceptor?.get) {
+            const interceptResult = await interceptNonResourceGetRequest(
+              config.requestInterceptor.get,
+              req.headers,
+              'openapi',
+              fullUrl,
+            )
+            if (interceptResult.type === 'response') {
+              return sendResponse(
+                res,
+                config.cors,
+              )({
+                statusCode: interceptResult.status,
+                body: interceptResult.body,
+              })
+            }
+          }
+
           createOpenApiHandler(config, requestUrl, req.headers.host || '')(res)
         } else if (requestUrl.startsWith(rootPath)) {
           await handleResource(req, res)
         } else {
-          handleNotFound(res)
+          handleNotFound(res, config.cors)
         }
       }
 
-      if (config.delay > 0) {
-        setTimeout(handleRequest, config.delay)
-      } else {
-        handleRequest()
-      }
+      const timeoutId = setTimeout(() => {
+        if (!res.headersSent) sendErrorResponse(res, 503, 'Request timed out', config.cors)
+      }, REQUEST_TIMEOUT_MS)
+
+      handleRequest()
+        .catch((e) => {
+          log.error(`Error handling ${req.method ?? 'UNKNOWN'} ${req.url ?? ''}`)
+          log.error(e)
+          if (!res.headersSent) sendErrorResponse(res, 500, 'Internal Server Error', config.cors)
+        })
+        .finally(() => clearTimeout(timeoutId))
     })
   })
 
@@ -103,31 +206,66 @@ const createServer = async (userConfig?: UserConfig) => {
 
 /**
  * Creates a Temba REST API server with the specified configuration.
- * 
+ *
  * Temba provides a zero-configuration REST API that supports CRUD operations
  * for any resource. Data can be stored in-memory, in JSON files, or in MongoDB.
- * 
+ *
  * @param userConfig - Optional configuration object to customize the server behavior
  * @returns A promise that resolves to an object containing:
  *   - `start()`: Function to start the HTTP server
  *   - `server`: The underlying Node.js HTTP server instance
- * 
+ *
  * @example
  * ```typescript
  * // Create a basic server with default settings
- * const server = await create();
- * server.start();
- * 
+ * const server = await create()
+ * server.start()
+ *
  * // Create a server with custom configuration
  * const server = await create({
  *   port: 3000,
  *   resources: ['movies', 'actors'],
  *   connectionString: 'mongodb://localhost:27017/mydb'
- * });
- * server.start();
+ * })
+ * server.start()
  * ```
  */
 export const create = (userConfig?: UserConfig) => createServer(userConfig)
 
 // Export the main UserConfig type for TypeScript users
-export type { UserConfig } from './config'
+export type { DataSourceConfig, UserConfig, UserCorsConfig, UserRateLimitConfig } from './config'
+
+// Request interceptor types
+export type {
+  InterceptedDeleteRequest,
+  InterceptedGetRequest,
+  InterceptedPatchRequest,
+  InterceptedPostRequest,
+  InterceptedPutRequest,
+  InterceptedReturnValue,
+  NonResourceRequestType,
+  RequestInterceptor,
+  RequestType,
+  ResourceRequestType,
+} from './requestInterceptor/types'
+
+// Interceptor action types
+export type {
+  InterceptorAction,
+  NonResourceActions,
+  ResourceActions,
+  ResponseAction,
+  SetRequestBodyAction,
+} from './requestInterceptor/interceptorActions'
+
+// Response body interceptor types
+export type { InterceptedResponse, ResponseBodyInterceptor } from './responseBodyInterceptor/types'
+
+// Schema validation types
+export type { ConfiguredSchemas } from './schema/types'
+
+// Data types
+export type { Item } from './data/types'
+
+// Utility types
+export type { MaybePromise } from './types'
