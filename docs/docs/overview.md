@@ -111,7 +111,7 @@ const config = {
     // Change the response body before it is sent to the client
   },
   returnNullFields: false,
-  schema: {
+  schemas: {
     movies: {
       post: {
         type: 'object',
@@ -144,7 +144,7 @@ These are all the possible settings:
 | `resources`               | See [Allowing specific resources only](/docs/resources)                                      | `[]`          |
 | `responseBodyInterceptor` | See [Response body interception](/docs/response-interceptor)                                 | `null`        |
 | `returnNullFields`        | Whether fields with a null value should be returned in responses.                            | `true`        |
-| `schema`                  | See [JSON Schema request body validation](/docs/schema-validation)                           | `null`        |
+| `schemas`                 | See [JSON Schema request body validation](/docs/schema-validation)                           | `null`        |
 | `staticFolder`            | See [Static assets](/docs/static-assets)                                                     | `null`        |
 | `webSocket`               | See [WebSockets](/docs/websockets)                                                           | `false`       |
 
