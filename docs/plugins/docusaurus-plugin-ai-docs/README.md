@@ -68,11 +68,11 @@ npm run serve -w docs -- --no-open --port 4444
 
 # Test markdown accessibility
 curl http://localhost:4444/docs/getting-started.md
-curl http://localhost:4444/docs/api.md
+curl http://localhost:4444/docs/api/functions/create.md
 
 # Test meta tag injection
 curl http://localhost:4444/docs/getting-started.html | grep "text/markdown"
-curl http://localhost:4444/docs/api.html | grep "text/markdown"
+curl http://localhost:4444/docs/api/functions/create.html | grep "text/markdown"
 ```
 
 Expected output:
@@ -87,7 +87,7 @@ title: Documentation
 
 # Meta tags
 <link rel="alternate" type="text/markdown" href="/docs/getting-started.md">
-<link rel="alternate" type="text/markdown" href="/docs/api.md">
+<link rel="alternate" type="text/markdown" href="/docs/api/functions/create.md">
 ```
 
 ## Benefits
