@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "build": "rm -rf dist tsconfig.tsbuildinfo && tsc && tsc-alias && cp ../../README.md .",
-    "test": "vitest run",
+    "test": "vitest run --no-file-parallelism --maxWorkers=1",
     "test:mongodb": "TEMBA_MONGODB_BASE_URI=mongodb://localhost:27017 vitest run",
     "test:custom-server": "TEMBA_CUSTOM_SERVER=true vitest run",
     "test:watch": "vitest --watch",

@@ -22,6 +22,7 @@ const include = isMongoTest
 export default defineConfig({
   test: {
     include,
+    fileParallelism: false,
     globals: true,
     globalSetup: isMongoTest ? ['./test/mongoSetup.ts'] : [],
     setupFiles: isMongoTest ? ['./test/mongoWorkerSetup.ts'] : [],

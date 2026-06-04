@@ -1,16 +1,22 @@
 import request from 'supertest'
 import { describe, expect, test } from 'vitest'
+import { create } from '../../src/index'
 import { createServer } from './createServer'
+
+const createDefaultServer = async () => {
+  const temba = await create({ isTesting: true })
+  return temba.server
+}
 
 describe('Rate limiting is on by default', () => {
   test('Requests within the default limit are allowed', async () => {
-    const server = await createServer()
+    const server = await createDefaultServer()
     const res = await request(server).get('/')
     expect(res.status).toBe(200)
   })
 
   test('Default limit of 100 requests per minute is enforced', async () => {
-    const server = await createServer()
+    const server = await createDefaultServer()
     for (let i = 0; i < 100; i++) {
       expect((await request(server).get('/')).status).toBe(200)
     }
