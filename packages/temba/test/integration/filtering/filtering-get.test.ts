@@ -576,7 +576,7 @@ describe('String partial matching operators: startsWith, endsWith, contains', ()
   })
 })
 
-describe('Array/set operators: in and nin', () => {
+describe('Array/set operators: in, nin and all', () => {
   test('Filter using [in] operator matches any of the listed string values (case-insensitive)', async () => {
     const data = [{ name: 'Piet' }, { name: 'Miep' }, { name: 'Kees' }]
     await createData(tembaServer, data)
@@ -630,6 +630,47 @@ describe('Array/set operators: in and nin', () => {
     expect(res.body.map((i: { name: string }) => i.name).sort()).toEqual(['Kees', 'Piet'])
   })
 
+  test('Filter using [in] operator matches array-valued fields when any element matches', async () => {
+    const data = [
+      { title: 'Star Wars', genres: ['Action', 'Adventure', 'Fantasy', 'Sci-Fi'] },
+      { title: 'Rain Man', genres: ['Drama'] },
+      { title: 'O Brother, Where Art Thou?', genres: ['Adventure', 'Comedy', 'Crime'] },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.genres[in]=Action')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].title).toEqual('Star Wars')
+  })
+
+  test('Filter using [in] operator on array-valued fields matches any listed value', async () => {
+    const data = [
+      { title: 'Star Wars', genres: ['Action', 'Adventure', 'Fantasy', 'Sci-Fi'] },
+      { title: 'Rain Man', genres: ['Drama'] },
+      { title: 'O Brother, Where Art Thou?', genres: ['Adventure', 'Comedy', 'Crime'] },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.genres[in]=Action,Drama')
+    expect(res.body.length).toEqual(2)
+    expect(res.body.map((i: { title: string }) => i.title).sort()).toEqual([
+      'Rain Man',
+      'Star Wars',
+    ])
+  })
+
+  test('[in] is case-insensitive for string array elements', async () => {
+    const data = [
+      { title: 'Star Wars', genres: ['Action', 'Adventure', 'Fantasy', 'Sci-Fi'] },
+      { title: 'Rain Man', genres: ['Drama'] },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.genres[in]=action')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].title).toEqual('Star Wars')
+  })
+
   test('[in] returns no results when no values match', async () => {
     const data = [{ name: 'Piet' }, { name: 'Miep' }]
     await createData(tembaServer, data)
@@ -667,6 +708,124 @@ describe('Array/set operators: in and nin', () => {
     const res = await request(tembaServer).get(resource).query('filter.age[nin]=18,25')
     expect(res.body.length).toEqual(1)
     expect(res.body[0].name).toEqual('Piet')
+  })
+
+  test('Filter using [nin] operator excludes array-valued fields with matching elements', async () => {
+    const data = [
+      { title: 'Star Wars', genres: ['Action', 'Adventure', 'Fantasy', 'Sci-Fi'] },
+      { title: 'Rain Man', genres: ['Drama'] },
+      { title: 'O Brother, Where Art Thou?', genres: ['Adventure', 'Comedy', 'Crime'] },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.genres[nin]=Action')
+    expect(res.body.length).toEqual(2)
+    expect(res.body.map((i: { title: string }) => i.title).sort()).toEqual([
+      'O Brother, Where Art Thou?',
+      'Rain Man',
+    ])
+  })
+
+  test('Filter using [all] operator matches array-valued fields containing all listed values', async () => {
+    const data = [
+      { title: 'Star Wars', genres: ['Action', 'Adventure', 'Fantasy', 'Sci-Fi'] },
+      { title: 'Rain Man', genres: ['Drama'] },
+      { title: 'O Brother, Where Art Thou?', genres: ['Adventure', 'Comedy', 'Crime'] },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer)
+      .get(resource)
+      .query('filter.genres[all]=Adventure,Sci-Fi')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].title).toEqual('Star Wars')
+  })
+
+  test('Filter using [all] operator is order-independent for array-valued fields', async () => {
+    const data = [
+      { title: 'Star Wars', genres: ['Action', 'Adventure', 'Fantasy', 'Sci-Fi'] },
+      { title: 'O Brother, Where Art Thou?', genres: ['Adventure', 'Comedy', 'Crime'] },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer)
+      .get(resource)
+      .query('filter.genres[all]=Sci-Fi,Adventure')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].title).toEqual('Star Wars')
+  })
+
+  test('[all] is case-insensitive for string array elements', async () => {
+    const data = [
+      { title: 'Star Wars', genres: ['Action', 'Adventure', 'Fantasy', 'Sci-Fi'] },
+      { title: 'Rain Man', genres: ['Drama'] },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer)
+      .get(resource)
+      .query('filter.genres[all]=adventure,sci-fi')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].title).toEqual('Star Wars')
+  })
+
+  test('Filter using [all] operator with a single value behaves like array contains value', async () => {
+    const data = [
+      { title: 'Star Wars', genres: ['Action', 'Adventure', 'Fantasy', 'Sci-Fi'] },
+      { title: 'Rain Man', genres: ['Drama'] },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.genres[all]=Drama')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].title).toEqual('Rain Man')
+  })
+
+  test('[all] returns no results when the array is missing one of the listed values', async () => {
+    const data = [
+      { title: 'Star Wars', genres: ['Action', 'Adventure', 'Fantasy', 'Sci-Fi'] },
+      { title: 'O Brother, Where Art Thou?', genres: ['Adventure', 'Comedy', 'Crime'] },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer)
+      .get(resource)
+      .query('filter.genres[all]=Adventure,Drama')
+    expect(res.body.length).toEqual(0)
+  })
+
+  test('[all] returns no results for non-array fields', async () => {
+    const data = [{ name: 'Star Wars' }, { name: 'Rain Man' }]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.name[all]=Star Wars')
+    expect(res.body.length).toEqual(0)
+  })
+
+  test('Filter using [all] operator on number array values', async () => {
+    const data = [
+      { title: 'A', weekly: [1, 2, 3] },
+      { title: 'B', weekly: [2, 3] },
+      { title: 'C', weekly: [1, 4] },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.weekly[all]=2,3')
+    expect(res.body.length).toEqual(2)
+    expect(res.body.map((i: { title: string }) => i.title).sort()).toEqual(['A', 'B'])
+  })
+
+  test('Filter using [all] operator on boolean array values', async () => {
+    const data = [
+      { title: 'A', flags: [true, false] },
+      { title: 'B', flags: [true] },
+      { title: 'C', flags: [false] },
+    ]
+    await createData(tembaServer, data)
+
+    const res = await request(tembaServer).get(resource).query('filter.flags[all]=true,false')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].title).toEqual('A')
   })
 
   test('[nin] where no values are excluded returns all items', async () => {
@@ -772,5 +931,69 @@ describe('Advanced operators: exists and regex', () => {
 
     const res = await request(tembaServer).get(resource).query('filter.age[regex]=3')
     expect(res.body.length).toEqual(0)
+  })
+})
+
+describe('Fix 1: Bracket validation scoped to filter.* params only', () => {
+  test('Unrelated query param with malformed brackets does NOT cause a 400', async () => {
+    await createData(tembaServer, [{ name: 'Piet' }])
+
+    // foo[bar=x has unbalanced brackets but no filter.* param at all
+    const res = await request(tembaServer).get(resource).query('foo[bar=x')
+    expect(res.status).toBe(200)
+  })
+
+  test('Malformed filter.* param still returns 400', async () => {
+    const res = await request(tembaServer).get(resource).query('filter.name[eq=Alice')
+    expect(res.status).toBe(400)
+  })
+
+  test('Malformed non-filter param alongside a valid filter does NOT cause a 400', async () => {
+    await createData(tembaServer, [{ name: 'Alice' }, { name: 'Bob' }])
+
+    const res = await request(tembaServer).get(resource).query('foo[bar=x&filter.name[eq]=Alice')
+    expect(res.status).toBe(200)
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].name).toEqual('Alice')
+  })
+})
+
+describe('Fix 2: String fields are not coerced to numbers on [eq]', () => {
+  test('[eq] on a string field with a zero-padded value matches exactly', async () => {
+    await createData(tembaServer, [{ code: '0012' }, { code: '12' }])
+
+    const res = await request(tembaServer).get(resource).query('filter.code[eq]=0012')
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].code).toEqual('0012')
+  })
+})
+
+describe('Fix 3: [exists] value validation', () => {
+  test('[exists] with an invalid value returns 400', async () => {
+    const res = await request(tembaServer).get(resource).query('filter.email[exists]=maybe')
+    expect(res.status).toBe(400)
+  })
+
+  test('[exists] with uppercase TRUE is accepted (case-insensitive)', async () => {
+    await createData(tembaServer, [{ name: 'Alice', email: 'a@example.com' }, { name: 'Bob' }])
+
+    const res = await request(tembaServer).get(resource).query('filter.email[exists]=TRUE')
+    expect(res.status).toBe(200)
+    expect(res.body.length).toEqual(1)
+    expect(res.body[0].name).toEqual('Alice')
+  })
+
+  test('[exists]=true and [exists]=false still work correctly', async () => {
+    await createData(tembaServer, [{ name: 'Alice', email: 'a@example.com' }, { name: 'Bob' }])
+
+    const trueRes = await request(tembaServer).get(resource).query('filter.email[exists]=true')
+    expect(trueRes.status).toBe(200)
+    expect(trueRes.body.length).toEqual(1)
+    expect(trueRes.body[0].name).toEqual('Alice')
+
+    const falseRes = await request(tembaServer).get(resource).query('filter.email[exists]=false')
+    expect(falseRes.status).toBe(200)
+    expect(falseRes.body.length).toEqual(1)
+    expect(falseRes.body[0].name).toEqual('Bob')
   })
 })

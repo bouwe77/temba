@@ -5,7 +5,7 @@ import { createServer } from './createServer'
 // The id is either expected or not allowed in URLs.
 // The id is never allowed in request bodies.
 
-const tembaServer = await createServer()
+const tembaServer = await createServer({ resources: ['articles'] })
 const resource = '/articles/'
 
 test('When POSTing and PUTting with ID in request body, return bad request', async () => {

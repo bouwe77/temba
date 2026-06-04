@@ -17,6 +17,7 @@ const coerceValue = (value: string): string | number | boolean => {
 const buildOperatorCondition = (op: Operator, raw: string): MongoCondition => {
   const coerced = coerceValue(raw)
 
+  // eq and neq use case-insensitive regex for string semantics
   if (op === 'eq') {
     if (typeof coerced === 'string') {
       return { $regex: new RegExp(`^${escapeRegex(coerced)}$`, 'i') }
@@ -45,24 +46,35 @@ const buildOperatorCondition = (op: Operator, raw: string): MongoCondition => {
     return { $regex: new RegExp(`${escapeRegex(raw)}$`, 'i') }
   }
 
+  // Range operators use raw string — lexicographic comparison as documented.
+  // MongoDB's native BSON ordering handles numeric fields stored as numbers correctly.
   if (op === 'gt') return { $gt: coerced }
   if (op === 'gte') return { $gte: coerced }
   if (op === 'lt') return { $lt: coerced }
   if (op === 'lte') return { $lte: coerced }
 
+  // exists value is guaranteed to be "true" or "false" by shared validation
   if (op === 'exists') return { $exists: coerced }
 
   if (op === 'regex') return { $regex: new RegExp(raw) }
 
+  // in / nin / all: use case-insensitive regexes for all-string lists, otherwise coerce.
   const values = raw.split(',').map((v) => v.trim())
   const coercedValues = values.map(coerceValue)
-  const allStrings = coercedValues.every((v) => typeof v === 'string')
+  const allStrings = coercedValues.every((value) => typeof value === 'string')
 
   if (op === 'in') {
     if (allStrings) {
       return { $in: coercedValues.map((v) => new RegExp(`^${escapeRegex(String(v))}$`, 'i')) }
     }
     return { $in: coercedValues }
+  }
+
+  if (op === 'all') {
+    if (allStrings) {
+      return { $all: coercedValues.map((v) => new RegExp(`^${escapeRegex(String(v))}$`, 'i')) }
+    }
+    return { $all: coercedValues }
   }
 
   // nin

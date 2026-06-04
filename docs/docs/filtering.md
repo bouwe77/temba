@@ -7,7 +7,7 @@ sidebar_position: 10
 
 # Filtering
 
-Temba supports LHS bracket filtering on `GET` and `DELETE` collection requests by appending square-bracket operators to your field names in the query string. Every filter expression must start with the exact, lowercase `filter` prefix. String matching is case-insensitive. For example:
+Temba supports LHS bracket filtering on `GET`, `HEAD`, and `DELETE` collection requests by appending square-bracket operators to your field names in the query string. Every filter expression must start with the exact, lowercase `filter` prefix. String matching is case-insensitive. For example:
 
 `GET /items?filter.name[eq]=Alice&filter.status[neq]=archived`
 
@@ -41,6 +41,7 @@ The following operators are supported:
 | `[lte]`        | less than or equal                            | `?filter.price[lte]=100`                           |
 | `[in]`         | one of a list of values                       | `?filter.age[in]=18,21,65`                         |
 | `[nin]`        | not in a list of values                       | `?filter.status[nin]=draft,pending`                |
+| `[all]`        | array field contains all listed values        | `?filter.genres[all]=Adventure,Sci-Fi`             |
 | `[exists]`     | field is present (`true`) or absent (`false`) | `?filter.email[exists]=true`                       |
 | `[regex]`      | full regular-expression match (URL-encode special chars) | `?filter.name[regex]=^A.*e$` → `%5EA.*e%24` |
 
@@ -55,3 +56,7 @@ GET /users?filter.age[gte]=18&filter.age[lt]=65
 GET /products?filter.price[gt]=9.99&filter.price[lte]=49.99
 GET /events?filter.date[gte]=2026-01-01&filter.date[lt]=2027-01-01
 ```
+
+The `[in]` and `[nin]` operators also support array-valued fields. For arrays, Temba checks the individual elements of the field, so `?filter.genres[in]=Action` matches an item with `"genres": ["Action", "Adventure"]`, and `?filter.genres[nin]=Action` excludes it.
+
+The `[all]` operator is for array-valued fields and matches only when every listed query value is present in the array. For example, `?filter.genres[all]=Adventure,Sci-Fi` matches `"genres": ["Action", "Adventure", "Sci-Fi"]`. On non-array fields, `[all]` returns no results.

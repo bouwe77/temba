@@ -12,6 +12,7 @@ export const CUSTOM_ROUTE_CONTENT_TYPE = 'text/plain'
 export const createServer = async (config: UserConfig = {}, implementations?: Implementations) => {
   const mongoUri = process.env.TEMBA_TEST_MONGODB_URI
   const temba = await create({
+    rateLimit: false,
     ...(config || ({} as UserConfig)),
     isTesting: true,
     ...(mongoUri ? { connectionString: mongoUri } : {}),

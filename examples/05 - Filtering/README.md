@@ -21,4 +21,4 @@ GET http://localhost:8362/movies?filter.genre[eq]=sci-fi
 GET http://localhost:8362/movies?filter.genre[neq]=drama
 ```
 
-Supported operators: `[eq]`, `[neq]`
+Supported operators: `[eq]`, `[neq]`, `[contains]`, `[startsWith]`, `[endsWith]`, `[gt]`, `[gte]`, `[lt]`, `[lte]`, `[in]`, `[nin]`, `[exists]`, `[regex]`
