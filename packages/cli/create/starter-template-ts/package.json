@@ -8,7 +8,7 @@
     "start": "node --watch src/server.ts"
   },
   "dependencies": {
-    "temba": "0.70.0"
+    "temba": "0.71.0"
   },
-  "version": "0.70.0"
+  "version": "0.71.0"
 }
