@@ -43,6 +43,7 @@ const config: Config = {
       {
         docs: {
           sidebarPath: './sidebars.ts',
+          exclude: ['api/index.md'],
           // Points to the source repo so people can contribute to the docs
           editUrl: 'https://github.com/bouwe77/temba/tree/main/docs/',
         },
@@ -67,6 +68,7 @@ const config: Config = {
         },
       },
     ],
+    './plugins/docusaurus-plugin-ai-docs',
   ],
 
   themeConfig: {
