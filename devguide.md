@@ -13,7 +13,7 @@ This repo is a monorepo containing the workspaces `packages/cli`, `packages/temb
 You can run these commands directly from the root:
 
 ```bash
-npm test          # Runs tests for the Temba library
+npm test          # Runs tests for the Temba library and MCP package
 npm run lint      # Runs linting for the Temba library
 ```
 
@@ -21,6 +21,12 @@ Or combine them in one go:
 
 ```bash
 npm run check
+```
+
+To run only the MCP package tests:
+
+```bash
+npm test -w packages/mcp
 ```
 
 ## MongoDB E2E testing

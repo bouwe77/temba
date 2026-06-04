@@ -4,20 +4,22 @@
   "description": "MCP for Temba documentation",
   "author": "Bouwe (https://bouwe.io)",
   "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest --watch",
     "update": "npx -y jelmerro/nus"
   },
   "bin": {
-    "temba-mcp": "./cli.js"
+    "temba-mcp": "./src/cli.js"
   },
   "type": "module",
   "files": [
-    "cli.js",
-    "mcp.js",
-    "searchDocs.js",
-    "version.js"
+    "src"
   ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
     "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.18"
   }
 }
