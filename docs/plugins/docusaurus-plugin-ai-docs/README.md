@@ -10,6 +10,9 @@ This plugin implements the "Third Audience" pattern for AI agents and LLM crawle
 2. **Auto-Discovery**: Injects `<link>` tags in every HTML page's `<head>` pointing to the corresponding Markdown file.
    - Example: `<link rel="alternate" type="text/markdown" href="/docs/intro.md">`
 
+3. **Search Index**: Generates a static JSON index of the documentation for client-side or external search tooling.
+   - Example: `https://temba.bouwe.io/search_index.json`
+
 ## How It Works
 
 The plugin uses two key mechanisms:
@@ -19,6 +22,7 @@ During the `postBuild` lifecycle hook, the plugin:
 - Scans the `docs/` directory for all `.md` and `.mdx` files
 - Extracts document IDs from frontmatter to determine URL routes
 - Copies each Markdown file to the build output directory at the correct path
+- Generates `search_index.json` with each page's title, URL, keywords, and Markdown content
 - Injects `<link>` tags directly into the generated HTML files
 
 ### 2. URL Matching
@@ -52,6 +56,7 @@ After building, your HTML pages will include meta tags like this:
 And the corresponding Markdown file will be accessible:
 - HTML: `https://temba.bouwe.io/docs/documentation`
 - Markdown: `https://temba.bouwe.io/docs/documentation.md`
+- Search index: `https://temba.bouwe.io/search_index.json`
 
 ## Testing
 
@@ -73,6 +78,9 @@ curl http://localhost:4444/docs/api/functions/create.md
 # Test meta tag injection
 curl http://localhost:4444/docs/getting-started.html | grep "text/markdown"
 curl http://localhost:4444/docs/api/functions/create.html | grep "text/markdown"
+
+# Test search index generation
+curl http://localhost:4444/search_index.json
 ```
 
 Expected output:
@@ -88,6 +96,16 @@ title: Documentation
 # Meta tags
 <link rel="alternate" type="text/markdown" href="/docs/getting-started.md">
 <link rel="alternate" type="text/markdown" href="/docs/api/functions/create.md">
+
+# Search index
+[
+  {
+    "title": "Getting Started",
+    "url": "/docs/getting-started",
+    "keywords": [],
+    "content": "# Getting Started\n\nPrerequisites you need to have:\n..."
+  }
+]
 ```
 
 ## Benefits
