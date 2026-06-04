@@ -103,7 +103,7 @@ const matchesInList = (a: unknown, b: string) => {
   })
 }
 
-const matchesNinList = (a: unknown, b: string) => {
+const matchesNotInList = (a: unknown, b: string) => {
   const values = b.split(',').map((v) => v.trim())
 
   return values.every((v) => {
@@ -130,7 +130,7 @@ const matchesAllList = (value: unknown[], rhs: string) => {
 const evaluateOperator = (op: Operator, value: unknown, rhs: string) => {
   if (Array.isArray(value)) {
     if (op === 'in') return value.some((item) => matchesInList(item, rhs))
-    if (op === 'nin') return value.every((item) => matchesNinList(item, rhs))
+    if (op === 'nin') return value.every((item) => matchesNotInList(item, rhs))
     if (op === 'all') return matchesAllList(value, rhs)
   }
 
