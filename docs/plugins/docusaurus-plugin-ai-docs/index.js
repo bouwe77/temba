@@ -25,6 +25,7 @@ module.exports = function (context, options) {
       const markdownFiles = glob.sync('**/*.{md,mdx}', {
         cwd: docsPath,
         absolute: false,
+        ignore: ['api/index.md'],
       });
 
       console.log(`[AI Docs Plugin] Found ${markdownFiles.length} markdown files`);
