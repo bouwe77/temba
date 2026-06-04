@@ -12,9 +12,18 @@ export const startMcpServer = async () => {
 
   // Fetch the index once on startup
   let index = []
-  const searchIndexUrl = 'https://temba.bouwe.io/search-index.json'
+  const searchIndexUrl = 'https://temba.bouwe.io/search_index.json'
   try {
     const response = await fetch(searchIndexUrl)
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status} ${response.statusText}`)
+    }
+
+    const contentType = response.headers.get('content-type') || ''
+    if (!contentType.includes('application/json')) {
+      throw new Error(`Expected JSON, received ${contentType || 'unknown content type'}`)
+    }
+
     index = await response.json()
   } catch (e) {
     console.error('Failed to fetch ' + searchIndexUrl, e)
