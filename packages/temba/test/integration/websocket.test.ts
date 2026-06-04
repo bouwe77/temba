@@ -1,7 +1,8 @@
-import type { Server } from 'http'
-import { afterAll, beforeAll, describe, expect, test } from 'vitest'
+import { createServer as httpCreateServer, type Server } from 'http'
+import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest'
 import WebSocket from 'ws'
 import { create } from '../../src/index'
+import { createWebSocketServer } from '../../src/websocket/websocket'
 
 describe('WebSocket broadcast feature', () => {
   let server: Server
@@ -350,5 +351,22 @@ describe('WebSocket broadcast feature', () => {
         resolve()
       }, 200)
     })
+  })
+
+  test('WebSocket broadcast serialization errors are logged and swallowed', () => {
+    const testServer = httpCreateServer()
+    const log = {
+      debug: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+    }
+    const broadcast = createWebSocketServer(testServer, log)
+    const circularPayload: Record<string, unknown> = {}
+    circularPayload.self = circularPayload
+
+    expect(() => broadcast('movies', 'CREATE', circularPayload)).not.toThrow()
+    expect(log.error).toHaveBeenCalledWith('Failed to stringify WebSocket payload')
+    expect(log.error).toHaveBeenCalledWith(expect.any(TypeError))
   })
 })

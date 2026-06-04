@@ -1,5 +1,5 @@
 import request from 'supertest'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 import { createServer } from './createServer'
 
 type Movie = { id: string; title: string }
@@ -80,6 +80,7 @@ describe('responseBodyInterceptor async support', () => {
   })
 
   test('Async responseBodyInterceptor that throws an error returns 500', async () => {
+    const errorSpy = vi.spyOn(console, 'error')
     const tembaServer = await createServer({
       responseBodyInterceptor: async () => {
         await new Promise((resolve) => setTimeout(resolve, 10))
@@ -87,9 +88,15 @@ describe('responseBodyInterceptor async support', () => {
       },
     })
 
-    const response = await request(tembaServer).get('/stuff')
-    expect(response.statusCode).toEqual(500)
-    expect(response.body.message).toEqual('Async operation failed')
+    try {
+      const response = await request(tembaServer).get('/stuff')
+      expect(response.statusCode).toEqual(500)
+      expect(response.body.message).toEqual('Async operation failed')
+      expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('ERROR - Error handling request'))
+      expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('Async operation failed'))
+    } finally {
+      errorSpy.mockRestore()
+    }
   })
 
   test('Mixed sync and async responseBodyInterceptors work correctly', async () => {

@@ -27,7 +27,7 @@ POST /movies
 
 You can even omit a request body when doing a `POST`, `PATCH`, or `PUT`. While this might be fine or even convenient when using Temba for prototyping, at some some point you might want to validate the request body.
 
-With the `schema` setting, you can define a [JSON Schema](https://json-schema.org/), per resource, and per request method. Here we define that when creating or replacing a movie, the `title` is required, the `description` is optional, and we don't allow any other fields. Updating movies has the same schema, except there are no required fields:
+With the `schemas` setting, you can define a [JSON Schema](https://json-schema.org/), per resource, and per request method. Here we define that when creating or replacing a movie, the `title` is required, the `description` is optional, and we don't allow any other fields. Updating movies has the same schema, except there are no required fields:
 
 ```js
 const schemaNewMovie = {
@@ -43,7 +43,7 @@ const schemaNewMovie = {
 const schemaUpdateMovie = { ...schemaNewMovie, required: [] }
 
 const config = {
-  schema: {
+  schemas: {
     movies: {
       post: schemaNewMovie,
       put: schemaNewMovie,

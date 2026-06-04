@@ -10,8 +10,8 @@ import { createServer } from '../createServer'
 // This way, the request will not be handled by Temba any further and we are sure that the response
 // is defined by the requestInterceptors only.
 
-const getStaticFileFromDisk = async (): Promise<{ content: string; mimeType: string }> =>
-  Promise.resolve({ content: '<html>hello</html>', mimeType: 'text/html' })
+const getStaticFileFromDisk = async (): Promise<{ content: Buffer; mimeType: string }> =>
+  Promise.resolve({ content: Buffer.from('<html>hello</html>'), mimeType: 'text/html' })
 
 describe('requestInterceptor is called for non-resource GET requests', () => {
   describe('Root URL', () => {

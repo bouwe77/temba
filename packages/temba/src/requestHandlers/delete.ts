@@ -15,30 +15,28 @@ export const createDeleteRoutes = (
   const handleDelete = async (req: DeleteRequest) => {
     const { headers, resource, id, url, filter } = req
 
-    if (filter === 'invalid') return { statusCode: 400, body: { message: 'Malformed filter expression' } }
-    if (id && filter) return { statusCode: 400, body: { message: 'Filtering on a resource by ID is not supported' } }
+    if (filter === 'invalid')
+      return { statusCode: 400, body: { message: 'Malformed filter expression' } }
+    if (id && filter)
+      return {
+        statusCode: 400,
+        body: { message: 'Filtering on a resource by ID is not supported' },
+    }
 
     if (requestInterceptor?.delete) {
-      try {
-        const interceptResult = await interceptDeleteRequest(
-          requestInterceptor.delete,
-          headers,
-          resource,
-          id,
-          url,
-        )
+      const interceptResult = await interceptDeleteRequest(
+        requestInterceptor.delete,
+        headers,
+        resource,
+        id,
+        url,
+      )
 
-        // If interceptor returned a response action, return immediately
-        if (interceptResult.type === 'response') {
-          return {
-            statusCode: interceptResult.status,
-            body: interceptResult.body,
-          }
-        }
-      } catch (error: unknown) {
+      // If interceptor returned a response action, return immediately
+      if (interceptResult.type === 'response') {
         return {
-          statusCode: 500,
-          body: { message: (error as Error).message },
+          statusCode: interceptResult.status,
+          body: interceptResult.body,
         }
       }
     }

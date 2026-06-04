@@ -56,6 +56,20 @@ type Resources = (ResourcePath | ExtendedResource)[]
 
 type OpenApiConfig = boolean | Record<string, unknown>
 
+export type StaticFolderMode = 'spa' | 'filesystem'
+
+export type StaticFolderConfig = {
+  path: string
+  mode: StaticFolderMode
+}
+
+export type UserStaticFolderConfig =
+  | string
+  | {
+      path: string
+      mode?: StaticFolderMode
+    }
+
 /** @internal */
 export type RateLimitConfig = {
   max: number
@@ -91,7 +105,7 @@ export type Config = {
   apiPrefix: string | null
   requestInterceptor: RequestInterceptor | null
   responseBodyInterceptor: ResponseBodyInterceptor | null
-  staticFolder: string | null
+  staticFolder: StaticFolderConfig | null
   connectionString: string | DataSourceConfig | null
   returnNullFields: boolean
   port: number
@@ -112,7 +126,7 @@ export type ConfigKey = keyof Config
 
 export type UserConfig = {
   resources?: Resources
-  staticFolder?: string
+  staticFolder?: UserStaticFolderConfig
   apiPrefix?: string
   connectionString?: string | DataSourceConfig
   requestInterceptor?: RequestInterceptor
@@ -173,9 +187,18 @@ export const initConfig = (userConfig?: UserConfig): Config => {
   }
 
   if (userConfig.staticFolder) {
-    const staticFolder = userConfig.staticFolder.replace(/[^a-zA-Z0-9]/g, '')
-    if (staticFolder.length > 0) {
-      config.staticFolder = staticFolder
+    const staticFolderPath =
+      typeof userConfig.staticFolder === 'string'
+        ? userConfig.staticFolder
+        : userConfig.staticFolder.path
+    if (staticFolderPath.trim().length > 0) {
+      config.staticFolder = {
+        path: staticFolderPath,
+        mode:
+          typeof userConfig.staticFolder === 'string'
+            ? 'spa'
+            : (userConfig.staticFolder.mode ?? 'spa'),
+      }
       // To make a clear distinction between static files and API routes
       config.apiPrefix = 'api'
     }
