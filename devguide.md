@@ -131,7 +131,7 @@ Use `--dry-run` to inspect the release steps without changing the version or pub
 ./publish-mcp.sh patch --dry-run
 ```
 
-The script bumps only `packages/mcp/package.json`, publishes only the `packages/mcp` workspace, then commits the MCP package version and lockfile changes.
+The script bumps only `packages/mcp/package.json`, updates `packages/mcp/version.js`, publishes only the `packages/mcp` workspace, then commits the MCP package version and lockfile changes.
 
 For the first npm publish of an already prepared version, publish the workspace directly instead of bumping again:
 

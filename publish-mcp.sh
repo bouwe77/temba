@@ -49,10 +49,11 @@ run_cmd() {
 }
 
 run_cmd npm version "$TYPE" -w packages/mcp --no-git-tag-version
+run_cmd bash -c "echo \"export const version = '$NEXT_VERSION'\" > packages/mcp/version.js"
 run_cmd npm publish -w packages/mcp
 
 echo "Finalizing Git..."
-run_cmd git add packages/mcp/package.json package-lock.json
+run_cmd git add packages/mcp/package.json packages/mcp/version.js package-lock.json
 run_cmd git commit -m "temba-mcp $NEXT_VERSION"
 
 if [ "$DRY_RUN" = false ]; then
