@@ -6,6 +6,7 @@ const typedocSidebar = require('./docs/api/typedoc-sidebar.cjs')
 const sidebars: SidebarsConfig = {
   tembaSidebar: [
     'getting-started',
+    'mcp',
     'overview',
     'examples',
     {
