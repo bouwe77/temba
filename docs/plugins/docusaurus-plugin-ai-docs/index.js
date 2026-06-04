@@ -60,7 +60,7 @@ module.exports = function (context, options) {
           
           if (!route) {
             // Fallback: construct from file path
-            const relativePath = file.replace(/\.(md|mdx)$/, '');
+            const relativePath = file.replace(/\.(md|mdx)$/, '').replace(/\/index$/, '');
             route = `/docs/${relativePath}`;
           }
 
