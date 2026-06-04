@@ -12,7 +12,7 @@ export const startMcpServer = async () => {
 
   // Fetch the index once on startup
   let index = []
-  const searchIndexUrl = 'https://docs.temba.io/search-index.json'
+  const searchIndexUrl = 'https://temba.bouwe.io/search-index.json'
   try {
     const response = await fetch(searchIndexUrl)
     index = await response.json()
