@@ -1,18 +1,6 @@
 #!/usr/bin/env node
+import { startMcpServer } from './mcp.js'
 
-import { go } from './mcp.js'
+console.error('✨ Temba Docs MCP starting...')
 
-const [, , command, ...args] = process.argv
-
-const ensure = (condition = false, message) => {
-  if (!condition) {
-    console.error(message)
-    process.exit(1)
-  }
-}
-
-console.log('\n✨ Temba Docs MCP')
-
-go()
-
-console.log('')
+startMcpServer().catch(console.error)

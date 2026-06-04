@@ -12,6 +12,12 @@
   "type": "module",
   "files": [
     "cli.js",
-    "mcp.js"
-  ]
+    "mcp.js",
+    "searchDocs.js",
+    "version.js"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "0.4.0",
+    "zod": "4.4.3"
+  }
 }
