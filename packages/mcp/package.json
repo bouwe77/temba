@@ -1,0 +1,17 @@
+{
+  "name": "temba-mcp",
+  "version": "0.0.1",
+  "description": "MCP for Temba documentation",
+  "author": "Bouwe (https://bouwe.io)",
+  "scripts": {
+    "update": "npx -y jelmerro/nus"
+  },
+  "bin": {
+    "temba-mcp": "./cli.js"
+  },
+  "type": "module",
+  "files": [
+    "cli.js",
+    "mcp.js"
+  ]
+}
