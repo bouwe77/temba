@@ -47,8 +47,17 @@ export const startMcpServer = async ({ debug = false } = {}) => {
     async ({ query }) => {
       await ensureFreshIndex(log)
 
-      log(`Current index size: ${index.length}`)
-      log(`First title: ${index[0]?.title}`)
+      if (index.length === 0) {
+        log('No documentation index available to search.')
+        return {
+          content: [
+            {
+              type: 'text',
+              text: 'Documentation is currently unavailable. Please try again later.',
+            },
+          ],
+        }
+      }
 
       const results = searchDocs(query, index).slice(0, 5) // Limit to top 5 results
 
