@@ -4,6 +4,14 @@ import { z } from 'zod'
 import { searchDocs } from './searchDocs.js'
 import { version } from './version.js'
 
+const LOG_FILE = path.join(process.cwd(), 'temba-mcp.log')
+
+function log(message) {
+  const timestamp = new Date().toISOString()
+  const entry = `[${timestamp}] ${message}\n`
+  fs.appendFileSync(LOG_FILE, entry)
+}
+
 let index = []
 let lastFetched = 0
 const CACHE_TTL = 3600000 // 1 hour in milliseconds
@@ -30,7 +38,7 @@ async function ensureFreshIndex() {
   }
 }
 
-export const startMcpServer = async () => {
+export const startMcpServer = async ({ debug = false } = {}) => {
   const server = new McpServer({
     name: 'temba-docs-mcp',
     version,
@@ -44,6 +52,10 @@ export const startMcpServer = async () => {
     async ({ query }) => {
       await ensureFreshIndex()
       const results = searchDocs(query, index).slice(0, 5) // Limit to top 5 results
+
+      if (debug) {
+        log(`Query: "${query}" | Results: ${results.length}`)
+      }
 
       if (results.length === 0) {
         return {

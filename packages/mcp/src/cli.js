@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 import { startMcpServer } from './mcp.js'
 
-console.error('✨ Temba Docs MCP starting...')
+const args = process.argv.slice(2)
+const isDebug = args.includes('--debug')
 
-startMcpServer().catch(console.error)
+if (isDebug) {
+  console.error('✨ Temba Docs MCP running in DEBUG mode')
+}
+
+startMcpServer({ debug: isDebug }).catch(console.error)
