@@ -1,6 +1,6 @@
 {
   "name": "temba-mcp",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "MCP for Temba documentation",
   "author": "Bouwe (https://bouwe.io)",
   "scripts": {
