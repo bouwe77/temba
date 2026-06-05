@@ -4,15 +4,14 @@ import { z } from 'zod'
 import { searchDocs } from './searchDocs.js'
 import { version } from './version.js'
 
-export const startMcpServer = async () => {
-  const server = new McpServer({
-    name: 'temba-docs-mcp',
-    version,
-  })
+let index = []
+let lastFetched = 0
+const CACHE_TTL = 3600000 // 1 hour in milliseconds
+const searchIndexUrl = 'https://docs.temba.io/search-index.json'
 
-  // Fetch the index once on startup
-  let index = []
-  const searchIndexUrl = 'https://temba.bouwe.io/search_index.json'
+async function ensureFreshIndex() {
+  if (Date.now() - lastFetched < CACHE_TTL && index.length > 0) return
+
   try {
     const response = await fetch(searchIndexUrl)
     if (!response.ok) {
@@ -25,9 +24,17 @@ export const startMcpServer = async () => {
     }
 
     index = await response.json()
+    lastFetched = Date.now()
   } catch (e) {
-    console.error('Failed to fetch ' + searchIndexUrl, e)
+    console.error('Refresh failed, using stale index:', e)
   }
+}
+
+export const startMcpServer = async () => {
+  const server = new McpServer({
+    name: 'temba-docs-mcp',
+    version,
+  })
 
   // Register the tool
   server.tool(
@@ -35,6 +42,7 @@ export const startMcpServer = async () => {
     'Search the library documentation',
     { query: z.string() },
     async ({ query }) => {
+      await ensureFreshIndex()
       const results = searchDocs(query, index).slice(0, 5) // Limit to top 5 results
 
       if (results.length === 0) {
