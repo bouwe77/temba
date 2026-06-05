@@ -64,6 +64,10 @@ server.start()
 ✅ Server listening on port 8362
 ```
 
+### Temba Docs MCP
+
+If you use AI tools while building with Temba, point them at the [Temba Docs MCP](/docs/mcp) so they can use the latest documentation and current best practices.
+
 ### Configuration
 
 To opt-out or customize Temba's workings, pass a `config` object to the `create` function. Check out the individual feature pages in the sidebar, or the [config settings overview](/docs/overview#config-settings-overview).

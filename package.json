@@ -10,7 +10,7 @@
     "docs"
   ],
   "scripts": {
-    "test": "npm test -w packages/temba",
+    "test": "npm run test --workspaces --if-present",
     "test:mongodb": "npm run test:mongodb -w packages/temba",
     "test:watch": "npm run test:watch -w packages/temba",
     "lint": "npm run lint -w packages/temba",
