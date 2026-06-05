@@ -1,5 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
+import fs from 'fs'
+import path from 'path'
 import { z } from 'zod'
 import { searchDocs } from './searchDocs.js'
 import { version } from './version.js'
