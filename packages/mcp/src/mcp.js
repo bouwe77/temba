@@ -1,25 +1,16 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
-import fs from 'fs'
-import path from 'path'
 import { z } from 'zod'
+import { createLogger } from './log.js'
 import { searchDocs } from './searchDocs.js'
 import { version } from './version.js'
-
-const LOG_FILE = path.join(process.cwd(), 'temba-mcp.log')
-
-function log(message) {
-  const timestamp = new Date().toISOString()
-  const entry = `[${timestamp}] ${message}\n`
-  fs.appendFileSync(LOG_FILE, entry)
-}
 
 let index = []
 let lastFetched = 0
 const CACHE_TTL = 3600000 // 1 hour in milliseconds
 const searchIndexUrl = 'https://docs.temba.io/search-index.json'
 
-async function ensureFreshIndex() {
+async function ensureFreshIndex(log) {
   if (Date.now() - lastFetched < CACHE_TTL && index.length > 0) return
 
   try {
@@ -36,7 +27,7 @@ async function ensureFreshIndex() {
     index = await response.json()
     lastFetched = Date.now()
   } catch (e) {
-    console.error('Refresh failed, using stale index:', e)
+    log(`Refresh failed, using stale index: ${e.message}`)
   }
 }
 
@@ -46,22 +37,29 @@ export const startMcpServer = async ({ debug = false } = {}) => {
     version,
   })
 
+  const log = createLogger(debug)
+
   // Register the tool
   server.tool(
     'search_docs',
     'Search the library documentation',
     { query: z.string() },
     async ({ query }) => {
-      await ensureFreshIndex()
+      await ensureFreshIndex(log)
+
+      log(`Current index size: ${index.length}`)
+      log(`First title: ${index[0]?.title}`)
+
       const results = searchDocs(query, index).slice(0, 5) // Limit to top 5 results
 
-      if (debug) {
-        log(`Query: "${query}" | Results: ${results.length}`)
-      }
+      log(`Query: "${query}" | Results: ${results.length}`)
 
+      // Return a friendly message instead of an empty result to avoid LLM confusion.
       if (results.length === 0) {
         return {
-          content: [{ type: 'text', text: 'No documentation found for your query.' }],
+          content: [
+            { type: 'text', text: `No Temba documentation found for your query "${query}".` },
+          ],
         }
       }
 
