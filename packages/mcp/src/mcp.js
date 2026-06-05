@@ -8,7 +8,7 @@ import { version } from './version.js'
 let index = []
 let lastFetched = 0
 const CACHE_TTL = 3600000 // 1 hour in milliseconds
-const searchIndexUrl = 'https://docs.temba.io/search-index.json'
+const searchIndexUrl = 'https://temba.bouwe.io/search_index.json'
 
 async function ensureFreshIndex(log) {
   if (Date.now() - lastFetched < CACHE_TTL && index.length > 0) return
